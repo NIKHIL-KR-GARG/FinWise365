@@ -23,8 +23,8 @@ const LandingSectionVideos = () => {
     };
 
     return (
-        <Box sx={{ width: '100%', textAlign: 'center', padding: 0, bgcolor: '#fff9e6' }}>
-            <Box textAlign="center" sx={{ paddingTop: 2 }}> {/* Center text horizontally */}
+        <Box sx={{ width: '100%', textAlign: 'center', padding: 0, bgcolor: '#fff9e6', paddingBottom: 4 }}>
+            <Box textAlign="center" sx={{ paddingTop: 4 }}> {/* Center text horizontally */}
                 <Typography variant="h4" component="h2" >
                     Video Gallery
                 </Typography>

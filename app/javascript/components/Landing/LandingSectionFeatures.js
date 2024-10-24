@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 const LandingSectionFeatures = () => {
     return (
         <Box sx={{ padding: 0, width: '100%', bgcolor: '#e0f7fa' }}>
-            <Box textAlign="center" sx={{ paddingTop: 2 }}> {/* Center text horizontally */}
+            <Box textAlign="center" sx={{ paddingTop: 4 }}> {/* Center text horizontally */}
                 <Typography variant="h4" component="h2" >
                     Why FinWise365?
                 </Typography>

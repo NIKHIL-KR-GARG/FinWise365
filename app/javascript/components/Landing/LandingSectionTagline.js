@@ -27,9 +27,10 @@ const LandingSectionTagline = () => {
         sx={{ 
           textAlign: 'center', 
           position: 'absolute', 
-          color: '#001f3f', 
+          color: '#002200', 
           fontWeight: 'bold', 
-          fontFamily: 'Pacifico, cursive' // Apply the funky font
+          fontFamily: 'Pacifico, cursive', // Apply the funky font
+          //textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' // Add text shadow
         }}
       >
        Unlock Your Financial Wisdom, 365 Days a Year!

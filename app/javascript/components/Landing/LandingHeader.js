@@ -17,7 +17,7 @@ const LandingHeader = () => {
         pt: 2,
         px: 0, // Horizontal padding
         pb: 1, // Added padding-bottom for height
-        bgcolor: '#1976d2', // Nice shade of blue
+        bgcolor: '#0d47a1', // Nice shade of blue
         position: 'fixed', // Fix the header to the top
         top: 0, // Align to the top
         zIndex: 1000, // Ensure it stays above other content

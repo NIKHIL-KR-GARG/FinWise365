@@ -5,6 +5,7 @@ import LandingHeader from '../components/Landing/LandingHeader';
 import LandingSectionTagline from '../components/Landing/LandingSectionTagline';
 import LandingSectionFeatures from '../components/Landing/LandingSectionFeatures';
 import LandingSectionVideos from '../components/Landing/LandingSectionVideos';
+import LandingFooter from '../components/Landing/LandingFooter';
 
 const Landing = () => {
     return (
@@ -25,6 +26,9 @@ const Landing = () => {
             </Box>
             <Box sx={{ mt: 0 }}> {/* Margin top for spacing */}
                 <LandingSectionVideos />
+            </Box>
+            <Box sx={{ mt: 0 }}> {/* Margin top for spacing */}
+                <LandingFooter />
             </Box>
         </Box>
     );
