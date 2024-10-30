@@ -1,11 +1,11 @@
 import React from 'react';
 import { Box } from '@mui/material';
 
-import LandingHeader from '../components/Landing/LandingHeader';
-import LandingSectionTagline from '../components/Landing/LandingSectionTagline';
-import LandingSectionFeatures from '../components/Landing/LandingSectionFeatures';
-import LandingSectionVideos from '../components/Landing/LandingSectionVideos';
-import LandingFooter from '../components/Landing/LandingFooter';
+import LandingHeader from '../../components/landingpage/LandingHeader';
+import LandingSectionTagline from '../../components/landingpage/LandingSectionTagline';
+import LandingSectionFeatures from '../../components/landingpage/LandingSectionFeatures';
+import LandingSectionVideos from '../../components/landingpage/LandingSectionVideos';
+import LandingFooter from '../../components/landingpage/LandingFooter';
 
 const Landing = () => {
     return (
