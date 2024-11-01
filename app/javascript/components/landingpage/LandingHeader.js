@@ -6,7 +6,24 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 
+import { useAuth0 } from "@auth0/auth0-react";
+
 const LandingHeader = () => {
+
+  const { loginWithRedirect } = useAuth0(); // useAuth0 hook destructured
+  
+  const handleLogin = async () => {
+    await loginWithRedirect({});
+  };
+
+  const handleSignUp = async () => {
+    await loginWithRedirect({
+      authorizationParams: {
+        screen_hint: "signup",
+      },
+    });
+  };
+
   return (
     <Box
       sx={{
@@ -32,27 +49,34 @@ const LandingHeader = () => {
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 6 }}>
-        <Link href="/home" sx={{ textDecoration: 'none', color: 'white' }}> {/* Change to Link */}
+        <Link href="/home" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             Home
           </Typography>
         </Link>
-        <Link href="/about" sx={{ textDecoration: 'none', color: 'white' }}> {/* Change to Link */}
+        <Link href="/about" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             About
           </Typography>
         </Link>
-        <Link href="/contact" sx={{ textDecoration: 'none', color: 'white' }}> {/* Change to Link */}
+        <Link href="/contact" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             Contact Us
           </Typography>
         </Link>
-        <Link href="/login" sx={{ textDecoration: 'none', color: 'white' }}> {/* Change to Link */}
+        <Link 
+          component="button" // Change to button for onClick
+          onClick={handleLogin} // Call loginWithRedirect on click
+          sx={{ textDecoration: 'none', color: 'white' }}
+        >
           <Typography variant="body1" sx={{ color: 'white' }}>
             Login
           </Typography>
         </Link>
-        <Link href="/signup" sx={{ textDecoration: 'none', color: 'white', marginRight: 4 }}> {/* Change to Link */}
+        <Link 
+          component="button" // Change to button for onClick
+          onClick={handleSignUp}
+          sx={{ textDecoration: 'none', color: 'white', marginRight: 4 }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             Signup
           </Typography>

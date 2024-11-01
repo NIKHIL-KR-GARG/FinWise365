@@ -2,6 +2,25 @@ Rails.application.routes.draw do
 
   root to: 'site#index'
   
+  get 'home', to: 'site#index'
+  get 'logincallback', to: 'site#index'
+  
+  get 'users', to: 'site#index'
+  #get 'users/new', to: 'site#index'
+  #get 'users/:id', to: 'site#index'
+  #get 'users/:id/edit', to: 'site#index'
+
+  namespace :api do
+
+    #resources :users, only: %i[index show create destroy update create_or_find_user]
+    resources :users do
+      collection do
+        post 'create_or_find_user' # Define the route for the action
+      end
+    end
+    
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
