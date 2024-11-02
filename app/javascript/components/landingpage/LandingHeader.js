@@ -1,8 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import MenuButton from '../common/MenuButton';
-import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
-import Button from '@mui/material/Button';
+//import MenuButton from '../common/MenuButton';
+//import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
+//import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 
@@ -31,9 +32,9 @@ const LandingHeader = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        pt: 2,
+        pt: 0.5,
         px: 0, // Horizontal padding
-        pb: 1, // Added padding-bottom for height
+        pb: 0.5, // Added padding-bottom for height
         bgcolor: '#0d47a1', // Nice shade of blue
         position: 'fixed', // Fix the header to the top
         top: 0, // Align to the top
@@ -41,9 +42,9 @@ const LandingHeader = () => {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <MenuButton aria-label="Open notifications">
-          <NotificationsRoundedIcon />
-        </MenuButton>
+        <IconButton edge="end" color="inherit" aria-label="menu">
+          <img src="/SmartOwlLogo.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
+        </IconButton>
         <Typography variant="h6" component="span" sx={{ color: 'white' }}>
           FinWise365
         </Typography>
