@@ -4,10 +4,17 @@ import PersonIcon from '@mui/icons-material/Person';
 import InboxIcon from '@mui/icons-material/Inbox';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { useAuth0 } from "@auth0/auth0-react";
+import { useNavigate } from 'react-router-dom';
 
 const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
     const open = Boolean(anchorEl);
     const id = open ? 'user-settings-popover' : undefined;
+    const navigate = useNavigate();
+    const { logout } = useAuth0();
+
+    const currentUserFirstName = localStorage.getItem('currentUserFirstName');
+    const currentUserLastName = localStorage.getItem('currentUserLastName');
 
     const getGreeting = () => {
         const currentHour = new Date().getHours();
@@ -18,6 +25,11 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
         } else {
             return 'Good Evening';
         }
+    };
+
+    const handleProfileClick = () => {
+        navigate('/accountsettings');
+        handleClosePopover();
     };
 
     return (
@@ -38,13 +50,13 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
         >
             <Box sx={{ p: 3, width: 350 }}>
                 <Typography id="user-settings-popover-title" variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-                    {`${getGreeting()}, ${user.name}`}
+                    {`${getGreeting()}, ${currentUserFirstName}`}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
                     <Avatar src={user.avatar} alt={user.name} sx={{ mr: 2 }} />
                     <Box>
                         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                            {user.name}
+                            {currentUserFirstName} {currentUserLastName}
                         </Typography>
                         <Typography variant="body2" color="textSecondary">
                             {user.email}
@@ -53,13 +65,13 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
                 </Box>
                 <Divider sx={{ my: 1 }} />
                 <List>
-                    <ListItem button>
+                    <ListItem button onClick={handleProfileClick} sx={{'&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' }}}>
                         <ListItemIcon>
                             <PersonIcon />
                         </ListItemIcon>
                         <ListItemText primary="My Profile" secondary="Account Settings" />
                     </ListItem>
-                    <ListItem button>
+                    <ListItem button sx={{'&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' }}}>
                         <ListItemIcon>
                             <InboxIcon />
                         </ListItemIcon>
@@ -86,6 +98,7 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
                     color="secondary"
                     startIcon={<ExitToAppIcon />}
                     sx={{ mt: 1, width: '100%' }}
+                    onClick={() => logout()}
                 >
                     Logout
                 </Button>

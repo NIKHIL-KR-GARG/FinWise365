@@ -38,7 +38,7 @@ const Home = () => {
                     <Toolbar />
                     <Container>
                         <Typography >
-                            Main content goes here.
+                            Home Page
                         </Typography>
                     </Container>
                 </Box>

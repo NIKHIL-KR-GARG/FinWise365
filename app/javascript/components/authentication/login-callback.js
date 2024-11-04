@@ -22,10 +22,7 @@ const LoginCallback = () => {
                 hasCalledApi.current = true; // Set the ref to true to prevent further calls
 
                 try {
-                    // Get CSRF token from the meta tag
-                    //const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                    // Send a request to your Rails API to create or find the user
+                     // Send a request to your Rails API to create or find the user
                     const response = await axios.post('http://localhost:3000/api/users/create_or_find_user', {
                         email: user.email,
                     }, {
@@ -36,13 +33,17 @@ const LoginCallback = () => {
                         },
                     });
 
-                    // Handle the response as needed
-                    console.log(response.data);
-                    // Redirect to the home page or another page after successful login
+                    const { id, first_name, last_name } = response.data;
+                    localStorage.setItem('currentUserId', id);
+                    localStorage.setItem('currentUserFirstName', first_name || '');
+                    localStorage.setItem('currentUserLastName', last_name || '');
+ 
+                    // Redirect to the home page after successful login
                     navigate('/home');
+
                 } catch (error) {
-                    console.error('Error creating or finding user:', error);
                     // Handle error (e.g., show a message to the user)
+                    console.error('Error creating or finding user:', error);
                 }
             }
         };

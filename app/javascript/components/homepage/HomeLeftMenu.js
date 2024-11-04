@@ -16,14 +16,19 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
+import HomeIcon from '@mui/icons-material/Home';
+import { useAuth0 } from "@auth0/auth0-react";
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 60;
 
 const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
+    
     const [portfolioOpen, setPortfolioOpen] = useState(false);
     const [analyzeOpen, setAnalyzeOpen] = useState(false);
     const [planOpen, setPlanOpen] = useState(false);
+
+    const { logout } = useAuth0();
 
     const handlePortfolioClick = () => {
         setPortfolioOpen(!portfolioOpen);
@@ -43,6 +48,9 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
         currency: 'SGD',
         avatar: '/path/to/avatar.jpg' // Replace with the actual path to the avatar image
     };
+
+    const currentUserFirstName = localStorage.getItem('currentUserFirstName');
+    const currentUserLastName = localStorage.getItem('currentUserLastName');
 
     return (
         <Drawer
@@ -71,7 +79,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     <Avatar src={user.avatar} alt={user.name} sx={{ mr: 1 }} />
                     {open && (
                     <Typography variant="body1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
-                        {user.name}
+                        {currentUserFirstName} {currentUserLastName}
                     </Typography>
                     )}
                 </Box>
@@ -79,6 +87,12 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
             <Divider />
 
             <List sx={{ padding: 0 }}>
+                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                    <ListItemIcon>
+                        <HomeIcon fontSize="small" />
+                    </ListItemIcon>
+                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Home</Typography>} />}
+                </ListItem>
                 <ListItem button onClick={handlePortfolioClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
                     <ListItemIcon>
                         <PieChartIcon fontSize="small" />
@@ -88,19 +102,19 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                 </ListItem>
                 <Collapse in={portfolioOpen} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <AccountBalanceIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets</Typography>} />}
                         </ListItem>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <StarIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dream</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dreams</Typography>} />}
                         </ListItem>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <SecurityIcon fontSize="small" />
                             </ListItemIcon>
@@ -108,7 +122,6 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                         </ListItem>
                     </List>
                 </Collapse>
-                {/* <Divider /> */}
                 <ListItem button onClick={handleAnalyzeClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
                     <ListItemIcon>
                         <BarChartIcon fontSize="small" />
@@ -118,13 +131,13 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                 </ListItem>
                 <Collapse in={analyzeOpen} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <AttachMoneyIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow</Typography>} />}
                         </ListItem>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <TrendingUpIcon fontSize="small" />
                             </ListItemIcon>
@@ -132,7 +145,6 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                         </ListItem>
                     </List>
                 </Collapse>
-                {/* <Divider /> */}
                 <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
                     <ListItemIcon>
                         <TimelineIcon fontSize="small" />
@@ -142,13 +154,13 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                 </ListItem>
                 <Collapse in={planOpen} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <AssessmentIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Investment Profile</Typography>} />}
                         </ListItem>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <EventIcon fontSize="small" />
                             </ListItemIcon>
@@ -156,7 +168,6 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                         </ListItem>
                     </List>
                 </Collapse>
-                {/* <Divider /> */}
                 {open && (
                     <Box sx={{ m: 2, p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: `calc(${drawerWidth}px - 38px)` }}>
                         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Enjoying FinWise365?</Typography>
@@ -173,19 +184,19 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     </Box>
                 )}
                 <Divider />
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                     <ListItemIcon>
                         <HelpOutlineIcon fontSize="small" />
                     </ListItemIcon>
                     {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Help Centre</Typography>} />}
                 </ListItem>
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                     <ListItemIcon>
                         <ContactMailIcon fontSize="small" />
                     </ListItemIcon>
                     {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Contact Us</Typography>} />}
                 </ListItem>
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }} onClick={() => logout()}>
                     <ListItemIcon>
                         <ExitToAppIcon fontSize="small" />
                     </ListItemIcon>

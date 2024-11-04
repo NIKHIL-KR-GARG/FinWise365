@@ -37,19 +37,19 @@ class Api::UsersController < ApplicationController
       user_email = params[:email]
   
       # Check if the user exists
-      user = User.find_by(email: user_email)
+      @user = User.find_by(email: user_email)
   
-      if user
+      if @user
         # User exists, return the user or a success message
-        render json: { message: 'User already exists', user: user }, status: :ok
+        render json: @user , status: :ok
       else
         # User does not exist, create a new user
-        new_user = User.create(user_params)
+        @user = User.new(user_params)
   
-        if new_user.persisted?
-          render json: { message: 'User created successfully', user: new_user }, status: :created
+        if @user.save
+          render json: @user, status: :created
         else
-          render json: { errors: new_user.errors.full_messages }, status: :unprocessable_entity
+          render json: @user.errors, status: :unprocessable_entity
         end
       end
     end
@@ -64,10 +64,14 @@ class Api::UsersController < ApplicationController
       params.require(:user).permit(
         :id,
         :email,
+        :first_name,
+        :last_name,
         :phone_no,
         :date_of_birth,
         :country_of_residence,
         :address,
+        :retirement_age,
+        :life_expectancy,
         :email_verified,
         :phone_no_verified,
         :created_at,

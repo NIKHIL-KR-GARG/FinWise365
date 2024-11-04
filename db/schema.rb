@@ -16,10 +16,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_01_052255) do
 
   create_table "users", force: :cascade do |t|
     t.string "email"
+    t.string "first_name"
+    t.string "last_name"
     t.string "phone_no"
     t.date "date_of_birth"
     t.string "country_of_residence"
     t.string "address"
+    t.integer "retirement_age"
+    t.integer "life_expectancy"
     t.boolean "email_verified"
     t.boolean "phone_no_verified"
     t.datetime "created_at", null: false
