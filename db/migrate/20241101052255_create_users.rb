@@ -7,6 +7,7 @@ class CreateUsers < ActiveRecord::Migration[7.2]
       t.string :last_name
       t.date :date_of_birth
       t.string :country_of_residence
+      t.string :base_currency
       t.string :address
       t.integer :retirement_age
       t.integer :life_expectancy

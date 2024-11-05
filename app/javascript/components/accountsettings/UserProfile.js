@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, TextField, Button, Typography, Avatar, Alert, IconButton } from '@mui/material';
+import { Box, TextField, Button, Typography, Avatar, Alert, IconButton, Snackbar, MenuItem } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Grid from '@mui/material/Grid2';
 import axios from 'axios';
+
+import CurrencyList from '../common/CurrencyList';
+import CountryList from '../common/CountryList';
 
 const UserProfile = () => {
     const [user, setUser] = useState({
@@ -14,12 +17,14 @@ const UserProfile = () => {
         address: '',
         retirement_age: '',
         life_expectancy: '',
-        email: ''
+        email: '',
+        base_currency: ''
     });
 
     const [errors, setErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [isFormChanged, setIsFormChanged] = useState(false);
     const currentUserId = localStorage.getItem('currentUserId');
     const hasFetchedData = useRef(false);
 
@@ -43,8 +48,10 @@ const UserProfile = () => {
                         address: appuser.address,
                         retirement_age: appuser.retirement_age,
                         life_expectancy: appuser.life_expectancy,
-                        email: appuser.email
+                        email: appuser.email,
+                        base_currency: appuser.base_currency
                     });
+                    setIsFormChanged(false); // Reset form change state after fetching user data
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -60,6 +67,7 @@ const UserProfile = () => {
             ...prevUser,
             [name]: value
         }));
+        setIsFormChanged(true); // Set form change state to true on any change
     };
 
     const validate = () => {
@@ -96,6 +104,7 @@ const UserProfile = () => {
                 await axios.put(`/api/users/${currentUserId}`, user);
                 setSuccessMessage('User information updated successfully');
                 setErrorMessage('');
+                setIsFormChanged(false);
             } catch (error) {
                 console.error('Error updating user data:', error);
                 setErrorMessage('Failed to update user information');
@@ -109,8 +118,14 @@ const UserProfile = () => {
 
     return (
         <Box sx={{ pt: 0, maxWidth: '600px', mx: 'auto', mt: -2 }}> {/* Center the container and set max width */}
-            {successMessage && (
+            <Snackbar
+                open={!!successMessage}
+                autoHideDuration={6000}
+                onClose={() => setSuccessMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
                 <Alert 
+                    variant="filled"    
                     severity="success" 
                     action={
                         <IconButton
@@ -125,9 +140,15 @@ const UserProfile = () => {
                 >
                     {successMessage}
                 </Alert>
-            )}
-            {errorMessage && (
+            </Snackbar>
+            <Snackbar
+                open={!!errorMessage}
+                autoHideDuration={6000}
+                onClose={() => setErrorMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
                 <Alert 
+                    variant="filled"
                     severity="error" 
                     action={
                         <IconButton
@@ -142,7 +163,7 @@ const UserProfile = () => {
                 >
                     {errorMessage}
                 </Alert>
-            )}
+            </Snackbar>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
                 <Avatar src='/path/to/avatar.jpg' alt={user.first_name} sx={{ mr: 2 }} />
                 <Typography variant="body1">{user.email}</Typography>
@@ -171,13 +192,18 @@ const UserProfile = () => {
                     </Grid>
                     <Grid item size={6}>
                         <TextField
-                            label="Email Address"
-                            name="email"
-                            value={user.email}
+                            label="Date of Birth"
+                            name="date_of_birth"
+                            type="date"
+                            value={user.date_of_birth}
                             onChange={handleChange}
                             fullWidth
-                            disabled
                             required
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            error={!!errors.date_of_birth}
+                            helperText={errors.date_of_birth}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -203,29 +229,37 @@ const UserProfile = () => {
                     </Grid>
                     <Grid item size={6}>
                         <TextField
-                            label="Date of Birth"
-                            name="date_of_birth"
-                            type="date"
-                            value={user.date_of_birth}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            error={!!errors.date_of_birth}
-                            helperText={errors.date_of_birth}
-                        />
-                    </Grid>
-                    <Grid item size={6}>
-                        <TextField
+                            select
                             label="Country of Residence"
                             name="country_of_residence"
                             value={user.country_of_residence}
                             onChange={handleChange}
                             fullWidth
                             required
-                        />
+                        >
+                            {CountryList.map((country) => (
+                                <MenuItem key={country} value={country}>
+                                    {country}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            select
+                            label="Base Currency"
+                            name="base_currency"
+                            value={user.base_currency}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                        >
+                            {CurrencyList.map((currency) => (
+                                <MenuItem key={currency} value={currency}>
+                                    {currency}
+                                </MenuItem>
+                            ))}
+                        </TextField>
                     </Grid>
                     <Grid item size={6}>
                         <TextField
@@ -256,6 +290,7 @@ const UserProfile = () => {
                         variant="contained" 
                         color="primary" 
                         onClick={handleSave}
+                        disabled={!isFormChanged} // Disable button if form is not changed
                         sx={{
                             fontSize: '1rem', 
                             padding: '10px 40px', 

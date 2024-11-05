@@ -21,6 +21,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_01_052255) do
     t.string "phone_no"
     t.date "date_of_birth"
     t.string "country_of_residence"
+    t.string "base_currency"
     t.string "address"
     t.integer "retirement_age"
     t.integer "life_expectancy"
