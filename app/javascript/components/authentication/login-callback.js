@@ -3,9 +3,6 @@ import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-import { Box } from '@mui/material';
-import Typography from '@mui/material/Typography';
-
 const LoginCallback = () => {
     const { user, isAuthenticated, isLoading } = useAuth0();
     const navigate = useNavigate();

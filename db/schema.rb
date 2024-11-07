@@ -25,8 +25,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_01_052255) do
     t.string "address"
     t.integer "retirement_age"
     t.integer "life_expectancy"
-    t.boolean "email_verified"
-    t.boolean "phone_no_verified"
+    t.boolean "is_email_verified"
+    t.boolean "is_phone_no_verified"
+    t.string "gender"
+    t.string "nationality"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

@@ -11,8 +11,10 @@ class CreateUsers < ActiveRecord::Migration[7.2]
       t.string :address
       t.integer :retirement_age
       t.integer :life_expectancy
-      t.boolean :email_verified
-      t.boolean :phone_no_verified
+      t.boolean :is_email_verified
+      t.boolean :is_phone_no_verified
+      t.string :gender
+      t.string :nationality
 
       t.timestamps
     end

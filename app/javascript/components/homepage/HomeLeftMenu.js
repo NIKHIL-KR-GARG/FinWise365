@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Drawer, Divider, List, ListItem, ListItemText, Collapse, Box, Typography, Button, ListItemIcon, Avatar } from '@mui/material';
+import { Link } from 'react-router-dom';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import CelebrationIcon from '@mui/icons-material/Celebration';
@@ -87,7 +88,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
             <Divider />
 
             <List sx={{ padding: 0 }}>
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                <ListItem button component={Link} to="/home" sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                     <ListItemIcon>
                         <HomeIcon fontSize="small" />
                     </ListItemIcon>

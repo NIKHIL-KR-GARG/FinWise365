@@ -73,8 +73,10 @@ class Api::UsersController < ApplicationController
         :address,
         :retirement_age,
         :life_expectancy,
-        :email_verified,
-        :phone_no_verified,
+        :gender,
+        :nationality,
+        :is_email_verified,
+        :is_phone_no_verified,
         :created_at,
         :updated_at
       )

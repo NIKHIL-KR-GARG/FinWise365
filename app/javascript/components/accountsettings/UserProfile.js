@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, TextField, Button, Typography, Avatar, Alert, IconButton, Snackbar, MenuItem } from '@mui/material';
+import { Box, TextField, Button, Typography, Avatar, Alert, IconButton, Snackbar, MenuItem, getBottomNavigationActionUtilityClass, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Grid from '@mui/material/Grid2';
 import axios from 'axios';
@@ -18,7 +18,9 @@ const UserProfile = () => {
         retirement_age: '',
         life_expectancy: '',
         email: '',
-        base_currency: ''
+        base_currency: '',
+        gender: 'Prefer not to say',
+        nationality: ''
     });
 
     const [errors, setErrors] = useState({});
@@ -49,9 +51,20 @@ const UserProfile = () => {
                         retirement_age: appuser.retirement_age,
                         life_expectancy: appuser.life_expectancy,
                         email: appuser.email,
-                        base_currency: appuser.base_currency
+                        base_currency: appuser.base_currency,
+                        gender: appuser.gender,
+                        nationality: appuser.nationality
                     });
                     setIsFormChanged(false); // Reset form change state after fetching user data
+                    
+                    //save few user settings in local storage
+                    localStorage.setItem('currentUserFirstName', appuser.first_name);
+                    localStorage.setItem('currentUserLastName', appuser.last_name);
+                    //localStorage.setItem('currentUserDateOfBirth', appuser.date_of_birth);
+                    localStorage.setItem('currentUserEmail', appuser.email); 
+                    localStorage.setItem('currentUserBaseCurrency', appuser.base_currency);
+                    //localStorage.setItem('currentUserLifeExpectancy', appuser.life_expectancy);
+                    localStorage.setItem('currentUserNationality', appuser.nationality);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -105,6 +118,16 @@ const UserProfile = () => {
                 setSuccessMessage('User information updated successfully');
                 setErrorMessage('');
                 setIsFormChanged(false);
+
+                //update few user settings in local storage
+                localStorage.setItem('currentUserFirstName', user.first_name);
+                localStorage.setItem('currentUserLastName', user.last_name);
+                //localStorage.setItem('currentUserDateOfBirth', user.date_of_birth);
+                localStorage.setItem('currentUserEmail', user.email); 
+                localStorage.setItem('currentUserBaseCurrency', user.base_currency);
+                //localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);
+                localStorage.setItem('currentUserNationality', user.nationality);
+
             } catch (error) {
                 console.error('Error updating user data:', error);
                 setErrorMessage('Failed to update user information');
@@ -208,6 +231,21 @@ const UserProfile = () => {
                     </Grid>
                     <Grid item size={6}>
                         <TextField
+                            select
+                            label="Gender"
+                            name="gender"
+                            value={user.gender}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                        >
+                            <MenuItem value="Male">Male</MenuItem>
+                            <MenuItem value="Female">Female</MenuItem>
+                            <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
+                        </TextField>
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
                             label="Phone No"
                             name="phone_no"
                             value={user.phone_no}
@@ -216,15 +254,6 @@ const UserProfile = () => {
                             required
                             error={!!errors.phone_no}
                             helperText={errors.phone_no}
-                        />
-                    </Grid>
-                    <Grid item size={12}>
-                        <TextField
-                            label="Address"
-                            name="address"
-                            value={user.address}
-                            onChange={handleChange}
-                            fullWidth
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -238,8 +267,34 @@ const UserProfile = () => {
                             required
                         >
                             {CountryList.map((country) => (
-                                <MenuItem key={country} value={country}>
-                                    {country}
+                                <MenuItem key={country.code} value={country.code}>
+                                    {country.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+                    <Grid item size={12}>
+                        <TextField
+                            label="Address"
+                            name="address"
+                            value={user.address}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            select
+                            label="Nationality"
+                            name="nationality"
+                            value={user.nationality}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                        >
+                            {CountryList.map((country) => (
+                                <MenuItem key={country.code} value={country.code}>
+                                    {country.name}
                                 </MenuItem>
                             ))}
                         </TextField>
@@ -255,8 +310,8 @@ const UserProfile = () => {
                             required
                         >
                             {CurrencyList.map((currency) => (
-                                <MenuItem key={currency} value={currency}>
-                                    {currency}
+                                <MenuItem key={currency.code} value={currency.code}>
+                                    {currency.name}
                                 </MenuItem>
                             ))}
                         </TextField>

@@ -7,7 +7,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from 'react-router-dom';
 
-const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
+const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
     const open = Boolean(anchorEl);
     const id = open ? 'user-settings-popover' : undefined;
     const navigate = useNavigate();
@@ -15,6 +15,7 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
 
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
     const currentUserLastName = localStorage.getItem('currentUserLastName');
+    const currentUserEmail = localStorage.getItem('currentUserEmail');
 
     const getGreeting = () => {
         const currentHour = new Date().getHours();
@@ -53,13 +54,13 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover, user }) => {
                     {`${getGreeting()}, ${currentUserFirstName}`}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                    <Avatar src={user.avatar} alt={user.name} sx={{ mr: 2 }} />
+                    <Avatar src={'/path/to/avatar.jpg'} alt={currentUserFirstName} sx={{ mr: 2 }} />
                     <Box>
                         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                             {currentUserFirstName} {currentUserLastName}
                         </Typography>
                         <Typography variant="body2" color="textSecondary">
-                            {user.email}
+                            {currentUserEmail}
                         </Typography>
                     </Box>
                 </Box>
