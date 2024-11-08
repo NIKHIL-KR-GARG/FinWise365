@@ -6,20 +6,23 @@ import TerrainIcon from '@mui/icons-material/Terrain';
 import ApartmentIcon from '@mui/icons-material/Apartment'; // HDB icon
 import CondoIcon from '@mui/icons-material/Domain'; // Condo icon
 import HouseIcon from '@mui/icons-material/House'; // Landed icon
-import { Switch, Slider ,Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { Modal, Switch, Slider ,Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
+import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 
 import CurrencyList from '../common/CurrencyList';
 import CountryList from '../common/CountryList';
 import { HomeLoanRate, HomeValueGrowthRate} from '../common/DefaultValues';
+import HomeLoanEMICalculator from './HomeLoanEMICalculator';
 
 const AssetPropertyForm = () => {
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [errors, setErrors] = useState({});
-    
+    const [modalOpen, setModalOpen] = useState(false);
+
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserNationality = localStorage.getItem('currentUserNationality');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -52,6 +55,14 @@ const AssetPropertyForm = () => {
         annual_property_maintenance_amount: 0.0
     });
 
+    const handleModalOpen = () => {
+        setModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setModalOpen(false);
+    };
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setProperty({
@@ -71,7 +82,6 @@ const AssetPropertyForm = () => {
         if (!property.purchase_price) errors.purchase_price = 'Purchase Price is required';
         
         // Restrict non-numeric input for numeric fields, allowing floats
-        //if (isNaN(parseFloat(property.property_number))) errors.property_number = 'Property Number should be numeric';
         if (isNaN(property.purchase_price)) errors.purchase_price = 'Purchase Price should be numeric';
         if (isNaN(property.loan_amount)) errors.loan_amount = 'Loan Amount should be numeric';
         if (isNaN(property.loan_interest_rate)) errors.loan_interest_rate = 'Loan Interest Rate should be numeric';
@@ -335,7 +345,7 @@ const AssetPropertyForm = () => {
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
-                            <Grid item size={12} sx={{ display: 'flex' }}>
+                            <Grid item size={6} sx={{ display: 'flex' }}>
                                 <Typography>Cash</Typography>
                                 <Switch
                                     checked={property.is_under_loan}
@@ -344,6 +354,42 @@ const AssetPropertyForm = () => {
                                     color="primary"
                                 />
                                 <Typography>Loan</Typography>
+                            </Grid>
+                            <Grid item size={6} >
+                                <Typography
+                                    variant="body2"
+                                    onClick={() => handleModalOpen(true)}
+                                    sx={{ textDecoration: 'underline', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 'bold', color: 'blue' }}
+                                >
+                                    Open EMI Calculator
+                                </Typography>
+                                <Modal
+                                    open={modalOpen}
+                                    onClose={(event, reason) => {
+                                        if (reason !== 'backdropClick') {
+                                            handleModalClose();
+                                        }
+                                    }}
+                                    aria-labelledby="modal-title"
+                                    aria-describedby="modal-description"
+                                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                >
+                                    <Box sx={{ width: 1000, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
+                                        <HomeLoanEMICalculator property={property} />
+                                        <IconButton 
+                                            onClick={handleModalClose} 
+                                            sx={{ 
+                                                position: 'absolute', 
+                                                top: 8, 
+                                                right: 24, 
+                                                border: '1px solid', // Added border
+                                                borderColor: 'grey.500' // Optional: specify border color
+                                            }}
+                                        >
+                                            <CloseIconFilled />
+                                        </IconButton>
+                                    </Box>
+                                </Modal>
                             </Grid>
                             {property.is_under_loan && (
                                 <>
