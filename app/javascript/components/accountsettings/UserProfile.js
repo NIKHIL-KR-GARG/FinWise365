@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, TextField, Button, Typography, Avatar, Alert, IconButton, Snackbar, MenuItem } from '@mui/material';
+import { Box, TextField, Button, Typography, Avatar, Alert, IconButton, Snackbar, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Grid from '@mui/material/Grid2';
 import axios from 'axios';
@@ -14,6 +14,7 @@ const UserProfile = () => {
         phone_no: '',
         date_of_birth: '',
         country_of_residence: '',
+        is_permanent_resident: false,
         address: '',
         retirement_age: '',
         life_expectancy: '',
@@ -47,6 +48,7 @@ const UserProfile = () => {
                         phone_no: appuser.phone_no,
                         date_of_birth: appuser.date_of_birth,
                         country_of_residence: appuser.country_of_residence,
+                        is_permanent_resident: appuser.is_permanent_resident,
                         address: appuser.address,
                         retirement_age: appuser.retirement_age,
                         life_expectancy: appuser.life_expectancy,
@@ -65,6 +67,8 @@ const UserProfile = () => {
                     localStorage.setItem('currentUserBaseCurrency', appuser.base_currency);
                     //localStorage.setItem('currentUserLifeExpectancy', appuser.life_expectancy);
                     localStorage.setItem('currentUserNationality', appuser.nationality);
+                    localStorage.setItem('currentUserCountryOfResidence', appuser.country_of_residence);
+                    localStorage.setItem('currentUserIsPermanentResident', appuser.is_permanent_resident);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -133,6 +137,8 @@ const UserProfile = () => {
                 localStorage.setItem('currentUserBaseCurrency', user.base_currency);
                 //localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);
                 localStorage.setItem('currentUserNationality', user.nationality);
+                localStorage.setItem('currentUserCountryOfResidence', user.country_of_residence);
+                localStorage.setItem('currentUserIsPermanentResident', user.is_permanent_resident);
 
             } catch (error) {
                 console.error('Error updating user data:', error);
@@ -265,6 +271,32 @@ const UserProfile = () => {
                     <Grid item size={6}>
                         <TextField
                             select
+                            label="Base Currency"
+                            name="base_currency"
+                            value={user.base_currency}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                        >
+                            {CurrencyList.map((currency) => (
+                                <MenuItem key={currency.code} value={currency.code}>
+                                    {currency.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+                    <Grid item size={12}>
+                        <TextField
+                            label="Address"
+                            name="address"
+                            value={user.address}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            select
                             label="Country of Residence"
                             name="country_of_residence"
                             value={user.country_of_residence}
@@ -278,15 +310,6 @@ const UserProfile = () => {
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid>
-                    <Grid item size={12}>
-                        <TextField
-                            label="Address"
-                            name="address"
-                            value={user.address}
-                            onChange={handleChange}
-                            fullWidth
-                        />
                     </Grid>
                     <Grid item size={6}>
                         <TextField
@@ -305,23 +328,21 @@ const UserProfile = () => {
                             ))}
                         </TextField>
                     </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                            select
-                            label="Base Currency"
-                            name="base_currency"
-                            value={user.base_currency}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                        >
-                            {CurrencyList.map((currency) => (
-                                <MenuItem key={currency.code} value={currency.code}>
-                                    {currency.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
+                    {(user.country_of_residence != user.nationality) && (
+                        <Grid item size={12}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={user.is_permanent_resident}
+                                        onChange={(e) => handleChange({ target: { name: 'is_permanent_resident', value: e.target.checked } })}
+                                        name="is_permanent_resident"
+                                        color="primary"
+                                    />
+                                }
+                                label="Are you a Permanent Resident"
+                            />
+                        </Grid>
+                    )}
                     <Grid item size={6}>
                         <TextField
                             label="Retirement Age"

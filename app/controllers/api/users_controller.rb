@@ -69,6 +69,7 @@ class Api::UsersController < ApplicationController
         :phone_no,
         :date_of_birth,
         :country_of_residence,
+        :is_permanent_resident,
         :base_currency,
         :address,
         :retirement_age,

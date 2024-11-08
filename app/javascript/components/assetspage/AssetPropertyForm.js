@@ -24,14 +24,14 @@ const AssetPropertyForm = () => {
     const [modalOpen, setModalOpen] = useState(false);
 
     const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserNationality = localStorage.getItem('currentUserNationality');
+    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
     const [property, setProperty] = useState({
         user_id: 0,
         property_name: "",
         property_type: "HDB",
-        property_location: currentUserNationality || "",
+        property_location: currentUserCountryOfResidence || "",
         property_number: 0,
         purchase_date: "",
         currency: currentUserBaseCurrency || "",
@@ -42,12 +42,12 @@ const AssetPropertyForm = () => {
         loan_amount: 0.0,
         loan_remaining_duration: 0,
         loan_type: "",
-        loan_interest_rate: HomeLoanRate.find(rate => rate.key === currentUserNationality)?.value || 0,
+        loan_interest_rate: HomeLoanRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_loan_locked: false,
         loan_locked_till: "",
         is_on_rent: false,
         rental_amount: 0.0,
-        property_value_growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserNationality)?.value || 0,
+        property_value_growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: false,
         tentative_sale_date: "",
         tentative_sale_amount: 0.0,
@@ -172,7 +172,7 @@ const AssetPropertyForm = () => {
                 <FormControl component="fieldset" >
                     <FormLabel component="legend">Select Property Type:</FormLabel>
                     <RadioGroup sx={{ pb: 2 }} row aria-label="property_type" name="property_type" value={property.property_type} onChange={handleChange}>
-                        {currentUserNationality === 'SG' && (
+                        {currentUserCountryOfResidence === 'SG' && (
                             <FormControlLabel
                                 value="HDB"
                                 control={<Radio />}

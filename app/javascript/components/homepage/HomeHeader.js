@@ -11,7 +11,7 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
     //const currentUserLastName = localStorage.getItem('currentUserLastName');
     //const currentUserEmail = localStorage.getItem('currentUserEmail');
-    const currentUserNationality = localStorage.getItem('currentUserNationality');
+    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -47,7 +47,7 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
                     </Box>
                     <Box sx={{ display: 'flex', gap: 2, pr: 2, alignItems: 'center' }}>
                         <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: '#fff9e6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black' }}>
-                            <Typography variant="caption">{currentUserNationality}</Typography>
+                            <Typography variant="caption">{currentUserCountryOfResidence}</Typography>
                         </Box>
                         <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: '#fff9e6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black' }}>
                             <Typography variant="caption">{currentUserBaseCurrency}</Typography>

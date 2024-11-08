@@ -49,6 +49,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_030850) do
     t.string "phone_no"
     t.date "date_of_birth"
     t.string "country_of_residence"
+    t.string "is_permanent_resident"
     t.string "address"
     t.boolean "is_email_verified"
     t.boolean "is_phone_no_verified"
