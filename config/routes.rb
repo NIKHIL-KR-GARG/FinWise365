@@ -5,7 +5,8 @@ Rails.application.routes.draw do
   get 'home', to: 'site#index'
   get 'logincallback', to: 'site#index'
   get 'accountsettings', to: 'site#index'
-  
+  get 'assets', to: 'site#index'
+
   #get 'users', to: 'site#index'
   #get 'users/new', to: 'site#index'
   #get 'users/:id', to: 'site#index'
@@ -17,6 +18,9 @@ Rails.application.routes.draw do
         post 'create_or_find_user' # Define the route for the action
       end
     end
+
+    resources :asset_properties, only: %i[index show create destroy update]
+
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

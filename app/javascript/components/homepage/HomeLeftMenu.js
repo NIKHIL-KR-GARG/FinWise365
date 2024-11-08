@@ -103,7 +103,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                 </ListItem>
                 <Collapse in={portfolioOpen} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItem component={Link} to="/assets" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <AccountBalanceIcon fontSize="small" />
                             </ListItemIcon>

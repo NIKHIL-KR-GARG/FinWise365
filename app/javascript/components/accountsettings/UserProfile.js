@@ -56,12 +56,12 @@ const UserProfile = () => {
                         nationality: appuser.nationality
                     });
                     setIsFormChanged(false); // Reset form change state after fetching user data
-                    
+
                     //save few user settings in local storage
                     localStorage.setItem('currentUserFirstName', appuser.first_name);
                     localStorage.setItem('currentUserLastName', appuser.last_name);
                     //localStorage.setItem('currentUserDateOfBirth', appuser.date_of_birth);
-                    localStorage.setItem('currentUserEmail', appuser.email); 
+                    localStorage.setItem('currentUserEmail', appuser.email);
                     localStorage.setItem('currentUserBaseCurrency', appuser.base_currency);
                     //localStorage.setItem('currentUserLifeExpectancy', appuser.life_expectancy);
                     localStorage.setItem('currentUserNationality', appuser.nationality);
@@ -90,12 +90,18 @@ const UserProfile = () => {
         const minDate = new Date();
         minDate.setFullYear(minDate.getFullYear() - 120);
 
-        if (user.retirement_age && (user.retirement_age < 20 || user.retirement_age > 120)) {
-            tempErrors.retirement_age = 'Retirement age should be between 20 and 120';
+        if (isNaN(user.retirement_age)) tempErrors.retirement_age = 'Retirement age should be numeric';
+        else {
+            if (user.retirement_age && (user.retirement_age < 20 || user.retirement_age > 120)) {
+                tempErrors.retirement_age = 'Retirement age should be between 20 and 120';
+            }
         }
 
-        if (user.life_expectancy && (user.life_expectancy < 20 || user.life_expectancy > 120)) {
-            tempErrors.life_expectancy = 'Life expectancy should be between 20 and 120';
+        if (isNaN(user.life_expectancy)) tempErrors.life_expectancy = 'Life expectancy should be numeric';
+        else {
+            if (user.life_expectancy && (user.life_expectancy < 20 || user.life_expectancy > 120)) {
+                tempErrors.life_expectancy = 'Life expectancy should be between 20 and 120';
+            }
         }
 
         if (!phoneRegex.test(user.phone_no)) {
@@ -123,7 +129,7 @@ const UserProfile = () => {
                 localStorage.setItem('currentUserFirstName', user.first_name);
                 localStorage.setItem('currentUserLastName', user.last_name);
                 //localStorage.setItem('currentUserDateOfBirth', user.date_of_birth);
-                localStorage.setItem('currentUserEmail', user.email); 
+                localStorage.setItem('currentUserEmail', user.email);
                 localStorage.setItem('currentUserBaseCurrency', user.base_currency);
                 //localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);
                 localStorage.setItem('currentUserNationality', user.nationality);
@@ -147,9 +153,9 @@ const UserProfile = () => {
                 onClose={() => setSuccessMessage('')}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
-                <Alert 
-                    variant="filled"    
-                    severity="success" 
+                <Alert
+                    variant="filled"
+                    severity="success"
                     action={
                         <IconButton
                             aria-label="close"
@@ -170,9 +176,9 @@ const UserProfile = () => {
                 onClose={() => setErrorMessage('')}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
-                <Alert 
+                <Alert
                     variant="filled"
-                    severity="error" 
+                    severity="error"
                     action={
                         <IconButton
                             aria-label="close"
@@ -341,16 +347,16 @@ const UserProfile = () => {
                     </Grid>
                 </Grid>
                 <Box sx={{ mt: 2 }}>
-                    <Button 
-                        variant="contained" 
-                        color="primary" 
+                    <Button
+                        variant="contained"
+                        color="primary"
                         onClick={handleSave}
                         disabled={!isFormChanged} // Disable button if form is not changed
                         sx={{
-                            fontSize: '1rem', 
-                            padding: '10px 40px', 
+                            fontSize: '1rem',
+                            padding: '10px 40px',
                             '&:hover': {
-                                backgroundColor: 'primary.dark', 
+                                backgroundColor: 'primary.dark',
                             }
                         }}
                     >

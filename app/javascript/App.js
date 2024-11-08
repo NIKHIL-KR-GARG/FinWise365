@@ -7,6 +7,7 @@ import Landing from './pages/Landing/Landing';
 import Home from './pages/Home/Home';
 import LoginCallback from './components/authentication/login-callback';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
+import Assets from './pages/Assets/Assets';
 
 const App = () => {
 
@@ -17,6 +18,7 @@ const App = () => {
         <Route path='/home' element={<AuthenticationGuard component={Home} />} />
         <Route path='/logincallback' element={<AuthenticationGuard component={LoginCallback} />} />
         <Route path='/accountsettings' element={<AuthenticationGuard component={AccountSettings} />} />
+        <Route path='/assets' element={<AuthenticationGuard component={Assets} />} />
       </Routes>
     </>
   );
