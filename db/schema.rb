@@ -23,6 +23,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_030850) do
     t.date "purchase_date"
     t.string "currency"
     t.float "purchase_price"
+    t.float "stamp_duty"
+    t.float "other_fees"
     t.float "tentative_current_value"
     t.boolean "is_primary_property"
     t.boolean "is_under_loan"

@@ -58,6 +58,8 @@ class Api::AssetPropertiesController < ApplicationController
             :purchase_date,
             :currency,
             :purchase_price,
+            :stamp_duty,
+            :other_fees,
             :tentative_current_value,
             :is_primary_property,
             :is_under_loan,

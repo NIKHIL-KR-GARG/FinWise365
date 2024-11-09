@@ -14,6 +14,7 @@ const HomeLoanEMICalculator = ({ property }) => {
         purchase_price: 0.0,
         loan_amount: 0.0,
         tenor_months: 0,
+        currency: '',
         interest_rate_year_1: 0.0,
         interest_rate_year_2: 0.0,
         interest_rate_year_3: 0.0,
@@ -27,6 +28,7 @@ const HomeLoanEMICalculator = ({ property }) => {
             purchase_price: property.purchase_price,
             loan_amount: property.loan_amount,
             tenor_months: property.loan_remaining_duration,
+            currency: property.currency,
             interest_rate_year_1: property.loan_interest_rate,
             interest_rate_year_2: property.loan_interest_rate,
             interest_rate_year_3: property.loan_interest_rate,
@@ -34,7 +36,7 @@ const HomeLoanEMICalculator = ({ property }) => {
             interest_rate_year_5: property.loan_interest_rate,
             interest_rate_year_6: property.loan_interest_rate
         });
-    }, [property.purchase_price, property.loan_amount, property.loan_remaining_duration, property.loan_interest_rate]);
+    }, [property.purchase_price, property.loan_amount, property.loan_remaining_duration, property.currency, property.loan_interest_rate]);
 
     const [emiCalculations, setEmiCalculations] = useState([]);
     const [emiCalculationsSummary, setEmiCalculationsSummary] = useState([]);
@@ -54,7 +56,16 @@ const HomeLoanEMICalculator = ({ property }) => {
     };
 
     const formatCurrency = (amount) => {
-        return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        if (loandetails.currency === 'USD') return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        else if (loandetails.currency === 'SGD') return amount.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' });
+        else if (loandetails.currency === 'INR') return amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+        else if (loandetails.currency === 'MYR') return amount.toLocaleString('en-MY', { style: 'currency', currency: 'MYR' });
+        else if (loandetails.currency === 'JPY') return amount.toLocaleString('en-JP', { style: 'currency', currency: 'JPY' });
+        else if (loandetails.currency === 'GBP') return amount.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
+        else if (loandetails.currency === 'EUR') return amount.toLocaleString('en-EU', { style: 'currency', currency: 'EUR' });
+        else if (loandetails.currency === 'AUD') return amount.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
+        else if (loandetails.currency === 'RMB') return amount.toLocaleString('en-CN', { style: 'currency', currency: 'RMB' });
+        else return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     };
 
     const calculateEMISchedule = () => {

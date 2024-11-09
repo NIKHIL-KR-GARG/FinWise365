@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -24,6 +24,12 @@ const AssetPropertyForm = () => {
     const [errors, setErrors] = useState({});
     const [modalOpen, setModalOpen] = useState(false);
 
+    const [lastPropertyNumber, setLastPropertyNumber] = useState(0);
+    const [lastPurchasePrice, setLastPurchasePrice] = useState(0);
+    const [lastPropertyLocation, setLastPropertyLocation] = useState('');
+    const [lastPropertyType, setLastPropertyType] = useState('');
+    const [lastPropertyIsUnderLoan, setLastPropertyIsUnderLoan] = useState(false);
+
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserNationality = localStorage.getItem('currentUserNationality');
@@ -39,6 +45,8 @@ const AssetPropertyForm = () => {
         purchase_date: "",
         currency: currentUserBaseCurrency || "",
         purchase_price: 0.0,
+        stamp_duty: 0.0,
+        other_fees: 0.0,
         tentative_current_value: 0.0,
         is_primary_property: false,
         is_under_loan: false,
@@ -58,6 +66,18 @@ const AssetPropertyForm = () => {
         annual_property_maintenance_amount: 0.0
     });
 
+    const [calculatedValues, setCalculatedValues] = useState({
+        BuyerStampDuty: 0,
+        AdditionalBuyerStampDuty: 0,
+        LTVPercentage: 0,
+        LTVValue: 0,
+        DownPayment: 0,
+        emi: 0,
+        InterestPayments: 0,
+        OtherFees: 0,
+        TotalCost: 0
+    });
+
     const handleModalOpen = () => {
         setModalOpen(true);
     };
@@ -68,11 +88,18 @@ const AssetPropertyForm = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setProperty({
-            ...property,
-            [name]: type === 'checkbox' ? checked : value
-        });
+        const newValue = type === 'checkbox' ? checked : value;
+        if (property[name] !== newValue) {
+            setProperty({
+                ...property,
+                [name]: newValue
+            });
+        }
     };
+
+    useEffect(() => {
+        calculatePropertyValue();
+    }, [property]);
 
     const validate = () => {
 
@@ -94,6 +121,8 @@ const AssetPropertyForm = () => {
         if (isNaN(property.tentative_sale_amount)) errors.tentative_sale_amount = 'Tentative Sale Amount should be numeric';
         if (isNaN(property.annual_property_tax_amount)) errors.annual_property_tax_amount = 'Annual Property Tax Amount should be numeric';
         if (isNaN(property.annual_property_maintenance_amount)) errors.annual_property_maintenance_amount = 'Annual Property Maintenance Amount should be numeric';
+        if (isNaN(property.stamp_duty)) errors.stamp_duty = 'Stamp Duty Rate should be numeric';
+        if (isNaN(property.other_fees)) errors.other_fees = 'Other Fees should be numeric';
 
         setErrors(errors);
 
@@ -122,29 +151,36 @@ const AssetPropertyForm = () => {
     const pmt = (rate, nper, pv) => {
         if (rate === 0) return -(pv / nper);
         const pvif = Math.pow(1 + rate, nper);
-        return Math.abs(-(rate * pv * pvif) / (pvif - 1));
+        return -(rate * pv * pvif) / (pvif - 1);
     };
 
     const formatCurrency = (amount) => {
-        return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        if (property.currency === 'USD') return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        else if (property.currency === 'SGD') return amount.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' });
+        else if (property.currency === 'INR') return amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+        else if (property.currency === 'MYR') return amount.toLocaleString('en-MY', { style: 'currency', currency: 'MYR' });
+         else if (property.currency === 'JPY') return amount.toLocaleString('en-JP', { style: 'currency', currency: 'JPY' });
+        else if (property.currency === 'GBP') return amount.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
+        else if (property.currency === 'EUR') return amount.toLocaleString('en-EU', { style: 'currency', currency: 'EUR' });
+        else if (property.currency === 'AUD') return amount.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
+        else if (property.currency === 'RMB') return amount.toLocaleString('en-CN', { style: 'currency', currency: 'RMB' });
+        else return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     };
 
-    var BuyerStampDuty = 0;
-    var AdditionalBuyerStampDuty = 0;
-
-    var LTVPercentage = 0;
-    var LTVValue = 0;
-    var DownPayment = 0;
-
-    var emi = 0;
-    var InterestPayments = 0;
-    var OtherFees = 0;
-
-    var TotalCost = 0;
     const calculatePropertyValue = () => {
 
+        var BuyerStampDuty = 0;
+        var AdditionalBuyerStampDuty = 0;
+        var LTVPercentage = 0;
+        var LTVValue = 0;
+        var DownPayment = 0;
+        var emi = 0;
+        var InterestPayments = 0;
+        var OtherFees = 0;
+        var TotalCost = 0;
+
         //check that property purchase price is greater than 0 and is a number
-        if (isNaN(property.purchase_price) || property.purchase_price <= 0) return false;
+        if (isNaN(property.purchase_price) || property.purchase_price <= 0) return;
         else {
             // check if property location is SG
             if (property.property_location === 'SG') {
@@ -179,30 +215,10 @@ const AssetPropertyForm = () => {
 
                 // if there is a Loan
                 if (property.is_under_loan) {
-
                     //calculate LTV Percentage
                     if (property.property_number === 1) LTVPercentage = 75;
                     else if (property.property_number === 2) LTVPercentage = 45;
                     else if (property.property_number > 2) LTVPercentage = 35;
-
-                    LTVValue = LTVPercentage * property.purchase_price / 100;
-                    //check if we want to use the loan amount or the LTV value
-                    if (property.loan_amount > 0 && property.loan_amount < LTVValue) LTVValue = property.loan_amount;
-                    DownPayment = property.purchase_price - LTVValue;
-
-                    // Calculate Interest Payments
-                    //loop through the loan duration and calculate the interest payments using the pmt function
-                    var outstandingBalance = LTVValue;
-                    emi = pmt(property.loan_interest_rate / 100 / 12, property.loan_remaining_duration, LTVValue);
-                    for (let month = 1; month <= property.loan_remaining_duration; month++) {
-                        const openingBalance = outstandingBalance;
-                        const interest = outstandingBalance * property.loan_interest_rate / 100 / 12;
-                        var principal = 0;
-                        if (emi <= openingBalance) principal = emi - interest;
-                        else principal = openingBalance;
-                        outstandingBalance -= principal;
-                        InterestPayments += interest;
-                    }
                 }
 
                 // calculate Other Fees
@@ -211,12 +227,135 @@ const AssetPropertyForm = () => {
                 const HomeInsurance = 500; // Example fixed fee
                 var AgentFees = 0;
                 if (property.property_type === 'HDB') AgentFees = 0.01 * property.purchase_price; // 1% of purchase price
-                else AgentFees = 0.02 * property.purchase_price; // 2% of purchase price
+                else if (property.property_type === 'Condominium') AgentFees = 0; // 0% of purchase price
+                else if (property.property_type === 'Landed') AgentFees = 0.02 * property.purchase_price; // 2% of purchase price
+                else if (property.property_type === 'Commercial') AgentFees = 0.02 * property.purchase_price; // 2% of purchase price
+                else if (property.property_type === 'Land') AgentFees = 0.02 * property.purchase_price; // 2% of purchase price
 
                 OtherFees = LegalFees + ValuationFees + HomeInsurance + AgentFees;
 
-                TotalCost = parseFloat(property.purchase_price) + parseFloat(BuyerStampDuty) + parseFloat(AdditionalBuyerStampDuty) + parseFloat(OtherFees) + parseFloat(InterestPayments);
             }
+            // check if property location is IN
+            else if (property.property_location === 'IN') {
+
+                //calculate Stamp Duty
+                if (property.purchase_price <= 500000) BuyerStampDuty = property.purchase_price * 0.05;
+                else BuyerStampDuty = property.purchase_price * 0.06;
+
+                // if there is a Loan
+                if (property.is_under_loan) {
+                    //calculate LTV Percentage
+                    if (property.purchase_price <= 3000000) LTVPercentage = 90;
+                    else if (property.purchase_price > 3000000 && property.purchase_price <= 7500000) LTVPercentage = 80;
+                    else LTVPercentage = 75;
+                }
+
+                // calculate Other Fees
+                const LegalFees = 10000; // Example fixed fee
+                const ValuationFees = 5000; // Example fixed fee
+                const HomeInsurance = property.purchase_price * 0.001; // .1% of purchase price
+                const AgentFees = 0.02 * property.purchase_price; // 2% of purchase price
+
+                OtherFees = LegalFees + ValuationFees + HomeInsurance + AgentFees;
+            }
+
+            // calculate Loan amount.
+            LTVValue = LTVPercentage * property.purchase_price / 100;
+
+            var loanAmountToUse = 0;
+            var stampDutyToUse = 0;
+            var otherFeesToUse = 0;
+            // check if the user has changed the form for property no. or purchase price or property location
+            // if so, then update the property values
+            // else keep the user entered values and calculate the other values
+            if (lastPropertyNumber === 0 
+                || lastPurchasePrice === 0 
+                || lastPropertyLocation === '' 
+                || lastPropertyType === '') 
+            {
+                if (property.is_under_loan) loanAmountToUse = LTVValue;
+                stampDutyToUse = BuyerStampDuty + AdditionalBuyerStampDuty;
+                otherFeesToUse = OtherFees;
+                setLastPropertyNumber(property.property_number);
+                setLastPurchasePrice(property.purchase_price);
+                setLastPropertyLocation(property.property_location);
+                setLastPropertyType(property.property_type);
+                setLastPropertyIsUnderLoan(property.is_under_loan);
+            }
+            else {
+                if (lastPropertyNumber !== property.property_number 
+                    || lastPurchasePrice !== property.purchase_price 
+                    || lastPropertyLocation !== property.property_location
+                    || lastPropertyType !== property.property_type
+                    || lastPropertyIsUnderLoan  !== property.is_under_loan) 
+                {
+                    if (property.is_under_loan) loanAmountToUse = LTVValue;
+                    stampDutyToUse = BuyerStampDuty + AdditionalBuyerStampDuty;
+                    otherFeesToUse = OtherFees;
+                    setLastPropertyNumber(property.property_number);
+                    setLastPurchasePrice(property.purchase_price);
+                    setLastPropertyLocation(property.property_location);
+                    setLastPropertyType(property.property_type);
+                    setLastPropertyIsUnderLoan(property.is_under_loan);
+                }
+                else {
+                    if (property.is_under_loan) loanAmountToUse = property.loan_amount;
+                    stampDutyToUse = property.stamp_duty;
+                    otherFeesToUse = property.other_fees;
+                }
+            }
+
+            // check if property is under Loan
+            if (property.is_under_loan) {
+
+                DownPayment = property.purchase_price - loanAmountToUse;
+
+                // Calculate Interest Payments
+                //loop through the loan duration and calculate the interest payments using the pmt function
+                var outstandingBalance = loanAmountToUse;
+                emi = Math.abs(pmt(property.loan_interest_rate / 100 / 12, property.loan_remaining_duration, LTVValue));
+                for (let month = 1; month <= property.loan_remaining_duration; month++) {
+                    const openingBalance = outstandingBalance;
+                    const interest = outstandingBalance * property.loan_interest_rate / 100 / 12;
+                    var principal = 0;
+                    if (emi <= openingBalance) principal = emi - interest;
+                    else principal = openingBalance;
+                    outstandingBalance -= principal;
+                    InterestPayments += interest;
+                }
+            }
+
+            TotalCost = parseFloat(property.purchase_price) +
+                parseFloat(BuyerStampDuty) +
+                parseFloat(AdditionalBuyerStampDuty) +
+                parseFloat(OtherFees) +
+                parseFloat(InterestPayments);
+
+            // set property object values
+            setProperty(prevProperty => ({
+                ...prevProperty,
+                loan_amount: loanAmountToUse,
+                stamp_duty: stampDutyToUse,
+                other_fees: otherFeesToUse
+            }));
+
+            LTVValue = loanAmountToUse;
+            LTVPercentage = (LTVValue / property.purchase_price) * 100;
+            if (property.property_location === 'SG') BuyerStampDuty = stampDutyToUse - AdditionalBuyerStampDuty;
+            else BuyerStampDuty = stampDutyToUse;
+            OtherFees = otherFeesToUse;
+            
+            setCalculatedValues({
+                BuyerStampDuty,
+                AdditionalBuyerStampDuty,
+                LTVPercentage,
+                LTVValue,
+                DownPayment,
+                emi,
+                InterestPayments,
+                OtherFees,
+                TotalCost
+            });
         }
         return true;
     }
@@ -444,6 +583,35 @@ const AssetPropertyForm = () => {
                             helperText={errors.purchase_price}
                         />
                     </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Stamp Duty"
+                            name="stamp_duty"
+                            value={property.stamp_duty}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.stamp_duty}
+                            helperText={errors.stamp_duty}
+                            disabled={property.property_location === 'SG'}
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Other Fees"
+                            name="other_fees"
+                            value={property.other_fees}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.other_fees}
+                            helperText={errors.other_fees}
+                        />
+                    </Grid>
                     {/*<Grid item size={4}>
                         <TextField
                             variant="standard"
@@ -583,8 +751,8 @@ const AssetPropertyForm = () => {
                                             </Grid>
                                             <Grid item size={6}>
                                                 <TextField
-                                                    variant="standard"
                                                     label="interest rate Locked Till?"
+                                                    variant="standard"
                                                     name="loan_locked_till"
                                                     type="date"
                                                     value={property.loan_locked_till}
@@ -598,7 +766,7 @@ const AssetPropertyForm = () => {
                                 </>
                             )}
                         </Grid>
-                        {calculatePropertyValue() && (
+                        
                             <Accordion sx={{ pt: 1 }}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }}/>} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
                                     {getPropertyIcon(property.property_type)}
@@ -607,7 +775,7 @@ const AssetPropertyForm = () => {
                                         property.is_under_loan && (
                                             <>
                                                 <Typography sx={{ ml: 'auto', color: 'white' }}>
-                                                    Loan EMI: {property.currency} {formatCurrency(parseFloat(emi))} / month
+                                                    Loan EMI: {property.currency} {formatCurrency(parseFloat(calculatedValues.emi))} / month
                                                 </Typography>
                                             </>
                                         )}
@@ -626,25 +794,25 @@ const AssetPropertyForm = () => {
                                                     <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{LTVPercentage}%</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{calculatedValues.LTVPercentage}%</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Loan Amount:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(LTVValue))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.LTVValue))}</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Down Payment:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(DownPayment))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.DownPayment))}</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Interest Payments:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(InterestPayments))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.InterestPayments))}</Typography>
                                                 </Grid>
                                             </>
                                         )}
@@ -652,30 +820,34 @@ const AssetPropertyForm = () => {
                                             <Typography sx={{ fontSize: 'small' }}>Stamp Duty:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(BuyerStampDuty))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.BuyerStampDuty))}</Typography>
                                         </Grid>
-                                        <Grid item size={6}>
-                                            <Typography sx={{ fontSize: 'small' }}>Additional Buyer Stamp Duty:</Typography>
-                                        </Grid>
-                                        <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(AdditionalBuyerStampDuty))}</Typography>
-                                        </Grid>
+                                        {property.property_location === 'SG' && (
+                                            <>
+                                                <Grid item size={6}>
+                                                    <Typography sx={{ fontSize: 'small' }}>Additional Buyer Stamp Duty:</Typography>
+                                                </Grid>
+                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.AdditionalBuyerStampDuty))}</Typography>
+                                                </Grid>
+                                            </>
+                                        )}
                                         <Grid item size={6}>
                                             <Typography sx={{ fontSize: 'small' }}>Other Fees:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(OtherFees))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.OtherFees))}</Typography>
                                         </Grid>
                                         <Grid item size={6}>
                                             <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(TotalCost))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.TotalCost))}</Typography>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                        )}
+                        
                     </Box>
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >

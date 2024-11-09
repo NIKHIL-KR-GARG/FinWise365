@@ -9,6 +9,8 @@ class CreateAssetProperties < ActiveRecord::Migration[7.2]
       t.date :purchase_date
       t.string :currency
       t.float :purchase_price
+      t.float :stamp_duty
+      t.float :other_fees
       t.float :tentative_current_value
       t.boolean :is_primary_property
       t.boolean :is_under_loan
