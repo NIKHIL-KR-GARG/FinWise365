@@ -13,9 +13,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import CurrencyList from '../common/CurrencyList';
-import CountryList from '../common/CountryList';
-import { HomeLoanRate, HomeValueGrowthRate } from '../common/DefaultValues';
+import CurrencyList from '../../common/CurrencyList';
+import CountryList from '../../common/CountryList';
+import { HomeLoanRate, HomeValueGrowthRate } from '../../common/DefaultValues';
 import HomeLoanEMICalculator from './HomeLoanEMICalculator';
 
 const AssetPropertyForm = ({ property: initialProperty, action, onClose, refreshPropertyList }) => {

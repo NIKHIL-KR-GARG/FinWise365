@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Backdrop } from '@mui/material'; // Added Backdrop
 import Link from '@mui/material/Link';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
@@ -17,13 +17,12 @@ import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
 import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
 import AddIcon from '@mui/icons-material/Add';
-import CloseIcon from '@mui/icons-material/Close'; // Added CloseIcon
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
-import AssetPropertyList from '../../components/assetspage/AssetPropertyList'; // Import AssetPropertyForm
-import AssetPropertyForm from '../../components/assetspage/AssetPropertyForm'; // Correct import for AssetPropertyForm
+import AssetPropertyList from '../../components/assetspage/properties/AssetPropertyList'; // Import AssetPropertyForm
+import AssetPropertyForm from '../../components/assetspage/properties/AssetPropertyForm';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -31,6 +30,13 @@ const Assets = () => {
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
     const [action, setAction] = useState(''); // State for action
     const propertyListRef = useRef(null);
+    const [propertyCount, setPropertyCount] = useState(0); // State for property count
+
+    useEffect(() => {
+        if (propertyListRef.current) {
+            setPropertyCount(propertyListRef.current.getPropertyCount());
+        }
+    }, []);
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -58,8 +64,13 @@ const Assets = () => {
     const handlePropertyAdded = (updatedProperty, successMsg) => {
         if (propertyListRef.current) {
             propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
+            setPropertyCount(propertyCount + 1);
         }
     };
+    
+    const handlePropertiesFetched = (count) => {
+        setPropertyCount(count);
+   };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -101,11 +112,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <BusinessOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
-                                        My Properties
+                                        My Properties ({propertyCount}) {/* Display property count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPropertyList ref={propertyListRef} />
+                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -116,7 +127,7 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarOutlinedIcon sx={{ mr: 1, color: 'green' }} />
-                                        Car
+                                        My Vehicles
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -131,7 +142,7 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceOutlinedIcon sx={{ mr: 1, color: 'red' }} />
-                                        Investment-Account Savings/Current
+                                        Investment-Accounts Savings/Current
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -183,7 +194,7 @@ const Assets = () => {
                                     {/* Add Investment-Bonds details component or content here */}
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            {/*<Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel7a-content"
@@ -195,7 +206,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-ULIP details component or content here */}
+                                    // Add Investment-ULIP details component or content here //
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -210,9 +221,9 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-SRS details component or content here */}
+                                    // Add Investment-SRS details component or content here //
                                 </AccordionDetails>
-                            </Accordion>
+                            </Accordion> */}
                             <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}

@@ -14,15 +14,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 
 import './AssetPropertyList.css';
-import CountryList from '../common/CountryList';
+import CountryList from '../../common/CountryList';
 import AssetPropertyForm from './AssetPropertyForm';
 
-
 const AssetPropertyList = forwardRef((props, ref) => {
+    const { onPropertiesFetched } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [properties, setProperties] = useState([]);
-    //const [gridKey, setGridKey] = useState(0); // Add a state for the grid key
+    const [propertiesFetched, setPropertiesFetched] = useState(false); // State to track if properties are fetched
     const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
@@ -37,6 +37,10 @@ const AssetPropertyList = forwardRef((props, ref) => {
         try {
             const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
             setProperties(response.data);
+            setPropertiesFetched(true); // Set propertiesFetched to true after fetching
+            if (onPropertiesFetched) {
+                onPropertiesFetched(response.data.length); // Notify parent component
+            }
         } catch (error) {
             console.error('Error fetching properties:', error);
         }
@@ -62,6 +66,8 @@ const AssetPropertyList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/asset_properties/${propertyToDelete.id}`);
             setProperties(prevProperties => prevProperties.filter(p => p.id !== propertyToDelete.id));
+            window.confirm('No:' + properties.length);
+            onPropertiesFetched(properties.length - 1); // Notify parent component
             handleDeleteDialogClose();
         } catch (error) {
             console.error('Error deleting property:', error);
@@ -84,16 +90,18 @@ const AssetPropertyList = forwardRef((props, ref) => {
             setProperties((prevProperties) => {
                 const propertyIndex = prevProperties.findIndex(p => p.id === updatedProperty.id);
                 if (propertyIndex > -1) {
-                    // Update existing property
                     const newProperties = [...prevProperties];
                     newProperties[propertyIndex] = updatedProperty;
+                    onPropertiesFetched(properties.length); // Notify parent component
                     return newProperties;
                 } else {
-                    // Add new property
                     return [...prevProperties, updatedProperty];
                 }
             });
-            setSuccessMessage(successMsg);
+            //setSuccessMessage(successMsg);
+        },
+        getPropertyCount() {
+            return propertiesFetched ? properties.length : 0; // Return count only if properties are fetched
         }
     }));
 
@@ -104,14 +112,14 @@ const AssetPropertyList = forwardRef((props, ref) => {
                 // Update existing property
                 const newProperties = [...prevProperties];
                 newProperties[propertyIndex] = updatedProperty;
+                onPropertiesFetched(properties.length); // Notify parent component
                 return newProperties;
             } else {
                 // Add new property
                 return [...prevProperties, updatedProperty];
             }
         });
-        //setGridKey(prevKey => prevKey + 1); // Update the grid key to force re-render
-        setSuccessMessage(successMsg);
+        //setSuccessMessage(successMsg);
     };
 
     const getPropertyIcon = (propertyType) => {
