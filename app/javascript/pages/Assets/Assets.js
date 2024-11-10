@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Backdrop } from '@mui/material'; // Added Backdrop
 import Link from '@mui/material/Link';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
@@ -22,13 +22,15 @@ import CloseIconFilled from '@mui/icons-material/Close'; // Import filled versio
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
-import AssetPropertyList from '../../components/assetspage/AssetPropertyList';
-import AssetPropertyForm from '../../components/assetspage/AssetPropertyForm'; // Import AssetPropertyForm
+import AssetPropertyList from '../../components/assetspage/AssetPropertyList'; // Import AssetPropertyForm
+import AssetPropertyForm from '../../components/assetspage/AssetPropertyForm'; // Correct import for AssetPropertyForm
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
+    const [action, setAction] = useState(''); // State for action
+    const propertyListRef = useRef(null);
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -43,12 +45,20 @@ const Assets = () => {
     };
 
     const handleFormModalOpen = () => {
+        setAction('Add');
         setFormModalOpen(true);
         setModalOpen(false); // Close the right side modal box
     };
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
+        setAction('');
+    };
+
+    const handlePropertyAdded = (updatedProperty, successMsg) => {
+        if (propertyListRef.current) {
+            propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
+        }
     };
 
     return (
@@ -95,7 +105,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPropertyList />
+                                    <AssetPropertyList ref={propertyListRef} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -352,8 +362,8 @@ const Assets = () => {
                 aria-describedby="form-modal-description"
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-                <Box sx={{ width: 600, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    <AssetPropertyForm />
+                <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
+                    <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     <IconButton 
                         onClick={handleFormModalClose} 
                         sx={{ 

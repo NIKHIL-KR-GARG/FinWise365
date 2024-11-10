@@ -6,6 +6,7 @@ import TerrainIcon from '@mui/icons-material/Terrain';
 import ApartmentIcon from '@mui/icons-material/Apartment'; // HDB icon
 import CondoIcon from '@mui/icons-material/Domain'; // Condo icon
 import HouseIcon from '@mui/icons-material/House'; // Landed icon
+import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" property type
 import { Modal, Switch, Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
@@ -17,7 +18,7 @@ import CountryList from '../common/CountryList';
 import { HomeLoanRate, HomeValueGrowthRate } from '../common/DefaultValues';
 import HomeLoanEMICalculator from './HomeLoanEMICalculator';
 
-const AssetPropertyForm = () => {
+const AssetPropertyForm = ({ property: initialProperty, action, onClose, refreshPropertyList }) => {
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -36,7 +37,7 @@ const AssetPropertyForm = () => {
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserIsPermanentResident = localStorage.getItem('currentUserIsPermanentResident');
 
-    const [property, setProperty] = useState({
+    const [property, setProperty] = useState(initialProperty || {
         user_id: 0,
         property_name: "",
         property_type: "HDB",
@@ -59,7 +60,7 @@ const AssetPropertyForm = () => {
         is_on_rent: false,
         rental_amount: 0.0,
         property_value_growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
-        is_plan_to_sell: false,
+        is_plan_to_sell: action === 'Sell' ? true : false,
         tentative_sale_date: "",
         tentative_sale_amount: 0.0,
         annual_property_tax_amount: 0.0,
@@ -101,6 +102,18 @@ const AssetPropertyForm = () => {
         calculatePropertyValue();
     }, [property]);
 
+    useEffect(() => {
+        if (initialProperty) {
+            setProperty(initialProperty);
+        }
+        if (action === 'Sell') {
+            setProperty(prevProperty => ({
+                ...prevProperty,
+                is_plan_to_sell: true
+            }));
+        }
+    }, [initialProperty, action]);
+
     const validate = () => {
 
         const errors = {};
@@ -119,6 +132,7 @@ const AssetPropertyForm = () => {
         if (isNaN(property.rental_amount)) errors.rental_amount = 'Rental Amount should be numeric';
         if (isNaN(property.property_value_growth_rate)) errors.property_value_growth_rate = 'Property Value Growth Rate should be numeric';
         if (isNaN(property.tentative_sale_amount)) errors.tentative_sale_amount = 'Tentative Sale Amount should be numeric';
+        if (isNaN(property.tentative_current_value)) errors.tentative_current_value = 'Current Value Amount should be numeric';
         if (isNaN(property.annual_property_tax_amount)) errors.annual_property_tax_amount = 'Annual Property Tax Amount should be numeric';
         if (isNaN(property.annual_property_maintenance_amount)) errors.annual_property_maintenance_amount = 'Annual Property Maintenance Amount should be numeric';
         if (isNaN(property.stamp_duty)) errors.stamp_duty = 'Stamp Duty Rate should be numeric';
@@ -133,13 +147,22 @@ const AssetPropertyForm = () => {
         if (validate()) {
             try {
                 property.user_id = currentUserId;
-                const response = await axios.post('/api/asset_properties', property);
-                //console.log('Property saved:', response.data);
-                setSuccessMessage('property added successfully');
+                const response = initialProperty
+                    ? await axios.put(`/api/asset_properties/${property.id}`, property)
+                    : await axios.post('/api/asset_properties', property);
+                
+                let successMsg = '';
+                if (action === 'Add') successMsg = 'Property added successfully';
+                else if (action === 'Edit') successMsg = 'Property updated successfully';
+                else if (action === 'Sell') successMsg = 'Property sale details updated successfully';
+                
                 setErrorMessage('');
-                //window.close();
+                onClose(); // Close the Asset Property Form window
+                refreshPropertyList(response.data, successMsg); // Pass the updated property and success message
             } catch (error) {
-                setErrorMessage('Failed to add property');
+                if (action === 'Add') setErrorMessage('Failed to add property');
+                else if (action === 'Edit') setErrorMessage('Failed to update property');
+                else if (action === 'Sell') setErrorMessage('Failed to update property sale details');
                 setSuccessMessage('');
             }
         } else {
@@ -372,6 +395,8 @@ const AssetPropertyForm = () => {
                 return <BusinessIcon style={{ color: 'white', marginRight: '10px' }} />;
             case 'Land':
                 return <TerrainIcon style={{ color: 'white', marginRight: '10px' }} />;
+            case 'Other':
+                return <OtherIcon style={{ color: 'white', marginRight: '10px' }} />;
             default:
                 return <HomeIcon style={{ color: 'white', marginRight: '10px' }} />;
         }
@@ -428,7 +453,21 @@ const AssetPropertyForm = () => {
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <HomeIcon style={{ color: 'green', marginRight: '10px' }} />
-                    Purchase Property
+                    { action === 'Add' && (
+                        <>
+                            Purchase Property
+                        </>
+                    )}
+                    { action === 'Edit' && (
+                        <>
+                            Update Property Details
+                        </>
+                    )}
+                    { action === 'Sell' && (
+                        <>
+                            Update Property Details for Sale
+                        </>
+                    )}
                 </Typography>
                 <FormControl component="fieldset" >
                     <FormLabel component="legend">Select Property Type:</FormLabel>
@@ -482,6 +521,16 @@ const AssetPropertyForm = () => {
                                 <Grid container direction="column" alignItems="center" spacing={0}>
                                     <Grid item><TerrainIcon style={{ fontSize: 'normal' }} /></Grid>
                                     <Grid item><Typography variant="caption">Land</Typography></Grid>
+                                </Grid>
+                            }
+                        />
+                        <FormControlLabel
+                            value="Other"
+                            control={<Radio />}
+                            label={
+                                <Grid container direction="column" alignItems="center" spacing={0}>
+                                    <Grid item><OtherIcon style={{ fontSize: 'normal' }} /></Grid>
+                                    <Grid item><Typography variant="caption">Other</Typography></Grid>
                                 </Grid>
                             }
                         />
@@ -591,11 +640,11 @@ const AssetPropertyForm = () => {
                             value={property.stamp_duty}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.stamp_duty}
                             helperText={errors.stamp_duty}
                             disabled={property.property_location === 'SG'}
+                            InputLabelProps={{ shrink: property.stamp_duty !== '' }} // Updated line
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -606,13 +655,24 @@ const AssetPropertyForm = () => {
                             value={property.other_fees}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.other_fees}
                             helperText={errors.other_fees}
+                            InputLabelProps={{ shrink: property.other_fees !== '' }} // Updated line
                         />
                     </Grid>
-                    {/*<Grid item size={4}>
+                    <Grid item size={6}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={property.is_primary_property}
+                                    onChange={handleChange}
+                                    name="is_primary_property"
+                                />}
+                            label="Is this your Primary Property"
+                        />
+                    </Grid>
+                    <Grid item size={6}>
                         <TextField
                             variant="standard"
                             label="Tentative Current Value"
@@ -620,18 +680,11 @@ const AssetPropertyForm = () => {
                             value={property.tentative_current_value}
                             onChange={handleChange}
                             fullWidth
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.tentative_current_value}
+                            helperText={errors.tentative_current_value}
                         />
-                    </Grid>*/}
-
-                    {/*<FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={property.is_primary_property}
-                            onChange={handleChange}
-                            name="is_primary_property"
-                        />}
-                    label="Is this the Primary Property"
-                />*/}
+                    </Grid>
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
@@ -884,6 +937,7 @@ const AssetPropertyForm = () => {
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
+                            { ((action === 'Edit') || (action === 'Add')) && (
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -893,13 +947,25 @@ const AssetPropertyForm = () => {
                                         />}
                                     label="I plan to sell this property in the future"
                                 />
+                            )}
+                            { (action === 'Sell') && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={property.is_plan_to_sell}
+                                            onChange={handleChange}
+                                            name="is_plan_to_sell"
+                                        />}
+                                    label="Sell this property"
+                                />
+                            )}
                             </Grid>
                             {property.is_plan_to_sell && (
                                 <>
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Tentative Sale Date"
+                                            label={action === 'Sell' ? "Sale Date" : "Tentative Sale Date"}
                                             name="tentative_sale_date"
                                             type="date"
                                             value={property.tentative_sale_date}
@@ -911,7 +977,7 @@ const AssetPropertyForm = () => {
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Tentative Sale Amount"
+                                            label={action === 'Sell' ? "Sale Amount" : "Tentative Sale Amount"}
                                             name="tentative_sale_amount"
                                             value={property.tentative_sale_amount}
                                             onChange={handleChange}
