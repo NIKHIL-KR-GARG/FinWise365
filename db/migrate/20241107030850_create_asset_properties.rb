@@ -21,6 +21,7 @@ class CreateAssetProperties < ActiveRecord::Migration[7.2]
       t.boolean :is_loan_locked
       t.date :loan_locked_till
       t.boolean :is_on_rent
+      t.date :rental_start_date
       t.float :rental_amount
       t.float :property_value_growth_rate
       t.boolean :is_plan_to_sell

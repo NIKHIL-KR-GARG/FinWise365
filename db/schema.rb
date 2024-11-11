@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_10_090850) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_11_112342) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "asset_accounts", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "account_name"
+    t.string "institution_name"
+    t.date "opening_date"
+    t.float "interest_rate"
+    t.float "account_balance"
+    t.float "minimum_balance"
+    t.boolean "is_plan_to_close"
+    t.date "closure_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "asset_properties", force: :cascade do |t|
     t.integer "user_id"
@@ -44,13 +58,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_10_090850) do
     t.datetime "updated_at", null: false
     t.float "stamp_duty"
     t.float "other_fees"
+    t.date "rental_start_date"
   end
 
   create_table "asset_vehicles", force: :cascade do |t|
     t.integer "user_id"
     t.string "vehicle_name"
     t.string "vehicle_type"
-    t.string "vehicle_location"
     t.date "purchase_date"
     t.string "currency"
     t.float "purchase_price"
@@ -66,9 +80,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_10_090850) do
     t.boolean "is_plan_to_sell"
     t.date "tentative_sale_date"
     t.float "tentative_sale_amount"
-    t.float "scrap_value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "scrap_value"
+    t.string "vehicle_location", limit: 255
+    t.float "depreciation_rate"
   end
 
   create_table "users", force: :cascade do |t|

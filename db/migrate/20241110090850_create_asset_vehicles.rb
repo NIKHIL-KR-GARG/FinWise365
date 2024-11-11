@@ -21,6 +21,7 @@ class CreateAssetVehicles < ActiveRecord::Migration[7.2]
       t.date :tentative_sale_date
       t.float :tentative_sale_amount
       t.float :scrap_value
+      t.float :depreciation_rate
       
       t.timestamps
     end

@@ -52,6 +52,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         tentative_sale_date: "",
         tentative_sale_amount: 0.0,
         scrap_value: 0.0,
+        depreciation_rate: 0.0
     });
 
     const [calculatedValues, setCalculatedValues] = useState({
@@ -116,6 +117,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.tentative_current_value)) errors.tentative_current_value = 'Current Value Amount should be numeric';
         if (isNaN(vehicle.annual_maintenance_amount)) errors.annual_maintenance_amount = 'Annual Maintenance Amount should be numeric';
         if (isNaN(vehicle.monthly_expenses)) errors.monthly_expenses = 'Monthly Expenses should be numeric';
+        if (isNaN(vehicle.scrap_value)) errors.scrap_value = 'Scrap Value should be numeric';
+        if (isNaN(vehicle.depreciation_rate)) errors.depreciation_rate = 'Depreciation Rate should be numeric';
        
         setErrors(errors);
 
@@ -500,7 +503,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                             helperText={errors.monthly_expenses}
                         />
                     </Grid>
-                    <Grid item size={12}>
+                    <Grid item size={4}>
                         <TextField
                             variant="standard"
                             label="Tentative Current Value"
@@ -511,6 +514,32 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.tentative_current_value}
                             helperText={errors.tentative_current_value}
+                        />
+                    </Grid>
+                    <Grid item size={4}>
+                        <TextField
+                            variant="standard"
+                            label="Scrap Value"
+                            name="scrap_value"
+                            value={vehicle.scrap_value}
+                            onChange={handleChange}
+                            fullWidth
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.scrap_value}
+                            helperText={errors.scrap_value}
+                        />
+                    </Grid>
+                    <Grid item size={4}>
+                        <TextField
+                            variant="standard"
+                            label="Depreciation Rate (%)"
+                            name="depreciation_rate"
+                            value={vehicle.depreciation_rate}
+                            onChange={handleChange}
+                            fullWidth
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.depreciation_rate}
+                            helperText={errors.depreciation_rate}
                         />
                     </Grid>
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >

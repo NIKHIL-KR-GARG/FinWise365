@@ -59,6 +59,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         is_loan_locked: false,
         loan_locked_till: "",
         is_on_rent: false,
+        rental_start_date: "",
         rental_amount: 0.0,
         property_value_growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: action === 'Sell' ? true : false,
@@ -138,6 +139,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (isNaN(property.annual_property_maintenance_amount)) errors.annual_property_maintenance_amount = 'Annual Property Maintenance Amount should be numeric';
         if (isNaN(property.stamp_duty)) errors.stamp_duty = 'Stamp Duty Rate should be numeric';
         if (isNaN(property.other_fees)) errors.other_fees = 'Other Fees should be numeric';
+
+        if (property.is_on_rent && !property.rental_start_date) errors.rental_start_date = 'Rental Start Date is required';
 
         setErrors(errors);
 
@@ -893,7 +896,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
                         <Grid container spacing={2}>
-                            <Grid item size={6}>
+                            <Grid item size={12}>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -905,19 +908,35 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                 />
                             </Grid>
                             {property.is_on_rent && (
-                                <Grid item size={6}>
-                                    <TextField
-                                        variant="standard"
-                                        label="Rental Amount (Monthly)"
-                                        name="rental_amount"
-                                        value={property.rental_amount}
-                                        onChange={handleChange}
-                                        fullWidth
-                                        slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                        error={!!errors.rental_amount}
-                                        helperText={errors.rental_amount}
-                                    />
-                                </Grid>
+                                <>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Rental Start Date"
+                                            name="rental_start_date"
+                                            type="date"
+                                            value={property.rental_start_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.rental_start_date}
+                                            helperText={errors.rental_start_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Rental Amount (Monthly)"
+                                            name="rental_amount"
+                                            value={property.rental_amount}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.rental_amount}
+                                            helperText={errors.rental_amount}
+                                        />
+                                    </Grid>
+                                </>
                             )}
                         </Grid>
                     </Box>

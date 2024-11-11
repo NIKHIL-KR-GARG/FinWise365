@@ -70,6 +70,7 @@ class Api::AssetVehiclesController < ApplicationController
             :tentative_sale_date,
             :tentative_sale_amount,
             :scrap_value,
+            :depreciation_rate,
             :created_at,
             :updated_at
         ) 

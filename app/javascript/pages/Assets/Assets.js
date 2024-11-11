@@ -24,6 +24,7 @@ import AssetPropertyList from '../../components/assetspage/properties/AssetPrope
 import AssetPropertyForm from '../../components/assetspage/properties/AssetPropertyForm';
 import AssetVehiclelist from '../../components/assetspage/vehicles/AssetVehicleList';
 import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleForm';
+import AssetsGraph from '../../components/assetspage/AssetsGraph';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -125,6 +126,9 @@ const Assets = () => {
                             My Assets
                         </Typography>
                         <Divider sx={{ my: 2 }} />
+                        <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
+                            <AssetsGraph />
+                        </Box>
                         <Box>
                             <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
@@ -164,7 +168,22 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceOutlinedIcon sx={{ mr: 1, color: 'red' }} />
-                                        Investment-Accounts Savings/Current
+                                        Savings/current Accounts
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    {/* Add Investment-Account Savings/Current details component or content here */}
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%' }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel3a-content"
+                                    id="panel3a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <SavingsOutlinedIcon sx={{ mr: 1, color: 'brown' }} /> {/* Changed icon */}
+                                        Fixed/Recurring Deposits
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
