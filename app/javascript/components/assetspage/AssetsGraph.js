@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography } from '@mui/material';
+import { CircularProgress, Typography } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const AssetsGraph = () => {
@@ -25,10 +25,12 @@ const AssetsGraph = () => {
             try {
                 const propertiesResponse = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
                 const vehiclesResponse = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
+                const accountsResponse = await axios.get(`/api/asset_accounts?user_id=${currentUserId}`);
                 //const exchangeRatesResponse = await axios.get(`/api/exchange_rates?base_currency=${baseCurrency}`);
 
                 const properties = propertiesResponse.data;
                 const vehicles = vehiclesResponse.data;
+                const accounts = accountsResponse.data;
                 //const exchangeRates = exchangeRatesResponse.data;
                 
                 const currentYear = new Date().getFullYear();
@@ -49,9 +51,13 @@ const AssetsGraph = () => {
                     return total + convertedValue;
                 }, 0);
 
+                const totalAccountValue = accounts.reduce((total, account) => {
+                    return total + account.account_balance;
+                }, 0);  
+
                 const graphname = 'Total Assets (' + currentUserBaseCurrency + ')';
                 setData([
-                    { name: graphname , properties: totalPropertyValue, vehicles: totalVehicleValue }
+                    { name: graphname , properties: totalPropertyValue, vehicles: totalVehicleValue, accounts: totalAccountValue }
                 ]);
                 setLoading(false);
             } catch (error) {
@@ -81,6 +87,7 @@ const AssetsGraph = () => {
             <Legend />
             <Bar dataKey="properties" stackId="a" fill="#8884d8" />
             <Bar dataKey="vehicles" stackId="a" fill="#82ca9d" />
+            <Bar dataKey="accounts" stackId="a" fill="#ffc658" />
         </BarChart>
     );
 };

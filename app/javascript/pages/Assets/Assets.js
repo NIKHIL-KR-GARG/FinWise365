@@ -22,9 +22,11 @@ import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import AssetPropertyList from '../../components/assetspage/properties/AssetPropertyList'; 
 import AssetPropertyForm from '../../components/assetspage/properties/AssetPropertyForm';
-import AssetVehiclelist from '../../components/assetspage/vehicles/AssetVehicleList';
+import AssetVehicleList from '../../components/assetspage/vehicles/AssetVehicleList';
 import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleForm';
 import AssetsGraph from '../../components/assetspage/AssetsGraph';
+import AssetAccountList from '../../components/assetspage/accounts/AssetAccountList';
+import AssetAccountForm from '../../components/assetspage/accounts/AssetAccountForm';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -39,12 +41,18 @@ const Assets = () => {
     const vehicleListRef = useRef(null);
     const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
 
+    const accountListRef = useRef(null);
+    const [accountCount, setAccountCount] = useState(0); // State for vehicle count
+
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
         }
         if (vehicleListRef.current) {
             setVehicleCount(vehicleListRef.current.getVehicleCount());
+        }
+        if (accountListRef.current) {
+            setVehicleCount(accountListRef.current.getAccountCount());
         }
     }, []);
 
@@ -86,6 +94,13 @@ const Assets = () => {
             setVehicleCount(vehicleCount + 1);
         }
     };
+
+    const handleAccountAdded = (updatedAccount, successMsg) => {
+        if (accountListRef.current) {
+            accountListRef.current.refreshAccountList(updatedAccount, successMsg);
+            setAccountCount(accountCount + 1);
+        }
+    };
     
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
@@ -93,6 +108,10 @@ const Assets = () => {
 
     const handleVehiclesFetched = (count) => {
         setVehicleCount(count);
+    };
+
+    const handleAccountsFetched = (count) => {
+        setAccountCount(count);
     };
 
     return (
@@ -157,7 +176,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetVehiclelist ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} />
+                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -168,11 +187,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceOutlinedIcon sx={{ mr: 1, color: 'red' }} />
-                                        Savings/current Accounts
+                                        Savings/Current Accounts ({accountCount}) {/* Display account count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-Account Savings/Current details component or content here */}
+                                    <AssetAccountList ref={accountListRef} onAccountsFetched={handleAccountsFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -363,9 +382,12 @@ const Assets = () => {
                             <DirectionsCarOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Vehicle</Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Account')}
+                        >
                             <AccountBalanceOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Savings</Typography>
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Account</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <ShowChartOutlinedIcon sx={{ color: 'white' }} />
@@ -423,6 +445,9 @@ const Assets = () => {
                     )}
                     {assetAction === 'Add Vehicle' && (
                         <AssetVehicleForm vehicle={null} action={action} onClose={handleFormModalClose} refreshVehicleList={handleVehicleAdded} />
+                    )}
+                     {assetAction === 'Add Account' && (
+                        <AssetAccountForm account={null} action={action} onClose={handleFormModalClose} refreshAccountList={handleAccountAdded} />
                     )}
                     <IconButton 
                         onClick={handleFormModalClose} 
