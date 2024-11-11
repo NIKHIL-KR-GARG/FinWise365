@@ -17,6 +17,7 @@ import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
 import { HomeLoanRate, HomeValueGrowthRate } from '../../common/DefaultValues';
 import HomeLoanEMICalculator from './HomeLoanEMICalculator';
+import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPropertyForm = ({ property: initialProperty, action, onClose, refreshPropertyList }) => {
 
@@ -177,19 +178,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         return -(rate * pv * pvif) / (pvif - 1);
     };
 
-    const formatCurrency = (amount) => {
-        if (property.currency === 'USD') return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-        else if (property.currency === 'SGD') return amount.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' });
-        else if (property.currency === 'INR') return amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
-        else if (property.currency === 'MYR') return amount.toLocaleString('en-MY', { style: 'currency', currency: 'MYR' });
-         else if (property.currency === 'JPY') return amount.toLocaleString('en-JP', { style: 'currency', currency: 'JPY' });
-        else if (property.currency === 'GBP') return amount.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
-        else if (property.currency === 'EUR') return amount.toLocaleString('en-EU', { style: 'currency', currency: 'EUR' });
-        else if (property.currency === 'AUD') return amount.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
-        else if (property.currency === 'RMB') return amount.toLocaleString('en-CN', { style: 'currency', currency: 'RMB' });
-        else return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    };
-
     const calculatePropertyValue = () => {
 
         var BuyerStampDuty = 0;
@@ -336,7 +324,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 // Calculate Interest Payments
                 //loop through the loan duration and calculate the interest payments using the pmt function
                 var outstandingBalance = loanAmountToUse;
-                emi = Math.abs(pmt(property.loan_interest_rate / 100 / 12, property.loan_remaining_duration, LTVValue));
+                emi = Math.abs(pmt(property.loan_interest_rate / 100 / 12, property.loan_remaining_duration, loanAmountToUse));
                 for (let month = 1; month <= property.loan_remaining_duration; month++) {
                     const openingBalance = outstandingBalance;
                     const interest = outstandingBalance * property.loan_interest_rate / 100 / 12;
@@ -828,7 +816,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                         property.is_under_loan && (
                                             <>
                                                 <Typography sx={{ ml: 'auto', color: 'white' }}>
-                                                    Loan EMI: {property.currency} {formatCurrency(parseFloat(calculatedValues.emi))} / month
+                                                    Loan EMI: {property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.emi))} / month
                                                 </Typography>
                                             </>
                                         )}
@@ -839,7 +827,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             <Typography sx={{ fontSize: 'small' }}>Property Value:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(property.purchase_price))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.purchase_price))}</Typography>
                                         </Grid>
                                         {property.is_under_loan && (
                                             <>
@@ -853,19 +841,19 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                                     <Typography sx={{ fontSize: 'small' }}>Loan Amount:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.LTVValue))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.LTVValue))}</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Down Payment:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.DownPayment))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.DownPayment))}</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Interest Payments:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.InterestPayments))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.InterestPayments))}</Typography>
                                                 </Grid>
                                             </>
                                         )}
@@ -873,7 +861,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             <Typography sx={{ fontSize: 'small' }}>Stamp Duty:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.BuyerStampDuty))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.BuyerStampDuty))}</Typography>
                                         </Grid>
                                         {property.property_location === 'SG' && (
                                             <>
@@ -881,7 +869,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                                     <Typography sx={{ fontSize: 'small' }}>Additional Buyer Stamp Duty:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.AdditionalBuyerStampDuty))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.AdditionalBuyerStampDuty))}</Typography>
                                                 </Grid>
                                             </>
                                         )}
@@ -889,13 +877,13 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             <Typography sx={{ fontSize: 'small' }}>Other Fees:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.OtherFees))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.OtherFees))}</Typography>
                                         </Grid>
                                         <Grid item size={6}>
                                             <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {formatCurrency(parseFloat(calculatedValues.TotalCost))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.TotalCost))}</Typography>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>

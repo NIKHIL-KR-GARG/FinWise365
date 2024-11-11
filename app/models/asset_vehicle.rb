@@ -1,0 +1,2 @@
+class AssetVehicle < ApplicationRecord
+end

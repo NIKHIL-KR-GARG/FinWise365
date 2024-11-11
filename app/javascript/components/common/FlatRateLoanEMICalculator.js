@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, TextField, Button, Snackbar, Alert, IconButton } from '@mui/material';
+import { Typography, Box, TextField, Button, Snackbar, Alert, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import FormatCurrency from '../../common/FormatCurrency';
-
-const HomeLoanEMICalculator = ({ property }) => {
+import FormatCurrency from './FormatCurrency';
+ 
+const FlatRateLoanEMICalculator = ({ purchase_price, loan_amount, loan_duration, currency, interest_rate }) => {
 
     const [errors, setErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
@@ -16,28 +15,18 @@ const HomeLoanEMICalculator = ({ property }) => {
         loan_amount: 0.0,
         tenor_months: 0,
         currency: '',
-        interest_rate_year_1: 0.0,
-        interest_rate_year_2: 0.0,
-        interest_rate_year_3: 0.0,
-        interest_rate_year_4: 0.0,
-        interest_rate_year_5: 0.0,
-        interest_rate_year_6: 0.0
+        interest_rate
     });
 
     useEffect(() => {
         setLoanDetails({
-            purchase_price: property.purchase_price,
-            loan_amount: property.loan_amount,
-            tenor_months: property.loan_remaining_duration,
-            currency: property.currency,
-            interest_rate_year_1: property.loan_interest_rate,
-            interest_rate_year_2: property.loan_interest_rate,
-            interest_rate_year_3: property.loan_interest_rate,
-            interest_rate_year_4: property.loan_interest_rate,
-            interest_rate_year_5: property.loan_interest_rate,
-            interest_rate_year_6: property.loan_interest_rate
+            purchase_price: purchase_price,
+            loan_amount: loan_amount,
+            tenor_months: loan_duration,
+            currency: currency,
+            interest_rate: interest_rate
         });
-    }, [property.purchase_price, property.loan_amount, property.loan_remaining_duration, property.currency, property.loan_interest_rate]);
+    }, [purchase_price, loan_amount, loan_duration, currency, interest_rate]);
 
     const [emiCalculations, setEmiCalculations] = useState([]);
     const [emiCalculationsSummary, setEmiCalculationsSummary] = useState([]);
@@ -50,11 +39,27 @@ const HomeLoanEMICalculator = ({ property }) => {
         });
     };
 
-    const pmt = (rate, nper, pv) => {
-        if (rate === 0) return -(pv / nper);
-        const pvif = Math.pow(1 + rate, nper);
-        return -(rate * pv * pvif) / (pvif - 1);
+    // const calculateFlatRateEMI = (principal, rate, tenure) => {
+    //     const monthlyInterest = (principal * (rate / 100)) / 12;
+    //     const emi = (principal / tenure) + monthlyInterest;
+    //     return emi;
+    // };
+
+    const calculateTotalInterest = (principal, rate, tenure) => {
+        const totalInterest = (principal * (rate / 100) * (tenure / 12));
+        return totalInterest;
     };
+
+    // const calculateEffectiveRate = (rate, tenure) => {
+    //     const effectiveRate = Math.pow((1 + (rate / 100) / 12), 12 * tenure) - 1;
+    //     return effectiveRate;
+    // };  
+
+    // const calculateEffectiveInterestRate = (flatRate, tenure) => {
+    //     const monthlyFlatRate = flatRate / 12 / 100;
+    //     const effectiveRate = (Math.pow(1 + monthlyFlatRate, tenure) - 1) * 12 / tenure;
+    //     return effectiveRate * 100;
+    // };
 
     const calculateEMISchedule = () => {
         if (validate()) {
@@ -63,8 +68,6 @@ const HomeLoanEMICalculator = ({ property }) => {
 
                 var year = 1;
                 var monthofyear = 1;
-                var yearlyRate = 0
-                var monthlyRate = 0;
                 var outstandingBalance = loandetails.loan_amount;
 
                 const summaryCalculations = [];
@@ -72,38 +75,13 @@ const HomeLoanEMICalculator = ({ property }) => {
                 var summaryYearInterest = 0;
                 var summaryYearPrincipal = 0;
 
+                const totalInterest = calculateTotalInterest(loandetails.loan_amount, loandetails.interest_rate, loandetails.tenor_months);
+                const emi = (parseFloat(loandetails.loan_amount) + parseFloat(totalInterest)) / parseFloat(loandetails.tenor_months);
+                
                 for (let month = 1; month <= loandetails.tenor_months; month++) {
-                    if (year === 1) {
-                        yearlyRate = loandetails.interest_rate_year_1;
-                        monthlyRate = yearlyRate / 12 / 100;
-                    }
-                    if (year === 2) {
-                        yearlyRate = loandetails.interest_rate_year_2;
-                        monthlyRate = yearlyRate / 12 / 100;
-                    }
-                    else if (year === 3) {
-                        yearlyRate = loandetails.interest_rate_year_3;
-                        monthlyRate = yearlyRate / 12 / 100;
-                    }
-                    else if (year === 4) {
-                        yearlyRate = loandetails.interest_rate_year_4;
-                        monthlyRate = yearlyRate / 12 / 100;
-                    }
-                    else if (year === 5) {
-                        yearlyRate = loandetails.interest_rate_year_5;
-                        monthlyRate = yearlyRate / 12 / 100;
-                    }
-                    else {
-                        yearlyRate = loandetails.interest_rate_year_6;
-                        monthlyRate = yearlyRate / 12 / 100;
-                    }
-
                     const openingBalance = outstandingBalance;
-                    const emi = Math.abs(pmt(monthlyRate, loandetails.tenor_months, loandetails.loan_amount)); // Use absolute value
-                    const interest = outstandingBalance * monthlyRate;
-                    var principal = 0;
-                    if (emi <= openingBalance) principal = emi - interest;
-                    else principal = openingBalance;
+                    const interest = (outstandingBalance * loandetails.interest_rate) / 12 / 100;
+                    const principal = emi - interest;
                     outstandingBalance -= principal;
 
                     // Add to summary
@@ -114,54 +92,45 @@ const HomeLoanEMICalculator = ({ property }) => {
                     calculations.push({
                         year: year,
                         month: month,
-                        interestRate: yearlyRate,
-                        monthlyInstalment: FormatCurrency(loandetails.currency, emi),
-                        openingBalance: FormatCurrency(loandetails.currency, openingBalance),
-                        principal: FormatCurrency(loandetails.currency, principal),
-                        interest: FormatCurrency(loandetails.currency, interest),
-                        outstandingLoanBalance: FormatCurrency(loandetails.currency, outstandingBalance)
+                        interestRate: loandetails.interest_rate,
+                        monthlyInstalment: FormatCurrency(loandetails.currency, parseFloat(emi)),
+                        openingBalance: FormatCurrency(loandetails.currency, parseFloat(openingBalance)),
+                        principal: FormatCurrency(loandetails.currency, parseFloat(principal)),
+                        interest: FormatCurrency(loandetails.currency, parseFloat(interest)),
+                        outstandingLoanBalance: FormatCurrency(loandetails.currency, parseFloat(outstandingBalance))
                     });
 
                     if (monthofyear === 12) {
-                        // Add summary for the year if it is less than 6 years
-                        if (year < 6) {
-                            summaryCalculations.push({
-                                year: year.toString(),
-                                totalPrincipal: FormatCurrency(loandetails.currency, summaryYearPrincipal),
-                                totalInterest: FormatCurrency(loandetails.currency, summaryYearInterest),
-                                totalEMI: FormatCurrency(loandetails.currency, summaryYearEMI)
-                            });
-                            summaryYearEMI = 0;
-                            summaryYearInterest = 0;
-                            summaryYearPrincipal = 0;
-                        }                        
+                        // Add summary for the year
+                        summaryCalculations.push({
+                            year: year.toString(),
+                            totalPrincipal: FormatCurrency(loandetails.currency, parseFloat(summaryYearPrincipal)),
+                            totalInterest: FormatCurrency(loandetails.currency, parseFloat(summaryYearInterest)),
+                            totalEMI: FormatCurrency(loandetails.currency, parseFloat(summaryYearEMI))
+                        });
+                        summaryYearEMI = 0;
+                        summaryYearInterest = 0;
+                        summaryYearPrincipal = 0;
                         year++;
                         monthofyear = 1;
+                    } else {
+                        monthofyear++;
                     }
-                    else monthofyear++;
                 }
 
                 setEmiCalculations(calculations);
 
-                // Add summary for years 6 to end
-                summaryCalculations.push({
-                    year: "n-1",
-                    totalEMI: FormatCurrency(loandetails.currency, summaryYearEMI),
-                    totalInterest: FormatCurrency(loandetails.currency, summaryYearInterest),
-                    totalPrincipal: FormatCurrency(loandetails.currency, summaryYearPrincipal)
-                });
-
                 // Calculate overall totals
-                const totalEMI = summaryCalculations.reduce((acc, curr) => acc + parseFloat(curr.totalEMI.replace(/[^0-9.-]+/g, "")), 0);
-                const totalInterest = summaryCalculations.reduce((acc, curr) => acc + parseFloat(curr.totalInterest.replace(/[^0-9.-]+/g, "")), 0);
-                const totalPrincipal = summaryCalculations.reduce((acc, curr) => acc + parseFloat(curr.totalPrincipal.replace(/[^0-9.-]+/g, "")), 0);
+                const overallTotalEMI = summaryCalculations.reduce((acc, curr) => acc + parseFloat(curr.totalEMI.replace(/[^0-9.-]+/g, "")), 0);
+                const overallTotalInterest = summaryCalculations.reduce((acc, curr) => acc + parseFloat(curr.totalInterest.replace(/[^0-9.-]+/g, "")), 0);
+                const overallTotalPrincipal = summaryCalculations.reduce((acc, curr) => acc + parseFloat(curr.totalPrincipal.replace(/[^0-9.-]+/g, "")), 0);
 
                 // Add total row
                 summaryCalculations.push({
                     year: "Total",
-                    totalEMI: FormatCurrency(loandetails.currency, totalEMI),
-                    totalInterest: FormatCurrency(loandetails.currency, totalInterest),
-                    totalPrincipal: FormatCurrency(loandetails.currency, totalPrincipal)
+                    totalEMI: FormatCurrency(loandetails.currency, parseFloat(overallTotalEMI)),
+                    totalInterest: FormatCurrency(loandetails.currency, parseFloat(overallTotalInterest)),
+                    totalPrincipal: FormatCurrency(loandetails.currency, parseFloat(overallTotalPrincipal))
                 });
 
                 setEmiCalculationsSummary(summaryCalculations);
@@ -182,17 +151,17 @@ const HomeLoanEMICalculator = ({ property }) => {
     const validate = () => {
         const errors = {};
 
+        if (!loandetails.purchase_price || loandetails.purchase_price <= 0) errors.purchase_price = 'Purchase Price is required';
+        if (!loandetails.loan_amount || loandetails.loan_amount <= 0) errors.loan_amount = 'Loan Amount is required';
+        if (!loandetails.tenor_months || loandetails.tenor_months <= 0) errors.tenor_months = 'Tenor is required';
+        if (!loandetails.interest_rate || loandetails.interest_rate <= 0) errors.interest_rate = 'Interest Rate is required';
+
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(loandetails.purchase_price)) errors.purchase_price = 'Purchase Price should be numeric';
         if (isNaN(loandetails.loan_amount)) errors.loan_amount = 'Loan Amount should be numeric';
         if (isNaN(loandetails.tenor_months)) errors.tenor_months = 'Tenor should be numeric';
-        if (isNaN(loandetails.interest_rate_year_1)) errors.interest_rate_year_1 = 'Interest Rate should be numeric';
-        if (isNaN(loandetails.interest_rate_year_2)) errors.interest_rate_year_2 = 'Interest Rate should be numeric';
-        if (isNaN(loandetails.interest_rate_year_3)) errors.interest_rate_year_3 = 'Interest Rate should be numeric';
-        if (isNaN(loandetails.interest_rate_year_4)) errors.interest_rate_year_4 = 'Interest Rate should be numeric';
-        if (isNaN(loandetails.interest_rate_year_5)) errors.interest_rate_year_5 = 'Interest Rate should be numeric';
-        if (isNaN(loandetails.interest_rate_year_6)) errors.interest_rate_year_6 = 'Interest Rate should be numeric';
-
+        if (isNaN(loandetails.interest_rate)) errors.interest_rate = 'Interest Rate should be numeric';
+        
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -247,15 +216,15 @@ const HomeLoanEMICalculator = ({ property }) => {
                 </Alert>
             </Snackbar>
             <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
-                Home Mortgage EMI Calculator
+                Flat Rate Loan EMI Calculator
             </Typography>
             <Grid container spacing={2}>
                 <Grid item size={12}>
                     <Typography variant="h7" component="h2" gutterBottom sx={{ textDecoration: 'underline', pb: 0 }}>
-                        Mortgage Details:
+                        Loan Details:
                     </Typography>
                 </Grid>
-                <Grid item size={4}>
+                <Grid item size={3}>
                     <TextField
                         label="Purchase Price"
                         variant="outlined"
@@ -269,7 +238,7 @@ const HomeLoanEMICalculator = ({ property }) => {
                         onChange={handleChange}
                     />
                 </Grid>
-                <Grid item size={4}>
+                <Grid item size={3}>
                     <TextField
                         label="Loan Amount"
                         variant="outlined"
@@ -283,7 +252,7 @@ const HomeLoanEMICalculator = ({ property }) => {
                         onChange={handleChange}
                     />
                 </Grid>
-                <Grid item size={4}>
+                <Grid item size={3}>
                     <TextField
                         label="Tenor (Months)"
                         variant="outlined"
@@ -297,103 +266,18 @@ const HomeLoanEMICalculator = ({ property }) => {
                         onChange={handleChange}
                     />
                 </Grid>
-                <Grid item size={12}>
-                    <Typography variant="h7" component="h2" sx={{ textDecoration: 'underline', pb: 0 }}>
-                        Interest Rate:
-                    </Typography>
-                </Grid>
-                <Grid item size={2}>
+                <Grid item size={3}>
                     <TextField
                         variant="outlined"
-                        label="Year 1"
-                        name="interest_rate_year_1"
-                        value={loandetails.interest_rate_year_1}
+                        label="Interest Rate"
+                        name="interest_rate"
+                        value={loandetails.interest_rate}
                         fullWidth
                         required
                         slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                        error={!!errors.interest_rate_year_1}
-                        helperText={errors.interest_rate_year_1}
+                        error={!!errors.interest_rate}
+                        helperText={errors.interest_rate}
                         size="small"
-                        sx={{ pb: 1 }}
-                        onChange={handleChange}
-                    />
-                </Grid>
-                <Grid item size={2}>
-                    <TextField
-                        variant="outlined"
-                        label="Year 2"
-                        name="interest_rate_year_2"
-                        value={loandetails.interest_rate_year_2}
-                        fullWidth
-                        required
-                        size="small"
-                        slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                        error={!!errors.interest_rate_year_2}
-                        helperText={errors.interest_rate_year_2}
-                        sx={{ pb: 1 }}
-                        onChange={handleChange}
-                    />
-                </Grid>
-                <Grid item size={2}>
-                    <TextField
-                        variant="outlined"
-                        label="Year 3"
-                        name="interest_rate_year_3"
-                        value={loandetails.interest_rate_year_3}
-                        fullWidth
-                        required
-                        size="small"
-                        slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                        error={!!errors.interest_rate_year_3}
-                        helperText={errors.interest_rate_year_3}
-                        sx={{ pb: 1 }}
-                        onChange={handleChange}
-                    />
-                </Grid>
-                <Grid item size={2}>
-                    <TextField
-                        variant="outlined"
-                        label="Year 4"
-                        name="interest_rate_year_4"
-                        value={loandetails.interest_rate_year_4}
-                        fullWidth
-                        required
-                        size="small"
-                        slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                        error={!!errors.interest_rate_year_4}
-                        helperText={errors.interest_rate_year_4}
-                        sx={{ pb: 1 }}
-                        onChange={handleChange}
-                    />
-                </Grid>
-                <Grid item size={2}>
-                    <TextField
-                        variant="outlined"
-                        label="Year 5"
-                        name="interest_rate_year_5"
-                        value={loandetails.interest_rate_year_5}
-                        fullWidth
-                        required
-                        size="small"
-                        slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                        error={!!errors.interest_rate_year_5}
-                        helperText={errors.interest_rate_year_5}
-                        sx={{ pb: 1 }}
-                        onChange={handleChange}
-                    />
-                </Grid>
-                <Grid item size={2}>
-                    <TextField
-                        variant="outlined"
-                        label="Year 6 (& above)"
-                        name="interest_rate_year_6"
-                        value={loandetails.interest_rate_year_6}
-                        fullWidth
-                        required
-                        size="small"
-                        slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                        error={!!errors.interest_rate_year_6}
-                        helperText={errors.interest_rate_year_6}
                         sx={{ pb: 1 }}
                         onChange={handleChange}
                     />
@@ -482,4 +366,4 @@ const HomeLoanEMICalculator = ({ property }) => {
     )
 }
 
-export default HomeLoanEMICalculator;
+export default FlatRateLoanEMICalculator;

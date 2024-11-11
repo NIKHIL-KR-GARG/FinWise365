@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_07_030850) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_10_090850) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,8 +23,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_030850) do
     t.date "purchase_date"
     t.string "currency"
     t.float "purchase_price"
-    t.float "stamp_duty"
-    t.float "other_fees"
     t.float "tentative_current_value"
     t.boolean "is_primary_property"
     t.boolean "is_under_loan"
@@ -44,6 +42,33 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_030850) do
     t.float "annual_property_maintenance_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "stamp_duty"
+    t.float "other_fees"
+  end
+
+  create_table "asset_vehicles", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "vehicle_name"
+    t.string "vehicle_type"
+    t.string "vehicle_location"
+    t.date "purchase_date"
+    t.string "currency"
+    t.float "purchase_price"
+    t.float "coe_paid"
+    t.float "tentative_current_value"
+    t.float "annual_maintenance_amount"
+    t.float "monthly_expenses"
+    t.boolean "is_under_loan"
+    t.float "loan_amount"
+    t.integer "loan_remaining_duration"
+    t.string "loan_type"
+    t.float "loan_interest_rate"
+    t.boolean "is_plan_to_sell"
+    t.date "tentative_sale_date"
+    t.float "tentative_sale_amount"
+    t.float "scrap_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -51,7 +76,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_030850) do
     t.string "phone_no"
     t.date "date_of_birth"
     t.string "country_of_residence"
-    t.string "is_permanent_resident"
     t.string "address"
     t.boolean "is_email_verified"
     t.boolean "is_phone_no_verified"
@@ -65,5 +89,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_07_030850) do
     t.string "base_currency", limit: 255
     t.string "gender", limit: 255
     t.string "nationality", limit: 255
+    t.boolean "is_permanent_resident"
   end
 end

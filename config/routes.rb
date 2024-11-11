@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     end
 
     resources :asset_properties, only: %i[index show create destroy update]
+    resources :asset_vehicles, only: %i[index show create destroy update]
 
   end
 

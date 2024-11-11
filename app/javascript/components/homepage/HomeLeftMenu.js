@@ -18,6 +18,7 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import HomeIcon from '@mui/icons-material/Home';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import { useAuth0 } from "@auth0/auth0-react";
 
 const drawerWidth = 240;
@@ -111,13 +112,13 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                         </ListItem>
                         <ListItem button  sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
-                                <AccountBalanceIcon fontSize="small" />
+                                <AttachMoneyIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Income</Typography>} />}
                         </ListItem>
                         <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
-                                <AccountBalanceIcon fontSize="small" />
+                                <MoneyOffIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Expenses</Typography>} />}
                         </ListItem>

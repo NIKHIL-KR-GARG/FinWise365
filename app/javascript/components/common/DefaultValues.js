@@ -8,6 +8,11 @@ export const HomeValueGrowthRate = [
     { key: "IN", value: "5" }
 ];
 
+export const VehicleLoanRate = [
+    { key: "SG", value: "3.1" },
+    { key: "IN", value: "8.8" }
+];
+
 //export const CarLoanRate = [
 //    { key: "SG", value: "" },
 //    { key: "IN", value: "" }

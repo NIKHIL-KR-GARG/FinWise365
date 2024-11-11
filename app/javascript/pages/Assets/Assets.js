@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Backdrop } from '@mui/material'; // Added Backdrop
-import Link from '@mui/material/Link';
-import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link } from '@mui/material'; // Added Backdrop
+//icons
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
@@ -21,20 +20,30 @@ import CloseIconFilled from '@mui/icons-material/Close'; // Import filled versio
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
-import AssetPropertyList from '../../components/assetspage/properties/AssetPropertyList'; // Import AssetPropertyForm
+import AssetPropertyList from '../../components/assetspage/properties/AssetPropertyList'; 
 import AssetPropertyForm from '../../components/assetspage/properties/AssetPropertyForm';
+import AssetVehiclelist from '../../components/assetspage/vehicles/AssetVehicleList';
+import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleForm';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
     const [action, setAction] = useState(''); // State for action
+    const [assetAction, setAssetAction] = useState(''); // State for action
+
     const propertyListRef = useRef(null);
     const [propertyCount, setPropertyCount] = useState(0); // State for property count
+
+    const vehicleListRef = useRef(null);
+    const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
 
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
+        }
+        if (vehicleListRef.current) {
+            setVehicleCount(vehicleListRef.current.getVehicleCount());
         }
     }, []);
 
@@ -50,14 +59,16 @@ const Assets = () => {
         setModalOpen(false);
     };
 
-    const handleFormModalOpen = () => {
+    const handleFormModalOpen = (type) => {
         setAction('Add');
+        setAssetAction(type);
         setFormModalOpen(true);
         setModalOpen(false); // Close the right side modal box
     };
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
+        setAssetAction('');
         setAction('');
     };
 
@@ -67,10 +78,21 @@ const Assets = () => {
             setPropertyCount(propertyCount + 1);
         }
     };
+
+    const handleVehicleAdded = (updatedVehicle, successMsg) => {
+        if (vehicleListRef.current) {
+            vehicleListRef.current.refreshVehicleList(updatedVehicle, successMsg);
+            setVehicleCount(vehicleCount + 1);
+        }
+    };
     
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
    };
+
+    const handleVehiclesFetched = (count) => {
+        setVehicleCount(count);
+    };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -112,7 +134,7 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <BusinessOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
-                                        My Properties ({propertyCount}) {/* Display property count */}
+                                        Properties ({propertyCount}) {/* Display property count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -127,11 +149,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarOutlinedIcon sx={{ mr: 1, color: 'green' }} />
-                                        My Vehicles
+                                        Vehicles ({vehicleCount}) {/* Display vehicle count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Car details component or content here */}
+                                    <AssetVehiclelist ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -309,15 +331,18 @@ const Assets = () => {
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 2 }}>
                         <Box 
-                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }} // Added cursor: 'pointer'
-                            onClick={handleFormModalOpen}
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Property')}
                         >
                             <BusinessOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Property</Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Vehicle')}
+                        >
                             <DirectionsCarOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Car</Typography>
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Vehicle</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <AccountBalanceOutlinedIcon sx={{ color: 'white' }} />
@@ -374,15 +399,20 @@ const Assets = () => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
+                    {assetAction === 'Add Property' && (
+                        <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
+                    )}
+                    {assetAction === 'Add Vehicle' && (
+                        <AssetVehicleForm vehicle={null} action={action} onClose={handleFormModalClose} refreshVehicleList={handleVehicleAdded} />
+                    )}
                     <IconButton 
                         onClick={handleFormModalClose} 
                         sx={{ 
                             position: 'absolute', 
                             top: 8, 
                             right: 24, 
-                            border: '1px solid', // Added border
-                            borderColor: 'grey.500' // Optional: specify border color
+                            border: '1px solid', 
+                            borderColor: 'grey.500' 
                         }}
                     >
                         <CloseIconFilled />

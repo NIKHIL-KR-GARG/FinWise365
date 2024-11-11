@@ -3,158 +3,151 @@ import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
-import BusinessIcon from '@mui/icons-material/Business';
-import TerrainIcon from '@mui/icons-material/Terrain';
-import ApartmentIcon from '@mui/icons-material/Apartment'; // HDB icon
-import CondoIcon from '@mui/icons-material/Domain'; // Condo icon
-import HouseIcon from '@mui/icons-material/House'; // Landed icon
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar'; // Car icon
+import TwoWheelerIcon from '@mui/icons-material/TwoWheeler'; // Bike icon
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // Commercial vehicle icon
+import OtherHousesIcon from '@mui/icons-material/OtherHouses'; // Other vehicle icon
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
-import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" property type
 
 import '../../common/GridHeader.css';
+import AssetVehicleForm from './AssetVehicleForm';
 import CountryList from '../../common/CountryList';
-import AssetPropertyForm from './AssetPropertyForm';
 
-const AssetPropertyList = forwardRef((props, ref) => {
-    const { onPropertiesFetched } = props; // Destructure the new prop
+const AssetVehicleList = forwardRef((props, ref) => {
+    const { onVehiclesFetched } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
-    const [properties, setProperties] = useState([]);
-    const [propertiesFetched, setPropertiesFetched] = useState(false); // State to track if properties are fetched
+    const [vehicles, setVehicles] = useState([]);
+    const [vehiclesFetched, setVehiclesFetched] = useState(false); // State to track if vehicles are fetched
     const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
-    const [selectedProperty, setSelectedProperty] = useState(null);
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [action, setAction] = useState(''); // State for action
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for Delete Dialog
-    const [propertyToDelete, setPropertyToDelete] = useState(null); // State for property to delete
-    const [sortingModel, setSortingModel] = useState([{ field: 'property_name', sort: 'asc' }]); // Initialize with default sorting
+    const [vehicleToDelete, setVehicleToDelete] = useState(null); // State for vehicle to delete
+    const [sortingModel, setSortingModel] = useState([{ field: 'vehicle_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const fetchProperties = async () => {
+    const fetchVehicles = async () => {
         try {
-            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            setProperties(response.data);
-            setPropertiesFetched(true); // Set propertiesFetched to true after fetching
-            if (onPropertiesFetched) {
-                onPropertiesFetched(response.data.length); // Notify parent component
+            const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
+            setVehicles(response.data);
+            setVehiclesFetched(true); // Set vehiclesFetched to true after fetching
+            if (onVehiclesFetched) {
+                onVehiclesFetched(response.data.length); // Notify parent component
             }
         } catch (error) {
-            console.error('Error fetching properties:', error);
+            console.error('Error fetching vehicles:', error);
         }
     };
 
     useEffect(() => {
-        fetchProperties();
+        fetchVehicles();
         
     }, [currentUserId]);
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
-        setSelectedProperty(null);
+        setSelectedVehicle(null);
         setAction('');
     };
 
     const handleDeleteDialogClose = () => {
         setDeleteDialogOpen(false);
-        setPropertyToDelete(null);
+        setVehicleToDelete(null);
     };
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`/api/asset_properties/${propertyToDelete.id}`);
-            setProperties(prevProperties => prevProperties.filter(p => p.id !== propertyToDelete.id));
-            onPropertiesFetched(properties.length - 1); // Notify parent component
+            await axios.delete(`/api/asset_vehicles/${vehicleToDelete.id}`);
+            setVehicles(prevVehicles => prevVehicles.filter(p => p.id !== vehicleToDelete.id));
+            onVehiclesFetched(vehicles.length - 1); // Notify parent component
             handleDeleteDialogClose();
-            setSuccessMessage('Property deleted successfully');
+            setSuccessMessage('Vehicle deleted successfully');
         } catch (error) {
-            console.error('Error deleting property:', error);
+            console.error('Error deleting vehicle:', error);
         }
     };
 
-    const handleAction = (property, actionType) => {
+    const handleAction = (vehicle, actionType) => {
         if (actionType === 'Delete') {
-            setPropertyToDelete(property);
+            setVehicleToDelete(vehicle);
             setDeleteDialogOpen(true);
         } else {
-            setSelectedProperty(property);
+            setSelectedVehicle(vehicle);
             setAction(actionType);
             setFormModalOpen(true);
         }
     };
 
     useImperativeHandle(ref, () => ({
-        refreshPropertyList(updatedProperty, successMsg) {
-            setProperties((prevProperties) => {
-                const propertyIndex = prevProperties.findIndex(p => p.id === updatedProperty.id);
-                if (propertyIndex > -1) {
-                    const newProperties = [...prevProperties];
-                    newProperties[propertyIndex] = updatedProperty;
-                    onPropertiesFetched(properties.length); // Notify parent component
-                    return newProperties;
+        refreshVehicleList(updatedVehicle, successMsg) {
+            setVehicles((prevVehicles) => {
+                const vehicleIndex = prevVehicles.findIndex(p => p.id === updatedVehicle.id);
+                if (vehicleIndex > -1) {
+                    const newVehicles = [...prevVehicles];
+                    newVehicles[vehicleIndex] = updatedVehicle;
+                    onVehiclesFetched(vehicles.length); // Notify parent component
+                    return newVehicles;
                 } else {
-                    return [...prevProperties, updatedProperty];
+                    return [...prevVehicles, updatedVehicle];
                 }
             });
             setSuccessMessage(successMsg);
         },
-        getPropertyCount() {
-            return propertiesFetched ? properties.length : 0; // Return count only if properties are fetched
+        getVehicleCount() {
+            return vehiclesFetched ? vehicles.length : 0; // Return count only if vehicles are fetched
         }
     }));
 
-    const refreshPropertyList = (updatedProperty, successMsg) => {
-        setProperties(prevProperties => {
-            const propertyIndex = prevProperties.findIndex(p => p.id === updatedProperty.id);
-            if (propertyIndex > -1) {
-                // Update existing property
-                const newProperties = [...prevProperties];
-                newProperties[propertyIndex] = updatedProperty;
-                onPropertiesFetched(properties.length); // Notify parent component
-                return newProperties;
+    const refreshVehicleList = (updatedVehicle, successMsg) => {
+        setVehicles(prevVehicles => {
+            const vehicleIndex = prevVehicles.findIndex(p => p.id === updatedVehicle.id);
+            if (vehicleIndex > -1) {
+                // Update existing vehicle
+                const newVehicles = [...prevVehicles];
+                newVehicles[vehicleIndex] = updatedVehicle;
+                onVehiclesFetched(vehicles.length); // Notify parent component
+                return newVehicles;
             } else {
-                // Add new property
-                return [...prevProperties, updatedProperty];
+                // Add new vehicle
+                return [...prevVehicles, updatedVehicle];
             }
         });
         setSuccessMessage(successMsg);
     };
 
-    const getPropertyIcon = (propertyType) => {
-        switch (propertyType) {
-            case 'HDB':
-                return <ApartmentIcon style={{ color: 'black', marginRight: '10px' }} />;
-            case 'Condominium':
-                return <CondoIcon style={{ color: 'black', marginRight: '10px' }} />;
-            case 'Landed':
-                return <HouseIcon style={{ color: 'black', marginRight: '10px' }} />;
+    const getVehicleIcon = (vehicleType) => {
+        switch (vehicleType) {
+            case 'Car':
+                return <DirectionsCarIcon style={{ color: 'black', marginRight: '10px' }} />;
+            case 'Bike':
+                return <TwoWheelerIcon style={{ color: 'black', marginRight: '10px' }} />;
             case 'Commercial':
-                return <BusinessIcon style={{ color: 'black', marginRight: '10px' }} />;
-            case 'Land':
-                return <TerrainIcon style={{ color: 'black', marginRight: '10px' }} />;
+                return <LocalShippingIcon style={{ color: 'black', marginRight: '10px' }} />;
             case 'Other':
-                return <OtherIcon style={{ color: 'white', marginRight: '10px' }} />;
+                return <OtherHousesIcon style={{ color: 'black', marginRight: '10px' }} />;
             default:
-                return <HomeIcon style={{ color: 'black', marginRight: '10px' }} />;
+                return <DirectionsCarIcon style={{ color: 'black', marginRight: '10px' }} />;
         }
     };
 
     const columns = [
-        { field: 'property_name', headerName: 'Property Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
+        { field: 'vehicle_name', headerName: 'Vehicle Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
             <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
                 {params.value}
             </a>
         )},
-        { field: 'property_type', headerName: 'Property Type', width: 130, headerClassName: 'header-theme', renderCell: (params) => (
+        { field: 'vehicle_type', headerName: 'Vehicle Type', width: 130, headerClassName: 'header-theme', renderCell: (params) => (
             <div>
-                {getPropertyIcon(params.value)}
+                {getVehicleIcon(params.value)}
                 {params.value}
             </div>
         )},
-        { field: 'property_location', headerName: 'Property Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'vehicle_location', headerName: 'Vehicle Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
@@ -206,7 +199,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
-                rows={properties}
+                rows={vehicles}
                 columns={columns}
                 sortingModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
@@ -237,7 +230,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedProperty && <AssetPropertyForm property={selectedProperty} action={action} onClose={handleFormModalClose} refreshPropertyList={refreshPropertyList}/>} {/* Pass action to form */}
+                    {selectedVehicle && <AssetVehicleForm vehicle={selectedVehicle} action={action} onClose={handleFormModalClose} refreshVehicleList={refreshVehicleList}/>} {/* Pass action to form */}
                     <IconButton 
                         onClick={handleFormModalClose} 
                         sx={{ 
@@ -261,7 +254,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
                 <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        Are you sure you want to delete the property "{propertyToDelete?.property_name}"?
+                        Are you sure you want to delete the vehicle "{vehicleToDelete?.vehicle_name}"?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -277,4 +270,4 @@ const AssetPropertyList = forwardRef((props, ref) => {
     );
 });
 
-export default AssetPropertyList;
+export default AssetVehicleList;
