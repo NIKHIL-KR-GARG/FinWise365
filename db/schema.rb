@@ -71,17 +71,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_140941) do
     t.date "loan_locked_till"
     t.boolean "is_on_rent"
     t.float "rental_amount"
+    t.date "rental_start_date"
+    t.date "rental_end_date"
     t.float "property_value_growth_rate"
     t.boolean "is_plan_to_sell"
     t.date "tentative_sale_date"
     t.float "tentative_sale_amount"
     t.float "annual_property_tax_amount"
     t.float "annual_property_maintenance_amount"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.float "stamp_duty"
     t.float "other_fees"
-    t.date "rental_start_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "asset_vehicles", force: :cascade do |t|

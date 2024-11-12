@@ -71,6 +71,7 @@ class Api::AssetPropertiesController < ApplicationController
             :loan_locked_till,
             :is_on_rent,
             :rental_start_date,
+            :rental_end_date,
             :rental_amount,
             :property_value_growth_rate,
             :is_plan_to_sell,

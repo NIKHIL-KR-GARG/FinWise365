@@ -60,6 +60,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         loan_locked_till: "",
         is_on_rent: false,
         rental_start_date: "",
+        rental_end_date: "",
         rental_amount: 0.0,
         property_value_growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: action === 'Sell' ? true : false,
@@ -916,7 +917,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
                         <Grid container spacing={2}>
-                            <Grid item size={12}>
+                            <Grid item size={6}>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -929,6 +930,19 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             </Grid>
                             {property.is_on_rent && (
                                 <>
+                                    <Grid item size={6}>
+                                            <TextField
+                                                variant="standard"
+                                                label="Rental Amount (Monthly)"
+                                                name="rental_amount"
+                                                value={property.rental_amount}
+                                                onChange={handleChange}
+                                                fullWidth
+                                                slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                                error={!!errors.rental_amount}
+                                                helperText={errors.rental_amount}
+                                            />
+                                        </Grid>
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
@@ -946,14 +960,15 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Rental Amount (Monthly)"
-                                            name="rental_amount"
-                                            value={property.rental_amount}
+                                            label="Rental End Date"
+                                            name="rental_end_date"
+                                            type="date"
+                                            value={property.rental_end_date}
                                             onChange={handleChange}
                                             fullWidth
-                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.rental_amount}
-                                            helperText={errors.rental_amount}
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.rental_end_date}
+                                            helperText={errors.rental_end_date}
                                         />
                                     </Grid>
                                 </>
