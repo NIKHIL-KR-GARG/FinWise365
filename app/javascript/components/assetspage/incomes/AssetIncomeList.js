@@ -8,136 +8,137 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 
 import '../../common/GridHeader.css';
-import AssetDepositForm from './AssetDepositForm';
+import AssetIncomeForm from './AssetIncomeForm';
 import CountryList from '../../common/CountryList';
 
-const AssetDepositList = forwardRef((props, ref) => {
-    const { onDepositsFetched } = props; // Destructure the new prop
+const AssetIncomeList = forwardRef((props, ref) => {
+    const { onIncomesFetched } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
-    const [deposits, setDeposits] = useState([]);
-    const [depositsFetched, setDepositsFetched] = useState(false); // State to track if deposits are fetched
+    const [incomes, setIncomes] = useState([]);
+    const [incomesFetched, setIncomesFetched] = useState(false); // State to track if incomes are fetched
     const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
-    const [selectedDeposit, setSelectedDeposit] = useState(null);
+    const [selectedIncome, setSelectedIncome] = useState(null);
     const [action, setAction] = useState(''); // State for action
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for Delete Dialog
-    const [depositToDelete, setDepositToDelete] = useState(null); // State for deposit to delete
-    const [sortingModel, setSortingModel] = useState([{ field: 'deposit_name', sort: 'asc' }]); // Initialize with default sorting
+    const [incomeToDelete, setIncomeToDelete] = useState(null); // State for income to delete
+    const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const fetchDeposits = async () => {
+    const fetchIncomes = async () => {
         try {
-            const response = await axios.get(`/api/asset_deposits?user_id=${currentUserId}`);
-            setDeposits(response.data);
-            setDepositsFetched(true); // Set depositsFetched to true after fetching
-            if (onDepositsFetched) {
-                onDepositsFetched(response.data.length); // Notify parent component
+            const response = await axios.get(`/api/asset_incomes?user_id=${currentUserId}`);
+            setIncomes(response.data);
+            setIncomesFetched(true); // Set incomesFetched to true after fetching
+            if (onIncomesFetched) {
+                onIncomesFetched(response.data.length); // Notify parent component
             }
         } catch (error) {
-            console.error('Error fetching deposits:', error);
+            console.error('Error fetching incomes:', error);
         }
     };
 
     useEffect(() => {
-        fetchDeposits();
+        fetchIncomes();
         
     }, [currentUserId]);
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
-        setSelectedDeposit(null);
+        setSelectedIncome(null);
         setAction('');
     };
 
     const handleDeleteDialogClose = () => {
         setDeleteDialogOpen(false);
-        setDepositToDelete(null);
+        setIncomeToDelete(null);
     };
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`/api/asset_deposits/${depositToDelete.id}`);
-            setDeposits(prevDeposits => prevDeposits.filter(p => p.id !== depositToDelete.id));
-            onDepositsFetched(deposits.length - 1); // Notify parent component
+            await axios.delete(`/api/asset_incomes/${incomeToDelete.id}`);
+            setIncomes(prevIncomes => prevIncomes.filter(p => p.id !== incomeToDelete.id));
+            onIncomesFetched(incomes.length - 1); // Notify parent component
             handleDeleteDialogClose();
-            setSuccessMessage('Deposit deleted successfully');
+            setSuccessMessage('Income deleted successfully');
         } catch (error) {
-            console.error('Error deleting deposit:', error);
+            console.error('Error deleting income:', error);
         }
     };
 
-    const handleAction = (deposit, actionType) => {
+    const handleAction = (income, actionType) => {
         if (actionType === 'Delete') {
-            setDepositToDelete(deposit);
+            setIncomeToDelete(income);
             setDeleteDialogOpen(true);
         } else {
-            setSelectedDeposit(deposit);
+            setSelectedIncome(income);
             setAction(actionType);
             setFormModalOpen(true);
         }
     };
 
     useImperativeHandle(ref, () => ({
-        refreshDepositList(updatedDeposit, successMsg) {
-            setDeposits((prevDeposits) => {
-                const depositIndex = prevDeposits.findIndex(p => p.id === updatedDeposit.id);
-                if (depositIndex > -1) {
-                    const newDeposits = [...prevDeposits];
-                    newDeposits[depositIndex] = updatedDeposit;
-                    onDepositsFetched(deposits.length); // Notify parent component
-                    return newDeposits;
+        refreshIncomeList(updatedIncome, successMsg) {
+            setIncomes((prevIncomes) => {
+                const incomeIndex = prevIncomes.findIndex(p => p.id === updatedIncome.id);
+                if (incomeIndex > -1) {
+                    const newIncomes = [...prevIncomes];
+                    newIncomes[incomeIndex] = updatedIncome;
+                    onIncomesFetched(incomes.length); // Notify parent component
+                    return newIncomes;
                 } else {
-                    return [...prevDeposits, updatedDeposit];
+                    return [...prevIncomes, updatedIncome];
                 }
             });
             setSuccessMessage(successMsg);
         },
-        getDepositCount() {
-            return depositsFetched ? deposits.length : 0; // Return count only if deposits are fetched
+        getIncomeCount() {
+            return incomesFetched ? incomes.length : 0; // Return count only if incomes are fetched
         }
     }));
 
-    const refreshDepositList = (updatedDeposit, successMsg) => {
-        setDeposits(prevDeposits => {
-            const depositIndex = prevDeposits.findIndex(p => p.id === updatedDeposit.id);
-            if (depositIndex > -1) {
-                // Update existing deposit
-                const newDeposits = [...prevDeposits];
-                newDeposits[depositIndex] = updatedDeposit;
-                onDepositsFetched(deposits.length); // Notify parent component
-                return newDeposits;
+    const refreshIncomeList = (updatedIncome, successMsg) => {
+        setIncomes(prevIncomes => {
+            const incomeIndex = prevIncomes.findIndex(p => p.id === updatedIncome.id);
+            if (incomeIndex > -1) {
+                // Update existing income
+                const newIncomes = [...prevIncomes];
+                newIncomes[incomeIndex] = updatedIncome;
+                onIncomesFetched(incomes.length); // Notify parent component
+                return newIncomes;
             } else {
-                // Add new deposit
-                return [...prevDeposits, updatedDeposit];
+                // Add new income
+                return [...prevIncomes, updatedIncome];
             }
         });
         setSuccessMessage(successMsg);
     };
 
     const columns = [
-        { field: 'deposit_name', headerName: 'Deposit Name', width: 140, headerClassName: 'header-theme', renderCell: (params) => (
+        { field: 'income_name', headerName: 'Income Name', width: 150, headerClassName: 'header-theme', renderCell: (params) => (
             <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
                 {params.value}
             </a>
         )},
-        { field: 'institution_name', headerName: 'Institution', width: 140, headerClassName: 'header-theme' },
-        { field: 'deposit_type', headerName: 'Type', width: 125, headerClassName: 'header-theme' },
-        { field: 'deposit_location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'income_type', headerName: 'Income Type', width: 125, headerClassName: 'header-theme' },
+        { field: 'income_location', headerName: 'Income Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
             else return params.value
         }},
-        { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
-        { field: 'opening_date', headerName: 'Opening Date', width: 115, headerClassName: 'header-theme' },
-        { field: 'deposit_amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme' },
-        { field: 'deposit_term', headerName: 'Term (months)', width: 100, headerClassName: 'header-theme' },
+        { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
+        { field: 'opening_date', headerName: 'Opening Date', width: 125, headerClassName: 'header-theme' },
+        { field: 'income_amount', headerName: 'Income Amount', width: 125, headerClassName: 'header-theme' },
+        { field: 'start_date', headerName: 'Start Date', width: 100, headerClassName: 'header-theme' },
+        // { field: 'end_date', headerName: 'End Date', width: 100, headerClassName: 'header-theme' },
+        { field: 'is_recurring', headerName: 'Recurring', width: 90, headerClassName: 'header-theme', type: 'boolean' },
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 100,
+            width: 75,
             headerClassName: 'header-theme',
             renderCell: (params) => (
                 <div>
@@ -175,7 +176,7 @@ const AssetDepositList = forwardRef((props, ref) => {
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
-                rows={deposits}
+                rows={incomes}
                 columns={columns}
                 sortingModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
@@ -206,7 +207,7 @@ const AssetDepositList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedDeposit && <AssetDepositForm deposit={selectedDeposit} action={action} onClose={handleFormModalClose} refreshDepositList={refreshDepositList}/>} {/* Pass action to form */}
+                    {selectedIncome && <AssetIncomeForm income={selectedIncome} action={action} onClose={handleFormModalClose} refreshIncomeList={refreshIncomeList}/>} {/* Pass action to form */}
                     <IconButton 
                         onClick={handleFormModalClose} 
                         sx={{ 
@@ -230,7 +231,7 @@ const AssetDepositList = forwardRef((props, ref) => {
                 <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        Are you sure you want to delete the deposit "{depositToDelete?.deposit_name}"?
+                        Are you sure you want to delete the income "{incomeToDelete?.income_name}"?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -246,4 +247,4 @@ const AssetDepositList = forwardRef((props, ref) => {
     );
 });
 
-export default AssetDepositList;
+export default AssetIncomeList;

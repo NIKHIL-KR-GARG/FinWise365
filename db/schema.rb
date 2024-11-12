@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_11_140941) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_12_130047) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -46,7 +46,23 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_140941) do
     t.string "interest_type"
     t.string "compounding_frequency"
     t.string "payment_frequency"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.float "payment_amount"
+  end
+
+  create_table "asset_incomes", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "income_name"
+    t.string "income_type"
+    t.string "income_location"
+    t.string "currency"
+    t.float "income_amount"
+    t.date "start_date"
+    t.date "end_date"
+    t.boolean "is_recurring"
+    t.string "income_frequency"
+    t.float "growth_rate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -71,18 +87,17 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_140941) do
     t.date "loan_locked_till"
     t.boolean "is_on_rent"
     t.float "rental_amount"
-    t.date "rental_start_date"
-    t.date "rental_end_date"
     t.float "property_value_growth_rate"
     t.boolean "is_plan_to_sell"
     t.date "tentative_sale_date"
     t.float "tentative_sale_amount"
     t.float "annual_property_tax_amount"
     t.float "annual_property_maintenance_amount"
-    t.float "stamp_duty"
-    t.float "other_fees"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "stamp_duty"
+    t.float "other_fees"
+    t.date "rental_start_date"
   end
 
   create_table "asset_vehicles", force: :cascade do |t|

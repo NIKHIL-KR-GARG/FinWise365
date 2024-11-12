@@ -29,6 +29,8 @@ import AssetAccountList from '../../components/assetspage/accounts/AssetAccountL
 import AssetAccountForm from '../../components/assetspage/accounts/AssetAccountForm';
 import AssetDepositList from '../../components/assetspage/deposits/AssetDepositList';
 import AssetDepositForm from '../../components/assetspage/deposits/AssetDepositForm';
+import AssetIncomeList from '../../components/assetspage/incomes/AssetIncomeList';
+import AssetIncomeForm from '../../components/assetspage/incomes/AssetIncomeForm';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -49,6 +51,9 @@ const Assets = () => {
     const depositListRef = useRef(null);
     const [depositCount, setDepositCount] = useState(0); // State for deposit count
 
+    const incomeListRef = useRef(null);
+    const [incomeCount, setIncomeCount] = useState(0); // State for income count
+
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
@@ -61,6 +66,9 @@ const Assets = () => {
         }
         if (depositListRef.current) {
             setDepositCount(depositListRef.current.getDepositCount());
+        }
+        if (incomeListRef.current) {
+            setIncomeCount(incomeListRef.current.getIncomeCount());
         }
     }, []);
 
@@ -116,6 +124,13 @@ const Assets = () => {
             setDepositCount(depositCount + 1);
         }
     };
+
+    const handleIncomeAdded = (updatedIncome, successMsg) => {
+        if (incomeListRef.current) {
+            incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
+            setIncomeCount(incomeCount + 1);
+        }
+    };
     
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
@@ -131,6 +146,10 @@ const Assets = () => {
 
     const handleDepositsFetched = (count) => {
         setDepositCount(count);
+    };
+
+    const handleIncomesFetched = (count) => {
+        setIncomeCount(count);
     };
 
     return (
@@ -168,6 +187,21 @@ const Assets = () => {
                             <AssetsGraph />
                         </Box>
                         <Box>
+                            <Accordion sx={{ width: '100%' }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                                        Income ({incomeCount}) {/* Display income streams count */}
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} />
+                                </AccordionDetails>
+                            </Accordion>
                             <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -236,11 +270,26 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <ShowChartOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                                        Investment-Stocks
+                                        Investment Portfolio
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {/* Add Investment-Stocks details component or content here */}
+                                </AccordionDetails>
+                            </Accordion>
+                            {/*<Accordion sx={{ width: '100%' }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel4a-content"
+                                    id="panel4a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <ShowChartOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                                        Stocks
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    Add Investment-Stocks details component or content here
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -251,11 +300,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'orange' }} />
-                                        Investment-Mutual Funds
+                                        Mutual Funds
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-Mutual Funds details component or content here */}
+                                     Add Investment-Mutual Funds details component or content here 
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -266,14 +315,14 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MonetizationOnOutlinedIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Investment-Bonds
+                                        Bonds
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-Bonds details component or content here */}
+                                     Add Investment-Bonds details component or content here 
                                 </AccordionDetails>
                             </Accordion>
-                            {/*<Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel7a-content"
@@ -296,11 +345,26 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceWalletOutlinedIcon sx={{ mr: 1, color: 'magenta' }} />
-                                        Investment-SRS
+                                        SRS
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     // Add Investment-SRS details component or content here //
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%' }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel8a-content"
+                                    id="panel8a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <AccountBalanceWalletOutlinedIcon sx={{ mr: 1, color: 'magenta' }} />
+                                        PPF
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    // Add Investment-PPF details component or content here //
                                 </AccordionDetails>
                             </Accordion> */}
                             <Accordion sx={{ width: '100%' }}>
@@ -311,7 +375,7 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <SavingsOutlinedIcon sx={{ mr: 1, color: 'lime' }} />
-                                        Investment-Pension Plan
+                                        Pension Plan
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -326,7 +390,7 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AssignmentOutlinedIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Investment-Endowment Plan
+                                        Endowment Plan
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -341,14 +405,14 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <FolderSpecialOutlinedIcon sx={{ mr: 1, color: 'brown' }} />
-                                        Investment-Other Portfolio
+                                        Other Portfolio
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {/* Add Investment-Other Portfolio details component or content here */}
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            {/* <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel12a-content"
@@ -360,9 +424,9 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add CPF details component or content here */}
+                                    Add Investment-CPF details component or content here
                                 </AccordionDetails>
-                            </Accordion>
+                            </Accordion> */}
                         </Box>
                     </Box>
                 </Box>
@@ -387,6 +451,13 @@ const Assets = () => {
                         Add New Asset
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 2 }}>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Income')}
+                        >
+                            <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Income</Typography>
+                        </Box>
                         <Box 
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Property')}
@@ -417,6 +488,10 @@ const Assets = () => {
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <ShowChartOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}> Portfolio</Typography>
+                        </Box>
+                        {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
+                            <ShowChartOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Stocks</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
@@ -426,7 +501,7 @@ const Assets = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <MonetizationOnOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Bonds</Typography>
-                        </Box>
+                        </Box> 
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <SecurityOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>ULIP</Typography>
@@ -436,21 +511,25 @@ const Assets = () => {
                             <Typography sx={{ color: 'white', fontSize: 12 }}>SRS</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
+                            <AccountBalanceWalletOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>PPF</Typography>
+                        </Box>*/}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <SavingsOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Pension</Typography>
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Pension Plan</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <AssignmentOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Endowment</Typography>
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Endowment Plan</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <FolderSpecialOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other</Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
+                        {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <AccountBoxOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>CPF</Typography>
-                        </Box>
+                        </Box> */}
                     </Box>
                 </Box>
             </Modal>
@@ -477,6 +556,9 @@ const Assets = () => {
                     )}
                     {assetAction === 'Add Deposit' && (
                         <AssetDepositForm deposit={null} action={action} onClose={handleFormModalClose} refreshDepositList={handleDepositAdded} />
+                    )}
+                    {assetAction === 'Add Income' && (
+                        <AssetIncomeForm income={null} action={action} onClose={handleFormModalClose} refreshIncomeList={handleIncomeAdded} />
                     )}
                     <IconButton 
                         onClick={handleFormModalClose} 

@@ -1,0 +1,2 @@
+class AssetIncome < ApplicationRecord
+end

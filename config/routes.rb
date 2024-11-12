@@ -23,6 +23,7 @@ Rails.application.routes.draw do
     resources :asset_vehicles, only: %i[index show create destroy update]
     resources :asset_accounts, only: %i[index show create destroy update]
     resources :asset_deposits, only: %i[index show create destroy update]
+    resources :asset_incomes, only: %i[index show create destroy update]
 
   end
 
