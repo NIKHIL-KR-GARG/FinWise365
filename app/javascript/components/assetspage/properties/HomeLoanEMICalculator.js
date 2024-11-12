@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import FormatCurrency from '../../common/FormatCurrency';
+import { PieChart, Pie, Cell } from 'recharts';
 
 const HomeLoanEMICalculator = ({ property }) => {
 
@@ -196,6 +197,21 @@ const HomeLoanEMICalculator = ({ property }) => {
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
+    };
+
+    const COLORS = ['#FF6384', '#FFCE56']; // Changed blue to yellow
+
+    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+        const RADIAN = Math.PI / 180;
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+        return (
+            <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" style={{ fontSize: '20px' }}>
+                {`${(percent * 100).toFixed(0)}%`}
+            </text>
+        );
     };
 
     return (
@@ -439,6 +455,40 @@ const HomeLoanEMICalculator = ({ property }) => {
                             </Table>
                         </TableContainer>
                     </Box>
+                </Grid>
+                <Grid item size={12}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', my: 1 }} />
+                </Grid>
+                <Grid item size={12}>
+                    <Typography variant="h6" component="h2" sx={{ textDecoration: 'underline', pb: 0 }}>
+                        Loan Repayment Breakdown
+                    </Typography>
+                    {emiCalculationsSummary.length > 0 && (
+                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <PieChart width={400} height={400}>
+                                <Pie
+                                    data={[
+                                        { name: 'Principal', value: parseFloat(emiCalculationsSummary.find(row => row.year === 'Total').totalPrincipal.replace(/[^0-9.-]+/g, "")) },
+                                        { name: 'Interest', value: parseFloat(emiCalculationsSummary.find(row => row.year === 'Total').totalInterest.replace(/[^0-9.-]+/g, "")) }
+                                    ]}
+                                    cx={200}
+                                    cy={200}
+                                    labelLine={false}
+                                    label={renderCustomizedLabel}
+                                    outerRadius={150}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                >
+                                    {COLORS.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </Box>
+                    )}
+                </Grid>
+                <Grid item size={12}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', my: 1 }} />
                 </Grid>
                 <Grid item size={12}>
                     <Typography variant="h6" component="h2" sx={{ textDecoration: 'underline', pb: 1 }}>
