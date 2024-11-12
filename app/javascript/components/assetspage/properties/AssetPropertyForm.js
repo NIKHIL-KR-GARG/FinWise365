@@ -140,8 +140,24 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (isNaN(property.stamp_duty)) errors.stamp_duty = 'Stamp Duty Rate should be numeric';
         if (isNaN(property.other_fees)) errors.other_fees = 'Other Fees should be numeric';
 
-        if (property.is_on_rent && !property.rental_start_date) errors.rental_start_date = 'Rental Start Date is required';
-
+        if (property.is_under_loan) {
+            if (!property.loan_type) errors.loan_type = 'Loan Type is required';
+            if (!property.loan_amount) errors.loan_amount = 'Loan Amount is required';
+            if (!property.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
+            if (!property.loan_remaining_duration) errors.loan_remaining_duration = 'Loan Duration is required';
+            if (property.is_loan_locked) {
+                if (!property.loan_locked_till) errors.loan_locked_till = 'Loan Locked Till is required';
+            }
+        }
+        if (property.is_on_rent) {
+            if (!property.rental_start_date) errors.rental_start_date = 'Rental Start Date is required';
+            if (!property.rental_amount) errors.rental_amount = 'Rental Amount is required';
+        }
+        if (property.is_plan_to_sell) {
+            if (!property.tentative_sale_date) errors.tentative_sale_date = 'Tentative Sale Date is required';
+            if (!property.tentative_sale_amount) errors.tentative_sale_amount = 'Tentative Sale Amount is required';
+        }
+        
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -736,6 +752,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.loan_type}
                                             onChange={handleChange}
                                             fullWidth
+                                            error={!!errors.loan_type}
+                                            helperText={errors.loan_type}
                                         >
                                             <MenuItem value="Fixed">Fixed</MenuItem>
                                             <MenuItem value="Floating">Floating</MenuItem>
@@ -795,7 +813,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             </Grid>
                                             <Grid item size={6}>
                                                 <TextField
-                                                    label="interest rate Locked Till?"
+                                                    label="Interest rate Locked Till?"
                                                     variant="standard"
                                                     name="loan_locked_till"
                                                     type="date"
@@ -803,6 +821,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                                     onChange={handleChange}
                                                     fullWidth
                                                     InputLabelProps={{ shrink: true }}
+                                                    error={!!errors.loan_locked_till}
+                                                    helperText={errors.loan_locked_till}
                                                 />
                                             </Grid>
                                         </>
@@ -979,6 +999,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             fullWidth
                                             InputLabelProps={{ shrink: true }}
+                                            error={!!errors.tentative_sale_date}
+                                            helperText={errors.tentative_sale_date}
                                         />
                                     </Grid>
                                     <Grid item size={6}>

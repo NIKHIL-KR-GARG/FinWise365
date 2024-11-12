@@ -15,12 +15,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [errors, setErrors] = useState({});
-    // const [modalOpen, setModalOpen] = useState(false);
-
-    // const [lastPurchasePrice, setLastPurchasePrice] = useState(0);
-    // const [lastAccountIsUnderLoan, setLastAccountIsUnderLoan] = useState(false);
-    // const [lastAccountLocation, setLastAccountLocation] = useState('');
-
+    
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');

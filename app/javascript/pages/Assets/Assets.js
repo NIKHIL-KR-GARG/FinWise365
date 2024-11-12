@@ -27,6 +27,8 @@ import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleF
 import AssetsGraph from '../../components/assetspage/AssetsGraph';
 import AssetAccountList from '../../components/assetspage/accounts/AssetAccountList';
 import AssetAccountForm from '../../components/assetspage/accounts/AssetAccountForm';
+import AssetDepositList from '../../components/assetspage/deposits/AssetDepositList';
+import AssetDepositForm from '../../components/assetspage/deposits/AssetDepositForm';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -42,7 +44,10 @@ const Assets = () => {
     const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
 
     const accountListRef = useRef(null);
-    const [accountCount, setAccountCount] = useState(0); // State for vehicle count
+    const [accountCount, setAccountCount] = useState(0); // State for account count
+
+    const depositListRef = useRef(null);
+    const [depositCount, setDepositCount] = useState(0); // State for deposit count
 
     useEffect(() => {
         if (propertyListRef.current) {
@@ -52,7 +57,10 @@ const Assets = () => {
             setVehicleCount(vehicleListRef.current.getVehicleCount());
         }
         if (accountListRef.current) {
-            setVehicleCount(accountListRef.current.getAccountCount());
+            setAccountCount(accountListRef.current.getAccountCount());
+        }
+        if (depositListRef.current) {
+            setDepositCount(depositListRef.current.getDepositCount());
         }
     }, []);
 
@@ -101,6 +109,13 @@ const Assets = () => {
             setAccountCount(accountCount + 1);
         }
     };
+
+    const handleDepositAdded = (updatedDeposit, successMsg) => {
+        if (depositListRef.current) {
+            depositListRef.current.refreshDepositList(updatedDeposit, successMsg);
+            setDepositCount(depositCount + 1);
+        }
+    };
     
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
@@ -112,6 +127,10 @@ const Assets = () => {
 
     const handleAccountsFetched = (count) => {
         setAccountCount(count);
+    };
+
+    const handleDepositsFetched = (count) => {
+        setDepositCount(count);
     };
 
     return (
@@ -201,12 +220,12 @@ const Assets = () => {
                                     id="panel3a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <SavingsOutlinedIcon sx={{ mr: 1, color: 'brown' }} /> {/* Changed icon */}
-                                        Fixed/Recurring Deposits
+                                        <SavingsOutlinedIcon sx={{ mr: 1, color: 'brown' }} /> 
+                                        Fixed/Recurring Deposits ({depositCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-Account Savings/Current details component or content here */}
+                                    <AssetDepositList ref={depositListRef} onDepositsFetched={handleDepositsFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -389,6 +408,13 @@ const Assets = () => {
                             <AccountBalanceOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Account</Typography>
                         </Box>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Deposit')}
+                        >
+                            <SavingsOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Deposit</Typography>
+                        </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <ShowChartOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Stocks</Typography>
@@ -446,8 +472,11 @@ const Assets = () => {
                     {assetAction === 'Add Vehicle' && (
                         <AssetVehicleForm vehicle={null} action={action} onClose={handleFormModalClose} refreshVehicleList={handleVehicleAdded} />
                     )}
-                     {assetAction === 'Add Account' && (
+                    {assetAction === 'Add Account' && (
                         <AssetAccountForm account={null} action={action} onClose={handleFormModalClose} refreshAccountList={handleAccountAdded} />
+                    )}
+                    {assetAction === 'Add Deposit' && (
+                        <AssetDepositForm deposit={null} action={action} onClose={handleFormModalClose} refreshDepositList={handleDepositAdded} />
                     )}
                     <IconButton 
                         onClick={handleFormModalClose} 

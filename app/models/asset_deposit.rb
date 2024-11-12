@@ -1,0 +1,2 @@
+class AssetDeposit < ApplicationRecord
+end

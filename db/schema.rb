@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_11_112342) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_11_140941) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -18,15 +18,35 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_11_112342) do
     t.integer "user_id"
     t.string "account_name"
     t.string "institution_name"
-    t.string "account_type"
-    t.string "currency"
-    t.string "account_location"
     t.date "opening_date"
     t.float "interest_rate"
     t.float "account_balance"
     t.float "minimum_balance"
     t.boolean "is_plan_to_close"
     t.date "closure_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "account_type", limit: 255
+    t.string "account_location", limit: 255
+    t.string "currency", limit: 255
+  end
+
+  create_table "asset_deposits", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "deposit_name"
+    t.string "institution_name"
+    t.string "deposit_type"
+    t.string "deposit_location"
+    t.string "currency"
+    t.date "opening_date"
+    t.float "deposit_amount"
+    t.integer "deposit_term"
+    t.date "maturity_date"
+    t.float "interest_rate"
+    t.string "interest_type"
+    t.string "compounding_frequency"
+    t.string "payment_frequency"
+    t.float "payment_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

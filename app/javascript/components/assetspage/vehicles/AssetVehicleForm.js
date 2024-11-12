@@ -120,6 +120,17 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.scrap_value)) errors.scrap_value = 'Scrap Value should be numeric';
         if (isNaN(vehicle.depreciation_rate)) errors.depreciation_rate = 'Depreciation Rate should be numeric';
        
+        if (vehicle.is_under_loan) {
+            if (!vehicle.loan_type) errors.loan_type = 'Loan Type is required';
+            if (!vehicle.loan_amount) errors.loan_amount = 'Loan Amount is required';
+            if (!vehicle.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
+            if (!vehicle.loan_remaining_duration) errors.loan_remaining_duration = 'Loan Duration is required';
+        }
+        if (vehicle.is_plan_to_sell) {
+            if (!vehicle.tentative_sale_date) errors.tentative_sale_date = 'Sale Date is required';
+            if (!vehicle.tentative_sale_amount) errors.tentative_sale_amount = 'Sale Amount is required';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -607,6 +618,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.loan_type}
                                             onChange={handleChange}
                                             fullWidth
+                                            error={!!errors.loan_type}
+                                            helperText={errors.loan_type}
                                         >
                                             <MenuItem value="Fixed">Fixed</MenuItem>
                                             <MenuItem value="Floating">Floating</MenuItem>
