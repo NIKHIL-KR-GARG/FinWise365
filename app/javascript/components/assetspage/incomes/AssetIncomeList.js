@@ -27,13 +27,38 @@ const AssetIncomeList = forwardRef((props, ref) => {
     const [incomeToDelete, setIncomeToDelete] = useState(null); // State for income to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const fetchProperties = async () => {
+        try {
+            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching properties:', error);
+            return [];
+        }
+    };
+
     const fetchIncomes = async () => {
         try {
             const response = await axios.get(`/api/asset_incomes?user_id=${currentUserId}`);
-            setIncomes(response.data);
+            const properties = await fetchProperties();
+            const today = new Date();
+            const rentalIncomes = properties
+                .filter(property => property.is_on_rent && (new Date(property.rental_start_date) <= today) && (!property.rental_end_date || new Date(property.rental_end_date) >= today))
+                .map(property => ({
+                    id: `rental-${property.id}`,
+                    income_name: `Rental Income - ${property.property_name}`,
+                    income_type: 'Rental',
+                    income_location: property.property_location,
+                    currency: property.currency,
+                    income_amount: property.rental_amount,
+                    start_date: property.rental_start_date,
+                    end_date: property.rental_end_date,
+                    is_recurring: true,
+                }));
+            setIncomes([...response.data, ...rentalIncomes]);
             setIncomesFetched(true); // Set incomesFetched to true after fetching
             if (onIncomesFetched) {
-                onIncomesFetched(response.data.length); // Notify parent component
+                onIncomesFetched(response.data.length + rentalIncomes.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching incomes:', error);
@@ -117,11 +142,21 @@ const AssetIncomeList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'income_name', headerName: 'Income Name', width: 150, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
+        { 
+            field: 'income_name', 
+            headerName: 'Income Name', 
+            width: 150, 
+            headerClassName: 'header-theme', 
+            renderCell: (params) => (
+                params.row.income_type !== 'Rental' ? (
+                    <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                        {params.value}
+                    </a>
+                ) : (
+                    <span>{params.value}</span>
+                )
+            )
+        },
         { field: 'income_type', headerName: 'Income Type', width: 125, headerClassName: 'header-theme' },
         { field: 'income_location', headerName: 'Income Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
@@ -141,7 +176,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
             headerClassName: 'header-theme',
             renderCell: (params) => (
                 <div>
-                    <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
+                    {params.row.income_type !== 'Rental' && (
+                        <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
+                    )}
                 </div>
             ),
         },
