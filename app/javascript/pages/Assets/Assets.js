@@ -152,6 +152,12 @@ const Assets = () => {
         setIncomeCount(count);
     };
 
+    const today = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    }).replace(/ /g, '-');
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <HomeHeader open={open} handleDrawerToggle={handleDrawerToggle} />
@@ -178,9 +184,14 @@ const Assets = () => {
                         <Typography color="textPrimary">Assets</Typography>
                     </Breadcrumbs>
                     <Box sx={{ p: 3, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                            <HomeOutlinedIcon sx={{ mr: 1 }} />
-                            My Assets
+                        <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <HomeOutlinedIcon sx={{ mr: 1 }} />
+                                My Assets
+                            </Box>
+                            <Box sx={{ fontSize: '0.875rem' }}>
+                                {'( '}As Of Today, {today} {')'}
+                            </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
@@ -379,7 +390,9 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-Pension Plan details component or content here */}
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', fontSize: '1.5rem' }}>
+                                        Pension Plan asset feature coming soon... 
+                                    </Typography>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>
@@ -394,7 +407,9 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* Add Investment-Endowment Plan details component or content here */}
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', fontSize: '1.5rem' }}>
+                                        Endowment Plan asset feature coming soon... 
+                                    </Typography>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%' }}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings income icon
+import DollarIcon from '@mui/icons-material/AttachMoney'; // Dollar sign icon
 // import CurrentIcon from '@mui/icons-material/BusinessCenter'; // Current income icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" income type
 import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
@@ -148,7 +148,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
             </Snackbar>
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
-                    <SavingsIcon style={{ color: 'purple', marginRight: '10px' }} />
+                    <DollarIcon style={{ color: 'purple', marginRight: '10px' }} />
                     { action === 'Add' && (
                         <>
                             Add Income
@@ -168,7 +168,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                             control={<Radio />}
                             label={
                                 <Grid container direction="column" alignItems="center" spacing={0}>
-                                    <Grid item><SavingsIcon style={{ fontSize: 'normal' }} /></Grid>
+                                    <Grid item><DollarIcon style={{ fontSize: 'normal' }} /></Grid>
                                     <Grid item><Typography variant="caption">Salary</Typography></Grid>
                                 </Grid>
                             }

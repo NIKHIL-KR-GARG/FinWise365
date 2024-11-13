@@ -130,10 +130,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'opening_date', headerName: 'Opening Date', width: 125, headerClassName: 'header-theme' },
         { field: 'income_amount', headerName: 'Income Amount', width: 125, headerClassName: 'header-theme' },
         { field: 'start_date', headerName: 'Start Date', width: 100, headerClassName: 'header-theme' },
-        // { field: 'end_date', headerName: 'End Date', width: 100, headerClassName: 'header-theme' },
+        { field: 'end_date', headerName: 'End Date', width: 100, headerClassName: 'header-theme' },
         { field: 'is_recurring', headerName: 'Recurring', width: 90, headerClassName: 'header-theme', type: 'boolean' },
         {
             field: 'actions',
