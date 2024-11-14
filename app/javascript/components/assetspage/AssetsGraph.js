@@ -45,12 +45,14 @@ const AssetsGraph = () => {
                 const vehiclesResponse = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
                 const accountsResponse = await axios.get(`/api/asset_accounts?user_id=${currentUserId}`);
                 const depositsResponse = await axios.get(`/api/asset_deposits?user_id=${currentUserId}`);
+                const portfoliosResponse = await axios.get(`/api/asset_portfolios?user_id=${currentUserId}`);
                 //const exchangeRatesResponse = await axios.get(`/api/exchange_rates?base_currency=${baseCurrency}`);
 
                 const properties = propertiesResponse.data;
                 const vehicles = vehiclesResponse.data;
                 const accounts = accountsResponse.data;
                 const deposits = depositsResponse.data;
+                const portfolios = portfoliosResponse.data;
                 //const exchangeRates = exchangeRatesResponse.data;
 
                 const currentYear = new Date().getFullYear();
@@ -59,11 +61,9 @@ const AssetsGraph = () => {
                     const years = currentYear - new Date(property.purchase_date).getFullYear();
                     const currentValue = calculateCurrentValue(property.purchase_price, property.property_value_growth_rate, years);
                     const fromCurrency = property.currency;
-                    //window.confirm('Purchase Price: ' + property.purchase_price + ' fromCurrency: ' + fromCurrency + ' growhrate: ' + property.property_value_growth_rate);
                     const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === currentUserBaseCurrency);
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
                     const convertedValue = currentValue * conversionRate;
-                    //window.confirm('currentValue: ' + currentValue + ' conversionRate: ' + conversionRate + ' convertedValue: ' + convertedValue);
                     return total + convertedValue;
                 }, 0);
 
@@ -112,6 +112,21 @@ const AssetsGraph = () => {
                     return total + convertedValue;
                 }, 0);
 
+                const totalPortfolioValue = portfolios.reduce((total, portfolio) => {
+                    const fromCurrency = portfolio.currency;
+                    const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === currentUserBaseCurrency);
+                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                    let portfolioValue = 0;
+                    if (portfolio.portfolio_type === "Bonds") {
+                        portfolioValue = portfolio.portfolio_value;
+                    } else {
+                        const years = currentYear - new Date(portfolio.buying_date).getFullYear();
+                        portfolioValue = calculateCurrentValue(portfolio.buying_value, portfolio.growth_rate, years);
+                    }
+                    const convertedValue = portfolioValue * conversionRate;
+                    return total + convertedValue;
+                }, 0);
+
                 const graphname = 'Assets';
                 setData([
                     {
@@ -120,6 +135,7 @@ const AssetsGraph = () => {
                         vehicles: totalVehicleValue,
                         accounts: totalAccountValue,
                         deposits: totalDepositValue,
+                        portfolios: totalPortfolioValue
                     }
                 ]);
                 setLoading(false);
@@ -158,6 +174,7 @@ const AssetsGraph = () => {
                         <Bar dataKey="vehicles" stackId="a" fill="#82ca9d" />
                         <Bar dataKey="accounts" stackId="a" fill="#ffc658" />
                         <Bar dataKey="deposits" stackId="a" fill="#ff7300" />
+                        <Bar dataKey="portfolios" stackId="a" fill="#ff0000" />
                     </BarChart>
                 </Grid>
                 <Grid item size={6} border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
@@ -172,6 +189,7 @@ const AssetsGraph = () => {
                         <Legend content={renderLegend} />
                         <Bar dataKey="accounts" stackId="a" fill="#ffc658" />
                         <Bar dataKey="deposits" stackId="a" fill="#ff7300" />
+                        <Bar dataKey="portfolios" stackId="a" fill="#ff0000" />
                     </BarChart>
                 </Grid>
             </Grid>

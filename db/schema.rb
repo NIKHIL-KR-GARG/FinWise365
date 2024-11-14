@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_12_130047) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_14_021741) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,6 +67,31 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_130047) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "asset_portfolios", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "portfolio_name"
+    t.string "institution_name"
+    t.string "portfolio_type"
+    t.string "portfolio_location"
+    t.string "currency"
+    t.date "buying_date"
+    t.float "buying_value"
+    t.float "growth_rate"
+    t.float "coupon_rate"
+    t.boolean "is_paying_dividend"
+    t.float "dividend_rate"
+    t.float "dividend_amount"
+    t.string "dividend_frequency"
+    t.boolean "is_plan_to_sell"
+    t.date "selling_date"
+    t.float "selling_value"
+    t.boolean "is_sip"
+    t.float "sip_amount"
+    t.string "sip_frequency"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "asset_properties", force: :cascade do |t|
     t.integer "user_id"
     t.string "property_name"
@@ -76,8 +101,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_130047) do
     t.date "purchase_date"
     t.string "currency"
     t.float "purchase_price"
-    t.float "stamp_duty"
-    t.float "other_fees"
     t.float "tentative_current_value"
     t.boolean "is_primary_property"
     t.boolean "is_under_loan"
@@ -89,8 +112,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_130047) do
     t.date "loan_locked_till"
     t.boolean "is_on_rent"
     t.float "rental_amount"
-    t.date "rental_start_date"
-    t.date "rental_end_date"
     t.float "property_value_growth_rate"
     t.boolean "is_plan_to_sell"
     t.date "tentative_sale_date"
@@ -99,6 +120,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_130047) do
     t.float "annual_property_maintenance_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "stamp_duty"
+    t.float "other_fees"
+    t.date "rental_start_date"
+    t.date "rental_end_date"
   end
 
   create_table "asset_vehicles", force: :cascade do |t|
