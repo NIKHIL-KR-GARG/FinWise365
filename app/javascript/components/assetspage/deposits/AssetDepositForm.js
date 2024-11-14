@@ -11,7 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
-import { CalculatePrincipalForDeposit, CalculateInterestForDeposit } from '../../common/CalculateInterestAndPrincipalForDeposit';
+import { CalculatePrincipal, CalculateInterest } from '../../common/CalculateInterestAndPrincipal';
 
 const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDepositList }) => {
 
@@ -155,7 +155,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         if (!deposit.deposit_type || !deposit.interest_type || !deposit.interest_rate || !deposit.deposit_amount || !deposit.deposit_term) return;
 
         setTotalInterest(
-            CalculateInterestForDeposit(
+            CalculateInterest(
                 deposit.deposit_type,
                 deposit.interest_type,
                 deposit.interest_rate,
@@ -168,7 +168,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         );
 
         setTotalPrincipal(
-            CalculatePrincipalForDeposit(
+            CalculatePrincipal(
                 deposit.deposit_type,
                 deposit.deposit_amount,
                 deposit.deposit_term,

@@ -5,7 +5,6 @@ import StocksIcon from '@mui/icons-material/ShowChart'; // Stocks portfolio icon
 import MutualFundsIcon from '@mui/icons-material/TrendingUp'; // Mutual Funds portfolio icon
 import BondsIcon from '@mui/icons-material/AttachMoney'; // Bonds portfolio icon
 import OtherIcon from '@mui/icons-material/Category'; // Other portfolio icon
-// import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" portfolio type
 import { Modal, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
@@ -15,6 +14,7 @@ import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 import AssetPortfolioDetails from './AssetPortfolioDetails';
+import { CalculateInterest } from '../../common/CalculateInterestAndPrincipal';
 
 const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refreshPortfolioList }) => {
 
@@ -48,6 +48,15 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         is_sip: false,
         sip_amount: 0.0,
         sip_frequency: "Monthly",
+    });
+
+    const [calculatedValues, setCalculatedValues] = useState({
+        BuyPrice: 0,
+        CurrentValue: 0,
+        Profit: 0,
+        ProfitPercentage: 0,
+        Loss: 0,
+        LossPercentage: 0
     });
 
     const handleModalOpen = () => {
@@ -98,7 +107,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
             else {
                 setPortfolio((prevPortfolio) => ({
                     ...prevPortfolio,
-                    coupon_rate_rate: 0.0
+                    coupon_rate: 0.0
                 }));
             }
         }
@@ -187,37 +196,140 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
 
     const calculatetTotalInterest = () => {
 
-        // if (!portfolio.portfolio_type || !portfolio.buying_date || !portfolio.buying_value || (!portfolio.growth_rate && !portfolio.coupon_rate)) return;
+        if (!portfolio.portfolio_type || !portfolio.buying_date || !portfolio.buying_value || (!portfolio.growth_rate && !portfolio.coupon_rate)) return;
 
-        // //no of months since deposit
-        // const months = (new Date().getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date().getMonth() - new Date(portfolio.buying_date).getMonth();
+        // if there is sale date then get no of months between buying and selling
+        // else get no of months between buying and current date
+        let months = 0;
+        let interest = 0;
+        let dividend = 0;
+        let profit = 0;
+        let profitPercentage = 0;
+        let loss = 0;
+        let lossPercentage = 0;
+        let buyPrice = parseFloat(portfolio.buying_value);
+        let currentPrice = buyPrice;
 
-        // if (portfolio.portfolio_type === 'Bonds') {
-        //     const interest = portfolio.buying_value * (portfolio.coupon_rate / 100);
+        if (portfolio.is_plan_to_sell) {
+            months = (new Date(portfolio.selling_date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date().getMonth(portfolio.selling_date) - new Date(portfolio.buying_date).getMonth();
+            currentPrice = parseFloat(portfolio.selling_value);
+        }
+        else months = (new Date().getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date().getMonth() - new Date(portfolio.buying_date).getMonth();
 
-        // }
-        // setTotalInterest(
-        //     CalculateInterestForPortfolio(
-        //         portfolio.portfolio_type,
-        //         portfolio.interest_type,
-        //         portfolio.interest_rate,
-        //         portfolio.portfolio_amount,
-        //         portfolio.portfolio_term,
-        //         portfolio.payment_frequency,
-        //         portfolio.payment_amount,
-        //         portfolio.compounding_frequency
-        //     )
-        // );
+        if (months > 0) {
+            // calculate the dividend or coupon payment
+            if (portfolio.portfolio_type === 'Bonds') {
 
-        // setTotalPrincipal(
-        //     CalculatePrincipalForPortfolio(
-        //         portfolio.portfolio_type,
-        //         portfolio.portfolio_amount,
-        //         portfolio.portfolio_term,
-        //         portfolio.payment_frequency,
-        //         portfolio.payment_amount
-        //     )
-        // );
+                interest = CalculateInterest(
+                    "Fixed",
+                    "Simple",
+                    parseFloat(portfolio.coupon_rate),
+                    parseFloat(portfolio.buying_value),
+                    months,
+                    portfolio.sip_frequency,
+                    parseFloat(portfolio.sip_amount),
+                    "Monthly"
+                )
+                if (portfolio.is_sip && portfolio.sip_amount > 0) {
+                    for (let i = 1; i <= months; i++) {
+                        if (portfolio.sip_frequency === 'Monthly') {
+                            buyPrice += parseFloat(portfolio.sip_amount);
+                        }
+                        else if (portfolio.sip_frequency === 'Quarterly' && i % 3 === 0) {
+                            buyPrice += parseFloat(portfolio.sip_amount);
+                        }
+                        else if (portfolio.sip_frequency === 'Semi-Annually' && i % 6 === 0) {
+                            buyPrice += parseFloat(portfolio.sip_amount);
+                        }
+                        else if (portfolio.sip_frequency === 'Annually' && i % 12 === 0) {
+                            buyPrice += parseFloat(portfolio.sip_amount);
+                        }
+                    }
+                    if (!portfolio.is_plan_to_sell) currentPrice = buyPrice;
+                }
+            }
+            else {
+                //calculate the interest as per the growth rate & SIP amount
+                interest = CalculateInterest(
+                    "Fixed",
+                    "Simple",
+                    portfolio.growth_rate,
+                    portfolio.buying_value,
+                    months,
+                    portfolio.sip_frequency,
+                    portfolio.sip_amount,
+                    "Monthly"
+                )
+                //calculate the dividend as per the dividend rate. Dividend should be on the increased value of the portfolio
+                let currentPriceforDividend = parseFloat(portfolio.buying_value);
+                for (let i = 1; i <= months; i++) {
+                    if (portfolio.sip_frequency === 'Monthly') {
+                        buyPrice += parseFloat(portfolio.sip_amount);
+                        currentPriceforDividend += parseFloat(portfolio.sip_amount);
+                    }
+                    else if (portfolio.sip_frequency === 'Quarterly' && i % 3 === 0) {
+                        buyPrice += parseFloat(portfolio.sip_amount);
+                        currentPriceforDividend += parseFloat(portfolio.sip_amount);
+                    }
+                    else if (portfolio.sip_frequency === 'Semi-Annually' && i % 6 === 0) {
+                        buyPrice += parseFloat(portfolio.sip_amount);
+                        currentPriceforDividend += parseFloat(portfolio.sip_amount);
+                    }
+                    else if (portfolio.sip_frequency === 'Annually' && i % 12 === 0) {
+                        buyPrice += parseFloat(portfolio.sip_amount);
+                        currentPriceforDividend += parseFloat(portfolio.sip_amount);
+                    }
+                    if (portfolio.is_paying_dividend) {
+                        dividend += CalculateInterest(
+                            "Fixed",
+                            "Simple",
+                            parseFloat(portfolio.dividend_rate),
+                            currentPriceforDividend,
+                            1,
+                            "",
+                            0.0,
+                            "Monthly"
+                        )
+                        //increase the buy price for dividend by the growth rate for 1 month
+                        currentPriceforDividend += CalculateInterest(
+                            "Fixed",
+                            "Simple",
+                            parseFloat(portfolio.growth_rate),
+                            currentPriceforDividend,
+                            1,
+                            "",
+                            0.0,
+                            "Monthly"
+                        )
+                    }
+                }
+                if (!portfolio.is_plan_to_sell) currentPrice = buyPrice;
+            }
+        }
+
+        profit = currentPrice + interest + dividend - buyPrice;
+        if (profit < 0) {
+            profit = 0;
+            profitPercentage = 0;
+            loss = Math.abs(currentPrice + interest + dividend - buyPrice)
+            lossPercentage = parseFloat((loss / buyPrice * 100).toFixed(2));
+        }
+        else {
+            profitPercentage = parseFloat((profit / buyPrice * 100).toFixed(2));
+            loss = 0;
+            lossPercentage = 0;
+        }
+
+        setCalculatedValues({
+            BuyPrice: buyPrice,
+            CurrentValue: currentPrice + interest + dividend,
+            Profit: profit,
+            ProfitPercentage: profitPercentage,
+            Loss: loss,
+            LossPercentage: lossPercentage
+        });
+
+        return;
     }
 
     return (
@@ -679,7 +791,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                         </Grid>
                     </Box>
 
-                    {/* <Grid item size={12}>
+                    <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, borderRadius: 3, bgcolor: 'lightgray' }}>
                             <Grid container spacing={2}>
                                 <Grid item size={2} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -689,17 +801,27 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                 </Grid>
                                 <Grid item size={10} sx={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have invested a total amount of: <strong>{portfolio.currency} {FormatCurrency(portfolio.currency, parseFloat(totalPrincipal))} </strong>
-                                        that is expected to generate an interest of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, totalInterest)}</strong>
+                                        You will have invested a total amount of: <strong>{portfolio.currency} {FormatCurrency(portfolio.currency, parseFloat(calculatedValues.BuyPrice))} </strong>
+                                        {
+                                            calculatedValues.Profit > 0 && (
+                                                <>
+                                                that is expected to generate a profit of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, calculatedValues.Profit)} ({calculatedValues.ProfitPercentage}%)</strong>
+                                                </>
+                                        )}
+                                        {
+                                            calculatedValues.Loss > 0 && (
+                                                <>
+                                                that has generated a loss of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, calculatedValues.Loss)} ({calculatedValues.LossPercentage}%)</strong>
+                                                </>
+                                        )}
                                     </Typography>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have a total of: <strong style={{ color: 'brown' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, (parseFloat(totalPrincipal) + parseFloat(totalInterest)))} </strong>
-                                        at the end of the portfolio term
+                                        Overall Value of your portfolio is: <strong style={{ color: 'brown' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, calculatedValues.CurrentValue)} </strong>
                                     </Typography>
                                 </Grid>
                             </Grid>
                         </Box>
-                    </Grid> */}
+                    </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0 }}>
                             <Button

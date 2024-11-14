@@ -4,7 +4,7 @@ import axios from 'axios';
 import { CircularProgress, Typography, Box } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { ExchangeRate } from '../common/DefaultValues';
-import { CalculatePrincipalForDeposit, CalculateInterestForDeposit } from '../common/CalculateInterestAndPrincipalForDeposit';
+import { CalculatePrincipal, CalculateInterest } from '../common/CalculateInterestAndPrincipal';
 import FormatCurrency from '../common/FormatCurrency';
 
 const AssetsGraph = () => {
@@ -88,7 +88,7 @@ const AssetsGraph = () => {
                 const totalDepositValue = deposits.reduce((total, deposit) => {
                     //no of months since deposit
                     const months = (new Date().getFullYear() - new Date(deposit.opening_date).getFullYear()) * 12 + new Date().getMonth() - new Date(deposit.opening_date).getMonth();
-                    const interest = CalculateInterestForDeposit(
+                    const interest = CalculateInterest(
                         deposit.deposit_type,
                         deposit.interest_type,
                         deposit.interest_rate,
@@ -98,7 +98,7 @@ const AssetsGraph = () => {
                         deposit.payment_amount || 0,
                         deposit.compounding_frequency
                     )
-                    const principal = CalculatePrincipalForDeposit(
+                    const principal = CalculatePrincipal(
                         deposit.deposit_type,
                         deposit.deposit_amount || 0,
                         months,
