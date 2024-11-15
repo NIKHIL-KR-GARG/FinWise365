@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_14_021741) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_14_234510) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,11 +67,27 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_14_021741) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "asset_portfolio_details", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "portfolio_id"
+    t.string "scrip"
+    t.string "description"
+    t.float "quantity"
+    t.date "buy_date"
+    t.float "buy_price"
+    t.float "buy_tax_and_charges"
+    t.date "sale_date"
+    t.float "sale_price"
+    t.float "sale_tax_and_charges"
+    t.float "current_price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "asset_portfolios", force: :cascade do |t|
     t.integer "user_id"
     t.string "portfolio_name"
     t.string "institution_name"
-    t.string "portfolio_type"
     t.string "portfolio_location"
     t.string "currency"
     t.date "buying_date"
@@ -85,11 +101,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_14_021741) do
     t.boolean "is_plan_to_sell"
     t.date "selling_date"
     t.float "selling_value"
-    t.boolean "is_sip"
-    t.float "sip_amount"
-    t.string "sip_frequency"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "portfolio_type", limit: 255
+    t.boolean "is_sip"
+    t.float "sip_amount"
+    t.string "sip_frequency", limit: 255
   end
 
   create_table "asset_properties", force: :cascade do |t|

@@ -50,6 +50,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         sip_frequency: "Monthly",
     });
 
+    const [portfoliodetails, setPortfolioDetails] = useState([]);
+
     const [calculatedValues, setCalculatedValues] = useState({
         BuyPrice: 0,
         CurrentValue: 0,
@@ -113,9 +115,19 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         }
     };
 
+    const fetchPortfolioDetails = async () => {
+        try {
+            const response = await axios.get(`/api/asset_portfolio_details?user_id=${currentUserId}&portfolio_id=${portfolio.id}`);
+            setPortfolioDetails(response.data);
+        } catch (error) {
+            console.error('Error fetching portfolio details:', error);
+        }
+    };
+
     useEffect(() => {
+        fetchPortfolioDetails();
         calculatetTotalInterest();
-    }, [portfolio]);
+    }, [portfolio, currentUserId]);
 
     useEffect(() => {
         if (initialPortfolio) {
@@ -331,6 +343,15 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
 
         return;
     }
+
+    const handleOpenDetails = () => {
+        if (validate()) {
+            // onClose(); // Close the current portfolio modal form
+            handleModalOpen(); // Open the portfolio details modal form
+        } else {
+            setErrorMessage('Please fix the validation errors before opening the details');
+        }
+    };
 
     return (
         <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '90vh', overflowY: 'auto' }}>
@@ -584,7 +605,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                             <Grid item size={12}>
                                 <Typography
                                     variant="body2"
-                                    onClick={() => handleModalOpen(true)}
+                                    onClick={handleOpenDetails}
                                     sx={{ textDecoration: 'underline', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold', color: 'blue', textAlign: 'center' }}
                                 >
                                     Open Portfolio Details
@@ -601,7 +622,14 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                     sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
                                     <Box sx={{ width: 1200, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                                        <AssetPortfolioDetails portfolio={portfolio} />
+                                        <AssetPortfolioDetails 
+                                            portfolio={portfolio} 
+                                            portfoliodetails={portfoliodetails} 
+                                            action={action} 
+                                            onCloseDetails={handleModalClose} 
+                                            onCloseForm={onClose} 
+                                            refreshPortfolioList={refreshPortfolioList}
+                                        />
                                         <IconButton
                                             onClick={handleModalClose}
                                             sx={{
