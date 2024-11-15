@@ -3,10 +3,6 @@ import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
-// import DirectionsCarIcon from '@mui/icons-material/DirectionsCar'; // Car icon
-// import TwoWheelerIcon from '@mui/icons-material/TwoWheeler'; // Bike icon
-// import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // Commercial account icon
-// import OtherHousesIcon from '@mui/icons-material/OtherHouses'; // Other account icon
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -14,6 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import AssetAccountForm from './AssetAccountForm';
 import CountryList from '../../common/CountryList';
+import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetAccountList = forwardRef((props, ref) => {
     const { onAccountsFetched } = props; // Destructure the new prop
@@ -136,7 +133,9 @@ const AssetAccountList = forwardRef((props, ref) => {
         }},
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'opening_date', headerName: 'Opening Date', width: 125, headerClassName: 'header-theme' },
-        { field: 'account_balance', headerName: 'Account Balance', width: 115, headerClassName: 'header-theme' },
+        { field: 'account_balance', headerName: 'Account Balance', width: 115, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.account_balance);
+         }},
         {
             field: 'actions',
             headerName: 'Actions',

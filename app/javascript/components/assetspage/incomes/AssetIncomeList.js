@@ -10,6 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import AssetIncomeForm from './AssetIncomeForm';
 import CountryList from '../../common/CountryList';
+import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetIncomeList = forwardRef((props, ref) => {
     const { onIncomesFetched } = props; // Destructure the new prop
@@ -217,7 +218,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'income_amount', headerName: 'Income Amount', width: 125, headerClassName: 'header-theme' },
+        { field: 'income_amount', headerName: 'Income Amount', width: 125, headerClassName: 'header-theme', renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.income_amount);
+         }},
         { field: 'start_date', headerName: 'Start Date', width: 100, headerClassName: 'header-theme' },
         { field: 'end_date', headerName: 'End Date', width: 100, headerClassName: 'header-theme' },
         { field: 'is_recurring', headerName: 'Recurring', width: 90, headerClassName: 'header-theme', type: 'boolean' },

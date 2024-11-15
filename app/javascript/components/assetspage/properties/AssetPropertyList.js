@@ -17,6 +17,7 @@ import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" pr
 import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import AssetPropertyForm from './AssetPropertyForm';
+import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPropertyList = forwardRef((props, ref) => {
     const { onPropertiesFetched } = props; // Destructure the new prop
@@ -160,10 +161,15 @@ const AssetPropertyList = forwardRef((props, ref) => {
             if (country.length > 0) return country[0].name;
             else return params.value
         }},
-        { field: 'purchase_date', headerName: 'Purchase Date', width: 125, headerClassName: 'header-theme' },
-        { field: 'purchase_price', headerName: 'Purchase Price', width: 125, headerClassName: 'header-theme' },
-        { field: 'is_under_loan', headerName: 'Loan?', width: 75, headerClassName: 'header-theme', type: 'boolean' },
-        { field: 'loan_amount', headerName: 'Loan Amount', width: 130, headerClassName: 'header-theme' },
+        { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
+        { field: 'purchase_date', headerName: 'Date', width: 100, headerClassName: 'header-theme' },
+        { field: 'purchase_price', headerName: 'Price', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.purchase_price);
+         }},
+        { field: 'is_under_loan', headerName: 'Loan?', width: 50, headerClassName: 'header-theme', type: 'boolean' },
+        { field: 'loan_amount', headerName: 'Loan Amount', width: 130, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.loan_amount);
+         }},
         {
             field: 'actions',
             headerName: 'Actions',

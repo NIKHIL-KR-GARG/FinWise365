@@ -118,10 +118,10 @@ const AssetsGraph = () => {
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
                     let portfolioValue = 0;
                     if (portfolio.portfolio_type === "Bonds") {
-                        portfolioValue = portfolio.portfolio_value;
+                        portfolioValue = parseFloat(portfolio.buying_value);
                     } else {
                         const years = currentYear - new Date(portfolio.buying_date).getFullYear();
-                        portfolioValue = calculateCurrentValue(portfolio.buying_value, portfolio.growth_rate, years);
+                        portfolioValue = calculateCurrentValue(parseFloat(portfolio.buying_value), parseFloat(portfolio.growth_rate), years);
                     }
                     const convertedValue = portfolioValue * conversionRate;
                     return total + convertedValue;
@@ -162,7 +162,7 @@ const AssetsGraph = () => {
             <Grid container spacing={2} width="100%">
                 <Grid item size={6} border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
                     <Typography variant="h6" align="center" pb={1} pt={1}>
-                        Total Assets: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(data[0].properties + data[0].vehicles + data[0].accounts + data[0].deposits))}
+                        Total Assets: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(data[0].properties + data[0].vehicles + data[0].accounts + data[0].deposits + data[0].portfolios))}
                     </Typography>
                     <BarChart layout="vertical" width={400} height={150} data={data}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -179,7 +179,7 @@ const AssetsGraph = () => {
                 </Grid>
                 <Grid item size={6} border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
                     <Typography variant="h6" align="center" pb={1} pt={1}>
-                        Liquid Assets: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(data[0].accounts + data[0].deposits))}
+                        Liquid Assets: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(data[0].accounts + data[0].deposits + data[0].portfolios))}
                     </Typography>
                     <BarChart layout="vertical" width={400} height={150} data={data}>
                         <CartesianGrid strokeDasharray="3 3" />

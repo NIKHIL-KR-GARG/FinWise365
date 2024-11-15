@@ -10,6 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import AssetPortfolioForm from './AssetPortfolioForm';
 import CountryList from '../../common/CountryList';
+import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPortfolioList = forwardRef((props, ref) => {
     const { onPortfoliosFetched } = props; // Destructure the new prop
@@ -132,7 +133,9 @@ const AssetPortfolioList = forwardRef((props, ref) => {
         }},
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'buying_date', headerName: 'Date Bought', width: 115, headerClassName: 'header-theme' },
-        { field: 'buying_value', headerName: 'Buying Value', width: 125, headerClassName: 'header-theme' },
+        { field: 'buying_value', headerName: 'Buying Value', width: 125, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.buying_value);
+         }},
         { field: 'is_sip', headerName: 'Is SIP', width: 100, headerClassName: 'header-theme', type: 'boolean' },
         {
             field: 'actions',

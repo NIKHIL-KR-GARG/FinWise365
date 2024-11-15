@@ -10,6 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import AssetDepositForm from './AssetDepositForm';
 import CountryList from '../../common/CountryList';
+import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetDepositList = forwardRef((props, ref) => {
     const { onDepositsFetched } = props; // Destructure the new prop
@@ -132,7 +133,9 @@ const AssetDepositList = forwardRef((props, ref) => {
         }},
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'opening_date', headerName: 'Opening Date', width: 115, headerClassName: 'header-theme' },
-        { field: 'deposit_amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme' },
+        { field: 'deposit_amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.deposit_amount);
+         }},
         { field: 'deposit_term', headerName: 'Term (months)', width: 100, headerClassName: 'header-theme' },
         {
             field: 'actions',
