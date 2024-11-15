@@ -37,10 +37,24 @@ const AssetIncomeList = forwardRef((props, ref) => {
         }
     };
 
+    const fetchPortfolios = async () => {
+        try {
+            const response = await axios.get(`/api/asset_portfolios?user_id=${currentUserId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching portfolios:', error);
+            return [];
+        }
+    };
+
     const fetchIncomes = async () => {
         try {
             const response = await axios.get(`/api/asset_incomes?user_id=${currentUserId}`);
+
+            // add rental as income as well
             const properties = await fetchProperties();
+            if (!properties || properties.length === 0) return; // Return if properties are not fetched
+
             const today = new Date();
             const rentalIncomes = properties
                 .filter(property => property.is_on_rent && (new Date(property.rental_start_date) <= today) && (!property.rental_end_date || new Date(property.rental_end_date) >= today))
@@ -55,10 +69,46 @@ const AssetIncomeList = forwardRef((props, ref) => {
                     end_date: property.rental_end_date,
                     is_recurring: true,
                 }));
-            setIncomes([...response.data, ...rentalIncomes]);
+
+            
+            const portfolios = await fetchPortfolios();
+            if (!portfolios || portfolios.length === 0) return; // Return if portfolios are not fetched
+            
+            // add dividend as income as well
+            const dividends = portfolios
+                .filter(portfolio => portfolio.is_paying_dividend && (new Date(portfolio.buying_date) <= today) && (!portfolio.selling_date || new Date(portfolio.selling_date) >= today))
+                .map(portfolio => ({
+                    id: `dividend-${portfolio.id}`,
+                    income_name: `Dividend - ${portfolio.portfolio_name}`,
+                    income_type: 'Dividend',
+                    income_location: portfolio.portfolio_location,
+                    currency: portfolio.currency,
+                    income_amount: portfolio.dividend_amount,
+                    start_date: portfolio.buying_date,
+                    end_date: portfolio.selling_date,
+                    is_recurring: true,
+                }));
+
+            // add coupon as income as well
+            const coupons = portfolios
+                .filter(portfolio => portfolio.portfolio_type === 'Bonds' && (new Date(portfolio.buying_date) <= today) && (!portfolio.selling_date || new Date(portfolio.selling_date) >= today))
+                .map(portfolio => ({
+                    id: `coupon-${portfolio.id}`,
+                    income_name: `Coupon - ${portfolio.portfolio_name}`,
+                    income_type: 'Coupon',
+                    income_location: portfolio.portfolio_location,
+                    currency: portfolio.currency,
+                    income_amount: parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 12, // per month
+                    start_date: portfolio.buying_date,
+                    end_date: portfolio.selling_date,
+                    is_recurring: true,
+                }));
+
+            setIncomes([...response.data, ...rentalIncomes, ...dividends, ...coupons]);
             setIncomesFetched(true); // Set incomesFetched to true after fetching
+
             if (onIncomesFetched) {
-                onIncomesFetched(response.data.length + rentalIncomes.length); // Notify parent component
+                onIncomesFetched(response.data.length + rentalIncomes.length + dividends.length + coupons.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching incomes:', error);
@@ -148,7 +198,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
             width: 150, 
             headerClassName: 'header-theme', 
             renderCell: (params) => (
-                params.row.income_type !== 'Rental' ? (
+                params.row.income_type !== 'Rental' 
+                && params.row.income_type !== 'Dividend' 
+                && params.row.income_type !== 'Coupon' ? (
                     <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
                         {params.value}
                     </a>
@@ -176,7 +228,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
             headerClassName: 'header-theme',
             renderCell: (params) => (
                 <div>
-                    {params.row.income_type !== 'Rental' && (
+                    {params.row.income_type !== 'Rental' 
+                    && params.row.income_type !== 'Dividend' 
+                    && params.row.income_type !== 'Coupon' && (
                         <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
                     )}
                 </div>
