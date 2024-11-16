@@ -8,13 +8,13 @@ import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined
 import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
-import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
-import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
-import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
+// import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
+// import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
+// import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
-import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
+// import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined'; // Import the appropriate icon for Precious Metals
@@ -26,14 +26,16 @@ import AssetPropertyForm from '../../components/assetspage/properties/AssetPrope
 import AssetVehicleList from '../../components/assetspage/vehicles/AssetVehicleList';
 import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleForm';
 import AssetsGraph from '../../components/assetspage/AssetsGraph';
-import AssetAccountList from '../../components/assetspage/accounts/AssetAccountList';
 import AssetAccountForm from '../../components/assetspage/accounts/AssetAccountForm';
+import AssetAccountList from '../../components/assetspage/accounts/AssetAccountList';
 import AssetDepositList from '../../components/assetspage/deposits/AssetDepositList';
 import AssetDepositForm from '../../components/assetspage/deposits/AssetDepositForm';
 import AssetIncomeList from '../../components/assetspage/incomes/AssetIncomeList';
 import AssetIncomeForm from '../../components/assetspage/incomes/AssetIncomeForm';
 import AssetPortfolioList from '../../components/assetspage/portfolios/AssetPortfolioList';
 import AssetPortfolioForm from '../../components/assetspage/portfolios/AssetPortfolioForm';
+import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
+import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -60,6 +62,9 @@ const Assets = () => {
     const portfolioListRef = useRef(null);
     const [portfolioCount, setPortfolioCount] = useState(0); // State for portfolio count
 
+    const otherListRef = useRef(null);
+    const [otherCount, setOtherCount] = useState(0); // State for other count
+
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
@@ -78,6 +83,9 @@ const Assets = () => {
         }
         if (portfolioListRef.current) {
             setPortfolioCount(portfolioListRef.current.getPortfolioCount());
+        }
+        if (otherListRef.current) {
+            setOtherCount(otherListRef.current.getOtherCount());
         }
     }, []);
 
@@ -142,6 +150,12 @@ const Assets = () => {
             setPortfolioCount(portfolioCount + 1);
         }
     };
+    const handleOtherAdded = (updatedOther, successMsg) => {
+        if (otherListRef.current) {
+            otherListRef.current.refreshOtherList(updatedOther, successMsg);
+            setOtherCount(otherCount + 1);
+        }
+    };
     
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
@@ -160,6 +174,9 @@ const Assets = () => {
     };
     const handlePortfoliosFetched = (count) => {
         setPortfolioCount(count);
+    };
+    const handleOthersFetched = (count) => {
+        setOtherCount(count);
     };
 
     const today = new Date().toLocaleDateString('en-GB', {
@@ -299,6 +316,21 @@ const Assets = () => {
                                     <AssetPortfolioList ref={portfolioListRef} onPortfoliosFetched={handlePortfoliosFetched} />
                                 </AccordionDetails>
                             </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel11a-content"
+                                    id="panel11a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <FolderSpecialOutlinedIcon sx={{ mr: 1, color: 'brown' }} />
+                                        Other Portfolio  ({otherCount})
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <AssetOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} />
+                                </AccordionDetails>
+                            </Accordion>
                             {/*
                             <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
@@ -396,21 +428,6 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel11a-content"
-                                    id="panel11a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <FolderSpecialOutlinedIcon sx={{ mr: 1, color: 'brown' }} />
-                                        Other Portfolio
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    {/* Add Investment-Other Portfolio details component or content here */}
-                                </AccordionDetails>
-                            </Accordion>
                             {/* <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -493,18 +510,6 @@ const Assets = () => {
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Portfolio</Typography>
                         </Box>
                         {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
-                            <ShowChartOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Stocks</Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
-                            <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Mutual Funds</Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
-                            <MonetizationOnOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Bonds</Typography>
-                        </Box> 
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <SecurityOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>ULIP</Typography>
                         </Box>
@@ -516,6 +521,13 @@ const Assets = () => {
                             <AccountBalanceWalletOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>PPF</Typography>
                         </Box>*/}
+                         <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Other')}
+                        >
+                            <FolderSpecialOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Other</Typography>
+                        </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <DiamondOutlinedIcon sx={{ color: 'white' }} /> {/* Use the appropriate icon */}
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Precious Metals</Typography>
@@ -527,10 +539,6 @@ const Assets = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <AssignmentOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Endowment Plan</Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
-                            <FolderSpecialOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Other</Typography>
                         </Box>
                         {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <AccountBoxOutlinedIcon sx={{ color: 'white' }} />
@@ -568,6 +576,9 @@ const Assets = () => {
                     )}
                     {assetAction === 'Add Portfolio' && (
                         <AssetPortfolioForm portfolio={null} action={action} onClose={handleFormModalClose} refreshPortfolioList={handlePortfolioAdded} />
+                    )}
+                    {assetAction === 'Add Other' && (
+                        <AssetOtherForm other={null} action={action} onClose={handleFormModalClose} refreshOtherList={handleOtherAdded} />
                     )}
                     <IconButton 
                         onClick={handleFormModalClose} 

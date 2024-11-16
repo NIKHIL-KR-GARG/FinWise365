@@ -62,7 +62,7 @@ const UserProfile = () => {
                     //save few user settings in local storage
                     localStorage.setItem('currentUserFirstName', appuser.first_name);
                     localStorage.setItem('currentUserLastName', appuser.last_name);
-                    //localStorage.setItem('currentUserDateOfBirth', appuser.date_of_birth);
+                    localStorage.setItem('currentUserDateOfBirth', appuser.date_of_birth);
                     localStorage.setItem('currentUserEmail', appuser.email);
                     localStorage.setItem('currentUserBaseCurrency', appuser.base_currency);
                     //localStorage.setItem('currentUserLifeExpectancy', appuser.life_expectancy);
@@ -132,7 +132,7 @@ const UserProfile = () => {
                 //update few user settings in local storage
                 localStorage.setItem('currentUserFirstName', user.first_name);
                 localStorage.setItem('currentUserLastName', user.last_name);
-                //localStorage.setItem('currentUserDateOfBirth', user.date_of_birth);
+                localStorage.setItem('currentUserDateOfBirth', user.date_of_birth);
                 localStorage.setItem('currentUserEmail', user.email);
                 localStorage.setItem('currentUserBaseCurrency', user.base_currency);
                 //localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);

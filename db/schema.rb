@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_14_234510) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_16_113411) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,6 +67,28 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_14_234510) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "asset_others", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "asset_name"
+    t.string "institution_name"
+    t.string "asset_location"
+    t.string "currency"
+    t.date "start_date"
+    t.float "lumpsum_amount"
+    t.float "growth_rate"
+    t.boolean "is_recurring_payment"
+    t.string "payment_frequency"
+    t.float "payment_amount"
+    t.date "payment_end_date"
+    t.string "payout_type"
+    t.date "payout_date"
+    t.integer "payout_age"
+    t.integer "payout_duration"
+    t.float "payout_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "asset_portfolio_details", force: :cascade do |t|
     t.integer "user_id"
     t.integer "portfolio_id"
@@ -79,9 +101,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_14_234510) do
     t.date "sale_date"
     t.float "sale_price"
     t.float "sale_tax_and_charges"
-    t.float "current_price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "current_price"
   end
 
   create_table "asset_portfolios", force: :cascade do |t|

@@ -46,6 +46,7 @@ const AssetsGraph = () => {
                 const accountsResponse = await axios.get(`/api/asset_accounts?user_id=${currentUserId}`);
                 const depositsResponse = await axios.get(`/api/asset_deposits?user_id=${currentUserId}`);
                 const portfoliosResponse = await axios.get(`/api/asset_portfolios?user_id=${currentUserId}`);
+                const otherAssetsResponse = await axios.get(`/api/asset_others?user_id=${currentUserId}`);
                 //const exchangeRatesResponse = await axios.get(`/api/exchange_rates?base_currency=${baseCurrency}`);
 
                 const properties = propertiesResponse.data;
@@ -53,6 +54,7 @@ const AssetsGraph = () => {
                 const accounts = accountsResponse.data;
                 const deposits = depositsResponse.data;
                 const portfolios = portfoliosResponse.data;
+                const otherAssets = otherAssetsResponse.data;
                 //const exchangeRates = exchangeRatesResponse.data;
 
                 const currentYear = new Date().getFullYear();

@@ -16,7 +16,7 @@ export const CalculateInterest = (deposit_type, interest_type, interest_rate, de
                 else if (payment_frequency === 'Annually') decrementMonths = 12;
 
                 //add simple interest for the initial deposit
-                interest += deposit_amount * (interest_rate / 100 / 12) * deposit_term;
+                interest += deposit_amount * (interest_rate / 100 / 12) * (deposit_term + 1);
                 //add simple interest for the regular payments
                 for (let month = deposit_term; month >= 1; month-=decrementMonths) {
                     interest += payment_amount * (interest_rate / 100 / 12) * month;
@@ -76,13 +76,13 @@ export const CalculateInterest = (deposit_type, interest_type, interest_rate, de
                 interest += payment_amount * Math.pow((1 + (parseFloat(interest_rate / 100)) / compoundingFactor), (parseFloat(month / 12)) * compoundingFactor) - payment_amount;
             }
         } 
-        return interest;
+        return parseFloat(interest);
     };
 };
 
 export const CalculatePrincipal  = (deposit_type, deposit_amount, deposit_term, payment_frequency, payment_amount) => {
 
-    if (deposit_type === 'Fixed') return deposit_amount;
+    if (deposit_type === 'Fixed' && payment_frequency === '') return deposit_amount;
     else {
         let n = 1;
         if (payment_frequency === 'Monthly') n = 12;
@@ -90,6 +90,10 @@ export const CalculatePrincipal  = (deposit_type, deposit_amount, deposit_term, 
         else if (payment_frequency === 'Semi-Annually') n = 2;
         else if (payment_frequency === 'Annually') n = 1;
 
-        return parseFloat(deposit_amount) + (parseFloat(payment_amount) * (parseFloat(deposit_term) / 12) * n)
+        return parseFloat(deposit_amount) + (parseFloat(payment_amount) * (parseFloat(deposit_term) / 12) * n);
     }
+}
+
+export const CalculatePayoutValue = (present_value, term, rate) => {
+    return parseFloat((parseFloat(present_value) * parseFloat(rate) / 100) / (1 - Math.pow((1 + (parseFloat(rate) / 100 )), -term)));
 }
