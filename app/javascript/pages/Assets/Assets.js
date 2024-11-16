@@ -193,7 +193,7 @@ const Assets = () => {
                         </Link>
                         <Typography color="textPrimary">Assets</Typography>
                     </Breadcrumbs>
-                    <Box sx={{ p: 3, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
+                    <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <HomeOutlinedIcon sx={{ mr: 1 }} />
@@ -207,8 +207,9 @@ const Assets = () => {
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
                             <AssetsGraph />
                         </Box>
+                        <Divider sx={{ my: 2 }} />
                         <Box>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1a-content"
@@ -223,7 +224,7 @@ const Assets = () => {
                                     <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} />
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1a-content"
@@ -238,7 +239,7 @@ const Assets = () => {
                                     <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} />
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel2a-content"
@@ -253,7 +254,7 @@ const Assets = () => {
                                     <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} />
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel3a-content"
@@ -268,7 +269,7 @@ const Assets = () => {
                                     <AssetAccountList ref={accountListRef} onAccountsFetched={handleAccountsFetched} />
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel3a-content"
@@ -283,7 +284,7 @@ const Assets = () => {
                                     <AssetDepositList ref={depositListRef} onDepositsFetched={handleDepositsFetched} />
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel4a-content"
@@ -298,51 +299,7 @@ const Assets = () => {
                                     <AssetPortfolioList ref={portfolioListRef} onPortfoliosFetched={handlePortfoliosFetched} />
                                 </AccordionDetails>
                             </Accordion>
-                            {/*<Accordion sx={{ width: '100%' }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel4a-content"
-                                    id="panel4a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <ShowChartOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                                        Stocks
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    Add Investment-Stocks details component or content here
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel5a-content"
-                                    id="panel5a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'orange' }} />
-                                        Mutual Funds
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                     Add Investment-Mutual Funds details component or content here 
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel6a-content"
-                                    id="panel6a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <MonetizationOnOutlinedIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Bonds
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                     Add Investment-Bonds details component or content here 
-                                </AccordionDetails>
-                            </Accordion>
+                            {/*
                             <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -388,7 +345,7 @@ const Assets = () => {
                                     // Add Investment-PPF details component or content here //
                                 </AccordionDetails>
                             </Accordion> */}
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, bgcolor: 'lightgrey' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel9a-content"
@@ -405,7 +362,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, bgcolor: 'lightgrey' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel9a-content"
@@ -422,7 +379,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, bgcolor: 'lightgrey' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel10a-content"
