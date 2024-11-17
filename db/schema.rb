@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_16_113411) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_17_080812) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -189,6 +189,30 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_16_113411) do
     t.float "scrap_value"
     t.string "vehicle_location", limit: 255
     t.float "depreciation_rate"
+  end
+
+  create_table "expense_homes", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "home_name"
+    t.date "start_date"
+    t.date "end_date"
+    t.string "location"
+    t.string "currency"
+    t.float "groceries"
+    t.float "clothes"
+    t.float "utilities"
+    t.float "furniture"
+    t.float "health"
+    t.float "transport"
+    t.float "communication"
+    t.float "entertainment"
+    t.float "education"
+    t.float "dining"
+    t.float "holidays"
+    t.float "miscellaneous"
+    t.float "total_expense"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|

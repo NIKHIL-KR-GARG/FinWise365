@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link } from '@mui/material';
 //icons
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-// import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-// import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import HomeIcon from '@mui/icons-material/Home';
@@ -15,6 +13,8 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
+import ExpenseHomeList from '../../components/expensespage/home/ExpenseHomeList';
+import ExpenseHomeForm from '../../components/expensespage/home/ExpenseHomeForm';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -123,12 +123,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <HomeIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Home Expenses 
-                                        {/* ({propertyCount}) Display property count */}
+                                        Home Expenses ({homeCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} /> */}
+                                    <ExpenseHomeList ref={homeListRef} onHomesFetched={handleHomesFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -269,9 +268,9 @@ const Expenses = () => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {/* {expenseAction === 'Add Home Expense' && (
-                        <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
-                    )} */}
+                    {expenseAction === 'Add Home Expense' && (
+                        <ExpenseHomeForm home={null} action={action} onClose={handleFormModalClose} refreshHomeList={handleHomeAdded} />
+                    )}
                     {/* {expenseAction === 'Add Property Expense' && (
                         <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )} */}

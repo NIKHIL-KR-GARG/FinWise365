@@ -24,6 +24,8 @@ Rails.application.routes.draw do
     resources :asset_portfolio_details, only: %i[index show create destroy update]
     resources :asset_others, only: %i[index show create destroy update]
 
+    resources :expense_homes, only: %i[index show create destroy update]
+
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
