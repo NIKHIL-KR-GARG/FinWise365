@@ -7,6 +7,7 @@ import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" cr
 import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
@@ -209,7 +210,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
             </Snackbar>
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
-                    <SavingsIcon style={{ color: 'purple', marginRight: '10px' }} />
+                    <CreditCardIcon style={{ color: 'purple', marginRight: '10px' }} />
                     {action === 'Add' && (
                         <>
                             Add Credit Card Debt
