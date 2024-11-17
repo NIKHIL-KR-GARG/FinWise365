@@ -97,3 +97,14 @@ export const CalculatePrincipal  = (deposit_type, deposit_amount, deposit_term, 
 export const CalculatePayoutValue = (present_value, term, rate) => {
     return parseFloat((parseFloat(present_value) * parseFloat(rate) / 100) / (1 - Math.pow((1 + (parseFloat(rate) / 100 )), -term)));
 }
+
+export const calculateFlatRateEMI = (principal, rate, tenure) => {
+    const monthlyInterest = parseFloat(principal) * (parseFloat(rate) / 100) / 12;
+    const emi = (parseFloat(principal) / parseInt(tenure)) + parseFloat(monthlyInterest);
+    return parseFloat(emi);
+};
+
+export const calculateFlatRateInterest = (principal, rate, tenure) => {
+    const totalInterest = (parseFloat(principal) * (parseFloat(rate) / 100) * (parseInt(tenure) / 12));
+    return parseFloat(totalInterest);
+};

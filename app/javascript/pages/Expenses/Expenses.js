@@ -17,6 +17,8 @@ import ExpenseHomeList from '../../components/expensespage/home/ExpenseHomeList'
 import ExpenseHomeForm from '../../components/expensespage/home/ExpenseHomeForm';
 import ExpensePropertyList from '../../components/expensespage/properties/ExpensePropertyList';
 import ExpensePropertyForm from '../../components/expensespage/properties/ExpensePropertyForm';
+import ExpenseCreditCardDebtList from '../../components/expensespage/creditcarddebt/ExpenseCreditCardDebtList';
+import ExpenseCreditCardDebtForm from '../../components/expensespage/creditcarddebt/ExpenseCreditCardDebtForm';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -27,9 +29,11 @@ const Expenses = () => {
 
     const homeListRef = useRef(null);
     const propertyListRef = useRef(null);
+    const creditCardDebtListRef = useRef(null);
 
     const [homeCount, setHomeCount] = useState(0); // State for home count
     const [propertyCount, setPropertyCount] = useState(0); // State for home count
+    const [creditCardDebtCount, setCreditCardDebtCount] = useState(0); // State for home count
 
     useEffect(() => {
         if (homeListRef.current) {
@@ -37,6 +41,9 @@ const Expenses = () => {
         }
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
+        }
+        if (creditCardDebtListRef.current) {
+            setPropertyCount(creditCardDebtListRef.current.getCreditCardDebtCount());
         }
     }, []);
 
@@ -77,12 +84,21 @@ const Expenses = () => {
             setPropertyCount(propertyCount + 1);
         }
     };
+    const handleCreditCardDebtAdded = (updatedCreditCardDebt, successMsg) => {
+        if (creditCardDebtListRef.current) {
+            creditCardDebtListRef.current.refreshCreditCardDebtList(updatedCreditCardDebt, successMsg);
+            setCreditCardDebtCount(creditCardDebtCount + 1);
+        }
+    };
 
     const handleHomesFetched = (count) => {
         setHomeCount(count);
     };
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
+    };
+    const handleCreditCardDebtsFetched = (count) => {
+        setCreditCardDebtCount(count);
     };
 
     const today = new Date().toLocaleDateString('en-GB', {
@@ -169,13 +185,12 @@ const Expenses = () => {
                                     id="panel1a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <PersonIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Personal Loans
-                                        {/* ({propertyCount}) Display property count */}
+                                        <CreditCardIcon sx={{ mr: 1, color: 'yellow' }} />
+                                        Credit Card Debts ({creditCardDebtCount}) 
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} /> */}
+                                    <ExpenseCreditCardDebtList ref={creditCardDebtListRef} onCreditCardDebtsFetched={handleCreditCardDebtsFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -185,8 +200,8 @@ const Expenses = () => {
                                     id="panel1a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <CreditCardIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Credit Card Loans
+                                        <PersonIcon sx={{ mr: 1, color: 'teal' }} />
+                                        Personal Loans
                                         {/* ({propertyCount}) Display property count */}
                                     </Typography>
                                 </AccordionSummary>
@@ -250,18 +265,19 @@ const Expenses = () => {
                         </Box>
                         <Box 
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Credit Card Debt')}
+                        >
+                            <CreditCardIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Credit Card Debt</Typography>
+                        </Box>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Personal Loan')}
                         >
                             <PersonIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Personal Loan</Typography>
                         </Box>
-                        <Box 
-                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
-                            onClick={() => handleFormModalOpen('Add Credit Card Loan')}
-                        >
-                            <CreditCardIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Credit Card Loan</Typography>
-                        </Box>
+                        
                         <Box 
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Other Expense')}
@@ -290,12 +306,13 @@ const Expenses = () => {
                     {expenseAction === 'Add Property Expense' && (
                         <ExpensePropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )}
+                    {expenseAction === 'Add Credit Card Debt' && (
+                        <ExpenseCreditCardDebtForm creditcarddebt={null} action={action} onClose={handleFormModalClose} refreshCreditCardDebtList={handleCreditCardDebtAdded} />
+                    )}
                     {/* {expenseAction === 'Add Persoal Loan' && (
                         <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )} */}
-                    {/* {expenseAction === 'Add Credit Card Loan' && (
-                        <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
-                    )} */}
+                    
                     {/* {expenseAction === 'Add Other Expense' && (
                         <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )} */}

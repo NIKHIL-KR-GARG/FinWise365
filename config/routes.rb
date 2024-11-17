@@ -26,6 +26,7 @@ Rails.application.routes.draw do
 
     resources :expense_homes, only: %i[index show create destroy update]
     resources :expense_properties, only: %i[index show create destroy update]
+    resources :expense_credit_card_debts, only: %i[index show create destroy update]
   
   end
 

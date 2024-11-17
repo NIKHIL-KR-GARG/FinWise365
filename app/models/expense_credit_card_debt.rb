@@ -1,0 +1,2 @@
+class ExpenseCreditCardDebt < ApplicationRecord
+end
