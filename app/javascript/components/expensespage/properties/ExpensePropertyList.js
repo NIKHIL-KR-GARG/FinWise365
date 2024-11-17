@@ -8,131 +8,132 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 
 import '../../common/GridHeader.css';
-import ExpenseHomeForm from './ExpenseHomeForm';
+import ExpensePropertyForm from './ExpensePropertyForm';
 import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
-const ExpenseHomeList = forwardRef((props, ref) => {
-    const { onHomesFetched } = props; // Destructure the new prop
+const ExpensePropertyList = forwardRef((props, ref) => {
+    const { onPropertiesFetched } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
-    const [homes, setHomes] = useState([]);
-    const [homesFetched, setHomesFetched] = useState(false); // State to track if homes are fetched
+    const [properties, setProperties] = useState([]);
+    const [propertiesFetched, setPropertiesFetched] = useState(false); // State to track if properties are fetched
     const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
-    const [selectedHome, setSelectedHome] = useState(null);
+    const [selectedProperty, setSelectedProperty] = useState(null);
     const [action, setAction] = useState(''); // State for action
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for Delete Dialog
-    const [homeToDelete, setHomeToDelete] = useState(null); // State for home to delete
-    const [sortingModel, setSortingModel] = useState([{ field: 'home_name', sort: 'asc' }]); // Initialize with default sorting
+    const [propertyToDelete, setPropertyToDelete] = useState(null); // State for property to delete
+    const [sortingModel, setSortingModel] = useState([{ field: 'property_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const fetchHomes = async () => {
+    const fetchProperties = async () => {
         try {
-            const response = await axios.get(`/api/expense_homes?user_id=${currentUserId}`);
-            setHomes(response.data);
-            setHomesFetched(true); // Set homesFetched to true after fetching
-            if (onHomesFetched) {
-                onHomesFetched(response.data.length); // Notify parent component
+            const response = await axios.get(`/api/expense_properties?user_id=${currentUserId}`);
+            setProperties(response.data);
+            setPropertiesFetched(true); // Set propertiesFetched to true after fetching
+            if (onPropertiesFetched) {
+                onPropertiesFetched(response.data.length); // Notify parent component
             }
         } catch (error) {
-            console.error('Error fetching homes:', error);
+            console.error('Error fetching properties:', error);
         }
     };
 
     useEffect(() => {
-        fetchHomes();
+        fetchProperties();
         
     }, [currentUserId]);
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
-        setSelectedHome(null);
+        setSelectedProperty(null);
         setAction('');
     };
 
     const handleDeleteDialogClose = () => {
         setDeleteDialogOpen(false);
-        setHomeToDelete(null);
+        setPropertyToDelete(null);
     };
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`/api/expense_homes/${homeToDelete.id}`);
-            setHomes(prevHomes => prevHomes.filter(p => p.id !== homeToDelete.id));
-            onHomesFetched(homes.length - 1); // Notify parent component
+            await axios.delete(`/api/expense_properties/${propertyToDelete.id}`);
+            setProperties(prevProperties => prevProperties.filter(p => p.id !== propertyToDelete.id));
+            onPropertiesFetched(properties.length - 1); // Notify parent component
             handleDeleteDialogClose();
-            setSuccessMessage('Home deleted successfully');
+            setSuccessMessage('Property deleted successfully');
         } catch (error) {
-            console.error('Error deleting home:', error);
+            console.error('Error deleting property:', error);
         }
     };
 
-    const handleAction = (home, actionType) => {
+    const handleAction = (property, actionType) => {
         if (actionType === 'Delete') {
-            setHomeToDelete(home);
+            setPropertyToDelete(property);
             setDeleteDialogOpen(true);
         } else {
-            setSelectedHome(home);
+            setSelectedProperty(property);
             setAction(actionType);
             setFormModalOpen(true);
         }
     };
 
     useImperativeHandle(ref, () => ({
-        refreshHomeList(updatedHome, successMsg) {
-            setHomes((prevHomes) => {
-                const homeIndex = prevHomes.findIndex(p => p.id === updatedHome.id);
-                if (homeIndex > -1) {
-                    const newHomes = [...prevHomes];
-                    newHomes[homeIndex] = updatedHome;
-                    onHomesFetched(homes.length); // Notify parent component
-                    return newHomes;
+        refreshPropertyList(updatedProperty, successMsg) {
+            setProperties((prevProperties) => {
+                const propertyIndex = prevProperties.findIndex(p => p.id === updatedProperty.id);
+                if (propertyIndex > -1) {
+                    const newProperties = [...prevProperties];
+                    newProperties[propertyIndex] = updatedProperty;
+                    onPropertiesFetched(properties.length); // Notify parent component
+                    return newProperties;
                 } else {
-                    return [...prevHomes, updatedHome];
+                    return [...prevProperties, updatedProperty];
                 }
             });
             setSuccessMessage(successMsg);
         },
-        getHomeCount() {
-            return homesFetched ? homes.length : 0; // Return count only if homes are fetched
+        getPropertyCount() {
+            return propertiesFetched ? properties.length : 0; // Return count only if properties are fetched
         }
     }));
 
-    const refreshHomeList = (updatedHome, successMsg) => {
-        setHomes(prevHomes => {
-            const homeIndex = prevHomes.findIndex(p => p.id === updatedHome.id);
-            if (homeIndex > -1) {
-                // Update existing home
-                const newHomes = [...prevHomes];
-                newHomes[homeIndex] = updatedHome;
-                onHomesFetched(homes.length); // Notify parent component
-                return newHomes;
+    const refreshPropertyList = (updatedProperty, successMsg) => {
+        setProperties(prevProperties => {
+            const propertyIndex = prevProperties.findIndex(p => p.id === updatedProperty.id);
+            if (propertyIndex > -1) {
+                // Update existing property
+                const newProperties = [...prevProperties];
+                newProperties[propertyIndex] = updatedProperty;
+                onPropertiesFetched(properties.length); // Notify parent component
+                return newProperties;
             } else {
-                // Add new home
-                return [...prevHomes, updatedHome];
+                // Add new property
+                return [...prevProperties, updatedProperty];
             }
         });
         setSuccessMessage(successMsg);
     };
 
     const columns = [
-        { field: 'home_name', headerName: 'Home Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
+        { field: 'property_name', headerName: 'Property Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
             <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
                 {params.value}
             </a>
         )},
-        { field: 'location', headerName: 'Home Location', width: 150, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'property_type', headerName: 'Property Type', width: 100, headerClassName: 'header-theme' },
+        { field: 'location', headerName: 'Property Location', width: 150, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'start_date', headerName: 'Start Date', width: 150, headerClassName: 'header-theme' },
-        { field: 'end_date', headerName: 'End Date', width: 150, headerClassName: 'header-theme' },
-        { field: 'total_expense', headerName: 'Total Expense (/mth)', width: 175, headerClassName: 'header-theme' , renderCell: (params) => {
+        { field: 'start_date', headerName: 'Start Date', width: 100, headerClassName: 'header-theme' },
+        { field: 'end_date', headerName: 'End Date', width: 100, headerClassName: 'header-theme' },
+        { field: 'total_expense', headerName: 'Total Expense (/mth)', width: 150, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.total_expense);
          }},
         {
@@ -176,7 +177,7 @@ const ExpenseHomeList = forwardRef((props, ref) => {
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
-                rows={homes}
+                rows={properties}
                 columns={columns}
                 sortingModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
@@ -207,7 +208,7 @@ const ExpenseHomeList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedHome && <ExpenseHomeForm home={selectedHome} action={action} onClose={handleFormModalClose} refreshHomeList={refreshHomeList}/>} {/* Pass action to form */}
+                    {selectedProperty && <ExpensePropertyForm property={selectedProperty} action={action} onClose={handleFormModalClose} refreshPropertyList={refreshPropertyList}/>} {/* Pass action to form */}
                     <IconButton 
                         onClick={handleFormModalClose} 
                         sx={{ 
@@ -231,7 +232,7 @@ const ExpenseHomeList = forwardRef((props, ref) => {
                 <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        Are you sure you want to delete the expense for the home: "{homeToDelete?.home_name}"?
+                        Are you sure you want to delete the expense for the property: "{propertyToDelete?.property_name}"?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -247,4 +248,4 @@ const ExpenseHomeList = forwardRef((props, ref) => {
     );
 });
 
-export default ExpenseHomeList;
+export default ExpensePropertyList;

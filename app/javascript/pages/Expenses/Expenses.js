@@ -15,6 +15,8 @@ import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import ExpenseHomeList from '../../components/expensespage/home/ExpenseHomeList';
 import ExpenseHomeForm from '../../components/expensespage/home/ExpenseHomeForm';
+import ExpensePropertyList from '../../components/expensespage/properties/ExpensePropertyList';
+import ExpensePropertyForm from '../../components/expensespage/properties/ExpensePropertyForm';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -24,11 +26,17 @@ const Expenses = () => {
     const [expenseAction, setExpenseAction] = useState(''); // State for action
 
     const homeListRef = useRef(null);
+    const propertyListRef = useRef(null);
+
     const [homeCount, setHomeCount] = useState(0); // State for home count
+    const [propertyCount, setPropertyCount] = useState(0); // State for home count
 
     useEffect(() => {
         if (homeListRef.current) {
             setHomeCount(homeListRef.current.getHomeCount());
+        }
+        if (propertyListRef.current) {
+            setPropertyCount(propertyListRef.current.getPropertyCount());
         }
     }, []);
 
@@ -63,9 +71,18 @@ const Expenses = () => {
             setHomeCount(homeCount + 1);
         }
     };
+    const handlePropertyAdded = (updatedProperty, successMsg) => {
+        if (propertyListRef.current) {
+            propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
+            setPropertyCount(propertyCount + 1);
+        }
+    };
 
     const handleHomesFetched = (count) => {
         setHomeCount(count);
+    };
+    const handlePropertiesFetched = (count) => {
+        setPropertyCount(count);
     };
 
     const today = new Date().toLocaleDateString('en-GB', {
@@ -138,12 +155,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <ApartmentIcon sx={{ mr: 1, color: 'red' }} />
-                                        Property Expenses 
-                                        {/* ({propertyCount}) Display property count */}
+                                        Property Expenses ({propertyCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} /> */}
+                                    <ExpensePropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -271,9 +287,9 @@ const Expenses = () => {
                     {expenseAction === 'Add Home Expense' && (
                         <ExpenseHomeForm home={null} action={action} onClose={handleFormModalClose} refreshHomeList={handleHomeAdded} />
                     )}
-                    {/* {expenseAction === 'Add Property Expense' && (
-                        <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
-                    )} */}
+                    {expenseAction === 'Add Property Expense' && (
+                        <ExpensePropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
+                    )}
                     {/* {expenseAction === 'Add Persoal Loan' && (
                         <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )} */}

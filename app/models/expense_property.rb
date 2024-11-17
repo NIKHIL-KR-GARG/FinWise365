@@ -1,0 +1,2 @@
+class ExpenseProperty < ApplicationRecord
+end

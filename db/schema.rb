@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_17_080812) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_17_095254) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -194,8 +194,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_17_080812) do
   create_table "expense_homes", force: :cascade do |t|
     t.integer "user_id"
     t.string "home_name"
-    t.date "start_date"
-    t.date "end_date"
     t.string "location"
     t.string "currency"
     t.float "groceries"
@@ -210,6 +208,37 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_17_080812) do
     t.float "dining"
     t.float "holidays"
     t.float "miscellaneous"
+    t.float "total_expense"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.date "start_date"
+    t.date "end_date"
+  end
+
+  create_table "expense_properties", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "property_name"
+    t.string "property_type"
+    t.date "start_date"
+    t.date "end_date"
+    t.string "location"
+    t.string "currency"
+    t.string "expense_name_1"
+    t.float "expense_value_1"
+    t.string "expense_name_2"
+    t.float "expense_value_2"
+    t.string "expense_name_3"
+    t.float "expense_value_3"
+    t.string "expense_name_4"
+    t.float "expense_value_4"
+    t.string "expense_name_5"
+    t.float "expense_value_5"
+    t.string "expense_name_6"
+    t.float "expense_value_6"
+    t.string "expense_name_7"
+    t.float "expense_value_7"
+    t.string "expense_name_8"
+    t.float "expense_value_8"
     t.float "total_expense"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
