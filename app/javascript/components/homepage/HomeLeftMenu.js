@@ -44,13 +44,6 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
         setPlanOpen(!planOpen);
     };
 
-    const user = {
-        name: 'Nikhil Garg',
-        country: 'SG',
-        currency: 'SGD',
-        avatar: '/path/to/avatar.jpg' // Replace with the actual path to the avatar image
-    };
-
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
     const currentUserLastName = localStorage.getItem('currentUserLastName');
 
@@ -78,7 +71,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
         >   
             <Box sx={{ width: '100%', alignItems: 'center', justifyContent: 'center', p:2 }}>
                 <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', p:1, bgcolor: '#fff9e6', borderRadius: 3 }}>
-                    <Avatar src={user.avatar} alt={user.name} sx={{ mr: 1 }} />
+                    <Avatar src={'/path/to/avatar.jpg'} alt={currentUserFirstName} sx={{ mr: 1 }} />
                     {open && (
                     <Typography variant="body1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
                         {currentUserFirstName} {currentUserLastName}
@@ -110,13 +103,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets</Typography>} />}
                         </ListItem>
-                        {/* <ListItem button  sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <AttachMoneyIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Income</Typography>} />}
-                        </ListItem> */}
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItem component={Link} to="/expenses" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <MoneyOffIcon fontSize="small" />
                             </ListItemIcon>

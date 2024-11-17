@@ -6,16 +6,12 @@ Rails.application.routes.draw do
   get 'logincallback', to: 'site#index'
   get 'accountsettings', to: 'site#index'
   get 'assets', to: 'site#index'
-
-  #get 'users', to: 'site#index'
-  #get 'users/new', to: 'site#index'
-  #get 'users/:id', to: 'site#index'
-  #get 'users/:id/edit', to: 'site#index'
+  get 'expenses', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do
       collection do
-        post 'create_or_find_user' # Define the route for the action
+        post 'create_or_find_user'
       end
     end
 

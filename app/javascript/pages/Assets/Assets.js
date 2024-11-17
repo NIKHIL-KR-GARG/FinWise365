@@ -8,13 +8,9 @@ import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined
 import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
-// import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
-// import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
-// import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
-import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
-// import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined'; // Import the appropriate icon for Precious Metals
@@ -213,7 +209,7 @@ const Assets = () => {
                     <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <HomeOutlinedIcon sx={{ mr: 1 }} />
+                                <AccountBalanceIcon sx={{ mr: 1 }} />
                                 My Assets
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
@@ -324,7 +320,7 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <FolderSpecialOutlinedIcon sx={{ mr: 1, color: 'brown' }} />
-                                        Other Portfolio  ({otherCount})
+                                        Other Assets  ({otherCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -526,7 +522,7 @@ const Assets = () => {
                             onClick={() => handleFormModalOpen('Add Other')}
                         >
                             <FolderSpecialOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Other</Typography>
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Other Asset</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <DiamondOutlinedIcon sx={{ color: 'white' }} /> {/* Use the appropriate icon */}
