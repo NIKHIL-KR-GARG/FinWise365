@@ -1,0 +1,2 @@
+class ExpensePersonalLoan < ApplicationRecord
+end

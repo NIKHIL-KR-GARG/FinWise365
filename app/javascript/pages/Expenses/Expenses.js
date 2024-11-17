@@ -13,12 +13,14 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
-import ExpenseHomeList from '../../components/expensespage/home/ExpenseHomeList';
-import ExpenseHomeForm from '../../components/expensespage/home/ExpenseHomeForm';
+import ExpenseHomeList from '../../components/expensespage/homes/ExpenseHomeList';
+import ExpenseHomeForm from '../../components/expensespage/homes/ExpenseHomeForm';
 import ExpensePropertyList from '../../components/expensespage/properties/ExpensePropertyList';
 import ExpensePropertyForm from '../../components/expensespage/properties/ExpensePropertyForm';
-import ExpenseCreditCardDebtList from '../../components/expensespage/creditcarddebt/ExpenseCreditCardDebtList';
-import ExpenseCreditCardDebtForm from '../../components/expensespage/creditcarddebt/ExpenseCreditCardDebtForm';
+import ExpenseCreditCardDebtList from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtList';
+import ExpenseCreditCardDebtForm from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtForm';
+import ExpensePersonalLoanList from '../../components/expensespage/personalloans/ExpensePersonalLoanList';
+import ExpensePersonalLoanForm from '../../components/expensespage/personalloans/ExpensePersonalLoanForm';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -30,10 +32,12 @@ const Expenses = () => {
     const homeListRef = useRef(null);
     const propertyListRef = useRef(null);
     const creditCardDebtListRef = useRef(null);
+    const personalLoanListRef = useRef(null);
 
-    const [homeCount, setHomeCount] = useState(0); // State for home count
-    const [propertyCount, setPropertyCount] = useState(0); // State for home count
-    const [creditCardDebtCount, setCreditCardDebtCount] = useState(0); // State for home count
+    const [homeCount, setHomeCount] = useState(0);
+    const [propertyCount, setPropertyCount] = useState(0);
+    const [creditCardDebtCount, setCreditCardDebtCount] = useState(0);
+    const [personalLoanCount, setPersonalLoanCount] = useState(0);
 
     useEffect(() => {
         if (homeListRef.current) {
@@ -43,7 +47,10 @@ const Expenses = () => {
             setPropertyCount(propertyListRef.current.getPropertyCount());
         }
         if (creditCardDebtListRef.current) {
-            setPropertyCount(creditCardDebtListRef.current.getCreditCardDebtCount());
+            setCreditCardDebtCount(creditCardDebtListRef.current.getCreditCardDebtCount());
+        }
+        if (personalLoanListRef.current) {
+            setPersonalLoanCount(personalLoanListRef.current.getPersonalLoanCount());
         }
     }, []);
 
@@ -90,6 +97,12 @@ const Expenses = () => {
             setCreditCardDebtCount(creditCardDebtCount + 1);
         }
     };
+    const handlePersonalLoanAdded = (updatedPersonalLoan, successMsg) => {
+        if (personalLoanListRef.current) {
+            personalLoanListRef.current.refreshPersonalLoanList(updatedPersonalLoan, successMsg);
+            setPersonalLoanCount(personalLoanCount + 1);
+        }
+    };
 
     const handleHomesFetched = (count) => {
         setHomeCount(count);
@@ -99,6 +112,9 @@ const Expenses = () => {
     };
     const handleCreditCardDebtsFetched = (count) => {
         setCreditCardDebtCount(count);
+    };
+    const handlePersonalLoansFetched = (count) => {
+        setPersonalLoanCount(count);
     };
 
     const today = new Date().toLocaleDateString('en-GB', {
@@ -186,7 +202,7 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <CreditCardIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Credit Card Debts ({creditCardDebtCount}) 
+                                        Credit Card Debts ({creditCardDebtCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -201,12 +217,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <PersonIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Personal Loans
-                                        {/* ({propertyCount}) Display property count */}
+                                        Personal Loans ({personalLoanCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} /> */}
+                                    <ExpensePersonalLoanList ref={personalLoanListRef} onPersonalLoansFetched={handlePersonalLoansFetched} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -229,10 +244,10 @@ const Expenses = () => {
                     </Box>
                 </Box>
             </Box>
-            <Fab 
+            <Fab
                 color="secondary"
-                aria-label="add" 
-                sx={{ position: 'fixed', bottom: 16, right: 16, width: 70, height: 70 }} 
+                aria-label="add"
+                sx={{ position: 'fixed', bottom: 16, right: 16, width: 70, height: 70 }}
                 onClick={handleModalOpen}
             >
                 <AddIcon sx={{ fontSize: 40 }} />
@@ -249,36 +264,36 @@ const Expenses = () => {
                         Add New Expense
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 2 }}>
-                        <Box 
+                        <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Home Expense')}
                         >
                             <HomeIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Home</Typography>
                         </Box>
-                        <Box 
+                        <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Property Expense')}
                         >
                             <ApartmentIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Property</Typography>
                         </Box>
-                        <Box 
+                        <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Credit Card Debt')}
                         >
                             <CreditCardIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Credit Card Debt</Typography>
                         </Box>
-                        <Box 
+                        <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Personal Loan')}
                         >
                             <PersonIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Personal Loan</Typography>
                         </Box>
-                        
-                        <Box 
+
+                        <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Other Expense')}
                         >
@@ -309,21 +324,20 @@ const Expenses = () => {
                     {expenseAction === 'Add Credit Card Debt' && (
                         <ExpenseCreditCardDebtForm creditcarddebt={null} action={action} onClose={handleFormModalClose} refreshCreditCardDebtList={handleCreditCardDebtAdded} />
                     )}
-                    {/* {expenseAction === 'Add Persoal Loan' && (
-                        <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
-                    )} */}
-                    
+                    {expenseAction === 'Add Personal Loan' && (
+                        <ExpensePersonalLoanForm personalloan={null} action={action} onClose={handleFormModalClose} refreshPersonalLoanList={handlePersonalLoanAdded} />
+                    )}
                     {/* {expenseAction === 'Add Other Expense' && (
                         <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )} */}
-                    <IconButton 
-                        onClick={handleFormModalClose} 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 24, 
-                            border: '1px solid', 
-                            borderColor: 'grey.500' 
+                    <IconButton
+                        onClick={handleFormModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
+                            border: '1px solid',
+                            borderColor: 'grey.500'
                         }}
                     >
                         <CloseIconFilled />
