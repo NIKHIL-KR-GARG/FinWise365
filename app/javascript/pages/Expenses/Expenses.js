@@ -23,6 +23,7 @@ import ExpensePersonalLoanList from '../../components/expensespage/personalloans
 import ExpensePersonalLoanForm from '../../components/expensespage/personalloans/ExpensePersonalLoanForm';
 import ExpenseOtherList from '../../components/expensespage/others/ExpenseOtherList';
 import ExpenseOtherForm from '../../components/expensespage/others/ExpenseOtherForm';
+import ExpensesGraph from '../../components/expensespage/ExpensesGraph';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -176,7 +177,7 @@ const Expenses = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            {/* <ExpensesGraph /> */}
+                            <ExpensesGraph />
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>

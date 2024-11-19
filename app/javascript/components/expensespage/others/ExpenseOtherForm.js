@@ -94,7 +94,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                 errors.end_date = 'End Date or Duration is required';
             }
             if (!other.recurring_amount) errors.recurring_amount = 'Recurring Amount is required';
-            if (!other.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
+            // if (!other.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
         }
 
         // Restrict non-numeric input for numeric fields, allowing floats
