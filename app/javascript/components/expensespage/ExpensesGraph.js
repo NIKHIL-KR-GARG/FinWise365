@@ -158,21 +158,23 @@ const ExpensesGraph = () => {
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF0000', '#800080', '#008000', '#000080'];
 
     return (
-        <Box display="flex" justifyContent="space-around" align="center" p={1} width="100%">
-            <Grid container spacing={2} width="100%">
-                <Grid item size={12} border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
-                    <Typography variant="h6" align="center" pb={1} pt={1}>
-                        Total Expenses: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, data.reduce((total, item) => total + item.value, 0))}
-                    </Typography>
-                    <PieChart width={400} height={400}>
-                        <Pie data={data} cx="50%" cy="50%" outerRadius={150} fill="#8884d8" dataKey="value" label>
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
+        <Box display="flex" justifyContent="center" alignItems="center" p={1} width="100%">
+            <Grid container spacing={2} justifyContent="center" alignItems="center" width='60%'>
+                <Grid item size={12} display="flex" justifyContent="center" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
+                    <Box>
+                        <Typography variant="h6" align="center" pb={1} pt={1}>
+                            Expenses for this month: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, data.reduce((total, item) => total + item.value, 0))}
+                        </Typography>
+                        <PieChart width={400} height={400}>
+                            <Pie data={data} cx="50%" cy="50%" outerRadius={150} fill="#8884d8" dataKey="value" label>
+                                {data.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend />
+                        </PieChart>
+                    </Box>
                 </Grid>
             </Grid>
         </Box>
