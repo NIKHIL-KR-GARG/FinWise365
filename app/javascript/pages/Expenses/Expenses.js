@@ -21,6 +21,8 @@ import ExpenseCreditCardDebtList from '../../components/expensespage/creditcardd
 import ExpenseCreditCardDebtForm from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtForm';
 import ExpensePersonalLoanList from '../../components/expensespage/personalloans/ExpensePersonalLoanList';
 import ExpensePersonalLoanForm from '../../components/expensespage/personalloans/ExpensePersonalLoanForm';
+import ExpenseOtherList from '../../components/expensespage/others/ExpenseOtherList';
+import ExpenseOtherForm from '../../components/expensespage/others/ExpenseOtherForm';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -33,11 +35,13 @@ const Expenses = () => {
     const propertyListRef = useRef(null);
     const creditCardDebtListRef = useRef(null);
     const personalLoanListRef = useRef(null);
+    const otherListRef = useRef(null);
 
     const [homeCount, setHomeCount] = useState(0);
     const [propertyCount, setPropertyCount] = useState(0);
     const [creditCardDebtCount, setCreditCardDebtCount] = useState(0);
     const [personalLoanCount, setPersonalLoanCount] = useState(0);
+    const [otherCount, setOtherCount] = useState(0);
 
     useEffect(() => {
         if (homeListRef.current) {
@@ -51,6 +55,9 @@ const Expenses = () => {
         }
         if (personalLoanListRef.current) {
             setPersonalLoanCount(personalLoanListRef.current.getPersonalLoanCount());
+        }
+        if (otherListRef.current) {
+            setOtherCount(otherListRef.current.getOtherCount());
         }
     }, []);
 
@@ -103,6 +110,12 @@ const Expenses = () => {
             setPersonalLoanCount(personalLoanCount + 1);
         }
     };
+    const handleOtherAdded = (updatedOther, successMsg) => {
+        if (otherListRef.current) {
+            otherListRef.current.refreshOtherList(updatedOther, successMsg);
+            setOtherCount(otherCount + 1);
+        }
+    };
 
     const handleHomesFetched = (count) => {
         setHomeCount(count);
@@ -115,6 +128,9 @@ const Expenses = () => {
     };
     const handlePersonalLoansFetched = (count) => {
         setPersonalLoanCount(count);
+    };
+    const handleOthersFetched = (count) => {
+        setOtherCount(count);
     };
 
     const today = new Date().toLocaleDateString('en-GB', {
@@ -232,12 +248,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
-                                        Other Expenses
-                                        {/* ({propertyCount}) Display property count */}
+                                        Other Expenses ({otherCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} /> */}
+                                    <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} />
                                 </AccordionDetails>
                             </Accordion>
                         </Box>
@@ -327,9 +342,9 @@ const Expenses = () => {
                     {expenseAction === 'Add Personal Loan' && (
                         <ExpensePersonalLoanForm personalloan={null} action={action} onClose={handleFormModalClose} refreshPersonalLoanList={handlePersonalLoanAdded} />
                     )}
-                    {/* {expenseAction === 'Add Other Expense' && (
-                        <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
-                    )} */}
+                    {expenseAction === 'Add Other Expense' && (
+                        <ExpenseOtherForm other={null} action={action} onClose={handleFormModalClose} refreshOtherList={handleOtherAdded} />
+                    )}
                     <IconButton
                         onClick={handleFormModalClose}
                         sx={{

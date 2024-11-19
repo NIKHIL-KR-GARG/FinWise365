@@ -1,0 +1,2 @@
+class ExpenseOther < ApplicationRecord
+end
