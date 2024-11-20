@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link } from '@mui/material'; // Added Backdrop
 //icons
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
 import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
@@ -37,7 +36,7 @@ const Assets = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
-    const [action, setAction] = useState(''); // State for action
+    const [action, setAction] = useState('Asset'); // State for action
     const [assetAction, setAssetAction] = useState(''); // State for action
 
     const propertyListRef = useRef(null);
@@ -107,7 +106,7 @@ const Assets = () => {
     const handleFormModalClose = () => {
         setFormModalOpen(false);
         setAssetAction('');
-        setAction('');
+        setAction('Asset');
     };
 
     const handlePropertyAdded = (updatedProperty, successMsg) => {
@@ -249,7 +248,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} />
+                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={action}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -264,7 +263,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} />
+                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={action}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>

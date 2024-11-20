@@ -131,6 +131,19 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (!vehicle.tentative_sale_amount) errors.tentative_sale_amount = 'Sale Amount is required';
         }
 
+        if (action === 'Add') {
+            // check that the purchase_date is not in the future
+            if (new Date(vehicle.purchase_date) > new Date()) errors.purchase_date = 'Purchase Date cannot be in the future';
+        }
+        else if (action === 'Dream') {
+            // check that the purchase_date is not in the past
+            if (new Date(vehicle.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
+        }
+        else if (action === 'Sell') {
+            // check that the tentative_sale_date is greater than purchase_date
+            if (new Date(vehicle.tentative_sale_date) < new Date(vehicle.purchase_date)) errors.tentative_sale_date = ' Sale Date cannot be before Purchase Date';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -145,7 +158,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                     : await axios.post('/api/asset_vehicles', vehicle);
                 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Vehicle added successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Vehicle added successfully';
                 else if (action === 'Edit') successMsg = 'Vehicle updated successfully';
                 else if (action === 'Sell') successMsg = 'Vehicle sale details updated successfully';
                 
@@ -153,7 +166,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                 onClose(); // Close the Asset Vehicle Form window
                 refreshVehicleList(response.data, successMsg); // Pass the updated vehicle and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add vehicle');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add vehicle');
                 else if (action === 'Edit') setErrorMessage('Failed to update vehicle');
                 else if (action === 'Sell') setErrorMessage('Failed to update vehicle sale details');
                 setSuccessMessage('');
@@ -331,7 +344,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <CarIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    { action === 'Add' && (
+                    { (action === 'Add' || action === 'Dream') && (
                         <>
                             Purchase Vehicle
                         </>
@@ -731,7 +744,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                            { ((action === 'Edit') || (action === 'Add')) && (
+                            { ((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
                                 <FormControlLabel
                                     control={
                                         <Checkbox

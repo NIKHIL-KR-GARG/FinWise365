@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get 'accountsettings', to: 'site#index'
   get 'assets', to: 'site#index'
   get 'expenses', to: 'site#index'
+  get 'dreams', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do

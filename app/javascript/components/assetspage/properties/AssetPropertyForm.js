@@ -159,6 +159,19 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (!property.tentative_sale_amount) errors.tentative_sale_amount = 'Tentative Sale Amount is required';
         }
         
+        if (action === 'Add') {
+            // check that the purchase_date is not in the future
+            if (new Date(property.purchase_date) > new Date()) errors.purchase_date = 'Purchase Date cannot be in the future';
+        }
+        else if (action === 'Dream') {
+            // check that the purchase_date is not in the past
+            if (new Date(property.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
+        }
+        else if (action === 'Sell') {
+            // check that the tentative_sale_date is greater than purchase_date
+            if (new Date(property.tentative_sale_date) < new Date(property.purchase_date)) errors.tentative_sale_date = ' Sale Date cannot be before Purchase Date';
+        }
+    
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -173,7 +186,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                     : await axios.post('/api/asset_properties', property);
                 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Property added successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Property added successfully';
                 else if (action === 'Edit') successMsg = 'Property updated successfully';
                 else if (action === 'Sell') successMsg = 'Property sale details updated successfully';
                 
@@ -181,7 +194,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 onClose(); // Close the Asset Property Form window
                 refreshPropertyList(response.data, successMsg); // Pass the updated property and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add property');
+                if (action === 'Add'|| action === 'Dream') setErrorMessage('Failed to add property');
                 else if (action === 'Edit') setErrorMessage('Failed to update property');
                 else if (action === 'Sell') setErrorMessage('Failed to update property sale details');
                 setSuccessMessage('');
@@ -461,7 +474,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <HomeIcon style={{ color: 'green', marginRight: '10px' }} />
-                    { action === 'Add' && (
+                    { (action === 'Add' || action === 'Dream') && (
                         <>
                             Purchase Property
                         </>
@@ -979,7 +992,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                            { ((action === 'Edit') || (action === 'Add')) && (
+                            { ((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
                                 <FormControlLabel
                                     control={
                                         <Checkbox

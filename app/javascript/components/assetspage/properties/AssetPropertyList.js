@@ -20,7 +20,7 @@ import AssetPropertyForm from './AssetPropertyForm';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPropertyList = forwardRef((props, ref) => {
-    const { onPropertiesFetched } = props; // Destructure the new prop
+    const { onPropertiesFetched, listAction } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [properties, setProperties] = useState([]);
@@ -38,10 +38,24 @@ const AssetPropertyList = forwardRef((props, ref) => {
     const fetchProperties = async () => {
         try {
             const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            setProperties(response.data);
+            
+            let filteredProperties = [];
+            // check where we are coming from and what filter to apply on the list
+            if (listAction === 'Asset') {
+                // filter and show only those properties that have a past purchase_date and future sell_date
+                const today = new Date();
+                filteredProperties = response.data.filter(property => new Date(property.purchase_date) <= today && (!property.is_plan_to_sell || new Date(property.tentative_sale_date) >= today));
+            }
+            else if (listAction === 'Dream') {
+                // filter and show only those properties that have a future purchase_date
+                const today = new Date();
+                filteredProperties = response.data.filter(property => new Date(property.purchase_date) > today);
+            }
+            else filteredProperties = response.data;
+            setProperties(filteredProperties);
             setPropertiesFetched(true); // Set propertiesFetched to true after fetching
             if (onPropertiesFetched) {
-                onPropertiesFetched(response.data.length); // Notify parent component
+                onPropertiesFetched(filteredProperties.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching properties:', error);
@@ -51,7 +65,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
     useEffect(() => {
         fetchProperties();
         
-    }, [currentUserId]);
+    }, [currentUserId, listAction]);
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);

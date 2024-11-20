@@ -17,7 +17,7 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetVehicleList = forwardRef((props, ref) => {
-    const { onVehiclesFetched } = props; // Destructure the new prop
+    const { onVehiclesFetched, listAction } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [vehicles, setVehicles] = useState([]);
@@ -35,10 +35,24 @@ const AssetVehicleList = forwardRef((props, ref) => {
     const fetchVehicles = async () => {
         try {
             const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
-            setVehicles(response.data);
+            
+            let filteredVehicles = [];
+            // check where we are coming from and what filter to apply on the list
+            if (listAction === 'Asset') {
+                // filter and show only those vehicles that have a past purchase_date and future sell_date
+                const today = new Date();
+                filteredVehicles = response.data.filter(vehicle => new Date(vehicle.purchase_date) <= today && (!vehicle.is_plan_to_sell || new Date(vehicle.tentative_sale_date) >= today));
+            }
+            else if (listAction === 'Dream') {
+                // filter and show only those vehicles that have a future purchase_date
+                const today = new Date();
+                filteredVehicles = response.data.filter(vehicle => new Date(vehicle.purchase_date) > today);
+            }
+            else filteredVehicles = response.data;
+            setVehicles(filteredVehicles);
             setVehiclesFetched(true); // Set vehiclesFetched to true after fetching
             if (onVehiclesFetched) {
-                onVehiclesFetched(response.data.length); // Notify parent component
+                onVehiclesFetched(filteredVehicles.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching vehicles:', error);
@@ -48,7 +62,7 @@ const AssetVehicleList = forwardRef((props, ref) => {
     useEffect(() => {
         fetchVehicles();
         
-    }, [currentUserId]);
+    }, [currentUserId, listAction]);
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
