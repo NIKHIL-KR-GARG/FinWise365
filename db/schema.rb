@@ -49,6 +49,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "payment_amount"
+    t.float "total_interest"
+    t.float "total_principal"
   end
 
   create_table "asset_incomes", force: :cascade do |t|

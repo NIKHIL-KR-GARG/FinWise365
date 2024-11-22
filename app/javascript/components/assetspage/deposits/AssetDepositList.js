@@ -31,10 +31,14 @@ const AssetDepositList = forwardRef((props, ref) => {
     const fetchDeposits = async () => {
         try {
             const response = await axios.get(`/api/asset_deposits?user_id=${currentUserId}`);
-            setDeposits(response.data);
+            
+             // filter on deposits where maturity date is greater than current date
+            const filteredDeposits = response.data.filter(deposit => (!deposit.maturity_date || new Date(deposit.maturity_date) > new Date()));
+
+            setDeposits(filteredDeposits);
             setDepositsFetched(true); // Set depositsFetched to true after fetching
             if (onDepositsFetched) {
-                onDepositsFetched(response.data.length); // Notify parent component
+                onDepositsFetched(filteredDeposits.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching deposits:', error);

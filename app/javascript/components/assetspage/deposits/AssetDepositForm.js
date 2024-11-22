@@ -38,11 +38,10 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         interest_type: "Simple",
         compounding_frequency: "Annually",
         payment_frequency: "Monthly",
-        payment_amount: 0.0
+        payment_amount: 0.0,
+        total_interest: 0.0,
+        total_principal: 0.0
     });
-
-    const [totalInterest, setTotalInterest] = useState(0.0);
-    const [totalPrincipal, setTotalPrincipal] = useState(0.0);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -117,7 +116,15 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(deposit.interest_rate)) errors.interest_rate = 'Interest Rate should be numeric';
         if (isNaN(deposit.amount)) errors.deposit_balance = 'Deposit Amount should be numeric';
+        if (isNaN(deposit.deposit_term)) errors.deposit_term = 'Deposit Term should be numeric';
         if (isNaN(deposit.payment_amount)) errors.payment_amount = 'Payment amount should be numeric';
+
+        // check that maturity date is greater than opening date
+        if (deposit.opening_date && deposit.maturity_date) {
+            if (new Date(deposit.maturity_date) < new Date(deposit.opening_date)) {
+                errors.maturity_date = 'Maturity Date should be greater than Opening Date';
+            }
+        }
 
         setErrors(errors);
 
@@ -154,8 +161,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
 
         if (!deposit.deposit_type || !deposit.interest_type || !deposit.interest_rate || !deposit.amount || !deposit.deposit_term) return;
 
-        setTotalInterest(
-            CalculateInterest(
+        const totalInterest = CalculateInterest(
                 deposit.deposit_type,
                 deposit.interest_type,
                 deposit.interest_rate,
@@ -164,18 +170,21 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                 deposit.payment_frequency,
                 deposit.payment_amount,
                 deposit.compounding_frequency
-            )
-        );
+            );
 
-        setTotalPrincipal(
-            CalculatePrincipal(
+        const totalPrincipal = CalculatePrincipal(
                 deposit.deposit_type,
                 deposit.amount,
                 deposit.deposit_term,
                 deposit.payment_frequency,
                 deposit.payment_amount
-            )
-        );
+            );
+
+        setDeposit((prevDeposit) => ({
+            ...prevDeposit,
+            total_interest: totalInterest,
+            total_principal: totalPrincipal
+        }));
     }
 
     return (
@@ -504,11 +513,11 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                                 </Grid>
                                 <Grid item size={10} sx={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have invested a total amount of: <strong>{deposit.currency} {FormatCurrency(deposit.currency, parseFloat(totalPrincipal))} </strong>
-                                        that is expected to generate an interest of: <strong style={{ color: 'blue' }}>{deposit.currency} {FormatCurrency(deposit.currency, totalInterest)}</strong>
+                                        You will have invested a total amount of: <strong>{deposit.currency} {FormatCurrency(deposit.currency, parseFloat(deposit.total_principal))} </strong>
+                                        that is expected to generate an interest of: <strong style={{ color: 'blue' }}>{deposit.currency} {FormatCurrency(deposit.currency, deposit.total_interest)}</strong>
                                     </Typography>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have a total of: <strong style={{ color: 'brown' }}>{deposit.currency} {FormatCurrency(deposit.currency, (parseFloat(totalPrincipal) + parseFloat(totalInterest)))} </strong>
+                                        You will have a total of: <strong style={{ color: 'brown' }}>{deposit.currency} {FormatCurrency(deposit.currency, (parseFloat(deposit.total_principal) + parseFloat(deposit.total_interest)))} </strong>
                                         at the end of the deposit term
                                     </Typography>
                                 </Grid>

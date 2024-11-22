@@ -65,6 +65,8 @@ class Api::AssetDepositsController < ApplicationController
             :compounding_frequency,
             :payment_frequency,
             :payment_amount,
+            :total_interest,
+            :total_principal,
             :created_at,
             :updated_at
         ) 

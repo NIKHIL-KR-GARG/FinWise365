@@ -16,6 +16,8 @@ class CreateAssetDeposits < ActiveRecord::Migration[7.2]
       t.string :compounding_frequency
       t.string :payment_frequency
       t.float :payment_amount
+      t.float :total_interest
+      t.float :total_principal
 
       t.timestamps
     end
