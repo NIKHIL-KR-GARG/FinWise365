@@ -79,6 +79,14 @@ class Api::AssetPropertiesController < ApplicationController
             :sale_amount,
             :property_tax,
             :property_maintenance,
+            :buyer_stamp_duty,
+            :additional_buyer_stamp_duty,
+            :ltv_percentage,
+            :ltv_value,
+            :down_payment,
+            :emi_amount,
+            :interest_payments,
+            :total_cost,
             :created_at,
             :updated_at
         ) 

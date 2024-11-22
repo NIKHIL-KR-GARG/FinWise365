@@ -163,6 +163,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "other_fees"
     t.date "rental_start_date"
     t.date "rental_end_date"
+    t.float "buyer_stamp_duty"
+    t.float "additional_buyer_stamp_duty"
+    t.float "ltv_percentage"
+    t.float "ltv_value"
+    t.float "down_payment"
+    t.float "emi_amount"
+    t.float "interest_payments"
+    t.float "total_cost"
   end
 
   create_table "asset_vehicles", force: :cascade do |t|

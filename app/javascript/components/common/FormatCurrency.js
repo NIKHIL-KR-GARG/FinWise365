@@ -1,5 +1,5 @@
 const FormatCurrency = (currency, amount) => {
-    if (!currency || !amount) return '';
+    if (!currency || !amount) return '0';
     if (currency === 'USD') return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     else if (currency === 'SGD') return amount.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' });
     else if (currency === 'INR') return amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });

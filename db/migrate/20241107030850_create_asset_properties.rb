@@ -30,6 +30,14 @@ class CreateAssetProperties < ActiveRecord::Migration[7.2]
       t.float :sale_amount
       t.float :property_tax
       t.float :property_maintenance
+      t.float :buyer_stamp_duty
+      t.float :additional_buyer_stamp_duty
+      t.float :ltv_percentage
+      t.float :ltv_value
+      t.float :down_payment
+      t.float :emi_amount
+      t.float :interest_payments
+      t.float :total_cost
 
       t.timestamps
     end
