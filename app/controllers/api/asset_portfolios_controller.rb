@@ -70,6 +70,12 @@ class Api::AssetPortfoliosController < ApplicationController
             :is_sip,
             :sip_amount,
             :sip_frequency,
+            :buy_price,
+            :current_value,
+            :profit,
+            :profit_percentage,
+            :loss,
+            :loss_percentage,
             :created_at,
             :updated_at
         ) 

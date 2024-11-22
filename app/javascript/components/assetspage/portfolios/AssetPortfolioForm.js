@@ -48,18 +48,15 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         is_sip: false,
         sip_amount: 0.0,
         sip_frequency: "Monthly",
+        buy_price: 0.0,
+        current_value: 0.0,
+        profit: 0.0,
+        profit_percentage: 0.0,
+        loss: 0.0,
+        loss_percentage: 0.0
     });
 
     const [portfoliodetails, setPortfolioDetails] = useState([]);
-
-    const [calculatedValues, setCalculatedValues] = useState({
-        BuyPrice: 0,
-        CurrentValue: 0,
-        Profit: 0,
-        ProfitPercentage: 0,
-        Loss: 0,
-        LossPercentage: 0
-    });
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -159,6 +156,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         if (portfolio.is_plan_to_sell) {
             if (!portfolio.sale_date) errors.sale_date = 'Date Sold is required';
             if (!portfolio.sale_value) errors.sale_value = 'Selling Value is required';
+            // check if sale date is after buying date
+            if (new Date(portfolio.sale_date) < new Date(portfolio.buying_date)) errors.sale_date = 'Sale Date should be after Buying Date';
         }
         if (portfolio.is_sip) {
             if (!portfolio.sip_amount) errors.sip_amount = 'SIP Amount is required';
@@ -332,14 +331,15 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
             lossPercentage = 0;
         }
 
-        setCalculatedValues({
-            BuyPrice: buyPrice,
-            CurrentValue: currentPrice + interest + dividend,
-            Profit: profit,
-            ProfitPercentage: profitPercentage,
-            Loss: loss,
-            LossPercentage: lossPercentage
-        });
+        setPortfolio((prevPortfolio) => ({
+            ...prevPortfolio,
+            buy_price: buyPrice,
+            current_value: currentPrice + interest + dividend,
+            profit: profit,
+            profit_percentage: profitPercentage,
+            loss: loss,
+            loss_percentage: lossPercentage
+        }));
 
         return;
     }
@@ -746,9 +746,10 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                             variant="standard"
                                             label="Dividend Amount"
                                             name="dividend_amount"
-                                            value={portfolio.dividend_amount}
+                                            value={FormatCurrency(portfolio.currency, parseFloat(portfolio.dividend_amount))}
                                             onChange={handleChange}
                                             fullWidth
+                                            disabled
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.dividend_amount}
                                             helperText={errors.dividend_amount}
@@ -829,22 +830,22 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                 </Grid>
                                 <Grid item size={10} sx={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have invested a total amount of: <strong>{portfolio.currency} {FormatCurrency(portfolio.currency, parseFloat(calculatedValues.BuyPrice))} </strong>
+                                        You will have invested a total amount of: <strong>{portfolio.currency} {FormatCurrency(portfolio.currency, parseFloat(portfolio.buy_price))} </strong>
                                         {
-                                            calculatedValues.Profit > 0 && (
+                                            portfolio.profit > 0 && (
                                                 <>
-                                                that is expected to generate a profit of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, calculatedValues.Profit)} ({calculatedValues.ProfitPercentage}%)</strong>
+                                                that is expected to generate a profit of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.profit)} ({portfolio.profit_percentage}%)</strong>
                                                 </>
                                         )}
                                         {
-                                            calculatedValues.Loss > 0 && (
+                                            portfolio.loss > 0 && (
                                                 <>
-                                                that has generated a loss of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, calculatedValues.Loss)} ({calculatedValues.LossPercentage}%)</strong>
+                                                that has generated a loss of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.loss)} ({portfolio.loss_percentage}%)</strong>
                                                 </>
                                         )}
                                     </Typography>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        Overall Value of your portfolio is: <strong style={{ color: 'brown' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, calculatedValues.CurrentValue)} </strong>
+                                        Overall Value of your portfolio is: <strong style={{ color: 'brown' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.current_value)} </strong>
                                     </Typography>
                                 </Grid>
                             </Grid>

@@ -31,10 +31,21 @@ const AssetPortfolioList = forwardRef((props, ref) => {
     const fetchPortfolios = async () => {
         try {
             const response = await axios.get(`/api/asset_portfolios?user_id=${currentUserId}`);
-            setPortfolios(response.data);
+
+            // filter out the portfolios that have sale date before today
+            const today = new Date();
+            const filteredPortfolios = response.data.filter(portfolio => {
+                if (portfolio.is_plan_to_sell) {
+                    const saleDate = new Date(portfolio.sale_date);
+                    return saleDate >= today;
+                }
+                return true;
+            });
+
+            setPortfolios(filteredPortfolios);
             setPortfoliosFetched(true); // Set portfoliosFetched to true after fetching
             if (onPortfoliosFetched) {
-                onPortfoliosFetched(response.data.length); // Notify parent component
+                onPortfoliosFetched(filteredPortfolios.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching portfolios:', error);

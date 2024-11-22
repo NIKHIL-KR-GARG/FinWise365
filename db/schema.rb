@@ -133,6 +133,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.boolean "is_sip"
     t.float "sip_amount"
     t.string "sip_frequency", limit: 255
+    t.float "buy_price"
+    t.float "current_value"
+    t.float "profit"
+    t.float "profit_percentage"
+    t.float "loss"
+    t.float "loss_percentage
   end
 
   create_table "asset_properties", force: :cascade do |t|

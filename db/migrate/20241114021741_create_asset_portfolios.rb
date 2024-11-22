@@ -21,6 +21,12 @@ class CreateAssetPortfolios < ActiveRecord::Migration[7.2]
       t.boolean :is_sip
       t.float :sip_amount
       t.string :sip_frequency
+      t.float :buy_price
+      t.float :current_value
+      t.float :profit
+      t.float :profit_percentage
+      t.float :loss
+      t.float :loss_percentage
 
       t.timestamps
     end
