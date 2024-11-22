@@ -15,6 +15,7 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 import FlatRateLoanEMICalculator from '../../common/FlatRateLoanEMICalculator';
 import { VehicleLoanRate } from '../../common/DefaultValues';
+import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../common/CalculateInterestAndPrincipal';
 
 const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVehicleList }) => {
 
@@ -46,7 +47,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         is_funded_by_loan: false,
         loan_amount: 0.0,
         loan_duration: 0,
-        loan_type: "",
+        loan_type: "Fixed",
         loan_interest_rate: VehicleLoanRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: action === 'Sell' ? true : false,
         sale_date: "",
@@ -199,17 +200,6 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         }
     };
 
-    const calculateFlatRateEMI = (principal, rate, tenure) => {
-        const monthlyInterest = (principal * (rate / 100)) / 12;
-        const emi = (principal / tenure) + monthlyInterest;
-        return emi;
-    };
-
-    const calculateTotalInterest = (principal, rate, tenure) => {
-        const totalInterest = (principal * (rate / 100) * (tenure / 12));
-        return totalInterest;
-    };
-
     const calculateVehicleValue = () => {
 
         var LTVPercentage = 0;
@@ -274,7 +264,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
 
                 // Calculate Interest Payments & total interest using flat-rate method
                 emi = calculateFlatRateEMI(loanAmountToUse, vehicle.loan_interest_rate, vehicle.loan_duration);
-                InterestPayments = calculateTotalInterest(loanAmountToUse, vehicle.loan_interest_rate, vehicle.loan_duration);
+                InterestPayments = calculateFlatRateInterest(loanAmountToUse, vehicle.loan_interest_rate, vehicle.loan_duration);
             }
 
             TotalCost = parseFloat(vehicle.purchase_price) + parseFloat(InterestPayments);
