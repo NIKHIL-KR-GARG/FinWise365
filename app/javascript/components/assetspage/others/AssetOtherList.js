@@ -31,10 +31,20 @@ const AssetOtherList = forwardRef((props, ref) => {
     const fetchOthers = async () => {
         try {
             const response = await axios.get(`/api/asset_others?user_id=${currentUserId}`);
-            setOthers(response.data);
+
+            // filter on others where payout_date + payout_duration (months) is greater than today
+            const today = new Date();
+            const filteredOthers = response.data.filter(other => {
+                const payoutDate = new Date(other.payout_date);
+                const payoutDuration = parseInt(other.payout_duration);
+                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));    
+                return payoutEndDate > today;
+            });
+
+            setOthers(filteredOthers);
             setOthersFetched(true); // Set othersFetched to true after fetching
             if (onOthersFetched) {
-                onOthersFetched(response.data.length); // Notify parent component
+                onOthersFetched(filteredOthers.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching others:', error);

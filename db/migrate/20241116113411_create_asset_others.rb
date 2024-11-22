@@ -18,6 +18,8 @@ class CreateAssetOthers < ActiveRecord::Migration[7.2]
       t.integer :payout_age
       t.integer :payout_duration
       t.float :payout_value
+      t.float :total_interest
+      t.float :total_principal
 
       t.timestamps
     end

@@ -3,7 +3,7 @@ import axios from 'axios';
 import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings other icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" other type
 import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" other type
-import { Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { InputAdornment, Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -39,12 +39,11 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         payout_type: 'Lumpsum',
         payout_date: '',
         payout_age: 0,
-        payout_duration: 1,
+        payout_duration: 0,
         payout_value: 0.0,
+        total_interest: 0.0,
+        total_principal: 0.0
     });
-
-    const [totalInterest, setTotalInterest] = useState(0.0);
-    const [totalPrincipal, setTotalPrincipal] = useState(0.0);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -89,6 +88,14 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                 payment_end_date: ''
             }));
         }
+
+        //check if payout type is changed to fixed, then set payout duration to 0
+        if (name === 'payout_type' && value === 'Lumpsum') {
+            setOther((prevOther) => ({
+                ...prevOther,
+                payout_duration: 0
+            }));
+        }
     };
 
     useEffect(() => {
@@ -117,9 +124,13 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         if (isNaN(other.growth_rate)) errors.interest_rate = 'Growth Rate should be numeric';
         if (isNaN(other.lumpsum_amount)) errors.other_balance = 'Other Amount should be numeric';
         if (isNaN(other.payment_amount)) errors.payment_amount = 'Payment amount should be numeric';
-        if (isNaN(other.payout_value)) errors.payout_value = 'Payout Value should be numeric';
+        // if (isNaN(other.payout_value)) errors.payout_value = 'Payout Value should be numeric';
         if (isNaN(other.payout_age)) errors.payout_age = 'Payout Age should be numeric';
         if (isNaN(other.payout_duration)) errors.payout_duration = 'Payout Duration should be numeric';
+
+        //check that the payout date is not before the start date
+        if (new Date(other.payout_date) < new Date(other.start_date)) errors.payout_date = 'Payout Date should be after Start Date';
+        if (other.is_recurring_payment && new Date(other.payment_end_date) < new Date(other.start_date)) errors.payment_end_date = 'Payment End Date should be after Start Date';
 
         setErrors(errors);
 
@@ -199,14 +210,14 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
             payoutValue = parseFloat(totalPrincipal) + parseFloat(totalInterest);    
         }
         else {
-            payoutValue = CalculatePayoutValue(parseFloat(totalPrincipal) + parseFloat(totalInterest), parseInt(other.payout_duration) * 12, parseFloat(other.growth_rate));
+            payoutValue = CalculatePayoutValue(parseFloat(totalPrincipal) + parseFloat(totalInterest), parseInt(other.payout_duration), parseFloat(other.growth_rate));
         }
 
-        setTotalInterest(totalInterest);
-        setTotalPrincipal(totalPrincipal);
         setOther((prevOther) => ({
             ...prevOther,
-            payout_value: parseInt(payoutValue)
+            payout_value: parseFloat(payoutValue),
+            total_interest: parseFloat(totalInterest),
+            total_principal: parseFloat(totalPrincipal)
         }));
     }
 
@@ -503,30 +514,36 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     helperText={errors.payout_age}
                                 />
                             </Grid>
-                            <Grid item size={6}>
-                                <Typography gutterBottom>Payout Duration</Typography>
+                            <Grid item size={9}>
+                                <Typography gutterBottom>Payout Duration (Months)</Typography>
                                 <Slider
                                     name="payout_duration"
                                     value={other.payout_duration}
                                     onChange={handleChange}
-                                    step={1}
+                                    step={6}
                                     marks
-                                    min={1}
-                                    max={25}
+                                    min={0}
+                                    max={300}
                                     valueLabelDisplay="on"
                                 />
                             </Grid>
-                            <Grid item size={6}>
+                            <Grid item size={3}>
                                 <TextField
                                     variant="standard"
                                     label="Payout Value"
                                     name="payout_value"
-                                    value={other.payout_value}
+                                    value={FormatCurrency(other.currency, other.payout_value)}
                                     onChange={handleChange}
                                     fullWidth
+                                    disabled
                                     slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                     error={!!errors.payout_value}
                                     helperText={errors.payout_value}
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: <InputAdornment position="end">{other.payout_type === 'Lumpsum' ? '' : '/mth'}</InputAdornment>,
+                                        },
+                                    }}
                                 />
                             </Grid>
                         </Grid>
@@ -541,12 +558,12 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                 </Grid>
                                 <Grid item size={10} sx={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have invested a total amount of: <strong>{other.currency} {FormatCurrency(other.currency, parseFloat(totalPrincipal))} </strong>
-                                        that is expected to generate an interest of: <strong style={{ color: 'blue' }}>{other.currency} {FormatCurrency(other.currency, totalInterest)}</strong>
+                                        You will have invested a total amount of: <strong>{other.currency} {FormatCurrency(other.currency, parseFloat(other.total_principal))} </strong>
+                                        that is expected to generate an interest of: <strong style={{ color: 'blue' }}>{other.currency} {FormatCurrency(other.currency, other.total_interest)}</strong>
                                     </Typography>
                                     <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have a total of: <strong style={{ color: 'brown' }}>{other.currency} {FormatCurrency(other.currency, (parseFloat(totalPrincipal) + parseFloat(totalInterest)))} </strong>
-                                        at the end of the asset term
+                                        You will have a total of: <strong style={{ color: 'brown' }}>{other.currency} {FormatCurrency(other.currency, (parseFloat(other.total_principal) + parseFloat(other.total_interest)))} </strong>
+                                        at the end of the asset payment term
                                     </Typography>
                                 </Grid>
                             </Grid>
