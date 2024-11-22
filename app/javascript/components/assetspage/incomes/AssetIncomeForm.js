@@ -24,9 +24,9 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         user_id: 0,
         income_name: "",
         income_type: "Salary",
-        income_location: currentUserCountryOfResidence || "",
+        location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
-        income_amount: 0.0,
+        amount: 0.0,
         start_date: "",
         end_date: "",
         is_recurring: true,
@@ -56,15 +56,15 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
 
         if (!income.income_name) errors.income_name = 'Income Name is required';
         if (!income.income_type) errors.income_type = 'Income Type is required';
-        if (!income.income_location) errors.income_location = 'Income Location is required';
+        if (!income.location) errors.location = 'Income Location is required';
         if (!income.currency) errors.currency = 'Currency is required';
         if (!income.start_date) errors.start_date = 'Start Date is required';
-        if (!income.income_amount) errors.income_amount = 'Income Amount is required';
+        if (!income.amount) errors.amount = 'Income Amount is required';
         if (!income.income_frequency) errors.income_frequency = 'Income Frequency is required';
         if (!income.growth_rate) errors.growth_rate = 'Growth Rate is required';
         
         // Restrict non-numeric input for numeric fields, allowing floats
-        if (isNaN(income.income_amount)) errors.income_amount = 'Amount should be numeric';
+        if (isNaN(income.amount)) errors.amount = 'Amount should be numeric';
         if (isNaN(income.growth_rate)) errors.growth_rate = 'Growth Rate should be numeric';
         
         setErrors(errors);
@@ -203,13 +203,13 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                         <TextField
                             variant="standard"
                             label="Income Amount"
-                            name="income_amount"
-                            value={income.income_amount}
+                            name="amount"
+                            value={income.amount}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.income_amount}
-                            helperText={errors.income_amount}
+                            error={!!errors.amount}
+                            helperText={errors.amount}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -217,13 +217,13 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                             select
                             variant="standard"
                             label="Income Location"
-                            name="income_location"
-                            value={income.income_location}
+                            name="location"
+                            value={income.location}
                             onChange={handleChange}
                             fullWidth
                             required
-                            error={!!errors.income_location}
-                            helperText={errors.income_location}
+                            error={!!errors.location}
+                            helperText={errors.location}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>

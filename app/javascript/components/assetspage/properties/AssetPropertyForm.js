@@ -42,18 +42,18 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         user_id: 0,
         property_name: "",
         property_type: "HDB",
-        property_location: currentUserCountryOfResidence || "",
+        location: currentUserCountryOfResidence || "",
         property_number: 1,
         purchase_date: "",
         currency: currentUserBaseCurrency || "",
         purchase_price: 0.0,
         stamp_duty: 0.0,
         other_fees: 0.0,
-        tentative_current_value: 0.0,
+        current_value: 0.0,
         is_primary_property: false,
-        is_under_loan: false,
+        is_funded_by_loan: false,
         loan_amount: 0.0,
-        loan_remaining_duration: 0,
+        loan_duration: 0,
         loan_type: "",
         loan_interest_rate: HomeLoanRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_loan_locked: false,
@@ -62,12 +62,12 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         rental_start_date: "",
         rental_end_date: "",
         rental_amount: 0.0,
-        property_value_growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
+        growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: action === 'Sell' ? true : false,
-        tentative_sale_date: "",
-        tentative_sale_amount: 0.0,
-        annual_property_tax_amount: 0.0,
-        annual_property_maintenance_amount: 0.0
+        sale_date: "",
+        sale_amount: 0.0,
+        property_tax: 0.0,
+        property_maintenance: 0.0
     });
 
     const [calculatedValues, setCalculatedValues] = useState({
@@ -122,7 +122,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         const errors = {};
 
         if (!property.property_name) errors.property_name = 'Property Name is required';
-        if (!property.property_location) errors.property_location = 'Property Location is required';
+        if (!property.location) errors.location = 'Property Location is required';
         if (!property.currency) errors.currency = 'Currency is required';
         if (!property.purchase_date) errors.purchase_date = 'Purchase Date is required';
         if (!property.purchase_price) errors.purchase_price = 'Purchase Price is required';
@@ -131,21 +131,21 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (isNaN(property.purchase_price)) errors.purchase_price = 'Purchase Price should be numeric';
         if (isNaN(property.loan_amount)) errors.loan_amount = 'Loan Amount should be numeric';
         if (isNaN(property.loan_interest_rate)) errors.loan_interest_rate = 'Loan Interest Rate should be numeric';
-        if (isNaN(property.loan_remaining_duration)) errors.loan_remaining_duration = 'Loan Duration should be numeric';
+        if (isNaN(property.loan_duration)) errors.loan_duration = 'Loan Duration should be numeric';
         if (isNaN(property.rental_amount)) errors.rental_amount = 'Rental Amount should be numeric';
-        if (isNaN(property.property_value_growth_rate)) errors.property_value_growth_rate = 'Property Value Growth Rate should be numeric';
-        if (isNaN(property.tentative_sale_amount)) errors.tentative_sale_amount = 'Tentative Sale Amount should be numeric';
-        if (isNaN(property.tentative_current_value)) errors.tentative_current_value = 'Current Value Amount should be numeric';
-        if (isNaN(property.annual_property_tax_amount)) errors.annual_property_tax_amount = 'Annual Property Tax Amount should be numeric';
-        if (isNaN(property.annual_property_maintenance_amount)) errors.annual_property_maintenance_amount = 'Annual Property Maintenance Amount should be numeric';
+        if (isNaN(property.growth_rate)) errors.growth_rate = 'Property Value Growth Rate should be numeric';
+        if (isNaN(property.sale_amount)) errors.sale_amount = 'Tentative Sale Amount should be numeric';
+        if (isNaN(property.current_value)) errors.current_value = 'Current Value Amount should be numeric';
+        if (isNaN(property.property_tax)) errors.property_tax = 'Annual Property Tax Amount should be numeric';
+        if (isNaN(property.property_maintenance)) errors.property_maintenance = 'Annual Property Maintenance Amount should be numeric';
         if (isNaN(property.stamp_duty)) errors.stamp_duty = 'Stamp Duty Rate should be numeric';
         if (isNaN(property.other_fees)) errors.other_fees = 'Other Fees should be numeric';
 
-        if (property.is_under_loan) {
+        if (property.is_funded_by_loan) {
             if (!property.loan_type) errors.loan_type = 'Loan Type is required';
             if (!property.loan_amount) errors.loan_amount = 'Loan Amount is required';
             if (!property.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
-            if (!property.loan_remaining_duration) errors.loan_remaining_duration = 'Loan Duration is required';
+            if (!property.loan_duration) errors.loan_duration = 'Loan Duration is required';
             if (property.is_loan_locked) {
                 if (!property.loan_locked_till) errors.loan_locked_till = 'Loan Locked Till is required';
             }
@@ -155,8 +155,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (!property.rental_amount) errors.rental_amount = 'Rental Amount is required';
         }
         if (property.is_plan_to_sell) {
-            if (!property.tentative_sale_date) errors.tentative_sale_date = 'Tentative Sale Date is required';
-            if (!property.tentative_sale_amount) errors.tentative_sale_amount = 'Tentative Sale Amount is required';
+            if (!property.sale_date) errors.sale_date = 'Tentative Sale Date is required';
+            if (!property.sale_amount) errors.sale_amount = 'Tentative Sale Amount is required';
         }
         
         if (action === 'Add') {
@@ -168,8 +168,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (new Date(property.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
         }
         else if (action === 'Sell') {
-            // check that the tentative_sale_date is greater than purchase_date
-            if (new Date(property.tentative_sale_date) < new Date(property.purchase_date)) errors.tentative_sale_date = ' Sale Date cannot be before Purchase Date';
+            // check that the sale_date is greater than purchase_date
+            if (new Date(property.sale_date) < new Date(property.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
         }
     
         setErrors(errors);
@@ -227,7 +227,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (isNaN(property.purchase_price) || property.purchase_price <= 0) return;
         else {
             // check if property location is SG
-            if (property.property_location === 'SG') {
+            if (property.location === 'SG') {
 
                 //calculate Stamp Duty
                 if (property.purchase_price <= 180000) {  // 1st tier
@@ -258,7 +258,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 else AdditionalBuyerStampDuty = property.purchase_price * 0.60;
 
                 // if there is a Loan
-                if (property.is_under_loan) {
+                if (property.is_funded_by_loan) {
                     //calculate LTV Percentage
                     if (property.property_number === 1) LTVPercentage = 75;
                     else if (property.property_number === 2) LTVPercentage = 45;
@@ -280,14 +280,14 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
 
             }
             // check if property location is IN
-            else if (property.property_location === 'IN') {
+            else if (property.location === 'IN') {
 
                 //calculate Stamp Duty
                 if (property.purchase_price <= 500000) BuyerStampDuty = property.purchase_price * 0.05;
                 else BuyerStampDuty = property.purchase_price * 0.06;
 
                 // if there is a Loan
-                if (property.is_under_loan) {
+                if (property.is_funded_by_loan) {
                     //calculate LTV Percentage
                     if (property.purchase_price <= 3000000) LTVPercentage = 90;
                     else if (property.purchase_price > 3000000 && property.purchase_price <= 7500000) LTVPercentage = 80;
@@ -317,48 +317,48 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 || lastPropertyLocation === '' 
                 || lastPropertyType === '') 
             {
-                if (property.is_under_loan) loanAmountToUse = LTVValue;
+                if (property.is_funded_by_loan) loanAmountToUse = LTVValue;
                 stampDutyToUse = BuyerStampDuty + AdditionalBuyerStampDuty;
                 otherFeesToUse = OtherFees;
                 setLastPropertyNumber(property.property_number);
                 setLastPurchasePrice(property.purchase_price);
-                setLastPropertyLocation(property.property_location);
+                setLastPropertyLocation(property.location);
                 setLastPropertyType(property.property_type);
-                setLastPropertyIsUnderLoan(property.is_under_loan);
+                setLastPropertyIsUnderLoan(property.is_funded_by_loan);
             }
             else {
                 if (lastPropertyNumber !== property.property_number 
                     || lastPurchasePrice !== property.purchase_price 
-                    || lastPropertyLocation !== property.property_location
+                    || lastPropertyLocation !== property.location
                     || lastPropertyType !== property.property_type
-                    || lastPropertyIsUnderLoan  !== property.is_under_loan) 
+                    || lastPropertyIsUnderLoan  !== property.is_funded_by_loan) 
                 {
-                    if (property.is_under_loan) loanAmountToUse = LTVValue;
+                    if (property.is_funded_by_loan) loanAmountToUse = LTVValue;
                     stampDutyToUse = BuyerStampDuty + AdditionalBuyerStampDuty;
                     otherFeesToUse = OtherFees;
                     setLastPropertyNumber(property.property_number);
                     setLastPurchasePrice(property.purchase_price);
-                    setLastPropertyLocation(property.property_location);
+                    setLastPropertyLocation(property.location);
                     setLastPropertyType(property.property_type);
-                    setLastPropertyIsUnderLoan(property.is_under_loan);
+                    setLastPropertyIsUnderLoan(property.is_funded_by_loan);
                 }
                 else {
-                    if (property.is_under_loan) loanAmountToUse = property.loan_amount;
+                    if (property.is_funded_by_loan) loanAmountToUse = property.loan_amount;
                     stampDutyToUse = property.stamp_duty;
                     otherFeesToUse = property.other_fees;
                 }
             }
 
             // check if property is under Loan
-            if (property.is_under_loan) {
+            if (property.is_funded_by_loan) {
 
                 DownPayment = property.purchase_price - loanAmountToUse;
 
                 // Calculate Interest Payments
                 //loop through the loan duration and calculate the interest payments using the pmt function
                 var outstandingBalance = loanAmountToUse;
-                emi = Math.abs(pmt(property.loan_interest_rate / 100 / 12, property.loan_remaining_duration, loanAmountToUse));
-                for (let month = 1; month <= property.loan_remaining_duration; month++) {
+                emi = Math.abs(pmt(property.loan_interest_rate / 100 / 12, property.loan_duration, loanAmountToUse));
+                for (let month = 1; month <= property.loan_duration; month++) {
                     const openingBalance = outstandingBalance;
                     const interest = outstandingBalance * property.loan_interest_rate / 100 / 12;
                     var principal = 0;
@@ -385,7 +385,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
 
             LTVValue = loanAmountToUse;
             LTVPercentage = (LTVValue / property.purchase_price) * 100;
-            if (property.property_location === 'SG') BuyerStampDuty = stampDutyToUse - AdditionalBuyerStampDuty;
+            if (property.location === 'SG') BuyerStampDuty = stampDutyToUse - AdditionalBuyerStampDuty;
             else BuyerStampDuty = stampDutyToUse;
             OtherFees = otherFeesToUse;
             
@@ -589,13 +589,13 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             select
                             variant="standard"
                             label="Property Location"
-                            name="property_location"
-                            value={property.property_location}
+                            name="location"
+                            value={property.location}
                             onChange={handleChange}
                             fullWidth
                             required
-                            error={!!errors.property_location}
-                            helperText={errors.property_location}
+                            error={!!errors.location}
+                            helperText={errors.location}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>
@@ -664,7 +664,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.stamp_duty}
                             helperText={errors.stamp_duty}
-                            disabled={property.property_location === 'SG'}
+                            disabled={property.location === 'SG'}
                             InputLabelProps={{ shrink: property.stamp_duty !== '' }} // Updated line
                         />
                     </Grid>
@@ -697,13 +697,13 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                         <TextField
                             variant="standard"
                             label="Tentative Current Value"
-                            name="tentative_current_value"
-                            value={property.tentative_current_value}
+                            name="current_value"
+                            value={property.current_value}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.tentative_current_value}
-                            helperText={errors.tentative_current_value}
+                            error={!!errors.current_value}
+                            helperText={errors.current_value}
                         />
                     </Grid>
 
@@ -712,9 +712,9 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             <Grid item size={6} sx={{ display: 'flex' }}>
                                 <Typography>Cash</Typography>
                                 <Switch
-                                    checked={property.is_under_loan}
+                                    checked={property.is_funded_by_loan}
                                     onChange={handleChange}
-                                    name="is_under_loan"
+                                    name="is_funded_by_loan"
                                     color="primary"
                                 />
                                 <Typography>Loan</Typography>
@@ -755,7 +755,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     </Box>
                                 </Modal>
                             </Grid>
-                            {property.is_under_loan && (
+                            {property.is_funded_by_loan && (
                                 <>
                                     <Grid item size={6}>
                                         <TextField
@@ -803,13 +803,13 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                         <TextField
                                             variant="standard"
                                             label="Loan Duration (Months)"
-                                            name="loan_remaining_duration"
-                                            value={property.loan_remaining_duration}
+                                            name="loan_duration"
+                                            value={property.loan_duration}
                                             onChange={handleChange}
                                             fullWidth
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.loan_remaining_duration}
-                                            helperText={errors.loan_remaining_duration}
+                                            error={!!errors.loan_duration}
+                                            helperText={errors.loan_duration}
                                         />
                                     </Grid>
                                     {property.loan_type === 'Fixed' && (
@@ -850,7 +850,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     {getPropertyIcon(property.property_type)}
                                     <Typography >Overall Cost</Typography>
                                     {
-                                        property.is_under_loan && (
+                                        property.is_funded_by_loan && (
                                             <>
                                                 <Typography sx={{ ml: 'auto', color: 'white' }}>
                                                     Loan EMI: {property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.emi))} / month
@@ -866,7 +866,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
                                             <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.purchase_price))}</Typography>
                                         </Grid>
-                                        {property.is_under_loan && (
+                                        {property.is_funded_by_loan && (
                                             <>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
@@ -900,7 +900,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
                                             <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(calculatedValues.BuyerStampDuty))}</Typography>
                                         </Grid>
-                                        {property.property_location === 'SG' && (
+                                        {property.location === 'SG' && (
                                             <>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Additional Buyer Stamp Duty:</Typography>
@@ -1021,27 +1021,27 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                         <TextField
                                             variant="standard"
                                             label={action === 'Sell' ? "Sale Date" : "Tentative Sale Date"}
-                                            name="tentative_sale_date"
+                                            name="sale_date"
                                             type="date"
-                                            value={property.tentative_sale_date}
+                                            value={property.sale_date}
                                             onChange={handleChange}
                                             fullWidth
                                             InputLabelProps={{ shrink: true }}
-                                            error={!!errors.tentative_sale_date}
-                                            helperText={errors.tentative_sale_date}
+                                            error={!!errors.sale_date}
+                                            helperText={errors.sale_date}
                                         />
                                     </Grid>
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
                                             label={action === 'Sell' ? "Sale Amount" : "Tentative Sale Amount"}
-                                            name="tentative_sale_amount"
-                                            value={property.tentative_sale_amount}
+                                            name="sale_amount"
+                                            value={property.sale_amount}
                                             onChange={handleChange}
                                             fullWidth
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.tentative_sale_amount}
-                                            helperText={errors.tentative_sale_amount}
+                                            error={!!errors.sale_amount}
+                                            helperText={errors.sale_amount}
                                         />
                                     </Grid>
                                 </>
@@ -1053,39 +1053,39 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                         <TextField
                             variant="standard"
                             label="Property Value Growth Rate (%)"
-                            name="property_value_growth_rate"
-                            value={property.property_value_growth_rate}
+                            name="growth_rate"
+                            value={property.growth_rate}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.property_value_growth_rate}
-                            helperText={errors.property_value_growth_rate}
+                            error={!!errors.growth_rate}
+                            helperText={errors.growth_rate}
                         />
                     </Grid>
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
                             label="Annual Property Tax Amount"
-                            name="annual_property_tax_amount"
-                            value={property.annual_property_tax_amount}
+                            name="property_tax"
+                            value={property.property_tax}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.annual_property_tax_amount}
-                            helperText={errors.annual_property_tax_amount}
+                            error={!!errors.property_tax}
+                            helperText={errors.property_tax}
                         />
                     </Grid>
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
                             label="Annual Property Maintenance Amount"
-                            name="annual_property_maintenance_amount"
-                            value={property.annual_property_maintenance_amount}
+                            name="property_maintenance"
+                            value={property.property_maintenance}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.annual_property_maintenance_amount}
-                            helperText={errors.annual_property_maintenance_amount}
+                            error={!!errors.property_maintenance}
+                            helperText={errors.property_maintenance}
                         />
                     </Grid>
                     <Grid item size={12}>

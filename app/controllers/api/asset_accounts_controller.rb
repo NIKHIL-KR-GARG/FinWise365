@@ -55,7 +55,7 @@ class Api::AssetAccountsController < ApplicationController
             :institution_name,
             :account_type,
             :currency,
-            :account_location,
+            :location,
             :opening_date,
             :interest_rate,
             :account_balance,

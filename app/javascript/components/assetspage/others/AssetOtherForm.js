@@ -27,7 +27,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         user_id: 0,
         asset_name: '',
         institution_name: '',
-        asset_location: currentUserCountryOfResidence || "",
+        location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
         start_date: new Date().toISOString().split('T')[0],
         lumpsum_amount: 0.0,
@@ -106,7 +106,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
 
         if (!other.asset_name) errors.asset_name = 'Asset Name is required';
         if (!other.institution_name) errors.institution_name = 'Institution Name is required';
-        if (!other.asset_location) errors.asset_location = 'Asset Location is required';
+        if (!other.location) errors.location = 'Asset Location is required';
         if (!other.currency) errors.currency = 'Currency is required';
         if (!other.start_date) errors.start_date = 'Start Date is required';
         if (!other.lumpsum_amount) errors.lumpsum_amount = 'Lumpsum Amount is required';
@@ -304,13 +304,13 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                             select
                             variant="standard"
                             label="Asset Location"
-                            name="asset_location"
-                            value={other.asset_location}
+                            name="location"
+                            value={other.location}
                             onChange={handleChange}
                             fullWidth
                             required
-                            error={!!errors.asset_location}
-                            helperText={errors.asset_location}
+                            error={!!errors.location}
+                            helperText={errors.location}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>

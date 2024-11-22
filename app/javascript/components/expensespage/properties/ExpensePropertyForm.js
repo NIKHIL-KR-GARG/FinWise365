@@ -336,7 +336,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                             select
                             variant="standard"
                             label="Property Location"
-                            name="property_location"
+                            name="location"
                             value={property.location}
                             onChange={handleChange}
                             fullWidth

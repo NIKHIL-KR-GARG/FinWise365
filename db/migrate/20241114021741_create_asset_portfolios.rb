@@ -5,7 +5,7 @@ class CreateAssetPortfolios < ActiveRecord::Migration[7.2]
       t.string :portfolio_name
       t.string :institution_name
       t.string :portfolio_type
-      t.string :portfolio_location
+      t.string :location
       t.string :currency
       t.date :buying_date
       t.float :buying_value
@@ -16,8 +16,8 @@ class CreateAssetPortfolios < ActiveRecord::Migration[7.2]
       t.float :dividend_amount
       t.string :dividend_frequency
       t.boolean :is_plan_to_sell
-      t.date :selling_date
-      t.float :selling_value
+      t.date :sale_date
+      t.float :sale_value
       t.boolean :is_sip
       t.float :sip_amount
       t.string :sip_frequency

@@ -63,9 +63,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
                     id: `rental-${property.id}`,
                     income_name: `Rental Income - ${property.property_name}`,
                     income_type: 'Rental',
-                    income_location: property.property_location,
+                    location: property.location,
                     currency: property.currency,
-                    income_amount: property.rental_amount,
+                    amount: property.rental_amount,
                     start_date: property.rental_start_date,
                     end_date: property.rental_end_date,
                     is_recurring: true,
@@ -77,31 +77,31 @@ const AssetIncomeList = forwardRef((props, ref) => {
             
             // add dividend as income as well
             const dividends = portfolios
-                .filter(portfolio => portfolio.is_paying_dividend && (new Date(portfolio.buying_date) <= today) && (!portfolio.selling_date || new Date(portfolio.selling_date) >= today))
+                .filter(portfolio => portfolio.is_paying_dividend && (new Date(portfolio.buying_date) <= today) && (!portfolio.sale_date || new Date(portfolio.sale_date) >= today))
                 .map(portfolio => ({
                     id: `dividend-${portfolio.id}`,
                     income_name: `Dividend - ${portfolio.portfolio_name}`,
                     income_type: 'Dividend',
-                    income_location: portfolio.portfolio_location,
+                    location: portfolio.location,
                     currency: portfolio.currency,
-                    income_amount: portfolio.dividend_amount,
+                    amount: portfolio.dividend_amount,
                     start_date: portfolio.buying_date,
-                    end_date: portfolio.selling_date,
+                    end_date: portfolio.sale_date,
                     is_recurring: true,
                 }));
 
             // add coupon as income as well
             const coupons = portfolios
-                .filter(portfolio => portfolio.portfolio_type === 'Bonds' && (new Date(portfolio.buying_date) <= today) && (!portfolio.selling_date || new Date(portfolio.selling_date) >= today))
+                .filter(portfolio => portfolio.portfolio_type === 'Bonds' && (new Date(portfolio.buying_date) <= today) && (!portfolio.sale_date || new Date(portfolio.sale_date) >= today))
                 .map(portfolio => ({
                     id: `coupon-${portfolio.id}`,
                     income_name: `Coupon - ${portfolio.portfolio_name}`,
                     income_type: 'Coupon',
-                    income_location: portfolio.portfolio_location,
+                    location: portfolio.location,
                     currency: portfolio.currency,
-                    income_amount: parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 12, // per month
+                    amount: parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 12, // per month
                     start_date: portfolio.buying_date,
-                    end_date: portfolio.selling_date,
+                    end_date: portfolio.sale_date,
                     is_recurring: true,
                 }));
 
@@ -211,15 +211,15 @@ const AssetIncomeList = forwardRef((props, ref) => {
             )
         },
         { field: 'income_type', headerName: 'Income Type', width: 125, headerClassName: 'header-theme' },
-        { field: 'income_location', headerName: 'Income Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'location', headerName: 'Income Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'income_amount', headerName: 'Income Amount', width: 125, headerClassName: 'header-theme', renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.income_amount);
+        { field: 'amount', headerName: 'Income Amount', width: 125, headerClassName: 'header-theme', renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.amount);
          }},
         { field: 'start_date', headerName: 'Start Date', width: 100, headerClassName: 'header-theme' },
         { field: 'end_date', headerName: 'End Date', width: 100, headerClassName: 'header-theme' },

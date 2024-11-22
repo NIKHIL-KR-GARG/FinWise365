@@ -5,10 +5,10 @@ class CreateAssetDeposits < ActiveRecord::Migration[7.2]
       t.string :deposit_name
       t.string :institution_name
       t.string :deposit_type
-      t.string :deposit_location
+      t.string :location
       t.string :currency
       t.date :opening_date
-      t.float :deposit_amount
+      t.float :amount
       t.integer :deposit_term
       t.date :maturity_date
       t.float :interest_rate

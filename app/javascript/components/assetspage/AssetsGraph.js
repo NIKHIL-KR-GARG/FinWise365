@@ -61,7 +61,7 @@ const AssetsGraph = () => {
 
                 const totalPropertyValue = properties.reduce((total, property) => {
                     const years = currentYear - new Date(property.purchase_date).getFullYear();
-                    const currentValue = calculateCurrentValue(property.purchase_price, property.property_value_growth_rate, years);
+                    const currentValue = calculateCurrentValue(property.purchase_price, property.growth_rate, years);
                     const fromCurrency = property.currency;
                     const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === currentUserBaseCurrency);
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
@@ -94,7 +94,7 @@ const AssetsGraph = () => {
                         deposit.deposit_type,
                         deposit.interest_type,
                         deposit.interest_rate,
-                        deposit.deposit_amount || 0,
+                        deposit.amount || 0,
                         months,
                         deposit.payment_frequency,
                         deposit.payment_amount || 0,
@@ -102,7 +102,7 @@ const AssetsGraph = () => {
                     )
                     const principal = CalculatePrincipal(
                         deposit.deposit_type,
-                        deposit.deposit_amount || 0,
+                        deposit.amount || 0,
                         months,
                         deposit.payment_frequency,
                         deposit.payment_amount || 0

@@ -27,7 +27,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "account_type", limit: 255
-    t.string "account_location", limit: 255
+    t.string "location", limit: 255
     t.string "currency", limit: 255
   end
 
@@ -36,10 +36,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.string "deposit_name"
     t.string "institution_name"
     t.string "deposit_type"
-    t.string "deposit_location"
+    t.string "location"
     t.string "currency"
     t.date "opening_date"
-    t.float "deposit_amount"
+    t.float "amount"
     t.integer "deposit_term"
     t.date "maturity_date"
     t.float "interest_rate"
@@ -55,9 +55,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.integer "user_id"
     t.string "income_name"
     t.string "income_type"
-    t.string "income_location"
+    t.string "location"
     t.string "currency"
-    t.float "income_amount"
+    t.float "amount"
     t.date "start_date"
     t.date "end_date"
     t.boolean "is_recurring"
@@ -71,7 +71,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.integer "user_id"
     t.string "asset_name"
     t.string "institution_name"
-    t.string "asset_location"
+    t.string "location"
     t.string "currency"
     t.date "start_date"
     t.float "lumpsum_amount"
@@ -110,7 +110,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.integer "user_id"
     t.string "portfolio_name"
     t.string "institution_name"
-    t.string "portfolio_location"
+    t.string "location"
     t.string "currency"
     t.date "buying_date"
     t.float "buying_value"
@@ -121,8 +121,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "dividend_amount"
     t.string "dividend_frequency"
     t.boolean "is_plan_to_sell"
-    t.date "selling_date"
-    t.float "selling_value"
+    t.date "sale_date"
+    t.float "sale_value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "portfolio_type", limit: 255
@@ -135,28 +135,28 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.integer "user_id"
     t.string "property_name"
     t.string "property_type"
-    t.string "property_location"
+    t.string "location"
     t.integer "property_number"
     t.date "purchase_date"
     t.string "currency"
     t.float "purchase_price"
-    t.float "tentative_current_value"
+    t.float "current_value"
     t.boolean "is_primary_property"
-    t.boolean "is_under_loan"
+    t.boolean "is_funded_by_loan"
     t.float "loan_amount"
-    t.integer "loan_remaining_duration"
+    t.integer "loan_duration"
     t.string "loan_type"
     t.float "loan_interest_rate"
     t.boolean "is_loan_locked"
     t.date "loan_locked_till"
     t.boolean "is_on_rent"
     t.float "rental_amount"
-    t.float "property_value_growth_rate"
+    t.float "growth_rate"
     t.boolean "is_plan_to_sell"
-    t.date "tentative_sale_date"
-    t.float "tentative_sale_amount"
-    t.float "annual_property_tax_amount"
-    t.float "annual_property_maintenance_amount"
+    t.date "sale_date"
+    t.float "sale_amount"
+    t.float "property_tax"
+    t.float "property_maintenance"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "stamp_duty"
@@ -173,21 +173,21 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.string "currency"
     t.float "purchase_price"
     t.float "coe_paid"
-    t.float "tentative_current_value"
-    t.float "annual_maintenance_amount"
+    t.float "current_value"
+    t.float "vehicle_maintanance"
     t.float "monthly_expenses"
-    t.boolean "is_under_loan"
+    t.boolean "is_funded_by_loan"
     t.float "loan_amount"
-    t.integer "loan_remaining_duration"
+    t.integer "loan_duration"
     t.string "loan_type"
     t.float "loan_interest_rate"
     t.boolean "is_plan_to_sell"
-    t.date "tentative_sale_date"
-    t.float "tentative_sale_amount"
+    t.date "sale_date"
+    t.float "sale_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "scrap_value"
-    t.string "vehicle_location", limit: 255
+    t.string "location", limit: 255
     t.float "depreciation_rate"
   end
 

@@ -25,7 +25,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
         account_name: "",
         account_type: "Savings",
         institution_name: "",
-        account_location: currentUserCountryOfResidence || "",
+        location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
         opening_date: "",
         interest_rate: 0.0,
@@ -64,7 +64,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
         if (!account.account_name) errors.account_name = 'Account Name is required';
         if (!account.account_type) errors.account_type = 'Account Type is required';
         if (!account.institution_name) errors.institution_name = 'Institution Name is required';
-        if (!account.account_location) errors.account_location = 'Account Location is required';
+        if (!account.location) errors.location = 'Account Location is required';
         if (!account.currency) errors.currency = 'Currency is required';
         if (!account.opening_date) errors.opening_date = 'Opening Date is required';
 
@@ -242,13 +242,13 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                             select
                             variant="standard"
                             label="Account Location"
-                            name="account_location"
-                            value={account.account_location}
+                            name="location"
+                            value={account.location}
                             onChange={handleChange}
                             fullWidth
                             required
-                            error={!!errors.account_location}
-                            helperText={errors.account_location}
+                            error={!!errors.location}
+                            helperText={errors.location}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>

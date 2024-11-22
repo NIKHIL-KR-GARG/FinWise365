@@ -1,11 +1,11 @@
-export const CalculateInterest = (deposit_type, interest_type, interest_rate, deposit_amount, deposit_term, payment_frequency, payment_amount, compounding_frequency) => {
+export const CalculateInterest = (deposit_type, interest_type, interest_rate, amount, deposit_term, payment_frequency, payment_amount, compounding_frequency) => {
     
     let interest = 0;
 
     if (deposit_type === 'Fixed') {
         if (interest_type === 'Simple') {
             if (payment_frequency === '') {
-                interest = deposit_amount * (interest_rate / 100 / 12) * deposit_term;
+                interest = amount * (interest_rate / 100 / 12) * deposit_term;
             }
             else {
                 //means we have regular payments and we need to calculate the interest for the regular payments
@@ -16,7 +16,7 @@ export const CalculateInterest = (deposit_type, interest_type, interest_rate, de
                 else if (payment_frequency === 'Annually') decrementMonths = 12;
 
                 //add simple interest for the initial deposit
-                interest += deposit_amount * (interest_rate / 100 / 12) * (deposit_term + 1);
+                interest += amount * (interest_rate / 100 / 12) * (deposit_term + 1);
                 //add simple interest for the regular payments
                 for (let month = deposit_term; month >= 1; month-=decrementMonths) {
                     interest += payment_amount * (interest_rate / 100 / 12) * month;
@@ -30,7 +30,7 @@ export const CalculateInterest = (deposit_type, interest_type, interest_rate, de
             else if (compounding_frequency === 'Quarterly') n = 4;
             else if (compounding_frequency === 'Semi-Annually') n = 2;
             else if (compounding_frequency === 'Annually') n = 1;
-            return(deposit_amount * Math.pow((1 + (interest_rate / 100) / n), (deposit_term / 12) * n) - deposit_amount);
+            return(amount * Math.pow((1 + (interest_rate / 100) / n), (deposit_term / 12) * n) - amount);
         }
     }
     else {
@@ -62,7 +62,7 @@ export const CalculateInterest = (deposit_type, interest_type, interest_rate, de
         
         if (interest_type === 'Simple') {
             //add simple interest for the initial deposit
-            interest += deposit_amount * (interest_rate / 100 / 12) * deposit_term;
+            interest += amount * (interest_rate / 100 / 12) * deposit_term;
             //add simple interest for the regular payments
             for (let month = deposit_term; month >= 1; month-=decrementMonths) {
                 interest += payment_amount * (interest_rate / 100 / 12) * month;
@@ -70,7 +70,7 @@ export const CalculateInterest = (deposit_type, interest_type, interest_rate, de
         }
         else {
             //add compound interest for the initial deposit
-            interest += deposit_amount * Math.pow((1 + (parseFloat(interest_rate / 100)) / compoundingFactor), (parseFloat(deposit_term / 12)) * compoundingFactor) - deposit_amount;
+            interest += amount * Math.pow((1 + (parseFloat(interest_rate / 100)) / compoundingFactor), (parseFloat(deposit_term / 12)) * compoundingFactor) - amount;
             //add compound interest for the regular payments
             for (let month = deposit_term; month >= 1; month-=decrementMonths) {
                 interest += payment_amount * Math.pow((1 + (parseFloat(interest_rate / 100)) / compoundingFactor), (parseFloat(month / 12)) * compoundingFactor) - payment_amount;
@@ -80,9 +80,9 @@ export const CalculateInterest = (deposit_type, interest_type, interest_rate, de
     };
 };
 
-export const CalculatePrincipal  = (deposit_type, deposit_amount, deposit_term, payment_frequency, payment_amount) => {
+export const CalculatePrincipal  = (deposit_type, amount, deposit_term, payment_frequency, payment_amount) => {
 
-    if (deposit_type === 'Fixed' && payment_frequency === '') return deposit_amount;
+    if (deposit_type === 'Fixed' && payment_frequency === '') return amount;
     else {
         let n = 1;
         if (payment_frequency === 'Monthly') n = 12;
@@ -90,7 +90,7 @@ export const CalculatePrincipal  = (deposit_type, deposit_amount, deposit_term, 
         else if (payment_frequency === 'Semi-Annually') n = 2;
         else if (payment_frequency === 'Annually') n = 1;
 
-        return parseFloat(deposit_amount) + (parseFloat(payment_amount) * (parseFloat(deposit_term) / 12) * n);
+        return parseFloat(amount) + (parseFloat(payment_amount) * (parseFloat(deposit_term) / 12) * n);
     }
 }
 

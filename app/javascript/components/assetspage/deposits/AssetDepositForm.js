@@ -28,10 +28,10 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         deposit_name: "",
         deposit_type: "Fixed Deposit",
         institution_name: "",
-        deposit_location: currentUserCountryOfResidence || "",
+        location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
         opening_date: new Date().toISOString().split('T')[0],
-        deposit_amount: 0.0,
+        amount: 0.0,
         deposit_term: 0,
         maturity_date: "",
         interest_rate: 0.0,
@@ -97,10 +97,10 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         if (!deposit.deposit_name) errors.deposit_name = 'Deposit Name is required';
         if (!deposit.deposit_type) errors.deposit_type = 'Deposit Type is required';
         if (!deposit.institution_name) errors.institution_name = 'Institution Name is required';
-        if (!deposit.deposit_location) errors.deposit_location = 'Deposit Location is required';
+        if (!deposit.location) errors.location = 'Deposit Location is required';
         if (!deposit.currency) errors.currency = 'Currency is required';
         if (!deposit.opening_date) errors.opening_date = 'Opening Date is required';
-        if (!deposit.deposit_amount) errors.deposit_amount = 'Deposit Amount is required';
+        if (!deposit.amount) errors.amount = 'Deposit Amount is required';
         if (!deposit.deposit_term && !deposit.maturity_date) {
             errors.deposit_term = 'Deposit Term Or Maturity Date is required';
             errors.maturity_date = 'Deposit Term Or Maturity Date is required';
@@ -116,7 +116,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
 
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(deposit.interest_rate)) errors.interest_rate = 'Interest Rate should be numeric';
-        if (isNaN(deposit.deposit_amount)) errors.deposit_balance = 'Deposit Amount should be numeric';
+        if (isNaN(deposit.amount)) errors.deposit_balance = 'Deposit Amount should be numeric';
         if (isNaN(deposit.payment_amount)) errors.payment_amount = 'Payment amount should be numeric';
 
         setErrors(errors);
@@ -152,14 +152,14 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
 
     const calculatetTotalInterest = () => {
 
-        if (!deposit.deposit_type || !deposit.interest_type || !deposit.interest_rate || !deposit.deposit_amount || !deposit.deposit_term) return;
+        if (!deposit.deposit_type || !deposit.interest_type || !deposit.interest_rate || !deposit.amount || !deposit.deposit_term) return;
 
         setTotalInterest(
             CalculateInterest(
                 deposit.deposit_type,
                 deposit.interest_type,
                 deposit.interest_rate,
-                deposit.deposit_amount,
+                deposit.amount,
                 deposit.deposit_term,
                 deposit.payment_frequency,
                 deposit.payment_amount,
@@ -170,7 +170,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         setTotalPrincipal(
             CalculatePrincipal(
                 deposit.deposit_type,
-                deposit.deposit_amount,
+                deposit.amount,
                 deposit.deposit_term,
                 deposit.payment_frequency,
                 deposit.payment_amount
@@ -317,13 +317,13 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                             select
                             variant="standard"
                             label="Deposit Location"
-                            name="deposit_location"
-                            value={deposit.deposit_location}
+                            name="location"
+                            value={deposit.location}
                             onChange={handleChange}
                             fullWidth
                             required
-                            error={!!errors.deposit_location}
-                            helperText={errors.deposit_location}
+                            error={!!errors.location}
+                            helperText={errors.location}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>
@@ -371,13 +371,13 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                         <TextField
                             variant="standard"
                             label="Deposit Amount"
-                            name="deposit_amount"
-                            value={deposit.deposit_amount}
+                            name="amount"
+                            value={deposit.amount}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.deposit_amount}
-                            helperText={errors.deposit_amount}
+                            error={!!errors.amount}
+                            helperText={errors.amount}
                         />
                     </Grid>
                     <Grid item size={6}>

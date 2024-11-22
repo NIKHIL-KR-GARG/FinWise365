@@ -4,9 +4,9 @@ class CreateAssetIncomes < ActiveRecord::Migration[7.2]
       t.integer :user_id
       t.string :income_name
       t.string :income_type
-      t.string :income_location
+      t.string :location
       t.string :currency
-      t.float :income_amount
+      t.float :amount
       t.date :start_date
       t.date :end_date
       t.boolean :is_recurring

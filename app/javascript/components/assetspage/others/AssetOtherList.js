@@ -124,7 +124,7 @@ const AssetOtherList = forwardRef((props, ref) => {
             </a>
         )},
         { field: 'institution_name', headerName: 'Institution', width: 140, headerClassName: 'header-theme' },
-        { field: 'asset_location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;

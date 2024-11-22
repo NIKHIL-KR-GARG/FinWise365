@@ -35,22 +35,22 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         user_id: 0,
         vehicle_name: "",
         vehicle_type: "Car",
-        vehicle_location: currentUserCountryOfResidence || "",
+        location: currentUserCountryOfResidence || "",
         purchase_date: "",
         currency: currentUserBaseCurrency || "",
         purchase_price: 0.0,
         coe_paid: 0.0,
-        tentative_current_value: 0.0,
-        annual_maintenance_amount: 0.0,
+        current_value: 0.0,
+        vehicle_maintanance: 0.0,
         monthly_expenses: 0.0,
-        is_under_loan: false,
+        is_funded_by_loan: false,
         loan_amount: 0.0,
-        loan_remaining_duration: 0,
+        loan_duration: 0,
         loan_type: "",
         loan_interest_rate: VehicleLoanRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: action === 'Sell' ? true : false,
-        tentative_sale_date: "",
-        tentative_sale_amount: 0.0,
+        sale_date: "",
+        sale_amount: 0.0,
         scrap_value: 0.0,
         depreciation_rate: 0.0
     });
@@ -112,23 +112,23 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.coe_paid)) errors.coe_paid = 'COE Amount should be numeric';
         if (isNaN(vehicle.loan_amount)) errors.loan_amount = 'Loan Amount should be numeric';
         if (isNaN(vehicle.loan_interest_rate)) errors.loan_interest_rate = 'Loan Interest Rate should be numeric';
-        if (isNaN(vehicle.loan_remaining_duration)) errors.loan_remaining_duration = 'Loan Duration should be numeric';
-        if (isNaN(vehicle.tentative_sale_amount)) errors.tentative_sale_amount = 'Tentative Sale Amount should be numeric';
-        if (isNaN(vehicle.tentative_current_value)) errors.tentative_current_value = 'Current Value Amount should be numeric';
-        if (isNaN(vehicle.annual_maintenance_amount)) errors.annual_maintenance_amount = 'Annual Maintenance Amount should be numeric';
+        if (isNaN(vehicle.loan_duration)) errors.loan_duration = 'Loan Duration should be numeric';
+        if (isNaN(vehicle.sale_amount)) errors.sale_amount = 'Tentative Sale Amount should be numeric';
+        if (isNaN(vehicle.current_value)) errors.current_value = 'Current Value Amount should be numeric';
+        if (isNaN(vehicle.vehicle_maintanance)) errors.vehicle_maintanance = 'Annual Maintenance Amount should be numeric';
         if (isNaN(vehicle.monthly_expenses)) errors.monthly_expenses = 'Monthly Expenses should be numeric';
         if (isNaN(vehicle.scrap_value)) errors.scrap_value = 'Scrap Value should be numeric';
         if (isNaN(vehicle.depreciation_rate)) errors.depreciation_rate = 'Depreciation Rate should be numeric';
        
-        if (vehicle.is_under_loan) {
+        if (vehicle.is_funded_by_loan) {
             if (!vehicle.loan_type) errors.loan_type = 'Loan Type is required';
             if (!vehicle.loan_amount) errors.loan_amount = 'Loan Amount is required';
             if (!vehicle.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
-            if (!vehicle.loan_remaining_duration) errors.loan_remaining_duration = 'Loan Duration is required';
+            if (!vehicle.loan_duration) errors.loan_duration = 'Loan Duration is required';
         }
         if (vehicle.is_plan_to_sell) {
-            if (!vehicle.tentative_sale_date) errors.tentative_sale_date = 'Sale Date is required';
-            if (!vehicle.tentative_sale_amount) errors.tentative_sale_amount = 'Sale Amount is required';
+            if (!vehicle.sale_date) errors.sale_date = 'Sale Date is required';
+            if (!vehicle.sale_amount) errors.sale_amount = 'Sale Amount is required';
         }
 
         if (action === 'Add') {
@@ -140,8 +140,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (new Date(vehicle.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
         }
         else if (action === 'Sell') {
-            // check that the tentative_sale_date is greater than purchase_date
-            if (new Date(vehicle.tentative_sale_date) < new Date(vehicle.purchase_date)) errors.tentative_sale_date = ' Sale Date cannot be before Purchase Date';
+            // check that the sale_date is greater than purchase_date
+            if (new Date(vehicle.sale_date) < new Date(vehicle.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
         }
 
         setErrors(errors);
@@ -216,18 +216,18 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.purchase_price) || vehicle.purchase_price <= 0) return;
         else {
             // check if user is in SG
-            if (vehicle.vehicle_location === 'SG') {
+            if (vehicle.location === 'SG') {
                 // if there is a Loan
-                if (vehicle.is_under_loan) {
+                if (vehicle.is_funded_by_loan) {
                     //calculate LTV Percentage
                     if (vehicle.purchase_price <= 20000) LTVPercentage = 70;
                     else LTVPercentage = 60;
                 }
             }
             // check if vehicle location is IN
-            else if (vehicle.vehicle_location === 'IN') {
+            else if (vehicle.location === 'IN') {
                 // if there is a Loan
-                if (vehicle.is_under_loan) LTVPercentage = 100;
+                if (vehicle.is_funded_by_loan) LTVPercentage = 100;
             }
             else LTVPercentage = 90;
 
@@ -240,34 +240,34 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             // else keep the user entered values and calculate the other values
             if (lastPurchasePrice === 0 || lastVehicleLocation === '' ) 
             {
-                if (vehicle.is_under_loan) loanAmountToUse = LTVValue;
+                if (vehicle.is_funded_by_loan) loanAmountToUse = LTVValue;
                 setLastPurchasePrice(vehicle.purchase_price);
-                setLastVehicleLocation(vehicle.vehicle_location);
-                setLastVehicleIsUnderLoan(vehicle.is_under_loan);
+                setLastVehicleLocation(vehicle.location);
+                setLastVehicleIsUnderLoan(vehicle.is_funded_by_loan);
             }
             else {
                 if (lastPurchasePrice !== vehicle.purchase_price 
-                    || lastVehicleLocation !== vehicle.vehicle_location
-                    || lastVehicleIsUnderLoan  !== vehicle.is_under_loan) 
+                    || lastVehicleLocation !== vehicle.location
+                    || lastVehicleIsUnderLoan  !== vehicle.is_funded_by_loan) 
                 {
-                    if (vehicle.is_under_loan) loanAmountToUse = LTVValue;
+                    if (vehicle.is_funded_by_loan) loanAmountToUse = LTVValue;
                     setLastPurchasePrice(vehicle.purchase_price);
-                    setLastVehicleLocation(vehicle.vehicle_location);
-                    setLastVehicleIsUnderLoan(vehicle.is_under_loan);
+                    setLastVehicleLocation(vehicle.location);
+                    setLastVehicleIsUnderLoan(vehicle.is_funded_by_loan);
                 }
                 else {
-                    if (vehicle.is_under_loan) loanAmountToUse = vehicle.loan_amount;
+                    if (vehicle.is_funded_by_loan) loanAmountToUse = vehicle.loan_amount;
                 }
             }
 
             // check if vehicle is under Loan
-            if (vehicle.is_under_loan) {
+            if (vehicle.is_funded_by_loan) {
 
                 DownPayment = vehicle.purchase_price - loanAmountToUse;
 
                 // Calculate Interest Payments & total interest using flat-rate method
-                emi = calculateFlatRateEMI(loanAmountToUse, vehicle.loan_interest_rate, vehicle.loan_remaining_duration);
-                InterestPayments = calculateTotalInterest(loanAmountToUse, vehicle.loan_interest_rate, vehicle.loan_remaining_duration);
+                emi = calculateFlatRateEMI(loanAmountToUse, vehicle.loan_interest_rate, vehicle.loan_duration);
+                InterestPayments = calculateTotalInterest(loanAmountToUse, vehicle.loan_interest_rate, vehicle.loan_duration);
             }
 
             TotalCost = parseFloat(vehicle.purchase_price) + parseFloat(InterestPayments);
@@ -424,13 +424,13 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                             select
                             variant="standard"
                             label="Vehicle Location"
-                            name="vehicle_location"
-                            value={vehicle.vehicle_location}
+                            name="location"
+                            value={vehicle.location}
                             onChange={handleChange}
                             fullWidth
                             required
-                            error={!!errors.vehicle_location}
-                            helperText={errors.vehicle_location}
+                            error={!!errors.location}
+                            helperText={errors.location}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>
@@ -505,13 +505,13 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                         <TextField
                             variant="standard"
                             label="Maintenance Amount (Annual)"
-                            name="annual_maintenance_amount"
-                            value={vehicle.annual_maintenance_amount}
+                            name="vehicle_maintanance"
+                            value={vehicle.vehicle_maintanance}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.annual_maintenance_amount}
-                            helperText={errors.annual_maintenance_amount}
+                            error={!!errors.vehicle_maintanance}
+                            helperText={errors.vehicle_maintanance}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -531,13 +531,13 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                         <TextField
                             variant="standard"
                             label="Tentative Current Value"
-                            name="tentative_current_value"
-                            value={vehicle.tentative_current_value}
+                            name="current_value"
+                            value={vehicle.current_value}
                             onChange={handleChange}
                             fullWidth
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.tentative_current_value}
-                            helperText={errors.tentative_current_value}
+                            error={!!errors.current_value}
+                            helperText={errors.current_value}
                         />
                     </Grid>
                     <Grid item size={4}>
@@ -571,9 +571,9 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                             <Grid item size={6} sx={{ display: 'flex' }}>
                                 <Typography>Cash</Typography>
                                 <Switch
-                                    checked={vehicle.is_under_loan}
+                                    checked={vehicle.is_funded_by_loan}
                                     onChange={handleChange}
-                                    name="is_under_loan"
+                                    name="is_funded_by_loan"
                                     color="primary"
                                 />
                                 <Typography>Loan</Typography>
@@ -601,7 +601,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                         <FlatRateLoanEMICalculator 
                                             purchase_price = {vehicle.purchase_price}
                                             loan_amount = {vehicle.loan_amount} 
-                                            loan_duration = {vehicle.loan_remaining_duration} 
+                                            loan_duration = {vehicle.loan_duration} 
                                             currency = {vehicle.currency} 
                                             interest_rate = {vehicle.loan_interest_rate}
                                         />
@@ -620,7 +620,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                     </Box>
                                 </Modal>
                             </Grid>
-                            {vehicle.is_under_loan && (
+                            {vehicle.is_funded_by_loan && (
                                 <>
                                     <Grid item size={6}>
                                         <TextField
@@ -668,13 +668,13 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                         <TextField
                                             variant="standard"
                                             label="Loan Duration (Months)"
-                                            name="loan_remaining_duration"
-                                            value={vehicle.loan_remaining_duration}
+                                            name="loan_duration"
+                                            value={vehicle.loan_duration}
                                             onChange={handleChange}
                                             fullWidth
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.loan_remaining_duration}
-                                            helperText={errors.loan_remaining_duration}
+                                            error={!!errors.loan_duration}
+                                            helperText={errors.loan_duration}
                                         />
                                     </Grid>
                                 </>
@@ -686,7 +686,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                     {getVehicleIcon(vehicle.vehicle_type)}
                                     <Typography >Overall Cost</Typography>
                                     {
-                                        vehicle.is_under_loan && (
+                                        vehicle.is_funded_by_loan && (
                                             <>
                                                 <Typography sx={{ ml: 'auto', color: 'white' }}>
                                                     Loan EMI: {vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(calculatedValues.emi))} / month
@@ -702,7 +702,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
                                             <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.purchase_price))}</Typography>
                                         </Grid>
-                                        {vehicle.is_under_loan && (
+                                        {vehicle.is_funded_by_loan && (
                                             <>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
@@ -773,9 +773,9 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                         <TextField
                                             variant="standard"
                                             label={action === 'Sell' ? "Sale Date" : "Tentative Sale Date"}
-                                            name="tentative_sale_date"
+                                            name="sale_date"
                                             type="date"
-                                            value={vehicle.tentative_sale_date}
+                                            value={vehicle.sale_date}
                                             onChange={handleChange}
                                             fullWidth
                                             InputLabelProps={{ shrink: true }}
@@ -785,13 +785,13 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                         <TextField
                                             variant="standard"
                                             label={action === 'Sell' ? "Sale Amount" : "Tentative Sale Amount"}
-                                            name="tentative_sale_amount"
-                                            value={vehicle.tentative_sale_amount}
+                                            name="sale_amount"
+                                            value={vehicle.sale_amount}
                                             onChange={handleChange}
                                             fullWidth
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.tentative_sale_amount}
-                                            helperText={errors.tentative_sale_amount}
+                                            error={!!errors.sale_amount}
+                                            helperText={errors.sale_amount}
                                         />
                                     </Grid>
                                 </>

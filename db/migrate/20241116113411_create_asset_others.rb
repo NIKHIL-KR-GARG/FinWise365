@@ -4,7 +4,7 @@ class CreateAssetOthers < ActiveRecord::Migration[7.2]
       t.integer :user_id
       t.string :asset_name
       t.string :institution_name
-      t.string :asset_location
+      t.string :location
       t.string :currency
       t.date :start_date
       t.float :lumpsum_amount

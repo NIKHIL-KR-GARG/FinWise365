@@ -29,7 +29,7 @@ const HomeLoanEMICalculator = ({ property }) => {
         setLoanDetails({
             purchase_price: property.purchase_price,
             loan_amount: property.loan_amount,
-            tenor_months: property.loan_remaining_duration,
+            tenor_months: property.loan_duration,
             currency: property.currency,
             interest_rate_year_1: property.loan_interest_rate,
             interest_rate_year_2: property.loan_interest_rate,
@@ -38,7 +38,7 @@ const HomeLoanEMICalculator = ({ property }) => {
             interest_rate_year_5: property.loan_interest_rate,
             interest_rate_year_6: property.loan_interest_rate
         });
-    }, [property.purchase_price, property.loan_amount, property.loan_remaining_duration, property.currency, property.loan_interest_rate]);
+    }, [property.purchase_price, property.loan_amount, property.loan_duration, property.currency, property.loan_interest_rate]);
 
     const [emiCalculations, setEmiCalculations] = useState([]);
     const [emiCalculationsSummary, setEmiCalculationsSummary] = useState([]);

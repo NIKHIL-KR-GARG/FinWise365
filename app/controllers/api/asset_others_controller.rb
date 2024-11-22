@@ -54,7 +54,7 @@ class Api::AssetOthersController < ApplicationController
             :user_id,
             :asset_name,
             :institution_name,
-            :asset_location,
+            :location,
             :currency,
             :start_date,
             :lumpsum_amount,

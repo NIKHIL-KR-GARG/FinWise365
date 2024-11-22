@@ -32,7 +32,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         portfolio_name: "",
         portfolio_type: "Stocks",
         institution_name: "",
-        portfolio_location: currentUserCountryOfResidence || "",
+        location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
         buying_date: "",
         buying_value: 0.0,
@@ -43,8 +43,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         dividend_amount: 0.0,
         dividend_frequency: "Monthly",
         is_plan_to_sell: action === 'Sell' ? true : false,
-        selling_date: "",
-        selling_value: 0.0,
+        sale_date: "",
+        sale_value: 0.0,
         is_sip: false,
         sip_amount: 0.0,
         sip_frequency: "Monthly",
@@ -147,7 +147,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         if (!portfolio.portfolio_name) errors.portfolio_name = 'Portfolio Name is required';
         if (!portfolio.portfolio_type) errors.portfolio_type = 'Portfolio Type is required';
         if (!portfolio.institution_name) errors.institution_name = 'Institution Name is required';
-        if (!portfolio.portfolio_location) errors.portfolio_location = 'Portfolio Location is required';
+        if (!portfolio.location) errors.location = 'Portfolio Location is required';
         if (!portfolio.currency) errors.currency = 'Currency is required';
         if (!portfolio.buying_date) errors.buying_date = 'Date Bought is required';
         if (!portfolio.buying_value) errors.buying_value = 'Buying Value is required';
@@ -157,8 +157,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
             errors.dividend_amount = 'Dividend Rate or Dividend Amount is required';
         }
         if (portfolio.is_plan_to_sell) {
-            if (!portfolio.selling_date) errors.selling_date = 'Date Sold is required';
-            if (!portfolio.selling_value) errors.selling_value = 'Selling Value is required';
+            if (!portfolio.sale_date) errors.sale_date = 'Date Sold is required';
+            if (!portfolio.sale_value) errors.sale_value = 'Selling Value is required';
         }
         if (portfolio.is_sip) {
             if (!portfolio.sip_amount) errors.sip_amount = 'SIP Amount is required';
@@ -171,7 +171,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         if (isNaN(portfolio.coupon_rate)) errors.coupon_rate = 'Coupon Rate should be numeric';
         if (isNaN(portfolio.dividend_rate)) errors.dividend_rate = 'Dividend Rate should be numeric';
         if (isNaN(portfolio.dividend_amount)) errors.dividend_amount = 'Dividend Amount should be numeric';
-        if (isNaN(portfolio.selling_value)) errors.selling_value = 'Selling Value should be numeric';
+        if (isNaN(portfolio.sale_value)) errors.sale_value = 'Selling Value should be numeric';
         if (isNaN(portfolio.sip_amount)) errors.sip_amount = 'SIP Amount should be numeric';
 
         setErrors(errors);
@@ -223,8 +223,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         let currentPrice = buyPrice;
 
         if (portfolio.is_plan_to_sell) {
-            months = (new Date(portfolio.selling_date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date().getMonth(portfolio.selling_date) - new Date(portfolio.buying_date).getMonth();
-            currentPrice = parseFloat(portfolio.selling_value);
+            months = (new Date(portfolio.sale_date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date().getMonth(portfolio.sale_date) - new Date(portfolio.buying_date).getMonth();
+            currentPrice = parseFloat(portfolio.sale_value);
         }
         else months = (new Date().getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date().getMonth() - new Date(portfolio.buying_date).getMonth();
 
@@ -507,13 +507,13 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                             select
                             variant="standard"
                             label="Portfolio Location"
-                            name="portfolio_location"
-                            value={portfolio.portfolio_location}
+                            name="location"
+                            value={portfolio.location}
                             onChange={handleChange}
                             fullWidth
                             required
-                            error={!!errors.portfolio_location}
-                            helperText={errors.portfolio_location}
+                            error={!!errors.location}
+                            helperText={errors.location}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>
@@ -791,27 +791,27 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                         <TextField
                                             variant="standard"
                                             label={action === 'Sell' ? "Sale Date" : "Tentative Sale Date"}
-                                            name="selling_date"
+                                            name="sale_date"
                                             type="date"
-                                            value={portfolio.selling_date}
+                                            value={portfolio.sale_date}
                                             onChange={handleChange}
                                             fullWidth
                                             InputLabelProps={{ shrink: true }}
-                                            error={!!errors.selling_date}
-                                            helperText={errors.selling_date}
+                                            error={!!errors.sale_date}
+                                            helperText={errors.sale_date}
                                         />
                                     </Grid>
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
                                             label={action === 'Sell' ? "Sale Amount" : "Tentative Sale Amount"}
-                                            name="selling_value"
-                                            value={portfolio.selling_value}
+                                            name="sale_value"
+                                            value={portfolio.sale_value}
                                             onChange={handleChange}
                                             fullWidth
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.selling_value}
-                                            helperText={errors.selling_value}
+                                            error={!!errors.sale_value}
+                                            helperText={errors.sale_value}
                                         />
                                     </Grid>
                                 </>

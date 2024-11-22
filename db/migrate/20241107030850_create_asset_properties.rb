@@ -4,18 +4,18 @@ class CreateAssetProperties < ActiveRecord::Migration[7.2]
       t.integer :user_id
       t.string :property_name
       t.string :property_type
-      t.string :property_location
+      t.string :location
       t.integer :property_number
       t.date :purchase_date
       t.string :currency
       t.float :purchase_price
       t.float :stamp_duty
       t.float :other_fees
-      t.float :tentative_current_value
+      t.float :current_value
       t.boolean :is_primary_property
-      t.boolean :is_under_loan
+      t.boolean :is_funded_by_loan
       t.float :loan_amount
-      t.integer :loan_remaining_duration
+      t.integer :loan_duration
       t.string :loan_type
       t.float :loan_interest_rate
       t.boolean :is_loan_locked
@@ -24,12 +24,12 @@ class CreateAssetProperties < ActiveRecord::Migration[7.2]
       t.date :rental_start_date
       t.date :rental_end_date
       t.float :rental_amount
-      t.float :property_value_growth_rate
+      t.float :growth_rate
       t.boolean :is_plan_to_sell
-      t.date :tentative_sale_date
-      t.float :tentative_sale_amount
-      t.float :annual_property_tax_amount
-      t.float :annual_property_maintenance_amount
+      t.date :sale_date
+      t.float :sale_amount
+      t.float :property_tax
+      t.float :property_maintenance
 
       t.timestamps
     end

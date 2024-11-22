@@ -44,7 +44,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
             if (listAction === 'Asset') {
                 // filter and show only those properties that have a past purchase_date and future sell_date
                 const today = new Date();
-                filteredProperties = response.data.filter(property => new Date(property.purchase_date) <= today && (!property.is_plan_to_sell || new Date(property.tentative_sale_date) >= today));
+                filteredProperties = response.data.filter(property => new Date(property.purchase_date) <= today && (!property.is_plan_to_sell || new Date(property.sale_date) >= today));
             }
             else if (listAction === 'Dream') {
                 // filter and show only those properties that have a future purchase_date
@@ -169,7 +169,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
                 {params.value}
             </div>
         )},
-        { field: 'property_location', headerName: 'Property Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'location', headerName: 'Property Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
@@ -180,7 +180,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
         { field: 'purchase_price', headerName: 'Price', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.purchase_price);
          }},
-        { field: 'is_under_loan', headerName: 'Loan?', width: 50, headerClassName: 'header-theme', type: 'boolean' },
+        { field: 'is_funded_by_loan', headerName: 'Loan?', width: 50, headerClassName: 'header-theme', type: 'boolean' },
         { field: 'loan_amount', headerName: 'Loan Amount', width: 130, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.loan_amount);
          }},

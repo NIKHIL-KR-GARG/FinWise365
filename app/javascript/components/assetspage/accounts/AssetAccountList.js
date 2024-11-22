@@ -125,7 +125,7 @@ const AssetAccountList = forwardRef((props, ref) => {
         )},
         { field: 'institution_name', headerName: 'Institution', width: 150, headerClassName: 'header-theme' },
         { field: 'account_type', headerName: 'Account Type', width: 125, headerClassName: 'header-theme' },
-        { field: 'account_location', headerName: 'Account Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'location', headerName: 'Account Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;

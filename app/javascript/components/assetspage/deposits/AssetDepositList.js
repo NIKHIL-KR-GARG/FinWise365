@@ -125,7 +125,7 @@ const AssetDepositList = forwardRef((props, ref) => {
         )},
         { field: 'institution_name', headerName: 'Institution', width: 140, headerClassName: 'header-theme' },
         { field: 'deposit_type', headerName: 'Type', width: 125, headerClassName: 'header-theme' },
-        { field: 'deposit_location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
@@ -133,8 +133,8 @@ const AssetDepositList = forwardRef((props, ref) => {
         }},
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'opening_date', headerName: 'Opening Date', width: 115, headerClassName: 'header-theme' },
-        { field: 'deposit_amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.deposit_amount);
+        { field: 'amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.amount);
          }},
         { field: 'deposit_term', headerName: 'Term (months)', width: 100, headerClassName: 'header-theme' },
         {
