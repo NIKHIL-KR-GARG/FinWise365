@@ -66,6 +66,23 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                 duration: parseInt(duration)
             }));
         }
+        //calulate end date based on duration if expense date is changed
+        else if (name === 'expense_date') {
+            if (other.is_recurring) {
+                const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(other.duration));
+                setOther((prevOther) => ({
+                    ...prevOther,
+                    expense_date: value,
+                    end_date: new Date(endDate).toISOString().split('T')[0]
+                }));
+            }
+            else {
+                setOther((prevOther) => ({
+                    ...prevOther,
+                    expense_date: value
+                }));
+            }
+        }
     };
 
     useEffect(() => {
@@ -102,6 +119,11 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         if (isNaN(other.recurring_amount)) errors.recurring_amount = 'Recurring Amount should be numeric';
         if (isNaN(other.inflation_rate)) errors.inflation_rate = 'Inflation Rate should be numeric';
         
+        // check that the end date is after the start date
+        if (other.end_date && new Date(other.end_date) < new Date(other.expense_date)) {
+            errors.end_date = 'End Date should be after Expense Date';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;

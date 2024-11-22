@@ -31,10 +31,21 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
     const fetchCreditCardDebts = async () => {
         try {
             const response = await axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}`);
-            setCreditCardDebts(response.data);
+
+            // filter where end_date is null or greater than today
+            const today = new Date();
+            const filteredCreditCardDebts = response.data.filter(creditcarddebt => {
+                if (creditcarddebt.end_date) {
+                    return new Date(creditcarddebt.end_date) >= today;
+                } else {
+                    return true;
+                }
+            });
+
+            setCreditCardDebts(filteredCreditCardDebts);
             setCreditCardDebtsFetched(true); // Set creditcarddebtsFetched to true after fetching
             if (onCreditCardDebtsFetched) {
-                onCreditCardDebtsFetched(response.data.length); // Notify parent component
+                onCreditCardDebtsFetched(filteredCreditCardDebts.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching creditcarddebts:', error);

@@ -74,6 +74,15 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                 duration: parseInt(duration)
             }));
         }
+        //calulate end date based on duration if start date is changed
+        else if (name === 'start_date') {
+            const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(creditcarddebt.duration));
+            setCreditCardDebt((prevCreditCardDebt) => ({
+                ...prevCreditCardDebt,
+                start_date: value,
+                end_date: new Date(endDate).toISOString().split('T')[0]
+            }));
+        }
     };
 
     useEffect(() => {
@@ -107,6 +116,13 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
         if (isNaN(creditcarddebt.loan_amount)) errors.loan_amount = 'Loan amount should be numeric';
         if (isNaN(creditcarddebt.interest_rate)) errors.interest_rate = 'Interest rate should be numeric';
         if (isNaN(creditcarddebt.emi_amount)) errors.emi_amount = 'EMI amount should be numeric';
+
+        // check that the end date is after the start date
+        if (creditcarddebt.start_date && creditcarddebt.end_date) {
+            if (new Date(creditcarddebt.end_date) < new Date(creditcarddebt.start_date)) {
+                errors.end_date = 'End Date should be after Start Date';
+            }
+        }
 
         setErrors(errors);
 

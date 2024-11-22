@@ -31,10 +31,21 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     const fetchProperties = async () => {
         try {
             const response = await axios.get(`/api/expense_properties?user_id=${currentUserId}`);
-            setProperties(response.data);
+
+            // filter where end_date is null or greater than today
+            const today = new Date();
+            const filteredProperties = response.data.filter(property => {
+                if (property.end_date) {
+                    return new Date(property.end_date) >= today;
+                } else {
+                    return true;
+                }
+            });
+
+            setProperties(filteredProperties);
             setPropertiesFetched(true); // Set propertiesFetched to true after fetching
             if (onPropertiesFetched) {
-                onPropertiesFetched(response.data.length); // Notify parent component
+                onPropertiesFetched(filteredProperties.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching properties:', error);

@@ -106,6 +106,13 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         if (isNaN(home.holidays)) errors.holidays = 'Holidays should be numeric';
         if (isNaN(home.miscellaneous)) errors.miscellaneous = 'Miscellaneous expenses should be numeric';
        
+        // check that the end date is after the start date
+        if (home.start_date && home.end_date) {
+            if (new Date(home.end_date) < new Date(home.start_date)) {
+                errors.end_date = 'End Date should be after Start Date';
+            }
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;

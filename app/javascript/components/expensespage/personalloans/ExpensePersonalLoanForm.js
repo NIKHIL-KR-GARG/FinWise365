@@ -68,6 +68,15 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                 ...prevPersonalLoan,
                 duration: parseInt(duration)
             }));
+        } 
+        //calulate end date based on duration if start date is changed
+        else if (name === 'start_date') {
+            const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(personalloan.duration));
+            setCreditCardDebt((prevPersonalLoan) => ({
+                ...prevPersonalLoan,
+                start_date: value,
+                end_date: new Date(endDate).toISOString().split('T')[0]
+            }));
         }
     };
 
@@ -101,6 +110,13 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         if (isNaN(personalloan.loan_amount)) errors.loan_amount = 'Loan amount should be numeric';
         if (isNaN(personalloan.interest_rate)) errors.interest_rate = 'Interest rate should be numeric';
         if (isNaN(personalloan.emi_amount)) errors.emi_amount = 'EMI amount should be numeric';
+
+        // check that the end date is after the start date
+        if (personalloan.start_date && personalloan.end_date) {
+            if (new Date(personalloan.end_date) < new Date(personalloan.start_date)) {
+                errors.end_date = 'End Date should be after Start Date';
+            }
+        }
 
         setErrors(errors);
 

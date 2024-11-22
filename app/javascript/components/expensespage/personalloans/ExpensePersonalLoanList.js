@@ -31,10 +31,21 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
     const fetchPersonalLoans = async () => {
         try {
             const response = await axios.get(`/api/expense_personal_loans?user_id=${currentUserId}`);
-            setPersonalLoans(response.data);
+            
+            // filter where end_date is null or greater than today
+            const today = new Date();
+            const filteredPersonalLoans = response.data.filter(p => {
+                if (p.end_date) {
+                    return new Date(p.end_date) >= today;
+                } else {
+                    return true;
+                }
+            });
+            setPersonalLoans(filteredPersonalLoans);
+            
             setPersonalLoansFetched(true); // Set personalloansFetched to true after fetching
             if (onPersonalLoansFetched) {
-                onPersonalLoansFetched(response.data.length); // Notify parent component
+                onPersonalLoansFetched(filteredPersonalLoans.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching personalloans:', error);

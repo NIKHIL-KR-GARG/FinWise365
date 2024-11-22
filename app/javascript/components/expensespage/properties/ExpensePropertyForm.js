@@ -113,6 +113,13 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         if (isNaN(property.expense_value_7)) errors.expense_value_7 = 'Expense Value should be numeric';
         if (isNaN(property.expense_value_8)) errors.expense_value_8 = 'Expense Value should be numeric';
         
+        // check that the end date is after the start date
+        if (property.start_date && property.end_date) {
+            if (new Date(property.end_date) < new Date(property.start_date)) {
+                errors.end_date = 'End Date should be after Start Date';
+            }
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;

@@ -31,10 +31,20 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     const fetchOthers = async () => {
         try {
             const response = await axios.get(`/api/expense_others?user_id=${currentUserId}`);
-            setOthers(response.data);
+            
+            // filter where end_date is null or greater than today
+            const today = new Date();
+            const filteredOthers = response.data.filter(other => {
+                if (!other.is_recurring && new Date(other.expense_date) >= today) return true;
+                else if (other.is_recurring && new Date(other.end_date) >= today) return true;
+                else return false;
+                }
+            );
+            
+            setOthers(filteredOthers);
             setOthersFetched(true); // Set othersFetched to true after fetching
             if (onOthersFetched) {
-                onOthersFetched(response.data.length); // Notify parent component
+                onOthersFetched(filteredOthers.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching others:', error);
