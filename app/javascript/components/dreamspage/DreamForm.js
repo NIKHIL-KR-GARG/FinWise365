@@ -49,7 +49,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             });
         }
 
-        // check if  duration is changed, then calculate end date
+        // check if duration is changed, then calculate end date
         if (name === 'duration') {
             const endDate = new Date(dream.dream_date);
             endDate.setMonth(endDate.getMonth() + parseInt(value));
@@ -58,7 +58,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                 end_date: endDate.toISOString().split('T')[0]
             }));
         }
-        // else if end date is changed, then calculate debt duration in months
+        // else if end date is changed, then calculate duration in months
         else if (name === 'end_date') {
             const startDate = new Date(dream.dream_date);
             const endDate = new Date(value);
@@ -68,9 +68,16 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                 duration: parseInt(duration)
             }));
         }
-
-        // check if  loan duration is changed, then calculate loan end date
-        if (name === 'loan_duration') {
+        else if (name === 'dream_date') {
+            const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(dream.duration));
+            setDream((prevDream) => ({
+                ...prevDream,
+                dream_date: value,
+                end_date: new Date(endDate).toISOString().split('T')[0]
+            }));
+        }
+        // check if loan duration is changed, then calculate loan end date
+        else if (name === 'loan_duration') {
             const endDate = new Date(dream.loan_start_date);
             endDate.setMonth(endDate.getMonth() + parseInt(value));
             setDream((prevDream) => ({
@@ -86,6 +93,15 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             setDream((prevDream) => ({
                 ...prevDream,
                 loan_duration: parseInt(duration)
+            }));
+        }
+        else if (name === 'loan_start_date') {
+            const endDate = new Date(value);
+            endDate.setMonth(new Date(value).getMonth() + parseInt(dream.loan_duration));
+            setDream((prevDream) => ({
+                ...prevDream,
+                loan_start_date: value,
+                loan_end_date: endDate.toISOString().split('T')[0]
             }));
         }
     };
@@ -109,15 +125,19 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         if (!dream.dream_date) errors.dream_date = 'Date is required';
         if (!dream.amount) errors.amount = 'Amount is required';
 
+        // check that dream date is not in the past
+        if (dream.dream_date && new Date(dream.dream_date) < new Date()) errors.dream_date = 'Date should be in the future';
+
         if (dreamType === 'Education') {
             if (!dream.duration && !dream.end_date) {
                 errors.duration = 'Duration or End Date is required';
                 errors.end_date = 'EDuration or End Date is required';
             }
+            // check that the end date is not before the dream date
+            if (dream.end_date && new Date(dream.end_date) < new Date(dream.dream_date)) {
+                errors.end_date = 'End Date should be after Dream Date';
+            }
         }
-
-        // check that dream date is not in the past
-        if (dream.dream_date && new Date(dream.dream_date) < new Date()) errors.dream_date = 'Date should be in the future';
 
         if (dream.is_funded_by_loan) {
             if (!dream.loan_start_date) errors.loan_start_date = 'Loan Start Date is required';

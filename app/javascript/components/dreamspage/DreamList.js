@@ -32,10 +32,21 @@ const DreamList = forwardRef((props, ref) => {
         try {
             const response = await axios.get(`/api/dreams?user_id=${currentUserId}`);
             const filteredDreams = dreamType ? response.data.filter(dream => dream.dream_type === dreamType) : response.data;
-            setDreams(filteredDreams);
+            
+            // filter further by either end date in the future or start date in the future
+            const today = new Date();
+            const filteredActiveDreams = filteredDreams.filter(dream => {
+                if (!dream.end_date && new Date(dream.dream_date) >= today) return true;
+                else if (dream.end_date && new Date(dream.end_date) >= today) return true;
+                else return false;
+            });
+
+            setDreams(filteredActiveDreams);
+            // setDreams(filteredDreams);
             setDreamsFetched(true);
             if (onDreamsFetched) {
-                onDreamsFetched(filteredDreams.length);
+                onDreamsFetched(filteredActiveDreams.length);
+                // onDreamsFetched(filteredDreams.length);
             }
         } catch (error) {
             console.error('Error fetching dreams:', error);
