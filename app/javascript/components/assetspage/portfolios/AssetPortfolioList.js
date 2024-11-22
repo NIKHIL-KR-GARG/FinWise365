@@ -70,8 +70,13 @@ const AssetPortfolioList = forwardRef((props, ref) => {
 
     const handleDelete = async () => {
         try {
+            //delete the portfolio
             await axios.delete(`/api/asset_portfolios/${portfolioToDelete.id}`);
             setPortfolios(prevPortfolios => prevPortfolios.filter(p => p.id !== portfolioToDelete.id));
+            
+            //delete portfolio details as well
+            await axios.delete(`/api/asset_portfolio_details/delete_by_portfolio_id/${portfolioToDelete.id}`);
+
             onPortfoliosFetched(portfolios.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Portfolio deleted successfully');

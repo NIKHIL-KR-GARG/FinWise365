@@ -44,6 +44,13 @@ class Api::AssetPortfolioDetailsController < ApplicationController
         @asset_portfolio_detail.destroy
         head :no_content
     end
+
+    # DELETE /api/asset_portfolio_details/delete_by_portfolio_id/:portfolio_id
+    def destroy_by_portfolio_id
+        portfolio_id = params[:portfolio_id]
+        AssetPortfolioDetail.where(portfolio_id: portfolio_id).destroy_all
+        head :no_content
+    end
   
     private
   

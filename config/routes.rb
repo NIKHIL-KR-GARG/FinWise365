@@ -22,7 +22,11 @@ Rails.application.routes.draw do
     resources :asset_deposits, only: %i[index show create destroy update]
     resources :asset_incomes, only: %i[index show create destroy update]
     resources :asset_portfolios, only: %i[index show create destroy update]
-    resources :asset_portfolio_details, only: %i[index show create destroy update]
+    resources :asset_portfolio_details, only: %i[index show create destroy update] do
+      collection do
+        delete 'delete_by_portfolio_id/:portfolio_id', to: 'asset_portfolio_details#destroy_by_portfolio_id'
+      end
+    end
     resources :asset_others, only: %i[index show create destroy update]
 
     resources :expense_homes, only: %i[index show create destroy update]
