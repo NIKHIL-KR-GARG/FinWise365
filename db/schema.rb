@@ -197,6 +197,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "scrap_value"
     t.string "location", limit: 255
     t.float "depreciation_rate"
+    t.float "ltv_percentage"
+    t.float "ltv_value"
+    t.float "down_payment"
+    t.float "emi_amount"
+    t.float "interest_payments"
+    t.float "total_cost"
   end
 
   create_table "dreams", force: :cascade do |t|

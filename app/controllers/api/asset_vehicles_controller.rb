@@ -71,6 +71,12 @@ class Api::AssetVehiclesController < ApplicationController
             :sale_amount,
             :scrap_value,
             :depreciation_rate,
+            :ltv_percentage,
+            :ltv_value,
+            :down_payment,
+            :emi_amount,
+            :interest_payments,
+            :total_cost,
             :created_at,
             :updated_at
         ) 

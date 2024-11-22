@@ -52,16 +52,13 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         sale_date: "",
         sale_amount: 0.0,
         scrap_value: 0.0,
-        depreciation_rate: 0.0
-    });
-
-    const [calculatedValues, setCalculatedValues] = useState({
-        LTVPercentage: 0,
-        LTVValue: 0,
-        DownPayment: 0,
-        emi: 0,
-        InterestPayments: 0,
-        TotalCost: 0
+        depreciation_rate: 0.0,
+        ltv_percentage: 0.0,
+        ltv_value: 0.0,
+        down_payment: 0.0,
+        emi_amount: 0.0,
+        interest_payments: 0.0,
+        total_cost: 0.0
     });
 
     const handleModalOpen = () => {
@@ -125,10 +122,20 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (!vehicle.loan_amount) errors.loan_amount = 'Loan Amount is required';
             if (!vehicle.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
             if (!vehicle.loan_duration) errors.loan_duration = 'Loan Duration is required';
+
+            // check that the loan amount is less than the purchase price
+            if (parseFloat(vehicle.loan_amount) > parseFloat(vehicle.purchase_price)) errors.loan_amount = 'Loan Amount cannot be greater than Purchase Price';
+            // check that the loan duration is not more than 10 years
+            if (parseFloat(vehicle.loan_duration) > 120) errors.loan_duration = 'Loan Duration cannot be more than 10 years';
+            // check that the loan interest rate is not more than 20%
+            if (parseFloat(vehicle.loan_interest_rate) > 20) errors.loan_interest_rate = 'Loan Interest Rate cannot be more than 20%';
         }
+
         if (vehicle.is_plan_to_sell) {
             if (!vehicle.sale_date) errors.sale_date = 'Sale Date is required';
             if (!vehicle.sale_amount) errors.sale_amount = 'Sale Amount is required';
+            // check that the sale_date is greater than purchase_date
+            if (new Date(vehicle.sale_date) < new Date(vehicle.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date'; 
         }
 
         if (action === 'Add') {
@@ -281,14 +288,15 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             LTVValue = loanAmountToUse;
             LTVPercentage = (LTVValue / vehicle.purchase_price) * 100;
             
-            setCalculatedValues({
-                LTVPercentage,
-                LTVValue,
-                DownPayment,
-                emi,
-                InterestPayments,
-                TotalCost
-            });
+            setVehicle(prevVehicle => ({
+                ...prevVehicle,
+                ltv_percentage: LTVPercentage,
+                ltv_value: LTVValue,
+                down_payment: DownPayment,
+                emi_amount: emi,
+                interest_payments: InterestPayments,
+                total_cost: TotalCost
+            }));
         }
         return true;
     }
@@ -689,7 +697,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                         vehicle.is_funded_by_loan && (
                                             <>
                                                 <Typography sx={{ ml: 'auto', color: 'white' }}>
-                                                    Loan EMI: {vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(calculatedValues.emi))} / month
+                                                    Loan EMI: {vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.emi_amount))} / month
                                                 </Typography>
                                             </>
                                         )}
@@ -708,25 +716,25 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                                     <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{calculatedValues.LTVPercentage}%</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.ltv_percentage}%</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Loan Amount:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(calculatedValues.LTVValue))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.ltv_value))}</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Down Payment:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(calculatedValues.DownPayment))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.down_payment))}</Typography>
                                                 </Grid>
                                                 <Grid item size={6}>
                                                     <Typography sx={{ fontSize: 'small' }}>Interest Payments:</Typography>
                                                 </Grid>
                                                 <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(calculatedValues.InterestPayments))}</Typography>
+                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.interest_payments))}</Typography>
                                                 </Grid>
                                             </>
                                         )}
@@ -734,7 +742,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
                                         </Grid>
                                         <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(calculatedValues.TotalCost))}</Typography>
+                                            <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.total_cost))}</Typography>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
