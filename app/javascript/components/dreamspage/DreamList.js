@@ -42,11 +42,9 @@ const DreamList = forwardRef((props, ref) => {
             });
 
             setDreams(filteredActiveDreams);
-            // setDreams(filteredDreams);
             setDreamsFetched(true);
             if (onDreamsFetched) {
                 onDreamsFetched(filteredActiveDreams.length);
-                // onDreamsFetched(filteredDreams.length);
             }
         } catch (error) {
             console.error('Error fetching dreams:', error);
