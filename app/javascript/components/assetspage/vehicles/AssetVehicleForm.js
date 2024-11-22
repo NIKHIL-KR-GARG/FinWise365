@@ -110,7 +110,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.loan_amount)) errors.loan_amount = 'Loan Amount should be numeric';
         if (isNaN(vehicle.loan_interest_rate)) errors.loan_interest_rate = 'Loan Interest Rate should be numeric';
         if (isNaN(vehicle.loan_duration)) errors.loan_duration = 'Loan Duration should be numeric';
-        if (isNaN(vehicle.sale_amount)) errors.sale_amount = 'Tentative Sale Amount should be numeric';
+        if (isNaN(vehicle.sale_amount)) errors.sale_amount = 'Sale Amount should be numeric';
         if (isNaN(vehicle.current_value)) errors.current_value = 'Current Value Amount should be numeric';
         if (isNaN(vehicle.vehicle_maintanance)) errors.vehicle_maintanance = 'Annual Maintenance Amount should be numeric';
         if (isNaN(vehicle.monthly_expenses)) errors.monthly_expenses = 'Monthly Expenses should be numeric';
@@ -538,7 +538,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                     <Grid item size={4}>
                         <TextField
                             variant="standard"
-                            label="Tentative Current Value"
+                            label="Current Value"
                             name="current_value"
                             value={vehicle.current_value}
                             onChange={handleChange}
@@ -780,7 +780,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label={action === 'Sell' ? "Sale Date" : "Tentative Sale Date"}
+                                            label="Sale Date"
                                             name="sale_date"
                                             type="date"
                                             value={vehicle.sale_date}
@@ -792,7 +792,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label={action === 'Sell' ? "Sale Amount" : "Tentative Sale Amount"}
+                                            label="Sale Amount"
                                             name="sale_amount"
                                             value={vehicle.sale_amount}
                                             onChange={handleChange}

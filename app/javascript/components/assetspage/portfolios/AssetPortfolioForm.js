@@ -790,7 +790,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label={action === 'Sell' ? "Sale Date" : "Tentative Sale Date"}
+                                            label="Sale Date"
                                             name="sale_date"
                                             type="date"
                                             value={portfolio.sale_date}
@@ -804,7 +804,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label={action === 'Sell' ? "Sale Amount" : "Tentative Sale Amount"}
+                                            label="Sale Amount"
                                             name="sale_value"
                                             value={portfolio.sale_value}
                                             onChange={handleChange}

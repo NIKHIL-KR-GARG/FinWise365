@@ -169,8 +169,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (property.rental_end_date && new Date(property.rental_end_date) < new Date(property.rental_start_date)) errors.rental_end_date = 'Rental End Date cannot be before Rental Start Date';
         }
         if (property.is_plan_to_sell) {
-            if (!property.sale_date) errors.sale_date = 'Tentative Sale Date is required';
-            if (!property.sale_amount) errors.sale_amount = 'Tentative Sale Amount is required';
+            if (!property.sale_date) errors.sale_date = 'Sale Date is required';
+            if (!property.sale_amount) errors.sale_amount = 'Sale Amount is required';
             // check that the sale_date is greater than purchase_date
             if (new Date(property.sale_date) < new Date(property.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
         }
@@ -714,7 +714,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Tentative Current Value"
+                            label="Current Value"
                             name="current_value"
                             value={property.current_value}
                             onChange={handleChange}
@@ -1038,7 +1038,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label={action === 'Sell' ? "Sale Date" : "Tentative Sale Date"}
+                                            label="Sale Date"
                                             name="sale_date"
                                             type="date"
                                             value={property.sale_date}
@@ -1052,7 +1052,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label={action === 'Sell' ? "Sale Amount" : "Tentative Sale Amount"}
+                                            label="Sale Amount"
                                             name="sale_amount"
                                             value={property.sale_amount}
                                             onChange={handleChange}

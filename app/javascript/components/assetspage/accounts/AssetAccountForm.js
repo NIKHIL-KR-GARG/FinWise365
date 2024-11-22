@@ -366,7 +366,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                                 <Grid item size={6}>
                                     <TextField
                                         variant="standard"
-                                        label={action === 'Close' ? "Closure Date" : "Tentative Closure Date"}
+                                        label="Closure Date"
                                         name="closure_date"
                                         type="date"
                                         value={account.closure_date}
