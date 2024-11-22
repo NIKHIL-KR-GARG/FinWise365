@@ -52,6 +52,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
         try {
             const response = await axios.get(`/api/asset_incomes?user_id=${currentUserId}`);
 
+            // filter on income where end_date is greater than today
+            const filteredIncomes = response.data.filter(income => !income.end_date || new Date(income.end_date) >= new Date());
+
             // add rental as income as well
             const properties = await fetchProperties();
             if (!properties || properties.length === 0) return; // Return if properties are not fetched
@@ -105,11 +108,11 @@ const AssetIncomeList = forwardRef((props, ref) => {
                     is_recurring: true,
                 }));
 
-            setIncomes([...response.data, ...rentalIncomes, ...dividends, ...coupons]);
+            setIncomes([...filteredIncomes, ...rentalIncomes, ...dividends, ...coupons]);
             setIncomesFetched(true); // Set incomesFetched to true after fetching
 
             if (onIncomesFetched) {
-                onIncomesFetched(response.data.length + rentalIncomes.length + dividends.length + coupons.length); // Notify parent component
+                onIncomesFetched(filteredIncomes.length + rentalIncomes.length + dividends.length + coupons.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching incomes:', error);

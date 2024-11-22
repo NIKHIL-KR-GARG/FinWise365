@@ -67,6 +67,9 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         if (isNaN(income.amount)) errors.amount = 'Amount should be numeric';
         if (isNaN(income.growth_rate)) errors.growth_rate = 'Growth Rate should be numeric';
         
+        // check that end date is after start date
+        if (income.end_date && income.end_date < income.start_date) errors.end_date = 'End Date should be after Start Date';
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;

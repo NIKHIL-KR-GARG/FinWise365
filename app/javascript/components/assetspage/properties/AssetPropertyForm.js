@@ -173,6 +173,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (!property.sale_amount) errors.sale_amount = 'Sale Amount is required';
             // check that the sale_date is greater than purchase_date
             if (new Date(property.sale_date) < new Date(property.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
+            //check that the rental end date is not after sale date
+            if (property.rental_end_date && new Date(property.rental_end_date) > new Date(property.sale_date)) errors.rental_end_date = 'Rental End Date cannot be after Sale Date';
         }
         
         if (action === 'Add') {
