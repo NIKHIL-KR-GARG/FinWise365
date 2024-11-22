@@ -73,7 +73,12 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
         if (isNaN(account.account_balance)) errors.account_balance = 'Account Balance should be numeric';
         if (isNaN(account.minimum_balance)) errors.minimum_balance = 'Minimum Balance should be numeric';
        
-        if (account.is_plan_to_close && !account.closure_date) errors.closure_date = 'A/C Closure Date is required';
+        if (account.is_plan_to_close ) {
+            //check that closure date is not null
+            if (!account.closure_date) errors.closure_date = 'A/C Closure Date is required';
+            //check that closure date is not before opening date
+           else if (account.closure_date < account.opening_date) errors.closure_date = 'Closure Date cannot be before Opening Date';
+        }
 
         setErrors(errors);
 

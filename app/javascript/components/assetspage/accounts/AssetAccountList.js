@@ -31,10 +31,13 @@ const AssetAccountList = forwardRef((props, ref) => {
     const fetchAccounts = async () => {
         try {
             const response = await axios.get(`/api/asset_accounts?user_id=${currentUserId}`);
-            setAccounts(response.data);
+
+            // filter on accounts where either the closing date is null or the closing date is in the future
+            const filteredAccounts = response.data.filter(account => (!account.is_plan_to_close || new Date(account.closing_date) > new Date()));
+            setAccounts(filteredAccounts);
             setAccountsFetched(true); // Set accountsFetched to true after fetching
             if (onAccountsFetched) {
-                onAccountsFetched(response.data.length); // Notify parent component
+                onAccountsFetched(filteredAccounts.length); // Notify parent component
             }
         } catch (error) {
             console.error('Error fetching accounts:', error);
