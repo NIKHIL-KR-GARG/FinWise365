@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_19_053850) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -191,6 +191,26 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_19_053850) do
     t.float "depreciation_rate"
   end
 
+  create_table "dreams", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "dream_name"
+    t.string "dream_type"
+    t.string "location"
+    t.string "currency"
+    t.date "dream_date"
+    t.float "amount"
+    t.integer "duration"
+    t.date "end_date"
+    t.boolean "is_funded_by_loan"
+    t.date "loan_start_date"
+    t.integer "loan_duration"
+    t.date "loan_end_date"
+    t.float "interest_rate"
+    t.float "emi_amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "expense_credit_card_debts", force: :cascade do |t|
     t.integer "user_id"
     t.string "debt_type"
@@ -237,16 +257,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_19_053850) do
     t.string "expense_name"
     t.string "location"
     t.string "currency"
-    t.boolean "is_recurring"
     t.date "expense_date"
     t.integer "duration"
     t.date "end_date"
     t.float "amount"
-    t.float "recurring_amount"
     t.float "inflation_rate"
-    t.string "recurring_frequency"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_recurring"
+    t.float "recurring_amount"
+    t.string "recurring_frequency", limit: 255
   end
 
   create_table "expense_personal_loans", force: :cascade do |t|

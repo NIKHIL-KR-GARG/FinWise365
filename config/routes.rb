@@ -31,6 +31,8 @@ Rails.application.routes.draw do
     resources :expense_personal_loans, only: %i[index show create destroy update]
     resources :expense_others, only: %i[index show create destroy update]
 
+    resources :dreams, only: %i[index show create destroy update]
+
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

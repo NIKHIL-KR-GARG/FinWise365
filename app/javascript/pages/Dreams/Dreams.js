@@ -21,6 +21,8 @@ import AssetPropertyList from '../../components/assetspage/properties/AssetPrope
 import AssetPropertyForm from '../../components/assetspage/properties/AssetPropertyForm';
 import AssetVehicleList from '../../components/assetspage/vehicles/AssetVehicleList';
 import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleForm';
+import DreamList from '../../components/dreamspage/DreamList';
+import DreamForm from '../../components/dreamspage/DreamForm';
 
 const Dreams = () => {
     const [open, setOpen] = useState(true);
@@ -37,12 +39,34 @@ const Dreams = () => {
     const vehicleListRef = useRef(null);
     const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
 
+    const [educationCount, setEducationCount] = useState(0); // State for education count
+    const [travelCount, setTravelCount] = useState(0); // State for travel count
+    const [relocationCount, setRelocationCount] = useState(0); // State for relocation count
+    const [otherCount, setOtherCount] = useState(0); // State for other count
+
+    const educationListRef = useRef(null);
+    const travelListRef = useRef(null);
+    const relocationListRef = useRef(null);
+    const otherListRef = useRef(null);
+
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
         }
         if (vehicleListRef.current) {
             setVehicleCount(vehicleListRef.current.getVehicleCount());
+        }
+        if (educationListRef.current) {
+            setEducationCount(educationListRef.current.getDreamCount());
+        }
+        if (travelListRef.current) {
+            setTravelCount(travelListRef.current.getDreamCount());
+        }
+        if (relocationListRef.current) {
+            setRelocationCount(relocationListRef.current.getDreamCount());
+        }
+        if (otherListRef.current) {
+            setOtherCount(otherListRef.current.getDreamCount());
         }
     }, []);
 
@@ -59,7 +83,7 @@ const Dreams = () => {
     };
 
     const handleFormModalOpen = (type) => {
-        setAction('Dream');
+        setAction('Add');
         setDreamAction(type);
         setFormModalOpen(true);
         setModalOpen(false); // Close the right side modal box
@@ -68,7 +92,7 @@ const Dreams = () => {
     const handleFormModalClose = () => {
         setFormModalOpen(false);
         setDreamAction('');
-        setAction('Dream');
+        setAction('');
     };
 
     const handlePropertyAdded = (updatedProperty, successMsg) => {
@@ -83,12 +107,48 @@ const Dreams = () => {
             setVehicleCount(vehicleCount + 1);
         }
     };
+    const handleEducationAdded = (updatedEducation, successMsg) => {
+        if (educationListRef.current) {
+            educationListRef.current.refreshDreamList(updatedEducation, successMsg);
+            setEducationCount(educationCount + 1);
+        }
+    };
+    const handleTravelAdded = (updatedTravel, successMsg) => {
+        if (travelListRef.current) {
+            travelListRef.current.refreshDreamList(updatedTravel, successMsg);
+            setTravelCount(travelCount + 1);
+        }
+    };
+    const handleRelocationAdded = (updatedRelocation, successMsg) => {
+        if (relocationListRef.current) {
+            relocationListRef.current.refreshDreamList(updatedRelocation, successMsg);
+            setRelocationCount(relocationCount + 1);
+        }   
+    };
+    const handleOtherAdded = (updatedOther, successMsg) => {
+        if (otherListRef.current) {
+            otherListRef.current.refreshDreamList(updatedOther, successMsg);
+            setOtherCount(otherCount + 1);
+        }
+    };
 
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
     };
     const handleVehiclesFetched = (count) => {
         setVehicleCount(count);
+    };
+    const handleEducationFetched = (count) => {
+        setEducationCount(count);
+    };
+    const handleTravelFetched = (count) => {
+        setTravelCount(count);
+    };
+    const handleRelocationFetched = (count) => {
+        setRelocationCount(count);
+    };
+    const handleOtherFetched = (count) => {
+        setOtherCount(count);
     };
     
     const handleSellPropertyClick = () => {
@@ -191,11 +251,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <SchoolIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Education
+                                        Education ({educationCount}) {/* Display education count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <ExpenseCreditCardDebtList ref={creditCardDebtListRef} onCreditCardDebtsFetched={handleCreditCardDebtsFetched} /> */}
+                                    <DreamList ref={educationListRef} onDreamsFetched={handleEducationFetched} dreamType={'Education'}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -206,11 +266,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <FlightIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Travel
+                                        Travel ({travelCount}) {/* Display travel count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <ExpensePersonalLoanList ref={personalLoanListRef} onPersonalLoansFetched={handlePersonalLoansFetched} /> */}
+                                    <DreamList ref={travelListRef} onDreamsFetched={handleTravelFetched} dreamType={'Travel'} />
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -221,11 +281,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MovingIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Relocation
+                                        Relocation ({relocationCount}) {/* Display relocation count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <ExpensePersonalLoanList ref={personalLoanListRef} onPersonalLoansFetched={handlePersonalLoansFetched} /> */}
+                                    <DreamList ref={relocationListRef} onDreamsFetched={handleRelocationFetched} dreamType={'Relocation'}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -236,12 +296,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
-                                        {/* Other Expenses ({otherCount}) */}
-                                        Others
+                                        Other Dreams ({otherCount}) {/* Display other dreams count */}
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} /> */}
+                                    <DreamList ref={otherListRef} onDreamsFetched={handleOtherFetched} dreamType={'Other'}/>
                                 </AccordionDetails>
                             </Accordion>
                         </Box>
@@ -263,7 +322,7 @@ const Dreams = () => {
                 aria-describedby="modal-description"
                 sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', mt: '350px', mr: '48px' }}
             >
-                <Box sx={{ width: 325, bgcolor: 'purple', p: 2, boxShadow: 24, borderRadius: 4 }}>
+                <Box sx={{ width: 350, bgcolor: 'purple', p: 2, boxShadow: 24, borderRadius: 4 }}>
                     <Typography id="modal-title" variant="h6" component="h2" sx={{ color: 'white' }}>
                         Add New Dream
                     </Typography>
@@ -366,24 +425,18 @@ const Dreams = () => {
                     {dreamAction === 'Add Vehicle' && (
                         <AssetVehicleForm vehicle={null} action={action} onClose={handleFormModalClose} refreshVehicleList={handleVehicleAdded} />
                     )}
-                    {/* {expenseAction === 'Add Property' && (
-                        <ExpenseHomeForm home={null} action={action} onClose={handleFormModalClose} refreshHomeList={handleHomeAdded} />
+                    {dreamAction === 'Add Education' && (
+                        <DreamForm dream={null} action={action} onClose={handleFormModalClose} refreshDreamList={handleEducationAdded} dreamType={'Education'} />
                     )}
-                    {expenseAction === 'Add Vehicle' && (
-                        <ExpensePropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
+                    {dreamAction === 'Add Travel' && (
+                        <DreamForm dream={null} action={action} onClose={handleFormModalClose} refreshDreamList={handleTravelAdded} dreamType={'Travel'}/>
                     )}
-                    {expenseAction === 'Add Education' && (
-                        <ExpenseCreditCardDebtForm creditcarddebt={null} action={action} onClose={handleFormModalClose} refreshCreditCardDebtList={handleCreditCardDebtAdded} />
+                    {dreamAction === 'Add Relocation' && (
+                        <DreamForm dream={null} action={action} onClose={handleFormModalClose} refreshDreamList={handleRelocationAdded} dreamType={'Relocation'}/>
                     )}
-                    {expenseAction === 'Add Travel' && (
-                        <ExpensePersonalLoanForm personalloan={null} action={action} onClose={handleFormModalClose} refreshPersonalLoanList={handlePersonalLoanAdded} />
+                    {dreamAction === 'Add Other Dream' && (
+                        <DreamForm dream={null} action={action} onClose={handleFormModalClose} refreshDreamList={handleOtherAdded} dreamType={'Other'}/>
                     )}
-                    {expenseAction === 'Add Relocation' && (
-                        <ExpensePersonalLoanForm personalloan={null} action={action} onClose={handleFormModalClose} refreshPersonalLoanList={handlePersonalLoanAdded} />
-                    )}
-                    {expenseAction === 'Add Other Dream' && (
-                        <ExpenseOtherForm other={null} action={action} onClose={handleFormModalClose} refreshOtherList={handleOtherAdded} />
-                    )} */}
                     <IconButton
                         onClick={handleFormModalClose}
                         sx={{
