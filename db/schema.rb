@@ -91,6 +91,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "total_principal"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "payout_frequency"
   end
 
   create_table "asset_portfolio_details", force: :cascade do |t|

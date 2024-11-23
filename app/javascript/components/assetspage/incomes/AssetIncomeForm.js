@@ -306,9 +306,6 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                                 onChange={handleChange}
                                 fullWidth
                             >
-                                <MenuItem value="Daily">Daily</MenuItem>
-                                <MenuItem value="Weekly">Weekly</MenuItem>
-                                <MenuItem value="Fortnightly">Fortnightly</MenuItem>
                                 <MenuItem value="Monthly">Monthly</MenuItem>
                                 <MenuItem value="Quarterly">Quarterly</MenuItem>
                                 <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>

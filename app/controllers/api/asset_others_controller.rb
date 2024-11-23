@@ -67,6 +67,7 @@ class Api::AssetOthersController < ApplicationController
             :payout_date,
             :payout_age,
             :payout_duration,
+            :payout_frequency,
             :payout_value,
             :total_interest,
             :total_principal,

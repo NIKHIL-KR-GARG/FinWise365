@@ -107,6 +107,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 start_date: property.rental_start_date,
                 end_date: property.rental_end_date,
                 is_recurring: true,
+                income_frequency: 'Monthly'
             }));
 
         // add dividend as income as well
@@ -122,6 +123,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 start_date: portfolio.buying_date,
                 end_date: portfolio.sale_date,
                 is_recurring: true,
+                income_frequency: portfolio.dividend_frequency
             }));
 
         // add coupon as income as well
@@ -137,6 +139,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 start_date: portfolio.buying_date,
                 end_date: portfolio.sale_date,
                 is_recurring: true,
+                income_frequency: 'Monthly'
             }));
 
         // add payout as income as well
@@ -159,7 +162,8 @@ const AssetIncomeList = forwardRef((props, ref) => {
                     //set end date to payout_date + payout_duration (months)
                     otherAsset.payout_type === 'Recurring' ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + parseInt(otherAsset.payout_duration))) : new Date(otherAsset.payout_date)
                     }`,
-                is_recurring: `${otherAsset.payout_type === 'Recurring'}`
+                is_recurring: `${otherAsset.payout_type === 'Recurring'}`,
+                income_frequency: otherAsset.payout_frequency
             }));
 
         setIncomes([...filteredIncomes, ...rentalIncomes, ...dividends, ...coupons, ...payouts]);
@@ -268,9 +272,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 )
             )
         },
-        { field: 'income_type', headerName: 'Income Type', width: 125, headerClassName: 'header-theme' },
+        { field: 'income_type', headerName: 'Income Type', width: 100, headerClassName: 'header-theme' },
         {
-            field: 'location', headerName: 'Income Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+            field: 'location', headerName: 'Income Location', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
                 const countryCode = params.value;
                 const country = CountryList.filter(e => e.code === countryCode);
                 if (country.length > 0) return country[0].name;
@@ -279,13 +283,14 @@ const AssetIncomeList = forwardRef((props, ref) => {
         },
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
         {
-            field: 'amount', headerName: 'Income Amount', width: 125, headerClassName: 'header-theme', renderCell: (params) => {
+            field: 'amount', headerName: 'Income Amount', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
                 return FormatCurrency(params.row.currency, params.row.amount);
             }
         },
         { field: 'start_date', headerName: 'Start Date', width: 100, headerClassName: 'header-theme' },
         { field: 'end_date', headerName: 'End Date', width: 100, headerClassName: 'header-theme' },
         { field: 'is_recurring', headerName: 'Recurring', width: 90, headerClassName: 'header-theme', type: 'boolean' },
+        { field: 'income_frequency', headerName: 'Frequency', width: 100, headerClassName: 'header-theme'},
         {
             field: 'actions',
             headerName: 'Actions',

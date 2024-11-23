@@ -3,7 +3,7 @@ import axios from 'axios';
 import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings other icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" other type
 import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" other type
-import { InputAdornment, Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -33,13 +33,14 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         lumpsum_amount: 0.0,
         growth_rate: 0.0,
         is_recurring_payment: false,
-        payment_frequency: '',
+        payment_frequency: 'Monthly',
         payment_amount: 0.0,
         payment_end_date: '',
         payout_type: 'Lumpsum',
         payout_date: '',
         payout_age: 0,
         payout_duration: 0,
+        payout_frequency: 'Monthly',
         payout_value: 0.0,
         total_interest: 0.0,
         total_principal: 0.0
@@ -116,15 +117,32 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         if (!other.location) errors.location = 'Asset Location is required';
         if (!other.currency) errors.currency = 'Currency is required';
         if (!other.start_date) errors.start_date = 'Start Date is required';
-        if (!other.lumpsum_amount) errors.lumpsum_amount = 'Lumpsum Amount is required';
         if (!other.payout_type) errors.payout_type = 'Payout Type is required';
-        if (!other.payout_date && !other.payout_age) errors.payout_date = 'Payout Date or Age is required';
+        if (!other.growth_rate) errors.growth_rate = 'Growth Rate is required';
+        if (!other.payout_date && !other.payout_age) {
+            errors.payout_date = 'Payout Date or Age is required';
+            errors.payout_age = 'Payout Date or Age is required';
+        }
+
+        if (!other.is_recurring_payment && !other.lumpsum_amount && other.lumpsum_amount <= 0) 
+            errors.lumpsum_amount = 'Lumpsum Amount is required as this is not a recurring payment';
+
+        if (other.is_recurring_payment) {
+            if (!other.payment_frequency) errors.payment_frequency = 'Payment Frequency is required';
+            if (!other.payment_amount) errors.payment_amount = 'Payment Amount is required';
+            if (!other.payment_end_date) errors.payment_end_date = 'Payment End Date is required';
+        }
+
+        if (other.payout_type === 'Recurring') {
+            if (!other.payout_duration) errors.payout_duration = 'Payout Duration is required';
+            if (!other.payout_frequency) errors.payout_frequency = 'Payout Frequency is required';
+        }
 
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(other.growth_rate)) errors.interest_rate = 'Growth Rate should be numeric';
-        if (isNaN(other.lumpsum_amount)) errors.other_balance = 'Other Amount should be numeric';
+        if (isNaN(other.lumpsum_amount)) errors.other_balance = 'Lumpsum Amount should be numeric';
         if (isNaN(other.payment_amount)) errors.payment_amount = 'Payment amount should be numeric';
-        // if (isNaN(other.payout_value)) errors.payout_value = 'Payout Value should be numeric';
+        if (isNaN(other.payout_value)) errors.payout_value = 'Payout Value should be numeric';
         if (isNaN(other.payout_age)) errors.payout_age = 'Payout Age should be numeric';
         if (isNaN(other.payout_duration)) errors.payout_duration = 'Payout Duration should be numeric';
 
@@ -165,52 +183,62 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
 
     const calculateTotalInterest = () => {
 
-        if (!other.start_date || !other.growth_rate || !other.lumpsum_amount ) return;
-        if (other.is_recurring_payment && (!other.payment_frequency || !other.payment_amount)) return;
+        if (!other.start_date || !other.growth_rate) return;
+        if (!other.is_recurring_payment && (!other.lumpsum_amount || other.lumpsum_amount <= 0)) return;
+        if (other.is_recurring_payment && (!other.payment_frequency || !other.payment_amount || !other.payment_end_date)) return;
         if (!other.payout_date && !other.payout_age) return;
 
         let payoutValue = 0.0;
-        // months = payout_date - start_date in months
-        let monthsForPayout = (new Date(other.payout_date).getFullYear() - new Date(other.start_date).getFullYear()) * 12 + new Date(other.payout_date).getMonth() - new Date(other.start_date).getMonth();
-        let monthsForRecurringPayment = (new Date(other.payment_end_date).getFullYear() - new Date(other.start_date).getFullYear()) * 12 + new Date(other.payment_end_date).getMonth() - new Date(other.start_date).getMonth();
+        let monthsBeforePayout = 0;
+        let monthsForRecurringPayment = 0;
 
-        const totalPrincipal = CalculatePrincipal (
+        monthsBeforePayout= (new Date(other.payout_date).getFullYear() - new Date(other.start_date).getFullYear()) * 12 + new Date(other.payout_date).getMonth() - new Date(other.start_date).getMonth();
+        if (other.is_recurring_payment)
+            monthsForRecurringPayment = (new Date(other.payment_end_date).getFullYear() - new Date(other.start_date).getFullYear()) * 12 + new Date(other.payment_end_date).getMonth() - new Date(other.start_date).getMonth();
+
+        const totalPrincipal = CalculatePrincipal(
             "Fixed",
-            other.lumpsum_amount,
+            other.lumpsum_amount || 0,
             monthsForRecurringPayment,
-            other.payment_frequency,
-            other.payment_amount
+            other.payment_frequency || "",
+            other.payment_amount || 0,
         );
 
         let totalInterest = 0.0;
         // calculate interest till payment end date
-        totalInterest += CalculateInterest (
+        totalInterest += CalculateInterest(
             "Fixed",
             "Simple",
             other.growth_rate,
-            other.lumpsum_amount,
+            other.lumpsum_amount || 0,
             monthsForRecurringPayment,
-            other.payment_frequency,
-            other.payment_amount,
+            other.payment_frequency || "",
+            other.payment_amount || 0,
             "Monthly" //does not matter as we are calculating simple interest
         );
         // add interest till payout date
-        totalInterest += CalculateInterest (
+        totalInterest += CalculateInterest(
             "Fixed",
             "Simple",
             other.growth_rate,
             totalPrincipal,
-            parseInt(monthsForPayout) - parseInt(monthsForRecurringPayment),
+            parseInt(monthsBeforePayout) - parseInt(monthsForRecurringPayment),
             "",
             "0",
             "Monthly" //does not matter as we are calculating simple interest
         );
 
         if (other.payout_type === 'Lumpsum') {
-            payoutValue = parseFloat(totalPrincipal) + parseFloat(totalInterest);    
+            payoutValue = parseFloat(totalPrincipal) + parseFloat(totalInterest);
         }
         else {
-            payoutValue = CalculatePayoutValue(parseFloat(totalPrincipal) + parseFloat(totalInterest), parseInt(other.payout_duration), parseFloat(other.growth_rate));
+            // calculate payout value for recurring payout based on frequency
+            let n = 0;
+            if (other.payout_frequency === 'Monthly') n = other.payout_duration;
+            else if (other.payout_frequency === 'Quarterly') n = other.payout_duration / 3;
+            else if (other.payout_frequency === 'Semi-Annually') n = other.payout_duration / 6;
+            else if (other.payout_frequency === 'Annually') n = other.payout_duration / 12;
+            payoutValue = CalculatePayoutValue(parseFloat(totalPrincipal) + parseFloat(totalInterest), n, parseFloat(other.growth_rate));
         }
 
         setOther((prevOther) => ({
@@ -334,7 +362,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                         <TextField
                             select
                             variant="standard"
-                            label="Currency"
+                            label="Asset Currency"
                             name="currency"
                             value={other.currency}
                             onChange={handleChange}
@@ -354,7 +382,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                         <TextField
                             type="date"
                             variant="standard"
-                            label="Asset Start Date"
+                            label="Start Date"
                             name="start_date"
                             value={other.start_date}
                             onChange={handleChange}
@@ -386,6 +414,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                             value={other.growth_rate}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.growth_rate}
                             helperText={errors.growth_rate}
@@ -401,7 +430,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                             onChange={handleChange}
                                             name="is_recurring_payment"
                                         />}
-                                    label="Recurring Payments?"
+                                    label="Recurring Investment?"
                                 />
                             </Grid>
                             {other.is_recurring_payment && (
@@ -409,15 +438,15 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Payment End Date"
-                                            name="payment_end_date"
-                                            type="date"
-                                            value={other.payment_end_date}
+                                            label="Payment Amount"
+                                            name="payment_amount"
+                                            value={other.payment_amount}
                                             onChange={handleChange}
                                             fullWidth
-                                            InputLabelProps={{ shrink: true }}
-                                            error={!!errors.payment_end_date}
-                                            helperText={errors.payment_end_date}
+                                            required
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.payment_amount}
+                                            helperText={errors.payment_amount}
                                         />
                                     </Grid>
                                     <Grid item size={6}>
@@ -429,6 +458,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                             value={other.payment_frequency}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                         >
                                             <MenuItem value="Monthly">Monthly</MenuItem>
                                             <MenuItem value="Quarterly">Quarterly</MenuItem>
@@ -439,14 +469,16 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Payment Amount"
-                                            name="payment_amount"
-                                            value={other.payment_amount}
+                                            label="Payment End Date"
+                                            name="payment_end_date"
+                                            type="date"
+                                            value={other.payment_end_date}
                                             onChange={handleChange}
                                             fullWidth
-                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.payment_amount}
-                                            helperText={errors.payment_amount}
+                                            required
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.payment_end_date}
+                                            helperText={errors.payment_end_date}
                                         />
                                     </Grid>
                                 </>
@@ -455,14 +487,14 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                     </Box>
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
                         <Grid container spacing={2}>
-                            <Grid item size={12}>
+                            <Grid item size={6}>
                                 <Typography variant="h6" component="h2">
                                     Payout Details
                                 </Typography>
                             </Grid>
-                            <Grid item size={12}>
+                            <Grid item size={6}>
                                 <FormControl component="fieldset" >
-                                    <FormLabel component="legend">Select Payout Type:</FormLabel>
+                                    <FormLabel component="legend">Payout Type:</FormLabel>
                                     <RadioGroup sx={{ pb: 2 }} row aria-label="payout_type" name="payout_type" value={other.payout_type} onChange={handleChange}>
                                         <FormControlLabel
                                             value="Lumpsum"
@@ -496,6 +528,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     value={other.payout_date}
                                     onChange={handleChange}
                                     fullWidth
+                                    required
                                     InputLabelProps={{ shrink: true }}
                                     error={!!errors.payout_date}
                                     helperText={errors.payout_date}
@@ -509,12 +542,13 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     value={other.payout_age}
                                     onChange={handleChange}
                                     fullWidth
+                                    required
                                     slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*' } }}
                                     error={!!errors.payout_age}
                                     helperText={errors.payout_age}
                                 />
                             </Grid>
-                            <Grid item size={9}>
+                            <Grid item size={12}>
                                 <Typography gutterBottom>Payout Duration (Months)</Typography>
                                 <Slider
                                     name="payout_duration"
@@ -527,7 +561,24 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     valueLabelDisplay="on"
                                 />
                             </Grid>
-                            <Grid item size={3}>
+                            <Grid item size={6}>
+                                <TextField
+                                    select
+                                    variant="standard"
+                                    label="Payout Frequency"
+                                    name="payout_frequency"
+                                    value={other.payout_frequency}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    required
+                                >
+                                    <MenuItem value="Monthly">Monthly</MenuItem>
+                                    <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                    <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                    <MenuItem value="Annually">Annually</MenuItem>
+                                </TextField>
+                            </Grid>
+                            <Grid item size={6}>
                                 <TextField
                                     variant="standard"
                                     label="Payout Value"
@@ -539,15 +590,10 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                     error={!!errors.payout_value}
                                     helperText={errors.payout_value}
-                                    slotProps={{
-                                        input: {
-                                            endAdornment: <InputAdornment position="end">{other.payout_type === 'Lumpsum' ? '' : '/mth'}</InputAdornment>,
-                                        },
-                                    }}
                                 />
                             </Grid>
                         </Grid>
-                    </Box>    
+                    </Box>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, borderRadius: 3, bgcolor: 'lightgray' }}>
                             <Grid container spacing={2}>
