@@ -67,6 +67,8 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
         if (!account.location) errors.location = 'Account Location is required';
         if (!account.currency) errors.currency = 'Currency is required';
         if (!account.opening_date) errors.opening_date = 'Opening Date is required';
+        if (!account.interest_rate) errors.interest_rate = 'Interest Rate is required';
+        if (!account.account_balance) errors.account_balance = 'Account Balance is required';
 
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(account.interest_rate)) errors.interest_rate = 'Interest Rate should be numeric';
@@ -305,6 +307,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                             value={account.interest_rate}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.interest_rate}
                             helperText={errors.interest_rate}
@@ -318,6 +321,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                             value={account.account_balance}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.account_balance}
                             helperText={errors.account_balance}
@@ -347,7 +351,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                                             onChange={handleChange}
                                             name="is_plan_to_close"
                                         />}
-                                    label="I plan to close this account in the future"
+                                    label="I plan to close this account"
                                 />
                             )}
                             { (action === 'Close') && (
