@@ -274,6 +274,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.datetime "updated_at", null: false
     t.date "start_date"
     t.date "end_date"
+    t.float "inflation_rate"
   end
 
   create_table "expense_others", force: :cascade do |t|
@@ -336,6 +337,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "total_expense"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "inflation_rate"
   end
 
   create_table "users", force: :cascade do |t|

@@ -74,6 +74,7 @@ class Api::ExpensePropertiesController < ApplicationController
             :expense_name_8,
             :expense_value_8,
             :total_expense,
+            :inflation_rate,
             :created_at,
             :updated_at
         ) 

@@ -25,6 +25,7 @@ class CreateExpenseProperties < ActiveRecord::Migration[7.2]
       t.string :expense_name_8
       t.float :expense_value_8
       t.float :total_expense
+      t.float :inflation_rate
 
       t.timestamps
     end

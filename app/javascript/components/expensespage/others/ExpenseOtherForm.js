@@ -29,7 +29,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         expense_date:'',
         amount: 0.0,
         is_recurring: false,
-        recurring_frequency: 'Annually',
+        recurring_frequency: 'Monthly',
         duration: 0,
         end_date: '',
         recurring_amount: 0.0,
@@ -407,6 +407,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                                             value={other.recurring_amount}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.recurring_amount}
                                             helperText={errors.recurring_amount}
@@ -420,6 +421,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                                             value={other.inflation_rate}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.inflation_rate}
                                             helperText={errors.inflation_rate}

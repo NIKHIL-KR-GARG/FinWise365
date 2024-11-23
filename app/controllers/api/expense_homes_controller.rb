@@ -69,6 +69,7 @@ class Api::ExpenseHomesController < ApplicationController
             :holidays,
             :miscellaneous,
             :total_expense,
+            :inflation_rate,
             :created_at,
             :updated_at
         ) 

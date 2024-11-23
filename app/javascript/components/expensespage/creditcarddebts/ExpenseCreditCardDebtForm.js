@@ -4,7 +4,7 @@ import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings creditc
 import CurrentIcon from '@mui/icons-material/BusinessCenter'; // Current creditcarddebt icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" creditcarddebt type
 import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" creditcarddebt type
-import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { InputAdornment, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -373,6 +373,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                             value={creditcarddebt.loan_amount}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.loan_amount}
                             helperText={errors.loan_amount}
@@ -407,7 +408,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                             helperText={errors.end_date}
                         />
                     </Grid>
-                    <Grid item size={12}>
+                    <Grid item size={6}>
                         <TextField
                             variant="standard"
                             label="Interest Rate (%)"
@@ -415,15 +416,16 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                             value={creditcarddebt.interest_rate}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.interest_rate}
                             helperText={errors.interest_rate}
                         />
                     </Grid>
-                    <Grid item size={12}>
+                    <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="EMI Amount"
+                            label="EMI Amount (Monthly)"
                             name="emi_amount"
                             value={FormatCurrency(creditcarddebt.currency, creditcarddebt.emi_amount)}
                             onChange={handleChange}
@@ -431,6 +433,11 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                             disabled
                             error={!!errors.emi_amount}
                             helperText={errors.emi_amount}
+                            slotProps={{
+                                input: {
+                                    endAdornment: <InputAdornment position="end">/mth</InputAdornment>,
+                                },
+                            }}
                         />
                     </Grid>
                     <Grid item size={12}>

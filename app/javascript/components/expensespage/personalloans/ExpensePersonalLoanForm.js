@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem } from '@mui/material';
+import { InputAdornment, Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -322,6 +322,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                             value={personalloan.loan_amount}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.loan_amount}
                             helperText={errors.loan_amount}
@@ -364,6 +365,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                             value={personalloan.interest_rate}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.interest_rate}
                             helperText={errors.interest_rate}
@@ -372,7 +374,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="EMI Amount"
+                            label="EMI Amount (Monthly)"
                             name="emi_amount"
                             value={FormatCurrency(personalloan.currency, personalloan.emi_amount)}
                             onChange={handleChange}
@@ -380,6 +382,11 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                             disabled
                             error={!!errors.emi_amount}
                             helperText={errors.emi_amount}
+                            slotProps={{
+                                input: {
+                                    endAdornment: <InputAdornment position="end">/mth</InputAdornment>,
+                                },
+                            }}
                         />
                     </Grid>
                     <Grid item size={12}>

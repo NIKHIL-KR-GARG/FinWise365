@@ -19,7 +19,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    
+
     const [home, setHome] = useState(initialHome || {
         user_id: 0,
         home_name: "",
@@ -39,7 +39,8 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         dining: 0.0,
         holidays: 0.0,
         miscellaneous: 0.0,
-        total_expense: 0.0
+        total_expense: 0.0,
+        inflation_rate: 0.0
     });
 
     const handleChange = (e) => {
@@ -90,7 +91,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         if (!home.location) errors.location = 'Location is required';
         if (!home.currency) errors.currency = 'Currency is required';
         if (!home.start_date) errors.start_date = 'Start Date is required';
-        // if (!home.end_date) errors.end_date = 'End Date is required';
+        if (!home.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
 
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(home.groceries)) errors.groceries = 'Groceries should be numeric';
@@ -105,7 +106,9 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         if (isNaN(home.dining)) errors.dining = 'Dining should be numeric';
         if (isNaN(home.holidays)) errors.holidays = 'Holidays should be numeric';
         if (isNaN(home.miscellaneous)) errors.miscellaneous = 'Miscellaneous expenses should be numeric';
-       
+        if (isNaN(home.total_expense)) errors.total_expense = 'Total Expense should be numeric';
+        if (isNaN(home.inflation_rate)) errors.inflation_rate = 'Inflation Rate should be numeric';
+
         // check that the end date is after the start date
         if (home.start_date && home.end_date) {
             if (new Date(home.end_date) < new Date(home.start_date)) {
@@ -138,11 +141,11 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                 const response = initialHome
                     ? await axios.put(`/api/expense_homes/${home.id}`, home)
                     : await axios.post('/api/expense_homes', home);
-                
+
                 let successMsg = '';
                 if (action === 'Add') successMsg = 'Home added successfully';
                 else if (action === 'Edit') successMsg = 'Home updated successfully';
-                
+
                 setErrorMessage('');
                 onClose(); // Close the Expense Home Form window
                 refreshHomeList(response.data, successMsg); // Pass the updated home and success message
@@ -231,10 +234,10 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
                     <HomeIcon style={{ color: 'purple', marginRight: '10px' }} />
-                        Household Living Expenses
+                    Household Living Expenses
                 </Typography>
                 <Grid container spacing={2}>
-                    <Grid item size={6}>
+                    <Grid item size={12}>
                         <TextField
                             variant="standard"
                             label="Home Name"
@@ -245,26 +248,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             required
                             error={!!errors.home_name}
                             helperText={errors.home_name}
-                        />
-                    </Grid>
-                    <Grid item size={6}>
-                    <TextField
-                            variant="standard"
-                            label="Total Expense"
-                            name="total_expense"
-                            value={FormatCurrency(home.currency, home.total_expense)}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                            disabled
-                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.total_expense}
-                            helperText={errors.total_expense}
-                            slotProps={{
-                                input: {
-                                    endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
-                                },
-                            }}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -331,11 +314,44 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.end_date}
                             onChange={handleChange}
                             fullWidth
-                            required
                             InputLabelProps={{ shrink: true }}
                             error={!!errors.end_date}
                             helperText={errors.end_date}
-                            
+
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Inflation Rate (%)"
+                            name="inflation_rate"
+                            value={home.inflation_rate}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.inflation_rate}
+                            helperText={errors.inflation_rate}
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Total Expense"
+                            name="total_expense"
+                            value={FormatCurrency(home.currency, home.total_expense)}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            disabled
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.total_expense}
+                            helperText={errors.total_expense}
+                            slotProps={{
+                                input: {
+                                    endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
+                                },
+                            }}
                         />
                     </Grid>
                     <Grid item size={12}>
@@ -382,7 +398,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.clothes}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.clothes}
                             helperText={errors.clothes}
@@ -401,7 +416,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.utilities}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.utilities}
                             helperText={errors.utilities}
@@ -420,7 +434,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.furniture}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.furniture}
                             helperText={errors.furniture}
@@ -439,7 +452,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.health}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.health}
                             helperText={errors.health}
@@ -458,7 +470,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.transport}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.transport}
                             helperText={errors.transport}
@@ -477,7 +488,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.communication}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.communication}
                             helperText={errors.communication}
@@ -496,7 +506,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.entertainment}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.entertainment}
                             helperText={errors.entertainment}
@@ -515,7 +524,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.education}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.education}
                             helperText={errors.education}
@@ -534,7 +542,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.dining}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.dining}
                             helperText={errors.dining}
@@ -553,7 +560,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.holidays}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.holidays}
                             helperText={errors.holidays}
@@ -572,7 +578,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.miscellaneous}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.miscellaneous}
                             helperText={errors.miscellaneous}

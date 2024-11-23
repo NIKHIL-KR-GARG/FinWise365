@@ -25,7 +25,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    
+
     const [property, setProperty] = useState(initialProperty || {
         user_id: 0,
         property_name: "",
@@ -50,7 +50,8 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         expense_value_7: 0.0,
         expense_name_8: "",
         expense_value_8: 0.0,
-        total_expense: 0.0
+        total_expense: 0.0,
+        inflation_rate: 0.0
     });
 
     const handleChange = (e) => {
@@ -101,7 +102,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         if (!property.location) errors.location = 'Location is required';
         if (!property.currency) errors.currency = 'Currency is required';
         if (!property.start_date) errors.start_date = 'Start Date is required';
-        // if (!property.end_date) errors.end_date = 'End Date is required';
+        if (!property.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
 
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(property.expense_value_1)) errors.expense_value_1 = 'Expense Value should be numeric';
@@ -112,7 +113,9 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         if (isNaN(property.expense_value_6)) errors.expense_value_6 = 'Expense Value should be numeric';
         if (isNaN(property.expense_value_7)) errors.expense_value_7 = 'Expense Value should be numeric';
         if (isNaN(property.expense_value_8)) errors.expense_value_8 = 'Expense Value should be numeric';
-        
+        if (isNaN(property.total_expense)) errors.total_expense = 'Total Expense should be numeric';
+        if (isNaN(property.inflation_rate)) errors.inflation_rate = 'Inflation Rate should be numeric';
+
         // check that the end date is after the start date
         if (property.start_date && property.end_date) {
             if (new Date(property.end_date) < new Date(property.start_date)) {
@@ -144,11 +147,11 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                 const response = initialProperty
                     ? await axios.put(`/api/expense_properties/${property.id}`, property)
                     : await axios.post('/api/expense_properties', property);
-                
+
                 let successMsg = '';
                 if (action === 'Add') successMsg = 'Property added successfully';
                 else if (action === 'Edit') successMsg = 'Property updated successfully';
-                
+
                 setErrorMessage('');
                 onClose(); // Close the Expense Property Form window
                 refreshPropertyList(response.data, successMsg); // Pass the updated property and success message
@@ -233,79 +236,79 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
                     <ApartmentIcon style={{ color: 'purple', marginRight: '10px' }} />
-                        Property Expenses
+                    Property Expenses
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item size={12}>
-                    <FormControl component="fieldset" >
-                    <FormLabel component="legend">Select Property Type:</FormLabel>
-                    <RadioGroup sx={{ pb: 2 }} row aria-label="property_type" name="property_type" value={property.property_type} onChange={handleChange}>
-                        {currentUserCountryOfResidence === 'SG' && (
-                            <FormControlLabel
-                                value="HDB"
-                                control={<Radio />}
-                                label={
-                                    <Grid container direction="column" alignItems="center" spacing={0}>
-                                        <Grid item><ApartmentIcon style={{ fontSize: 'normal' }} /></Grid>
-                                        <Grid item><Typography variant="caption">HDB</Typography></Grid>
-                                    </Grid>
-                                }
-                            />
-                        )}
-                        <FormControlLabel
-                            value="Condominium"
-                            control={<Radio />}
-                            label={
-                                <Grid container direction="column" alignItems="center" spacing={0}>
-                                    <Grid item><CondoIcon style={{ fontSize: 'normal' }} /></Grid>
-                                    <Grid item><Typography variant="caption">Condominium</Typography></Grid>
-                                </Grid>
-                            }
-                        />
-                        <FormControlLabel
-                            value="Landed"
-                            control={<Radio />}
-                            label={
-                                <Grid container direction="column" alignItems="center" spacing={0}>
-                                    <Grid item><HouseIcon style={{ fontSize: 'normal' }} /></Grid>
-                                    <Grid item><Typography variant="caption">Landed</Typography></Grid>
-                                </Grid>
-                            }
-                        />
-                        <FormControlLabel
-                            value="Commercial"
-                            control={<Radio />}
-                            label={
-                                <Grid container direction="column" alignItems="center" spacing={0}>
-                                    <Grid item><BusinessIcon style={{ fontSize: 'normal' }} /></Grid>
-                                    <Grid item><Typography variant="caption">Commercial</Typography></Grid>
-                                </Grid>
-                            }
-                        />
-                        <FormControlLabel
-                            value="Land"
-                            control={<Radio />}
-                            label={
-                                <Grid container direction="column" alignItems="center" spacing={0}>
-                                    <Grid item><TerrainIcon style={{ fontSize: 'normal' }} /></Grid>
-                                    <Grid item><Typography variant="caption">Land</Typography></Grid>
-                                </Grid>
-                            }
-                        />
-                        <FormControlLabel
-                            value="Other"
-                            control={<Radio />}
-                            label={
-                                <Grid container direction="column" alignItems="center" spacing={0}>
-                                    <Grid item><OtherIcon style={{ fontSize: 'normal' }} /></Grid>
-                                    <Grid item><Typography variant="caption">Other</Typography></Grid>
-                                </Grid>
-                            }
-                        />
-                    </RadioGroup>
-                </FormControl>
+                        <FormControl component="fieldset" >
+                            <FormLabel component="legend">Select Property Type:</FormLabel>
+                            <RadioGroup sx={{ pb: 2 }} row aria-label="property_type" name="property_type" value={property.property_type} onChange={handleChange}>
+                                {currentUserCountryOfResidence === 'SG' && (
+                                    <FormControlLabel
+                                        value="HDB"
+                                        control={<Radio />}
+                                        label={
+                                            <Grid container direction="column" alignItems="center" spacing={0}>
+                                                <Grid item><ApartmentIcon style={{ fontSize: 'normal' }} /></Grid>
+                                                <Grid item><Typography variant="caption">HDB</Typography></Grid>
+                                            </Grid>
+                                        }
+                                    />
+                                )}
+                                <FormControlLabel
+                                    value="Condominium"
+                                    control={<Radio />}
+                                    label={
+                                        <Grid container direction="column" alignItems="center" spacing={0}>
+                                            <Grid item><CondoIcon style={{ fontSize: 'normal' }} /></Grid>
+                                            <Grid item><Typography variant="caption">Condominium</Typography></Grid>
+                                        </Grid>
+                                    }
+                                />
+                                <FormControlLabel
+                                    value="Landed"
+                                    control={<Radio />}
+                                    label={
+                                        <Grid container direction="column" alignItems="center" spacing={0}>
+                                            <Grid item><HouseIcon style={{ fontSize: 'normal' }} /></Grid>
+                                            <Grid item><Typography variant="caption">Landed</Typography></Grid>
+                                        </Grid>
+                                    }
+                                />
+                                <FormControlLabel
+                                    value="Commercial"
+                                    control={<Radio />}
+                                    label={
+                                        <Grid container direction="column" alignItems="center" spacing={0}>
+                                            <Grid item><BusinessIcon style={{ fontSize: 'normal' }} /></Grid>
+                                            <Grid item><Typography variant="caption">Commercial</Typography></Grid>
+                                        </Grid>
+                                    }
+                                />
+                                <FormControlLabel
+                                    value="Land"
+                                    control={<Radio />}
+                                    label={
+                                        <Grid container direction="column" alignItems="center" spacing={0}>
+                                            <Grid item><TerrainIcon style={{ fontSize: 'normal' }} /></Grid>
+                                            <Grid item><Typography variant="caption">Land</Typography></Grid>
+                                        </Grid>
+                                    }
+                                />
+                                <FormControlLabel
+                                    value="Other"
+                                    control={<Radio />}
+                                    label={
+                                        <Grid container direction="column" alignItems="center" spacing={0}>
+                                            <Grid item><OtherIcon style={{ fontSize: 'normal' }} /></Grid>
+                                            <Grid item><Typography variant="caption">Other</Typography></Grid>
+                                        </Grid>
+                                    }
+                                />
+                            </RadioGroup>
+                        </FormControl>
                     </Grid>
-                    <Grid item size={6}>
+                    <Grid item size={12}>
                         <TextField
                             variant="standard"
                             label="Property Name"
@@ -316,26 +319,6 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                             required
                             error={!!errors.property_name}
                             helperText={errors.property_name}
-                        />
-                    </Grid>
-                    <Grid item size={6}>
-                    <TextField
-                            variant="standard"
-                            label="Total Expense"
-                            name="total_expense"
-                            value={FormatCurrency(property.currency, property.total_expense)}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                            disabled
-                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.total_expense}
-                            helperText={errors.total_expense}
-                            slotProps={{
-                                input: {
-                                    endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
-                                },
-                            }}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -402,11 +385,44 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                             value={property.end_date}
                             onChange={handleChange}
                             fullWidth
-                            required
                             InputLabelProps={{ shrink: true }}
                             error={!!errors.end_date}
                             helperText={errors.end_date}
-                            
+
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Inflation Rate (%)"
+                            name="inflation_rate"
+                            value={property.inflation_rate}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.inflation_rate}
+                            helperText={errors.inflation_rate}
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Total Expense"
+                            name="total_expense"
+                            value={FormatCurrency(property.currency, property.total_expense)}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            disabled
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.total_expense}
+                            helperText={errors.total_expense}
+                            slotProps={{
+                                input: {
+                                    endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
+                                },
+                            }}
                         />
                     </Grid>
                     <Grid item size={12}>
@@ -440,7 +456,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                         />
                     </Grid>
                     <Grid item size={3}>
-                    <TextField
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_1"
@@ -470,7 +486,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                         />
                     </Grid>
                     <Grid item size={3}>
-                    <TextField
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_2"
@@ -500,7 +516,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                         />
                     </Grid>
                     <Grid item size={3}>
-                    <TextField
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_3"
@@ -530,7 +546,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                         />
                     </Grid>
                     <Grid item size={3}>
-                    <TextField
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_4"
@@ -545,7 +561,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                                     endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
                                 },
                             }}
-                        />  
+                        />
                     </Grid>
                     <Grid item size={3}>
                         <TextField
@@ -560,7 +576,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                         />
                     </Grid>
                     <Grid item size={3}>
-                    <TextField
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_5"
@@ -575,7 +591,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                                     endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
                                 },
                             }}
-                        />  
+                        />
                     </Grid>
                     <Grid item size={3}>
                         <TextField
@@ -590,7 +606,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                         />
                     </Grid>
                     <Grid item size={3}>
-                    <TextField
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_6"
@@ -620,7 +636,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                         />
                     </Grid>
                     <Grid item size={3}>
-                    <TextField
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_7"
@@ -649,8 +665,8 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                             helperText={errors.expense_name_8}
                         />
                     </Grid>
-                    <Grid item size={3}>    
-                    <TextField
+                    <Grid item size={3}>
+                        <TextField
                             variant="standard"
                             label="Expense Value"
                             name="expense_value_8"
