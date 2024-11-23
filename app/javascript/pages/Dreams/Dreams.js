@@ -12,6 +12,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import FlightIcon from '@mui/icons-material/Flight';
 import MovingIcon from '@mui/icons-material/Moving';
 import SellIcon from '@mui/icons-material/Sell';
+import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
@@ -31,6 +32,7 @@ const Dreams = () => {
     const [action, setAction] = useState('Dream'); // State for action
     const [dreamAction, setDreamAction] = useState(''); // State for action
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [futureIncomeDialogOpen, setFutureIncomeDialogOpen] = useState(false); // State for Future Income Dialog
     const navigate = useNavigate();
 
     const propertyListRef = useRef(null);
@@ -161,6 +163,17 @@ const Dreams = () => {
 
     const handleConfirmDialogClose = (confirmed) => {
         setConfirmDialogOpen(false);
+        if (confirmed) {
+            navigate('/assets');
+        }
+    };
+
+    const handleFutureIncomeClick = () => {
+        setFutureIncomeDialogOpen(true);
+    };
+
+    const handleFutureIncomeDialogClose = (confirmed) => {
+        setFutureIncomeDialogOpen(false);
         if (confirmed) {
             navigate('/assets');
         }
@@ -383,6 +396,13 @@ const Dreams = () => {
                             <MiscellaneousServicesIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other Dream</Typography>
                         </Box>
+                        <Box
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFutureIncomeClick()}
+                        >
+                            <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Future Income</Typography>
+                        </Box>
                     </Box>
                 </Box>
             </Modal>
@@ -451,6 +471,27 @@ const Dreams = () => {
                     </IconButton>
                 </Box>
             </Modal>
+            <Dialog
+                open={futureIncomeDialogOpen}
+                onClose={() => handleFutureIncomeDialogClose(false)}
+                aria-labelledby="future-income-dialog-title"
+                aria-describedby="future-income-dialog-description"
+            >
+                <DialogTitle id="future-income-dialog-title">Future Income</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="future-income-dialog-description">
+                        Future income can be added from Assets (Income) section. Do you want to proceed?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleFutureIncomeDialogClose(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={() => handleFutureIncomeDialogClose(true)} color="primary" autoFocus>
+                        Proceed
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
