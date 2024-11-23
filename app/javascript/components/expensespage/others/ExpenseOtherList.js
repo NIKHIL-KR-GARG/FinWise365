@@ -30,18 +30,34 @@ const ExpenseOtherList = forwardRef((props, ref) => {
 
     const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch
     const [originalOthers, setOriginalOthers] = useState([]); // State to store original others
+    const [vehicles, setVehicles] = useState([]); // State to store properties
+
+    const fetchVehicles = async () => {
+        try {
+            const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching vehicles:', error);
+            return [];
+        }
+    };
 
     const fetchOthers = async () => {
         try {
             const response = await axios.get(`/api/expense_others?user_id=${currentUserId}`);
             setOriginalOthers(response.data); // Save the original others
-            filterOthers(response.data); // Filter others based on the switch state
+
+            // fetch vehicles and set state
+            const vehiclesList = await fetchVehicles();
+            if (vehiclesList && vehiclesList.length > 0) setVehicles(vehiclesList);
+
+            filterOthers(response.data, vehiclesList); // Filter others based on the switch state
         } catch (error) {
             console.error('Error fetching others:', error);
         }
     };
 
-    const filterOthers = (othersList) => {
+    const filterOthers = (othersList, vehiclesList) => {
         let filteredOthers = [];
         if (!includePastOthers)
             // filter where end_date is null or greater than today
@@ -53,10 +69,25 @@ const ExpenseOtherList = forwardRef((props, ref) => {
         else
             filteredOthers = othersList;
 
-        setOthers(filteredOthers);
+        // add vehicle maintenance for currently owned vehicles
+        const vehicleExpenses = vehiclesList
+            .filter(vehicle => new Date(vehicle.purchase_date) <= new Date() && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= new Date()))
+            .map(vehicle => ({
+                id: `vehicleexpense-${vehicle.id}`,
+                expense_name: `Vehicle Expenses - ${vehicle.vehicle_name}`,
+                location: vehicle.location,
+                currency: vehicle.currency,
+                expense_date: new Date().toISOString().split('T')[0],
+                amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
+                is_recurring: true,
+                recurring_amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
+                end_date: vehicle.is_plan_to_sell ? vehicle.sale_date : ''
+            }));
+
+        setOthers([...filteredOthers, ...vehicleExpenses]); // Set the filtered others
         setOthersFetched(true); // Set othersFetched to true after filtering
         if (onOthersFetched) {
-            onOthersFetched(filteredOthers.length); // Notify parent component
+            onOthersFetched(filteredOthers.length + vehicleExpenses.length); // Notify parent component
         }
     };
 
@@ -65,7 +96,7 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     }, [currentUserId]);
 
     useEffect(() => {
-        filterOthers(originalOthers); // Filter others when includePastOthers changes
+        filterOthers(originalOthers, vehicles); // Filter others when includePastOthers changes
     }, [includePastOthers]); // Include Past Others to other/grid array
 
     const handleFormModalClose = () => {
@@ -140,11 +171,21 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'expense_name', headerName: 'Expense Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
+        { 
+            field: 'expense_name', 
+            headerName: 'Expense Name', 
+            width: 200, 
+            headerClassName: 'header-theme', 
+            renderCell: (params) => (
+                params.value.includes('Vehicle Expenses') ? (
+                    <span>{params.value}</span>
+                ) : (
+                    <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                        {params.value}
+                    </a>
+                )
+            )
+        },
         { field: 'location', headerName: 'Other Location', width: 150, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);

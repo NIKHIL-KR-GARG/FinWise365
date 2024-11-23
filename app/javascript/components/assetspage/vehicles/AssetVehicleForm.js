@@ -113,7 +113,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.loan_duration)) errors.loan_duration = 'Loan Duration should be numeric';
         if (isNaN(vehicle.sale_amount)) errors.sale_amount = 'Sale Amount should be numeric';
         if (isNaN(vehicle.current_value)) errors.current_value = 'Current Value Amount should be numeric';
-        if (isNaN(vehicle.vehicle_maintanance)) errors.vehicle_maintanance = 'Annual Maintenance Amount should be numeric';
+        if (isNaN(vehicle.vehicle_maintanance)) errors.vehicle_maintanance = 'Maintenance Amount should be numeric';
         if (isNaN(vehicle.monthly_expenses)) errors.monthly_expenses = 'Monthly Expenses should be numeric';
         if (isNaN(vehicle.scrap_value)) errors.scrap_value = 'Scrap Value should be numeric';
         if (isNaN(vehicle.depreciation_rate)) errors.depreciation_rate = 'Depreciation Rate should be numeric';
@@ -502,7 +502,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Maintenance Amount (Annual)"
+                            label="Maintenance Amount (Monthly)"
                             name="vehicle_maintanance"
                             value={vehicle.vehicle_maintanance}
                             onChange={handleChange}

@@ -10,6 +10,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import SavingsIcon from '@mui/icons-material/Savings'; // New icon for SIPs
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar'; // New icon for EMIs
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'; // New icon for Taxes
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
@@ -24,6 +27,8 @@ import ExpensePersonalLoanForm from '../../components/expensespage/personalloans
 import ExpenseOtherList from '../../components/expensespage/others/ExpenseOtherList';
 import ExpenseOtherForm from '../../components/expensespage/others/ExpenseOtherForm';
 import ExpensesGraph from '../../components/expensespage/ExpensesGraph';
+import EMIList from '../../components/expensespage/emis/EMIList';
+import SIPList from '../../components/expensespage/sips/SIPList';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -37,12 +42,16 @@ const Expenses = () => {
     const creditCardDebtListRef = useRef(null);
     const personalLoanListRef = useRef(null);
     const otherListRef = useRef(null);
+    const emiListRef = useRef(null);
+    const sipListRef = useRef(null);
 
     const [homeCount, setHomeCount] = useState(0);
     const [propertyCount, setPropertyCount] = useState(0);
     const [creditCardDebtCount, setCreditCardDebtCount] = useState(0);
     const [personalLoanCount, setPersonalLoanCount] = useState(0);
     const [otherCount, setOtherCount] = useState(0);
+    const [emiCount, setEMICount] = useState(0);
+    const [sipCount, setSIPCount] = useState(0);
 
     useEffect(() => {
         if (homeListRef.current) {
@@ -59,6 +68,12 @@ const Expenses = () => {
         }
         if (otherListRef.current) {
             setOtherCount(otherListRef.current.getOtherCount());
+        }
+        if (emiListRef.current) {
+            setEMICount(emiListRef.current.getEMICount());
+        }
+        if (sipListRef.current) {
+            setSIPCount(sipListRef.current.getSIPCount());
         }
     }, []);
 
@@ -132,6 +147,12 @@ const Expenses = () => {
     };
     const handleOthersFetched = (count) => {
         setOtherCount(count);
+    };
+    const handleEMIsFetched = (count) => {
+        setEMICount(count);
+    };
+    const handleSIPsFetched = (count) => {
+        setSIPCount(count);
     };
 
     const today = new Date().toLocaleDateString('en-GB', {
@@ -254,6 +275,52 @@ const Expenses = () => {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} />
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <DirectionsCarIcon sx={{ mr: 1, color: 'blue' }} /> {/* Updated color */}
+                                        Current EMI's - Property/Vehicle ({emiCount})
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <EMIList ref={emiListRef} onEMIsFetched={handleEMIsFetched} />
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <SavingsIcon sx={{ mr: 1, color: 'purple' }} /> {/* Updated color */}
+                                        Current SIP's - Investment Portfolios ({sipCount})
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <SIPList ref={sipListRef} onSIPsFetched={handleSIPsFetched} />
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, bgcolor: 'lightgrey' }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <AccountBalanceIcon sx={{ mr: 1, color: 'orange' }} /> {/* Updated color */}
+                                        Taxes - Income Tax, Property Tax
+                                        {/* ({otherCount}) */}
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    {/* <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} /> */}
                                 </AccordionDetails>
                             </Accordion>
                         </Box>
