@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material'; // Import Switch and FormControlLabel
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -21,7 +21,7 @@ import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPropertyList = forwardRef((props, ref) => {
     const { onPropertiesFetched, listAction } = props; // Destructure the new prop
-    
+
     const [successMessage, setSuccessMessage] = useState('');
     const [properties, setProperties] = useState([]);
     const [propertiesFetched, setPropertiesFetched] = useState(false); // State to track if properties are fetched
@@ -34,38 +34,45 @@ const AssetPropertyList = forwardRef((props, ref) => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for Delete Dialog
     const [propertyToDelete, setPropertyToDelete] = useState(null); // State for property to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'property_name', sort: 'asc' }]); // Initialize with default sorting
+    const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch
+    const [originalProperties, setOriginalProperties] = useState([]); // State to store original properties
 
     const fetchProperties = async () => {
         try {
             const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            
-            let filteredProperties = [];
-            // check where we are coming from and what filter to apply on the list
-            if (listAction === 'Asset') {
-                // filter and show only those properties that have a past purchase_date and future sell_date
-                const today = new Date();
-                filteredProperties = response.data.filter(property => new Date(property.purchase_date) <= today && (!property.is_plan_to_sell || new Date(property.sale_date) >= today));
-            }
-            else if (listAction === 'Dream') {
-                // filter and show only those properties that have a future purchase_date
-                const today = new Date();
-                filteredProperties = response.data.filter(property => new Date(property.purchase_date) > today);
-            }
-            else filteredProperties = response.data;
-            setProperties(filteredProperties);
-            setPropertiesFetched(true); // Set propertiesFetched to true after fetching
-            if (onPropertiesFetched) {
-                onPropertiesFetched(filteredProperties.length); // Notify parent component
-            }
+            setOriginalProperties(response.data); // Save the original properties
+            filterProperties(response.data); // Filter properties based on the switch state
         } catch (error) {
             console.error('Error fetching properties:', error);
         }
     };
 
+    const filterProperties = (propertiesList) => {
+        let filteredProperties = [];
+        const today = new Date();
+        if (listAction === 'Asset' && !includePastProperties) {
+            filteredProperties = propertiesList.filter(property => new Date(property.purchase_date) <= today && (!property.is_plan_to_sell || new Date(property.sale_date) >= today));
+        } else if (listAction === 'Asset' && includePastProperties) {
+            filteredProperties = propertiesList.filter(property => new Date(property.purchase_date) <= today);
+        } else if (listAction === 'Dream') {
+            filteredProperties = propertiesList.filter(property => new Date(property.purchase_date) > today);
+        } else
+            filteredProperties = propertiesList;
+
+        setProperties(filteredProperties);
+        setPropertiesFetched(true); // Set propertiesFetched to true after filtering
+        if (onPropertiesFetched) {
+            onPropertiesFetched(filteredProperties.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchProperties();
-        
-    }, [currentUserId, listAction]);
+    }, [currentUserId, listAction]); // Fetch properties on component mount and when currentUserId or listAction changes
+
+    useEffect(() => {
+        filterProperties(originalProperties); // Filter properties when includePastProperties changes
+    }, [includePastProperties]); // Include Past Properties to properties/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -158,32 +165,42 @@ const AssetPropertyList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'property_name', headerName: 'Property Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
-        { field: 'property_type', headerName: 'Property Type', width: 130, headerClassName: 'header-theme', renderCell: (params) => (
-            <div>
-                {getPropertyIcon(params.value)}
-                {params.value}
-            </div>
-        )},
-        { field: 'location', headerName: 'Property Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
-            const countryCode = params.value;
-            const country = CountryList.filter(e => e.code === countryCode);
-            if (country.length > 0) return country[0].name;
-            else return params.value
-        }},
+        {
+            field: 'property_name', headerName: 'Property Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
+                <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                    {params.value}
+                </a>
+            )
+        },
+        {
+            field: 'property_type', headerName: 'Property Type', width: 130, headerClassName: 'header-theme', renderCell: (params) => (
+                <div>
+                    {getPropertyIcon(params.value)}
+                    {params.value}
+                </div>
+            )
+        },
+        {
+            field: 'location', headerName: 'Property Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+                const countryCode = params.value;
+                const country = CountryList.filter(e => e.code === countryCode);
+                if (country.length > 0) return country[0].name;
+                else return params.value
+            }
+        },
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'purchase_date', headerName: 'Date', width: 100, headerClassName: 'header-theme' },
-        { field: 'purchase_price', headerName: 'Price', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.purchase_price);
-         }},
+        {
+            field: 'purchase_price', headerName: 'Price', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.purchase_price);
+            }
+        },
         { field: 'is_funded_by_loan', headerName: 'Loan?', width: 50, headerClassName: 'header-theme', type: 'boolean' },
-        { field: 'loan_amount', headerName: 'Loan Amount', width: 130, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.loan_amount);
-         }},
+        {
+            field: 'loan_amount', headerName: 'Loan Amount', width: 130, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.loan_amount);
+            }
+        },
         {
             field: 'actions',
             headerName: 'Actions',
@@ -223,6 +240,14 @@ const AssetPropertyList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            {listAction === 'Asset' && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                    <FormControlLabel
+                        control={<Switch checked={includePastProperties} onChange={() => setIncludePastProperties(!includePastProperties)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                        label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Properties</span>}
+                    />
+                </div>
+            )}
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
@@ -232,11 +257,11 @@ const AssetPropertyList = forwardRef((props, ref) => {
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {
-                      paginationModel: {
-                        pageSize: 5,
-                      },
+                        paginationModel: {
+                            pageSize: 5,
+                        },
                     },
-                  }}
+                }}
                 pageSizeOptions={[5]}
                 sx={{
                     height: 375, // Adjust this value to fit exactly for 5 rows
@@ -257,13 +282,13 @@ const AssetPropertyList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedProperty && <AssetPropertyForm property={selectedProperty} action={action} onClose={handleFormModalClose} refreshPropertyList={refreshPropertyList}/>} {/* Pass action to form */}
-                    <IconButton 
-                        onClick={handleFormModalClose} 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 24, 
+                    {selectedProperty && <AssetPropertyForm property={selectedProperty} action={action} onClose={handleFormModalClose} refreshPropertyList={refreshPropertyList} />} {/* Pass action to form */}
+                    <IconButton
+                        onClick={handleFormModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
                             border: '1px solid', // Added border
                             borderColor: 'grey.500' // Optional: specify border color
                         }}

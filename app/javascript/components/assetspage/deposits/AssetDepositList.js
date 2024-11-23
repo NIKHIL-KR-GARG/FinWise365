@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -14,7 +14,7 @@ import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetDepositList = forwardRef((props, ref) => {
     const { onDepositsFetched } = props; // Destructure the new prop
-    
+
     const [successMessage, setSuccessMessage] = useState('');
     const [deposits, setDeposits] = useState([]);
     const [depositsFetched, setDepositsFetched] = useState(false); // State to track if deposits are fetched
@@ -28,27 +28,40 @@ const AssetDepositList = forwardRef((props, ref) => {
     const [depositToDelete, setDepositToDelete] = useState(null); // State for deposit to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'deposit_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastDeposits, setIncludePastDeposits] = useState(false); // State for switch
+    const [originalDeposits, setOriginalDeposits] = useState([]); // State to store original deposits
+
     const fetchDeposits = async () => {
         try {
             const response = await axios.get(`/api/asset_deposits?user_id=${currentUserId}`);
-            
-             // filter on deposits where maturity date is greater than current date
-            const filteredDeposits = response.data.filter(deposit => (!deposit.maturity_date || new Date(deposit.maturity_date) > new Date()));
-
-            setDeposits(filteredDeposits);
-            setDepositsFetched(true); // Set depositsFetched to true after fetching
-            if (onDepositsFetched) {
-                onDepositsFetched(filteredDeposits.length); // Notify parent component
-            }
+            setOriginalDeposits(response.data); // Save the original deposits
+            filterDeposits(response.data); // Filter deposits based on the switch state
         } catch (error) {
             console.error('Error fetching deposits:', error);
         }
     };
 
+    const filterDeposits = (depositsList) => {
+        let filteredDeposits = [];
+        if (!includePastDeposits)
+            filteredDeposits = depositsList.filter(deposit => (!deposit.maturity_date || new Date(deposit.maturity_date) > new Date()));
+        else
+            filteredDeposits = depositsList;
+
+        setDeposits(filteredDeposits);
+        setDepositsFetched(true); // Set depositsFetched to true after filtering
+        if (onDepositsFetched) {
+            onDepositsFetched(filteredDeposits.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchDeposits();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterDeposits(originalDeposits); // Filter deposits when includePastDeposits changes
+    }, [includePastDeposits]); // Include Past Deposits to deposit/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -122,24 +135,30 @@ const AssetDepositList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'deposit_name', headerName: 'Deposit Name', width: 140, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
+        {
+            field: 'deposit_name', headerName: 'Deposit Name', width: 140, headerClassName: 'header-theme', renderCell: (params) => (
+                <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                    {params.value}
+                </a>
+            )
+        },
         { field: 'institution_name', headerName: 'Institution', width: 140, headerClassName: 'header-theme' },
         { field: 'deposit_type', headerName: 'Type', width: 125, headerClassName: 'header-theme' },
-        { field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
-            const countryCode = params.value;
-            const country = CountryList.filter(e => e.code === countryCode);
-            if (country.length > 0) return country[0].name;
-            else return params.value
-        }},
+        {
+            field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
+                const countryCode = params.value;
+                const country = CountryList.filter(e => e.code === countryCode);
+                if (country.length > 0) return country[0].name;
+                else return params.value
+            }
+        },
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'opening_date', headerName: 'Opening Date', width: 115, headerClassName: 'header-theme' },
-        { field: 'amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.amount);
-         }},
+        {
+            field: 'amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.amount);
+            }
+        },
         { field: 'deposit_term', headerName: 'Term (months)', width: 100, headerClassName: 'header-theme' },
         {
             field: 'actions',
@@ -179,6 +198,12 @@ const AssetDepositList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastDeposits} onChange={() => setIncludePastDeposits(!includePastDeposits)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Deposits</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
@@ -188,11 +213,11 @@ const AssetDepositList = forwardRef((props, ref) => {
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {
-                      paginationModel: {
-                        pageSize: 5,
-                      },
+                        paginationModel: {
+                            pageSize: 5,
+                        },
                     },
-                  }}
+                }}
                 pageSizeOptions={[5]}
                 sx={{
                     height: 375, // Adjust this value to fit exactly for 5 rows
@@ -213,13 +238,13 @@ const AssetDepositList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedDeposit && <AssetDepositForm deposit={selectedDeposit} action={action} onClose={handleFormModalClose} refreshDepositList={refreshDepositList}/>} {/* Pass action to form */}
-                    <IconButton 
-                        onClick={handleFormModalClose} 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 24, 
+                    {selectedDeposit && <AssetDepositForm deposit={selectedDeposit} action={action} onClose={handleFormModalClose} refreshDepositList={refreshDepositList} />} {/* Pass action to form */}
+                    <IconButton
+                        onClick={handleFormModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
                             border: '1px solid', // Added border
                             borderColor: 'grey.500' // Optional: specify border color
                         }}

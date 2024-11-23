@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -14,7 +14,7 @@ import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPortfolioList = forwardRef((props, ref) => {
     const { onPortfoliosFetched } = props; // Destructure the new prop
-    
+
     const [successMessage, setSuccessMessage] = useState('');
     const [portfolios, setPortfolios] = useState([]);
     const [portfoliosFetched, setPortfoliosFetched] = useState(false); // State to track if portfolios are fetched
@@ -28,34 +28,46 @@ const AssetPortfolioList = forwardRef((props, ref) => {
     const [portfolioToDelete, setPortfolioToDelete] = useState(null); // State for portfolio to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'portfolio_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastPortfolios, setIncludePastPortfolios] = useState(false); // State for switch
+    const [originalPortfolios, setOriginalPortfolios] = useState([]); // State to store original portfolios
+
     const fetchPortfolios = async () => {
         try {
             const response = await axios.get(`/api/asset_portfolios?user_id=${currentUserId}`);
-
-            // filter out the portfolios that have sale date before today
-            const today = new Date();
-            const filteredPortfolios = response.data.filter(portfolio => {
-                if (portfolio.is_plan_to_sell) {
-                    const saleDate = new Date(portfolio.sale_date);
-                    return saleDate >= today;
-                }
-                return true;
-            });
-
-            setPortfolios(filteredPortfolios);
-            setPortfoliosFetched(true); // Set portfoliosFetched to true after fetching
-            if (onPortfoliosFetched) {
-                onPortfoliosFetched(filteredPortfolios.length); // Notify parent component
-            }
+            setOriginalPortfolios(response.data); // Store original portfolios
+            filterPortfolios(response.data); // Filter portfolios based on switch            
         } catch (error) {
             console.error('Error fetching portfolios:', error);
         }
     };
 
+    const filterPortfolios = (portfoliosList) => {
+        let filteredPortfolios = [];
+        if (!includePastPortfolios)
+            filteredPortfolios = portfoliosList.filter(portfolio => {
+                if (portfolio.is_plan_to_sell) {
+                    const saleDate = new Date(portfolio.sale_date);
+                    return saleDate >= new Date();
+                }
+                return true;
+            });
+        else
+            filteredPortfolios = portfoliosList;
+
+        setPortfolios(filteredPortfolios);
+        setPortfoliosFetched(true); // Set portfoliosFetched to true after filtering
+        if (onPortfoliosFetched) {
+            onPortfoliosFetched(filteredPortfolios.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchPortfolios();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterPortfolios(originalPortfolios); // Filter portfolios when includePastPortfolios changes
+    }, [includePastPortfolios]); // include Past Portfolios to portfolio/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -73,7 +85,7 @@ const AssetPortfolioList = forwardRef((props, ref) => {
             //delete the portfolio
             await axios.delete(`/api/asset_portfolios/${portfolioToDelete.id}`);
             setPortfolios(prevPortfolios => prevPortfolios.filter(p => p.id !== portfolioToDelete.id));
-            
+
             //delete portfolio details as well
             await axios.delete(`/api/asset_portfolio_details/delete_by_portfolio_id/${portfolioToDelete.id}`);
 
@@ -134,24 +146,30 @@ const AssetPortfolioList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'portfolio_name', headerName: 'Portfolio Name', width: 140, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
+        {
+            field: 'portfolio_name', headerName: 'Portfolio Name', width: 140, headerClassName: 'header-theme', renderCell: (params) => (
+                <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                    {params.value}
+                </a>
+            )
+        },
         { field: 'institution_name', headerName: 'Institution', width: 140, headerClassName: 'header-theme' },
         { field: 'portfolio_type', headerName: 'Type', width: 100, headerClassName: 'header-theme' },
-        { field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
-            const countryCode = params.value;
-            const country = CountryList.filter(e => e.code === countryCode);
-            if (country.length > 0) return country[0].name;
-            else return params.value
-        }},
+        {
+            field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
+                const countryCode = params.value;
+                const country = CountryList.filter(e => e.code === countryCode);
+                if (country.length > 0) return country[0].name;
+                else return params.value
+            }
+        },
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'buying_date', headerName: 'Date Bought', width: 115, headerClassName: 'header-theme' },
-        { field: 'buying_value', headerName: 'Buying Value', width: 125, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.buying_value);
-         }},
+        {
+            field: 'buying_value', headerName: 'Buying Value', width: 125, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.buying_value);
+            }
+        },
         { field: 'is_sip', headerName: 'Is SIP', width: 100, headerClassName: 'header-theme', type: 'boolean' },
         {
             field: 'actions',
@@ -192,6 +210,12 @@ const AssetPortfolioList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastPortfolios} onChange={() => setIncludePastPortfolios(!includePastPortfolios)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Portfolios</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
@@ -201,11 +225,11 @@ const AssetPortfolioList = forwardRef((props, ref) => {
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {
-                      paginationModel: {
-                        pageSize: 5,
-                      },
+                        paginationModel: {
+                            pageSize: 5,
+                        },
                     },
-                  }}
+                }}
                 pageSizeOptions={[5]}
                 sx={{
                     height: 375, // Adjust this value to fit exactly for 5 rows
@@ -226,13 +250,13 @@ const AssetPortfolioList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedPortfolio && <AssetPortfolioForm portfolio={selectedPortfolio} action={action} onClose={handleFormModalClose} refreshPortfolioList={refreshPortfolioList}/>} {/* Pass action to form */}
-                    <IconButton 
-                        onClick={handleFormModalClose} 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 24, 
+                    {selectedPortfolio && <AssetPortfolioForm portfolio={selectedPortfolio} action={action} onClose={handleFormModalClose} refreshPortfolioList={refreshPortfolioList} />} {/* Pass action to form */}
+                    <IconButton
+                        onClick={handleFormModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
                             border: '1px solid', // Added border
                             borderColor: 'grey.500' // Optional: specify border color
                         }}

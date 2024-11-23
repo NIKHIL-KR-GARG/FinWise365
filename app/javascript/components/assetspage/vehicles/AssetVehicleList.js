@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar'; // Car icon
 import TwoWheelerIcon from '@mui/icons-material/TwoWheeler'; // Bike icon
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // Commercial vehicle icon
@@ -18,7 +18,7 @@ import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetVehicleList = forwardRef((props, ref) => {
     const { onVehiclesFetched, listAction } = props; // Destructure the new prop
-    
+
     const [successMessage, setSuccessMessage] = useState('');
     const [vehicles, setVehicles] = useState([]);
     const [vehiclesFetched, setVehiclesFetched] = useState(false); // State to track if vehicles are fetched
@@ -32,37 +32,45 @@ const AssetVehicleList = forwardRef((props, ref) => {
     const [vehicleToDelete, setVehicleToDelete] = useState(null); // State for vehicle to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'vehicle_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastVehicles, setIncludePastVehicles] = useState(false); // State for switch
+    const [originalVehicles, setOriginalVehicles] = useState([]); // State to store original vehicles
+
     const fetchVehicles = async () => {
         try {
             const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
-            
-            let filteredVehicles = [];
-            // check where we are coming from and what filter to apply on the list
-            if (listAction === 'Asset') {
-                // filter and show only those vehicles that have a past purchase_date and future sell_date
-                const today = new Date();
-                filteredVehicles = response.data.filter(vehicle => new Date(vehicle.purchase_date) <= today && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= today));
-            }
-            else if (listAction === 'Dream') {
-                // filter and show only those vehicles that have a future purchase_date
-                const today = new Date();
-                filteredVehicles = response.data.filter(vehicle => new Date(vehicle.purchase_date) > today);
-            }
-            else filteredVehicles = response.data;
-            setVehicles(filteredVehicles);
-            setVehiclesFetched(true); // Set vehiclesFetched to true after fetching
-            if (onVehiclesFetched) {
-                onVehiclesFetched(filteredVehicles.length); // Notify parent component
-            }
+            setOriginalVehicles(response.data); // Save the original vehicles
+            filterVehicles(response.data); // Filter properties based on the switch state
         } catch (error) {
             console.error('Error fetching vehicles:', error);
         }
     };
 
+    const filterVehicles = (vehiclesList) => {
+        let filteredVehicles = [];
+        const today = new Date();
+        if (listAction === 'Asset' && !includePastVehicles) {
+            filteredVehicles = vehiclesList.filter(vehicle => new Date(vehicle.purchase_date) <= today && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= today));
+        } else if (listAction === 'Asset' && includePastVehicles) {
+            filteredVehicles = vehiclesList.filter(vehicle => new Date(vehicle.purchase_date) <= today);
+        } else if (listAction === 'Dream') {
+            filteredVehicles = vehiclesList.filter(vehicle => new Date(vehicle.purchase_date) > today);
+        } else
+            filteredVehicles = vehiclesList;
+
+        setVehicles(filteredVehicles);
+        setVehiclesFetched(true); // Set vehiclesFetched to true after filtering
+        if (onVehiclesFetched) {
+            onVehiclesFetched(filteredVehicles.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchVehicles();
-        
     }, [currentUserId, listAction]);
+
+    useEffect(() => {
+        filterVehicles(originalVehicles); // Filter vehicles when includePastVehicles changes
+    }, [includePastVehicles]); // Include Past Vehicles to vehicles/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -151,32 +159,42 @@ const AssetVehicleList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'vehicle_name', headerName: 'Vehicle Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
-        { field: 'vehicle_type', headerName: 'Vehicle Type', width: 130, headerClassName: 'header-theme', renderCell: (params) => (
-            <div>
-                {getVehicleIcon(params.value)}
-                {params.value}
-            </div>
-        )},
-        { field: 'location', headerName: 'Vehicle Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
-            const countryCode = params.value;
-            const country = CountryList.filter(e => e.code === countryCode);
-            if (country.length > 0) return country[0].name;
-            else return params.value
-        }},
+        {
+            field: 'vehicle_name', headerName: 'Vehicle Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
+                <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                    {params.value}
+                </a>
+            )
+        },
+        {
+            field: 'vehicle_type', headerName: 'Vehicle Type', width: 130, headerClassName: 'header-theme', renderCell: (params) => (
+                <div>
+                    {getVehicleIcon(params.value)}
+                    {params.value}
+                </div>
+            )
+        },
+        {
+            field: 'location', headerName: 'Vehicle Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+                const countryCode = params.value;
+                const country = CountryList.filter(e => e.code === countryCode);
+                if (country.length > 0) return country[0].name;
+                else return params.value
+            }
+        },
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'purchase_date', headerName: 'Date', width: 100, headerClassName: 'header-theme' },
-        { field: 'purchase_price', headerName: 'Price', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.purchase_price);
-         }},
+        {
+            field: 'purchase_price', headerName: 'Price', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.purchase_price);
+            }
+        },
         { field: 'is_funded_by_loan', headerName: 'Loan?', width: 75, headerClassName: 'header-theme', type: 'boolean' },
-        { field: 'loan_amount', headerName: 'Loan Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.loan_amount);
-         }},
+        {
+            field: 'loan_amount', headerName: 'Loan Amount', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.loan_amount);
+            }
+        },
         {
             field: 'actions',
             headerName: 'Actions',
@@ -216,6 +234,14 @@ const AssetVehicleList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            {listAction === 'Asset' && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                    <FormControlLabel
+                        control={<Switch checked={includePastVehicles} onChange={() => setIncludePastVehicles(!includePastVehicles)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                        label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Vehicles</span>}
+                    />
+                </div>
+            )}
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
@@ -225,11 +251,11 @@ const AssetVehicleList = forwardRef((props, ref) => {
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {
-                      paginationModel: {
-                        pageSize: 5,
-                      },
+                        paginationModel: {
+                            pageSize: 5,
+                        },
                     },
-                  }}
+                }}
                 pageSizeOptions={[5]}
                 sx={{
                     height: 375, // Adjust this value to fit exactly for 5 rows
@@ -250,13 +276,13 @@ const AssetVehicleList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedVehicle && <AssetVehicleForm vehicle={selectedVehicle} action={action} onClose={handleFormModalClose} refreshVehicleList={refreshVehicleList}/>} {/* Pass action to form */}
-                    <IconButton 
-                        onClick={handleFormModalClose} 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 24, 
+                    {selectedVehicle && <AssetVehicleForm vehicle={selectedVehicle} action={action} onClose={handleFormModalClose} refreshVehicleList={refreshVehicleList} />} {/* Pass action to form */}
+                    <IconButton
+                        onClick={handleFormModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
                             border: '1px solid', // Added border
                             borderColor: 'grey.500' // Optional: specify border color
                         }}

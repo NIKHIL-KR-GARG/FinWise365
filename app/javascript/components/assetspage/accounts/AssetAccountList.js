@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -14,7 +14,7 @@ import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetAccountList = forwardRef((props, ref) => {
     const { onAccountsFetched } = props; // Destructure the new prop
-    
+
     const [successMessage, setSuccessMessage] = useState('');
     const [accounts, setAccounts] = useState([]);
     const [accountsFetched, setAccountsFetched] = useState(false); // State to track if accounts are fetched
@@ -28,26 +28,40 @@ const AssetAccountList = forwardRef((props, ref) => {
     const [accountToDelete, setAccountToDelete] = useState(null); // State for account to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'account_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastAccounts, setIncludePastAccounts] = useState(false); // State for switch
+    const [originalAccounts, setOriginalAccounts] = useState([]); // State to store original accounts
+
     const fetchAccounts = async () => {
         try {
             const response = await axios.get(`/api/asset_accounts?user_id=${currentUserId}`);
-
-            // filter on accounts where either the closing date is null or the closing date is in the future
-            const filteredAccounts = response.data.filter(account => (!account.is_plan_to_close || new Date(account.closing_date) > new Date()));
-            setAccounts(filteredAccounts);
-            setAccountsFetched(true); // Set accountsFetched to true after fetching
-            if (onAccountsFetched) {
-                onAccountsFetched(filteredAccounts.length); // Notify parent component
-            }
+            setOriginalAccounts(response.data); // Store original accounts
+            filterAccounts(response.data); // Filter accounts based on switch
         } catch (error) {
             console.error('Error fetching accounts:', error);
         }
     };
 
+    const filterAccounts = (accountsList) => {
+        let filteredAccounts = [];
+        if (!includePastAccounts)
+            filteredAccounts = accountsList.filter(account => (!account.is_plan_to_close || new Date(account.closing_date) > new Date()));
+        else
+            filteredAccounts = accountsList;
+
+        setAccounts(filteredAccounts);
+        setAccountsFetched(true); // Set accountsFetched to true after filtering
+        if (onAccountsFetched) {
+            onAccountsFetched(filteredAccounts.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchAccounts();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterAccounts(originalAccounts); // Filter accounts when includePastAccounts changes
+    }, [includePastAccounts]); // Include Past Accounts to account/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -121,24 +135,30 @@ const AssetAccountList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'account_name', headerName: 'Account Name', width: 150, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
+        {
+            field: 'account_name', headerName: 'Account Name', width: 150, headerClassName: 'header-theme', renderCell: (params) => (
+                <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                    {params.value}
+                </a>
+            )
+        },
         { field: 'institution_name', headerName: 'Institution', width: 150, headerClassName: 'header-theme' },
         { field: 'account_type', headerName: 'Account Type', width: 125, headerClassName: 'header-theme' },
-        { field: 'location', headerName: 'Account Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
-            const countryCode = params.value;
-            const country = CountryList.filter(e => e.code === countryCode);
-            if (country.length > 0) return country[0].name;
-            else return params.value
-        }},
+        {
+            field: 'location', headerName: 'Account Location', width: 135, headerClassName: 'header-theme', renderCell: (params) => {
+                const countryCode = params.value;
+                const country = CountryList.filter(e => e.code === countryCode);
+                if (country.length > 0) return country[0].name;
+                else return params.value
+            }
+        },
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'opening_date', headerName: 'Opening Date', width: 125, headerClassName: 'header-theme' },
-        { field: 'account_balance', headerName: 'Account Balance', width: 115, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.account_balance);
-         }},
+        {
+            field: 'account_balance', headerName: 'Account Balance', width: 115, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.account_balance);
+            }
+        },
         {
             field: 'actions',
             headerName: 'Actions',
@@ -178,6 +198,12 @@ const AssetAccountList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastAccounts} onChange={() => setIncludePastAccounts(!includePastAccounts)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Accounts</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
@@ -187,11 +213,11 @@ const AssetAccountList = forwardRef((props, ref) => {
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {
-                      paginationModel: {
-                        pageSize: 5,
-                      },
+                        paginationModel: {
+                            pageSize: 5,
+                        },
                     },
-                  }}
+                }}
                 pageSizeOptions={[5]}
                 sx={{
                     height: 375, // Adjust this value to fit exactly for 5 rows
@@ -212,13 +238,13 @@ const AssetAccountList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedAccount && <AssetAccountForm account={selectedAccount} action={action} onClose={handleFormModalClose} refreshAccountList={refreshAccountList}/>} {/* Pass action to form */}
-                    <IconButton 
-                        onClick={handleFormModalClose} 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 24, 
+                    {selectedAccount && <AssetAccountForm account={selectedAccount} action={action} onClose={handleFormModalClose} refreshAccountList={refreshAccountList} />} {/* Pass action to form */}
+                    <IconButton
+                        onClick={handleFormModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
                             border: '1px solid', // Added border
                             borderColor: 'grey.500' // Optional: specify border color
                         }}

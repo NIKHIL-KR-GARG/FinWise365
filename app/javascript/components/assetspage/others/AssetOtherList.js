@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -14,7 +14,7 @@ import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetOtherList = forwardRef((props, ref) => {
     const { onOthersFetched } = props; // Destructure the new prop
-    
+
     const [successMessage, setSuccessMessage] = useState('');
     const [others, setOthers] = useState([]);
     const [othersFetched, setOthersFetched] = useState(false); // State to track if others are fetched
@@ -28,33 +28,47 @@ const AssetOtherList = forwardRef((props, ref) => {
     const [otherToDelete, setOtherToDelete] = useState(null); // State for other to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'other_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch
+    const [originalOthers, setOriginalOthers] = useState([]); // State to store original others
+
     const fetchOthers = async () => {
         try {
             const response = await axios.get(`/api/asset_others?user_id=${currentUserId}`);
-
-            // filter on others where payout_date + payout_duration (months) is greater than today
-            const today = new Date();
-            const filteredOthers = response.data.filter(other => {
-                const payoutDate = new Date(other.payout_date);
-                const payoutDuration = parseInt(other.payout_duration);
-                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));    
-                return payoutEndDate > today;
-            });
-
-            setOthers(filteredOthers);
-            setOthersFetched(true); // Set othersFetched to true after fetching
-            if (onOthersFetched) {
-                onOthersFetched(filteredOthers.length); // Notify parent component
-            }
+            setOriginalOthers(response.data); // Store original others
+            filterOthers(response.data); // Filter others based on switch
         } catch (error) {
             console.error('Error fetching others:', error);
         }
     };
 
+    const filterOthers = (othersList) => {
+        let filteredOthers = [];
+        // filter on others where payout_date + payout_duration (months) is greater than today
+        const today = new Date();
+        if (!includePastOthers)
+            filteredOthers = othersList.filter(other => {
+                const payoutDate = new Date(other.payout_date);
+                const payoutDuration = parseInt(other.payout_duration);
+                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));
+                return payoutEndDate > today;
+            });
+        else
+            filteredOthers = othersList;
+
+        setOthers(filteredOthers);
+        setOthersFetched(true); // Set othersFetched to true after filtering
+        if (onOthersFetched) {
+            onOthersFetched(filteredOthers.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchOthers();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterOthers(originalOthers); // Filter others when includePastOthers changes
+    }, [includePastOthers]); // Include Past Others to other/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -128,23 +142,29 @@ const AssetOtherList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'asset_name', headerName: 'Asset Name', width: 140, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
+        {
+            field: 'asset_name', headerName: 'Asset Name', width: 140, headerClassName: 'header-theme', renderCell: (params) => (
+                <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                    {params.value}
+                </a>
+            )
+        },
         { field: 'institution_name', headerName: 'Institution', width: 140, headerClassName: 'header-theme' },
-        { field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
-            const countryCode = params.value;
-            const country = CountryList.filter(e => e.code === countryCode);
-            if (country.length > 0) return country[0].name;
-            else return params.value
-        }},
+        {
+            field: 'location', headerName: 'Location', width: 120, headerClassName: 'header-theme', renderCell: (params) => {
+                const countryCode = params.value;
+                const country = CountryList.filter(e => e.code === countryCode);
+                if (country.length > 0) return country[0].name;
+                else return params.value
+            }
+        },
         { field: 'currency', headerName: 'Currency', width: 75, headerClassName: 'header-theme' },
         { field: 'start_date', headerName: 'Start Date', width: 115, headerClassName: 'header-theme' },
-        { field: 'lumpsum_amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.lumpsum_amount);
-         }},
+        {
+            field: 'lumpsum_amount', headerName: 'Amount', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
+                return FormatCurrency(params.row.currency, params.row.lumpsum_amount);
+            }
+        },
         { field: 'payout_type', headerName: 'Payout Type', width: 100, headerClassName: 'header-theme' },
         {
             field: 'actions',
@@ -184,6 +204,12 @@ const AssetOtherList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastOthers} onChange={() => setIncludePastOthers(!includePastOthers)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Other Assets</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
@@ -193,11 +219,11 @@ const AssetOtherList = forwardRef((props, ref) => {
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {
-                      paginationModel: {
-                        pageSize: 5,
-                      },
+                        paginationModel: {
+                            pageSize: 5,
+                        },
                     },
-                  }}
+                }}
                 pageSizeOptions={[5]}
                 sx={{
                     height: 375, // Adjust this value to fit exactly for 5 rows
@@ -218,13 +244,13 @@ const AssetOtherList = forwardRef((props, ref) => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                    {selectedOther && <AssetOtherForm other={selectedOther} action={action} onClose={handleFormModalClose} refreshOtherList={refreshOtherList}/>} {/* Pass action to form */}
-                    <IconButton 
-                        onClick={handleFormModalClose} 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 24, 
+                    {selectedOther && <AssetOtherForm other={selectedOther} action={action} onClose={handleFormModalClose} refreshOtherList={refreshOtherList} />} {/* Pass action to form */}
+                    <IconButton
+                        onClick={handleFormModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
                             border: '1px solid', // Added border
                             borderColor: 'grey.500' // Optional: specify border color
                         }}
