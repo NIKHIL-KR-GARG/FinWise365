@@ -79,6 +79,21 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                 [name]: newValue
             });
         }
+        // if plan to sell is checked, then set the sale date to today's date
+        if (name === 'is_plan_to_sell' && checked) {
+            setVehicle(prevVehicle => ({
+                ...prevVehicle,
+                sale_date: new Date().toISOString().split('T')[0]
+            }));
+        }
+        // if plan to sell is unchecked, then set the sale date to empty
+        else if (name === 'is_plan_to_sell' && !checked) {
+            setVehicle(prevVehicle => ({
+                ...prevVehicle,
+                sale_date: '',
+                sale_amount: 0.0
+            }));
+        }   
     };
 
     useEffect(() => {
@@ -750,7 +765,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             onChange={handleChange}
                                             name="is_plan_to_sell"
                                         />}
-                                    label="I plan to sell this vehicle in the future"
+                                    label="I plan to sell this vehicle"
                                 />
                             )}
                             { (action === 'Sell') && (

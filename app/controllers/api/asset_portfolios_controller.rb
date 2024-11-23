@@ -60,6 +60,8 @@ class Api::AssetPortfoliosController < ApplicationController
             :buying_value,
             :growth_rate,
             :coupon_rate,
+            :coupon_frequency,
+            :maturity_date,
             :is_paying_dividend,
             :dividend_rate,
             :dividend_amount,

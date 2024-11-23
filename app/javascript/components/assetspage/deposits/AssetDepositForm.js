@@ -26,7 +26,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
     const [deposit, setDeposit] = useState(initialDeposit || {
         user_id: 0,
         deposit_name: "",
-        deposit_type: "Fixed Deposit",
+        deposit_type: "Fixed",
         institution_name: "",
         location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
@@ -36,7 +36,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         maturity_date: "",
         interest_rate: 0.0,
         interest_type: "Simple",
-        compounding_frequency: "Annually",
+        compounding_frequency: "",
         payment_frequency: "Monthly",
         payment_amount: 0.0,
         total_interest: 0.0,
@@ -52,15 +52,25 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                 [name]: newValue
             });
         }
-        // Check if deposit type is recurring, then set interest type to compounding
-        if (name === 'deposit_type' && value === 'Recurring') {
-            setDeposit((prevDeposit) => ({
-                ...prevDeposit,
-                interest_type: 'Compounding'
-            }));
+        // Check if deposit type is fixed, then set payment amount and frequency to zero
+        if (name === 'deposit_type') {
+            if (value === 'Fixed') {
+                setDeposit((prevDeposit) => ({
+                    ...prevDeposit,
+                    payment_amount: 0.0,
+                    payment_frequency: 'Monthly'
+                }));
+            }
+            // Check if deposit type is recurring, then set interest type to compounding
+            else {
+                setDeposit((prevDeposit) => ({
+                    ...prevDeposit,
+                    interest_type: 'Compounding'
+                }));
+            }
         }
         // check if deposit term is changed, then calculate maturity date
-        if (name === 'deposit_term') {
+        else if (name === 'deposit_term') {
             const maturityDate = new Date(deposit.opening_date);
             maturityDate.setMonth(maturityDate.getMonth() + parseInt(value));
             setDeposit((prevDeposit) => ({
@@ -384,6 +394,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                             value={deposit.amount}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.amount}
                             helperText={errors.amount}
@@ -397,6 +408,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                             value={deposit.deposit_term}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*' } }}
                             error={!!errors.deposit_term}
                             helperText={errors.deposit_term}
@@ -425,11 +437,47 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                             value={deposit.interest_rate}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.interest_rate}
                             helperText={errors.interest_rate}
                         />
                     </Grid>
+                    {deposit.deposit_type !== 'Fixed' && (
+                        <>
+                            <Grid item size={6}>
+                                <TextField
+                                    select
+                                    variant="standard"
+                                    label="RD Payment Frequency"
+                                    name="payment_frequency"
+                                    value={deposit.payment_frequency}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    required
+                                >
+                                    <MenuItem value="Monthly">Monthly</MenuItem>
+                                    <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                    <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                    <MenuItem value="Annually">Annually</MenuItem>
+                                </TextField>
+                            </Grid>
+                            <Grid item size={6}>
+                                <TextField
+                                    variant="standard"
+                                    label={`${deposit.payment_frequency} Payment Amount`} // Updated label
+                                    name="payment_amount"
+                                    value={deposit.payment_amount}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    required
+                                    slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                    error={!!errors.payment_amount}
+                                    helperText={errors.payment_amount}
+                                />
+                            </Grid>
+                        </>
+                    )}
                     <Grid item size={6}>
                         <FormControl component="fieldset">
                             <FormLabel component="legend">Interest Type</FormLabel>
@@ -456,52 +504,14 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                                 value={deposit.compounding_frequency}
                                 onChange={handleChange}
                                 fullWidth
+                                required
                             >
-                                {/* <MenuItem value="Daily">Daily</MenuItem> */}
-                                {/* <MenuItem value="Weekly">Weekly</MenuItem> */}
-                                {/* <MenuItem value="Fortnightly">Fortnightly</MenuItem> */}
                                 <MenuItem value="Monthly">Monthly</MenuItem>
                                 <MenuItem value="Quarterly">Quarterly</MenuItem>
                                 <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
                                 <MenuItem value="Annually">Annually</MenuItem>
                             </TextField>
                         </Grid>
-                    )}
-                    {deposit.deposit_type !== 'Fixed' && (
-                        <>
-                            <Grid item size={6}>
-                                <TextField
-                                    select
-                                    variant="standard"
-                                    label="RD Payment Frequency"
-                                    name="payment_frequency"
-                                    value={deposit.payment_frequency}
-                                    onChange={handleChange}
-                                    fullWidth
-                                >
-                                    {/* <MenuItem value="Daily">Daily</MenuItem> */}
-                                    {/* <MenuItem value="Weekly">Weekly</MenuItem> */}
-                                    {/* <MenuItem value="Fortnightly">Fortnightly</MenuItem> */}
-                                    <MenuItem value="Monthly">Monthly</MenuItem>
-                                    <MenuItem value="Quarterly">Quarterly</MenuItem>
-                                    <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
-                                    <MenuItem value="Annually">Annually</MenuItem>
-                                </TextField>
-                            </Grid>
-                            <Grid item size={6}>
-                                <TextField
-                                    variant="standard"
-                                    label={`${deposit.payment_frequency} Payment Amount`} // Updated label
-                                    name="payment_amount"
-                                    value={deposit.payment_amount}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                    error={!!errors.payment_amount}
-                                    helperText={errors.payment_amount}
-                                />
-                            </Grid>
-                        </>
                     )}
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, borderRadius: 3, bgcolor: 'lightgray' }}>

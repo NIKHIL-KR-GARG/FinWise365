@@ -95,6 +95,21 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 [name]: newValue
             });
         }
+        // if plan to sell is checked, then set the sale date to current date
+        if (name === 'is_plan_to_sell' && checked) {
+            setProperty(prevProperty => ({
+                ...prevProperty,
+                sale_date: new Date().toISOString().split('T')[0]
+            }));
+        }
+        // if plan to sell is unchecked, then set the sale date to empty
+        else if (name === 'is_plan_to_sell' && !checked) {
+            setProperty(prevProperty => ({
+                ...prevProperty,
+                sale_date: '',
+                sale_amount: 0.0
+            }));
+        }
     };
 
     useEffect(() => {
@@ -1020,7 +1035,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             name="is_plan_to_sell"
                                         />}
-                                    label="I plan to sell this property in the future"
+                                    label="I plan to sell this property"
                                 />
                             )}
                             { (action === 'Sell') && (

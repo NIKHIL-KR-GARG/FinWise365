@@ -11,6 +11,8 @@ class CreateAssetPortfolios < ActiveRecord::Migration[7.2]
       t.float :buying_value
       t.float :growth_rate
       t.float :coupon_rate
+      t.string :coupon_frequency
+      t.date :maturity_date
       t.boolean :is_paying_dividend
       t.float :dividend_rate
       t.float :dividend_amount

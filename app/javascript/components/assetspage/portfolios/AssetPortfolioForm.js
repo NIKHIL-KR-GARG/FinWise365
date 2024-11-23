@@ -38,6 +38,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         buying_value: 0.0,
         growth_rate: 0.0,
         coupon_rate: 0.0,
+        coupon_frequency: "Monthly",
+        maturity_date: "",
         is_paying_dividend: false,
         dividend_rate: 0.0,
         dividend_amount: 0.0,
@@ -110,6 +112,53 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                 }));
             }
         }
+        // if SIP is un-checked, then make sip amount 0 and frequency monthly
+        if (name === 'is_sip' && !checked) {
+            setPortfolio((prevPortfolio) => ({
+                ...prevPortfolio,
+                sip_amount: 0.0,
+                sip_frequency: "Monthly"
+            }));
+        }
+        // if plan to sell is un-checked, then make sale date and value empty
+        if (name === 'is_plan_to_sell' && !checked) {
+            setPortfolio((prevPortfolio) => ({
+                ...prevPortfolio,
+                sale_date: "",
+                sale_value: 0.0
+            }));
+        }
+        // if Dividend is un-checked, then make dividend rate 0 and amount 0
+        if (name === 'is_paying_dividend' && !checked) {
+            setPortfolio((prevPortfolio) => ({
+                ...prevPortfolio,
+                dividend_rate: 0.0,
+                dividend_amount: 0.0,
+                dividend_frequency: "Monthly"
+            }));
+        }
+        if (name === 'dividend_rate') {
+            const dividendAmount = calculateDividendAmount(portfolio.dividend_frequency, value);
+            setPortfolio((prevPortfolio) => ({
+                ...prevPortfolio,
+                dividend_amount: dividendAmount
+            }));
+        }
+        else if (name === 'dividend_frequency') {
+            const dividendAmount = calculateDividendAmount(value, portfolio.dividend_rate);
+            setPortfolio((prevPortfolio) => ({
+                ...prevPortfolio,
+                dividend_amount: dividendAmount
+            }));
+        }
+    };
+
+    const calculateDividendAmount = (frequency, rate) => {
+        let dividendAmount = portfolio.buying_value * (rate / 100);
+        if (frequency === 'Monthly') dividendAmount = dividendAmount / 12;
+        else if (frequency === 'Quarterly') dividendAmount = dividendAmount / 4;
+        else if (frequency === 'Semi-Annually') dividendAmount = dividendAmount / 2;
+        return dividendAmount;
     };
 
     const fetchPortfolioDetails = async () => {
@@ -164,6 +213,14 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
             if (!portfolio.sip_frequency) errors.sip_frequency = 'SIP Frequency is required';
         }
 
+        if (portfolio.portfolio_type === 'Bonds') {
+            if (!portfolio.coupon_rate) errors.coupon_rate = 'Coupon Rate is required';
+            if (!portfolio.coupon_frequency) errors.coupon_frequency = 'Coupon Frequency is required';
+            if (!portfolio.maturity_date) errors.maturity_date = 'Maturity Date is required';
+            // check if maturity date is after buying date
+            if (new Date(portfolio.maturity_date) < new Date(portfolio.buying_date)) errors.maturity_date = 'Maturity Date should be after Buying Date';
+        } 
+
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(portfolio.buying_value)) errors.buying_value = 'Buying Value should be numeric';
         if (isNaN(portfolio.growth_rate)) errors.growth_rate = 'Growth Rate should be numeric';
@@ -172,6 +229,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         if (isNaN(portfolio.dividend_amount)) errors.dividend_amount = 'Dividend Amount should be numeric';
         if (isNaN(portfolio.sale_value)) errors.sale_value = 'Selling Value should be numeric';
         if (isNaN(portfolio.sip_amount)) errors.sip_amount = 'SIP Amount should be numeric';
+        if (isNaN(portfolio.coupon_rate)) errors.coupon_rate = 'Coupon Rate should be numeric';
 
         setErrors(errors);
 
@@ -207,7 +265,10 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
 
     const calculatetTotalInterest = () => {
 
-        if (!portfolio.portfolio_type || !portfolio.buying_date || !portfolio.buying_value || (!portfolio.growth_rate && !portfolio.coupon_rate)) return;
+        if (!portfolio.portfolio_type || !portfolio.buying_date || !portfolio.buying_value) return;
+        if (portfolio.portfolio_type === 'Bonds' && (!portfolio.coupon_rate || !portfolio.maturity_date)) return;
+        if (portfolio.portfolio_type !== 'Bonds' && !portfolio.growth_rate) return;
+        if (portfolio.is_plan_to_sell && (!portfolio.sale_date || !portfolio.sale_value)) return;
 
         // if there is sale date then get no of months between buying and selling
         // else get no of months between buying and current date
@@ -227,39 +288,23 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         }
         else months = (new Date().getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date().getMonth() - new Date(portfolio.buying_date).getMonth();
 
-        if (months > 0) {
-            // calculate the dividend or coupon payment
-            if (portfolio.portfolio_type === 'Bonds') {
+        // calculate the dividend or coupon payment
+        if (portfolio.portfolio_type === 'Bonds') {
 
-                interest = CalculateInterest(
-                    "Fixed",
-                    "Simple",
-                    parseFloat(portfolio.coupon_rate),
-                    parseFloat(portfolio.buying_value),
-                    months,
-                    portfolio.sip_frequency,
-                    parseFloat(portfolio.sip_amount),
-                    "Monthly"
-                )
-                if (portfolio.is_sip && portfolio.sip_amount > 0) {
-                    for (let i = 1; i <= months; i++) {
-                        if (portfolio.sip_frequency === 'Monthly') {
-                            buyPrice += parseFloat(portfolio.sip_amount);
-                        }
-                        else if (portfolio.sip_frequency === 'Quarterly' && i % 3 === 0) {
-                            buyPrice += parseFloat(portfolio.sip_amount);
-                        }
-                        else if (portfolio.sip_frequency === 'Semi-Annually' && i % 6 === 0) {
-                            buyPrice += parseFloat(portfolio.sip_amount);
-                        }
-                        else if (portfolio.sip_frequency === 'Annually' && i % 12 === 0) {
-                            buyPrice += parseFloat(portfolio.sip_amount);
-                        }
-                    }
-                    if (!portfolio.is_plan_to_sell) currentPrice = buyPrice;
-                }
-            }
-            else {
+            const monthsForBond = (new Date(portfolio.maturity_date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date(portfolio.maturity_date).getMonth() - new Date(portfolio.buying_date).getMonth();
+            interest = CalculateInterest(
+                "Fixed",
+                "Simple",
+                parseFloat(portfolio.coupon_rate),
+                parseFloat(portfolio.buying_value),
+                monthsForBond,
+                '', // no SIP frequency for bonds
+                0, // no SIP amount for bonds
+                "Monthly"
+            )
+        }
+        else {
+            if (months > 0) {
                 //calculate the interest as per the growth rate & SIP amount
                 interest = CalculateInterest(
                     "Fixed",
@@ -571,7 +616,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                             helperText={errors.buying_value}
                         />
                     </Grid>
-                    <Grid item size={6}>
+                    <Grid item size={12}>
                         <TextField
                             variant="standard"
                             label="Growth Rate (%)"
@@ -579,27 +624,74 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                             value={portfolio.growth_rate}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.growth_rate}
                             helperText={errors.growth_rate}
                             disabled={portfolio.portfolio_type === 'Bonds'}
                         />
                     </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                            variant="standard"
-                            label="Coupon Rate (%)"
-                            name="coupon_rate"
-                            value={portfolio.coupon_rate}
-                            onChange={handleChange}
-                            fullWidth
-                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.coupon_rate}
-                            helperText={errors.coupon_rate}
-                            disabled={portfolio.portfolio_type !== 'Bonds'}
-                        />
-                    </Grid>
 
+                    {portfolio.portfolio_type === 'Bonds' && (
+                        <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
+                            <Grid container spacing={2}>
+                                <Grid item size={6}>
+                                    <Typography variant="h6" component="h2">
+                                        Bond Details
+                                    </Typography>
+                                </Grid>
+                                <Grid item size={6}>
+                                    <TextField
+                                        variant="standard"
+                                        label="Coupon Rate (%)"
+                                        name="coupon_rate"
+                                        value={portfolio.coupon_rate}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        required
+                                        slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                        error={!!errors.coupon_rate}
+                                        helperText={errors.coupon_rate}
+                                    />
+                                </Grid>
+                                <Grid item size={6}>
+                                    <TextField
+                                        select
+                                        variant="standard"
+                                        label="Coupon Frequency"
+                                        name="coupon_frequency"
+                                        value={portfolio.coupon_frequency}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        required
+                                        error={!!errors.coupon_frequency}
+                                        helperText={errors.coupon_frequency}
+                                    >
+                                        <MenuItem value="Monthly">Monthly</MenuItem>
+                                        <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                        <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                        <MenuItem value="Annually">Annually</MenuItem>
+                                    </TextField>
+                                </Grid>
+                                <Grid item size={6}>
+                                    <TextField
+                                        variant="standard"
+                                        label="Maturity Date"
+                                        name="maturity_date"
+                                        type="date"
+                                        value={portfolio.maturity_date}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        required
+                                        InputLabelProps={{ shrink: true }}
+                                        error={!!errors.maturity_date}
+                                        helperText={errors.maturity_date}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    )}
+                   
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%', display: 'flex', justifyContent: 'center' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
@@ -648,117 +740,125 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                         </Grid>
                     </Box>
 
-                    <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
-                        <Grid container spacing={2}>
-                            <Grid item size={12}>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={portfolio.is_sip}
-                                            onChange={handleChange}
-                                            name="is_sip"
-                                        />}
-                                    label="Is this a SIP?"
-                                />
+                    {portfolio.portfolio_type !== 'Bonds' && (
+                        <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
+                            <Grid container spacing={2}>
+                                <Grid item size={12}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={portfolio.is_sip}
+                                                onChange={handleChange}
+                                                name="is_sip"
+                                            />}
+                                        label="Is this a SIP?"
+                                    />
+                                </Grid>
+                                {portfolio.is_sip && (
+                                    <>
+                                        <Grid item size={6}>
+                                            <TextField
+                                                variant="standard"
+                                                label="SIP Amount"
+                                                name="sip_amount"
+                                                value={portfolio.sip_amount}
+                                                onChange={handleChange}
+                                                fullWidth
+                                                required
+                                                slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                                error={!!errors.sip_amount}
+                                                helperText={errors.sip_amount}
+                                            />
+                                        </Grid>
+                                        <Grid item size={6}>
+                                            <TextField
+                                                select
+                                                variant="standard"
+                                                label="SIP Frequency"
+                                                name="sip_frequency"
+                                                value={portfolio.sip_frequency}
+                                                onChange={handleChange}
+                                                fullWidth
+                                                required
+                                            >
+                                                <MenuItem value="Monthly">Monthly</MenuItem>
+                                                <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                                <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                                <MenuItem value="Annually">Annually</MenuItem>
+                                            </TextField>
+                                        </Grid>
+                                    </>
+                                )}
                             </Grid>
-                            {portfolio.is_sip && (
-                                <>
-                                    <Grid item size={6}>
-                                        <TextField
-                                            variant="standard"
-                                            label="SIP Amount"
-                                            name="sip_amount"
-                                            value={portfolio.sip_amount}
-                                            onChange={handleChange}
-                                            fullWidth
-                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.sip_amount}
-                                            helperText={errors.sip_amount}
-                                        />
-                                    </Grid>
-                                    <Grid item size={6}>
-                                        <TextField
-                                            select
-                                            variant="standard"
-                                            label="SIP Frequency"
-                                            name="sip_frequency"
-                                            value={portfolio.sip_frequency}
-                                            onChange={handleChange}
-                                            fullWidth
-                                        >
-                                            <MenuItem value="Monthly">Monthly</MenuItem>
-                                            <MenuItem value="Quarterly">Quarterly</MenuItem>
-                                            <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
-                                            <MenuItem value="Annually">Annually</MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                </>
-                            )}
-                        </Grid>
-                    </Box>
+                        </Box>
+                    )}
 
-                    <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
-                        <Grid container spacing={2}>
-                            <Grid item size={6}>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={portfolio.is_paying_dividend}
-                                            onChange={handleChange}
-                                            name="is_paying_dividend"
-                                        />}
-                                    label="Is this portfolio paying a dividend?"
-                                />
+                    {portfolio.portfolio_type !== 'Bonds' && (
+                        <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
+                            <Grid container spacing={2}>
+                                <Grid item size={6}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={portfolio.is_paying_dividend}
+                                                onChange={handleChange}
+                                                name="is_paying_dividend"
+                                            />}
+                                        label="Is this portfolio paying a dividend?"
+                                    />
+                                </Grid>
+                                {portfolio.is_paying_dividend && (
+                                    <>
+                                        <Grid item size={6}>
+                                            <TextField
+                                                select
+                                                variant="standard"
+                                                label="Dividend Frequency"
+                                                name="dividend_frequency"
+                                                value={portfolio.dividend_frequency}
+                                                onChange={handleChange}
+                                                fullWidth
+                                                required
+                                            >
+                                                <MenuItem value="Monthly">Monthly</MenuItem>
+                                                <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                                <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                                <MenuItem value="Annually">Annually</MenuItem>
+                                            </TextField>
+                                        </Grid>
+                                        <Grid item size={6}>
+                                            <TextField
+                                                variant="standard"
+                                                label="Dividend Rate (%)"
+                                                name="dividend_rate"
+                                                value={portfolio.dividend_rate}
+                                                onChange={handleChange}
+                                                fullWidth
+                                                required
+                                                slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                                error={!!errors.dividend_rate}
+                                                helperText={errors.dividend_rate}
+                                            />
+                                        </Grid>
+                                        <Grid item size={6}>
+                                            <TextField
+                                                variant="standard"
+                                                label="Dividend Amount"
+                                                name="dividend_amount"
+                                                value={FormatCurrency(portfolio.currency, parseFloat(portfolio.dividend_amount))}
+                                                onChange={handleChange}
+                                                fullWidth
+                                                disabled
+                                                slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                                error={!!errors.dividend_amount}
+                                                helperText={errors.dividend_amount}
+                                            />
+                                        </Grid>
+                                    </>
+                                )}
                             </Grid>
-                            {portfolio.is_paying_dividend && (
-                                <>
-                                    <Grid item size={6}>
-                                        <TextField
-                                            select
-                                            variant="standard"
-                                            label="Dividend Frequency"
-                                            name="dividend_frequency"
-                                            value={portfolio.dividend_frequency}
-                                            onChange={handleChange}
-                                            fullWidth
-                                        >
-                                            <MenuItem value="Monthly">Monthly</MenuItem>
-                                            <MenuItem value="Quarterly">Quarterly</MenuItem>
-                                            <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
-                                            <MenuItem value="Annually">Annually</MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item size={6}>
-                                        <TextField
-                                            variant="standard"
-                                            label="Dividend Rate (%)"
-                                            name="dividend_rate"
-                                            value={portfolio.dividend_rate}
-                                            onChange={handleChange}
-                                            fullWidth
-                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.dividend_rate}
-                                            helperText={errors.dividend_rate}
-                                        />
-                                    </Grid>
-                                    <Grid item size={6}>
-                                        <TextField
-                                            variant="standard"
-                                            label="Dividend Amount"
-                                            name="dividend_amount"
-                                            value={FormatCurrency(portfolio.currency, parseFloat(portfolio.dividend_amount))}
-                                            onChange={handleChange}
-                                            fullWidth
-                                            disabled
-                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                            error={!!errors.dividend_amount}
-                                            helperText={errors.dividend_amount}
-                                        />
-                                    </Grid>
-                                </>
-                            )}
-                        </Grid>
-                    </Box>
+                        </Box>
+                    )}
 
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
@@ -771,7 +871,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                                 onChange={handleChange}
                                                 name="is_plan_to_sell"
                                             />}
-                                        label="I plan to sell this portfolio in the future"
+                                        label="I plan to sell this portfolio"
                                     />
                                 )}
                                 {(action === 'Sell') && (
@@ -797,6 +897,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                             value={portfolio.sale_date}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             InputLabelProps={{ shrink: true }}
                                             error={!!errors.sale_date}
                                             helperText={errors.sale_date}
@@ -810,6 +911,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                             value={portfolio.sale_value}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.sale_value}
                                             helperText={errors.sale_value}
@@ -828,26 +930,39 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                         <img src="/money.png" alt="money" style={{ width: 72, height: 72 }} />
                                     </IconButton>
                                 </Grid>
-                                <Grid item size={10} sx={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <Typography variant="body1" component="h2" gutterBottom>
-                                        You will have invested a total amount of: <strong>{portfolio.currency} {FormatCurrency(portfolio.currency, parseFloat(portfolio.buy_price))} </strong>
-                                        {
-                                            portfolio.profit > 0 && (
-                                                <>
-                                                that is expected to generate a profit of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.profit)} ({portfolio.profit_percentage}%)</strong>
-                                                </>
-                                        )}
-                                        {
-                                            portfolio.loss > 0 && (
-                                                <>
-                                                that has generated a loss of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.loss)} ({portfolio.loss_percentage}%)</strong>
-                                                </>
-                                        )}
-                                    </Typography>
-                                    <Typography variant="body1" component="h2" gutterBottom>
-                                        Overall Value of your portfolio is: <strong style={{ color: 'brown' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.current_value)} </strong>
-                                    </Typography>
-                                </Grid>
+                                {portfolio.portfolio_type !== 'Bonds' && (
+                                    <Grid item size={10} sx={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <Typography variant="body1" component="h2" gutterBottom>
+                                            You will have invested a total amount of: <strong>{portfolio.currency} {FormatCurrency(portfolio.currency, parseFloat(portfolio.buy_price))} </strong>
+                                            {
+                                                portfolio.profit > 0 && (
+                                                    <>
+                                                        that is expected to generate a profit of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.profit)} ({portfolio.profit_percentage}%)</strong>
+                                                    </>
+                                                )}
+                                            {
+                                                portfolio.loss > 0 && (
+                                                    <>
+                                                        that has generated a loss of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.loss)} ({portfolio.loss_percentage}%)</strong>
+                                                    </>
+                                                )}
+                                        </Typography>
+                                        <Typography variant="body1" component="h2" gutterBottom>
+                                            Overall current value based on growth rate & dividend is: <strong style={{ color: 'brown' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.current_value)} </strong>
+                                        </Typography>
+                                    </Grid>
+                                )}
+                                {portfolio.portfolio_type === 'Bonds' && (
+                                    <Grid item size={10} sx={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <Typography variant="body1" component="h2" gutterBottom>
+                                            You have invested a total amount of: <strong>{portfolio.currency} {FormatCurrency(portfolio.currency, parseFloat(portfolio.buy_price))} </strong>
+                                            that is expected to generate an interest of: <strong style={{ color: 'blue' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.profit)} ({portfolio.profit_percentage}%)</strong>
+                                        </Typography>
+                                        <Typography variant="body1" component="h2" gutterBottom>
+                                            Overall value at maturity: <strong style={{ color: 'brown' }}>{portfolio.currency} {FormatCurrency(portfolio.currency, portfolio.current_value)} </strong>
+                                        </Typography>
+                                    </Grid>
+                                )}
                             </Grid>
                         </Box>
                     </Grid>

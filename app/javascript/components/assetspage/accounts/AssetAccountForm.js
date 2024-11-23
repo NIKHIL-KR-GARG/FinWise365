@@ -44,6 +44,14 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                 [name]: newValue
             });
         }
+        // if the user is planning to close the account, set the closure date to the current date
+        if (name === 'is_plan_to_close' && newValue) {
+            setAccount({
+                ...account,
+                is_plan_to_close: true,
+                closure_date: new Date().toISOString().split('T')[0]
+            });
+        }
     };
 
     useEffect(() => {

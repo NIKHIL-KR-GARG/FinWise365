@@ -129,18 +129,37 @@ const AssetIncomeList = forwardRef((props, ref) => {
         // add coupon as income as well
         const coupons = portfoliosList
             .filter(portfolio => portfolio.portfolio_type === 'Bonds' && (new Date(portfolio.buying_date) <= today) && (!portfolio.sale_date || new Date(portfolio.sale_date) >= today))
-            .map(portfolio => ({
-                id: `coupon-${portfolio.id}`,
-                income_name: `Coupon - ${portfolio.portfolio_name}`,
-                income_type: 'Coupon',
-                location: portfolio.location,
-                currency: portfolio.currency,
-                amount: parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 12, // per month
-                start_date: portfolio.buying_date,
-                end_date: portfolio.sale_date,
-                is_recurring: true,
-                income_frequency: 'Monthly'
-            }));
+            .map(portfolio => {
+                let amount;
+                switch (portfolio.coupon_frequency) {
+                    case 'Monthly':
+                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 12;
+                        break;
+                    case 'Quarterly':
+                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 4;
+                        break;
+                    case 'Semi-Annually':
+                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 2;
+                        break;
+                    case 'Annually':
+                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100;
+                        break;
+                    default:
+                        amount = 0;
+                }
+                return {
+                    id: `coupon-${portfolio.id}`,
+                    income_name: `Coupon - ${portfolio.portfolio_name}`,
+                    income_type: 'Coupon',
+                    location: portfolio.location,
+                    currency: portfolio.currency,
+                    amount: amount,
+                    start_date: portfolio.buying_date,
+                    end_date: portfolio.sale_date,
+                    is_recurring: true,
+                    income_frequency: portfolio.coupon_frequency
+                };
+            });
 
         // add payout as income as well
         const payouts = otherAssetsList

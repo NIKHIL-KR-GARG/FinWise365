@@ -139,7 +139,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "profit"
     t.float "profit_percentage"
     t.float "loss"
-    t.float "loss_percentage
+    t.float "loss_percentage"
+    t.string "coupon_frequency"
+    t.date "maturity_date"
   end
 
   create_table "asset_properties", force: :cascade do |t|
