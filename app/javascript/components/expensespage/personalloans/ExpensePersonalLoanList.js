@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -28,34 +28,48 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
     const [personalLoanToDelete, setPersonalLoanToDelete] = useState(null); // State for personalloan to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'card_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastPersonalLoans, setIncludePastPersonalLoans] = useState(false); // State for switch
+    const [originalPersonalLoans, setOriginalPersonalLoans] = useState([]); // State to store original personalloans
+
     const fetchPersonalLoans = async () => {
         try {
             const response = await axios.get(`/api/expense_personal_loans?user_id=${currentUserId}`);
-            
+            setOriginalPersonalLoans(response.data); // Save the original personalloans
+            filterPersonalLoans(response.data); // Filter personalloans based on the switch state
+        } catch (error) {
+            console.error('Error fetching personal loans:', error);
+        }
+    };
+
+    const filterPersonalLoans = (personalloansList) => {
+        let filteredPersonalLoans = [];
+        if (!includePastPersonalLoans)
             // filter where end_date is null or greater than today
-            const today = new Date();
-            const filteredPersonalLoans = response.data.filter(p => {
-                if (p.end_date) {
-                    return new Date(p.end_date) >= today;
+            filteredPersonalLoans = personalloansList.filter(personalloan => {
+                if (personalloan.end_date) {
+                    return new Date(personalloan.end_date) >= new Date();
                 } else {
                     return true;
                 }
             });
-            setPersonalLoans(filteredPersonalLoans);
-            
-            setPersonalLoansFetched(true); // Set personalloansFetched to true after fetching
-            if (onPersonalLoansFetched) {
-                onPersonalLoansFetched(filteredPersonalLoans.length); // Notify parent component
-            }
-        } catch (error) {
-            console.error('Error fetching personalloans:', error);
+        else
+            filteredPersonalLoans = personalloansList;
+
+        setPersonalLoans(filteredPersonalLoans);
+        setPersonalLoansFetched(true); // Set personalloansFetched to true after filtering
+        if (onPersonalLoansFetched) {
+            onPersonalLoansFetched(filteredPersonalLoans.length); // Notify parent component
         }
     };
 
     useEffect(() => {
         fetchPersonalLoans();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterPersonalLoans(originalPersonalLoans); // Filter personalloans when includePastPersonalLoans changes
+    }, [includePastPersonalLoans]); // Include Past PersonalLoans to personalloan/grid array
+
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -188,6 +202,12 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastPersonalLoans} onChange={() => setIncludePastPersonalLoans(!includePastPersonalLoans)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Personal Loans</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"

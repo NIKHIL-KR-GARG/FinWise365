@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -28,34 +28,47 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     const [propertyToDelete, setPropertyToDelete] = useState(null); // State for property to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'property_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch
+    const [originalProperties, setOriginalProperties] = useState([]); // State to store original properties
+
     const fetchProperties = async () => {
         try {
             const response = await axios.get(`/api/expense_properties?user_id=${currentUserId}`);
-
-            // filter where end_date is null or greater than today
-            const today = new Date();
-            const filteredProperties = response.data.filter(property => {
-                if (property.end_date) {
-                    return new Date(property.end_date) >= today;
-                } else {
-                    return true;
-                }
-            });
-
-            setProperties(filteredProperties);
-            setPropertiesFetched(true); // Set propertiesFetched to true after fetching
-            if (onPropertiesFetched) {
-                onPropertiesFetched(filteredProperties.length); // Notify parent component
-            }
+            setOriginalProperties(response.data); // Save the original properties
+            filterProperties(response.data); // Filter properties based on the switch state
         } catch (error) {
             console.error('Error fetching properties:', error);
         }
     };
 
+    const filterProperties = (propertiesList) => {
+        let filteredProperties = [];
+        if (!includePastProperties)
+            // filter where end_date is null or greater than today
+            filteredProperties = propertiesList.filter(property => {
+                if (property.end_date) {
+                    return new Date(property.end_date) >= new Date();
+                } else {
+                    return true;
+                }
+            });
+        else
+            filteredProperties = propertiesList;
+
+        setProperties(filteredProperties);
+        setPropertiesFetched(true); // Set propertiesFetched to true after filtering
+        if (onPropertiesFetched) {
+            onPropertiesFetched(filteredProperties.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchProperties();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterProperties(originalProperties); // Filter properties when includePastProperties changes
+    }, [includePastProperties]); // Include Past Properties to property/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -185,6 +198,12 @@ const ExpensePropertyList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastProperties} onChange={() => setIncludePastProperties(!includePastProperties)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Property Expenses</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"

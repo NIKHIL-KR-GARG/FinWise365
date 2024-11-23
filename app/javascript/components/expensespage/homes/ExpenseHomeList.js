@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -28,34 +28,47 @@ const ExpenseHomeList = forwardRef((props, ref) => {
     const [homeToDelete, setHomeToDelete] = useState(null); // State for home to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'home_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastHomes, setIncludePastHomes] = useState(false); // State for switch
+    const [originalHomes, setOriginalHomes] = useState([]); // State to store original homes
+
     const fetchHomes = async () => {
         try {
             const response = await axios.get(`/api/expense_homes?user_id=${currentUserId}`);
-
-            // filter where end_date is null or greater than today
-            const today = new Date();
-            const filteredHomes = response.data.filter(home => {
-                if (home.end_date) {
-                    return new Date(home.end_date) >= today;
-                } else {
-                    return true;
-                }
-            });
-
-            setHomes(filteredHomes);
-            setHomesFetched(true); // Set homesFetched to true after fetching
-            if (onHomesFetched) {
-                onHomesFetched(filteredHomes.length); // Notify parent component
-            }
+            setOriginalHomes(response.data); // Save the original homes
+            filterHomes(response.data); // Filter homes based on the switch state
         } catch (error) {
             console.error('Error fetching homes:', error);
         }
     };
 
+    const filterHomes = (homesList) => {
+        let filteredHomes = [];
+        if (!includePastHomes)
+            // filter where end_date is null or greater than today
+            filteredHomes = homesList.filter(home => {
+                if (home.end_date) {
+                    return new Date(home.end_date) >= new Date();
+                } else {
+                    return true;
+                }
+            });
+        else
+            filteredHomes = homesList;
+
+        setHomes(filteredHomes);
+        setHomesFetched(true); // Set homesFetched to true after filtering
+        if (onHomesFetched) {
+            onHomesFetched(filteredHomes.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchHomes();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterHomes(originalHomes); // Filter homes when includePastHomes changes
+    }, [includePastHomes]); // Include Past Homes to home/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -184,6 +197,12 @@ const ExpenseHomeList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastHomes} onChange={() => setIncludePastHomes(!includePastHomes)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Home Expenses</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"

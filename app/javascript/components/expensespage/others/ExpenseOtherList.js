@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -28,33 +28,45 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     const [otherToDelete, setOtherToDelete] = useState(null); // State for other to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'other_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch
+    const [originalOthers, setOriginalOthers] = useState([]); // State to store original others
+
     const fetchOthers = async () => {
         try {
             const response = await axios.get(`/api/expense_others?user_id=${currentUserId}`);
-            
-            // filter where end_date is null or greater than today
-            const today = new Date();
-            const filteredOthers = response.data.filter(other => {
-                if (!other.is_recurring && new Date(other.expense_date) >= today) return true;
-                else if (other.is_recurring && new Date(other.end_date) >= today) return true;
-                else return false;
-                }
-            );
-            
-            setOthers(filteredOthers);
-            setOthersFetched(true); // Set othersFetched to true after fetching
-            if (onOthersFetched) {
-                onOthersFetched(filteredOthers.length); // Notify parent component
-            }
+            setOriginalOthers(response.data); // Save the original others
+            filterOthers(response.data); // Filter others based on the switch state
         } catch (error) {
             console.error('Error fetching others:', error);
         }
     };
 
+    const filterOthers = (othersList) => {
+        let filteredOthers = [];
+        if (!includePastOthers)
+            // filter where end_date is null or greater than today
+            filteredOthers = othersList.filter(other => {
+                if (!other.is_recurring && new Date(other.expense_date) >= new Date()) return true;
+                else if (other.is_recurring && new Date(other.end_date) >= new Date()) return true;
+                else return false;
+            });
+        else
+            filteredOthers = othersList;
+
+        setOthers(filteredOthers);
+        setOthersFetched(true); // Set othersFetched to true after filtering
+        if (onOthersFetched) {
+            onOthersFetched(filteredOthers.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchOthers();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterOthers(originalOthers); // Filter others when includePastOthers changes
+    }, [includePastOthers]); // Include Past Others to other/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -186,6 +198,12 @@ const ExpenseOtherList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastOthers} onChange={() => setIncludePastOthers(!includePastOthers)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Other Expenses</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"

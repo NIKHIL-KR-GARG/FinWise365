@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Modal, Box, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Alert, Snackbar, IconButton, Switch, FormControlLabel } from '@mui/material';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
@@ -28,34 +28,47 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
     const [creditCardDebtToDelete, setCreditCardDebtToDelete] = useState(null); // State for creditcarddebt to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'card_name', sort: 'asc' }]); // Initialize with default sorting
 
+    const [includePastCreditCardDebts, setIncludePastCreditCardDebts] = useState(false); // State for switch
+    const [originalCreditCardDebts, setOriginalCreditCardDebts] = useState([]); // State to store original credicarddebts
+
     const fetchCreditCardDebts = async () => {
         try {
             const response = await axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}`);
-
-            // filter where end_date is null or greater than today
-            const today = new Date();
-            const filteredCreditCardDebts = response.data.filter(creditcarddebt => {
-                if (creditcarddebt.end_date) {
-                    return new Date(creditcarddebt.end_date) >= today;
-                } else {
-                    return true;
-                }
-            });
-
-            setCreditCardDebts(filteredCreditCardDebts);
-            setCreditCardDebtsFetched(true); // Set creditcarddebtsFetched to true after fetching
-            if (onCreditCardDebtsFetched) {
-                onCreditCardDebtsFetched(filteredCreditCardDebts.length); // Notify parent component
-            }
+            setOriginalCreditCardDebts(response.data); // Save the original credicarddebts
+            filterCreditCardDebts(response.data); // Filter credicarddebts based on the switch state
         } catch (error) {
             console.error('Error fetching creditcarddebts:', error);
         }
     };
 
+    const filterCreditCardDebts = (creditcarddebtsList) => {
+        let filteredCreditCardDebts = [];
+        if (!includePastCreditCardDebts)
+            // filter where end_date is null or greater than today
+            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => {
+                if (creditcarddebt.end_date) {
+                    return new Date(creditcarddebt.end_date) >= new Date();
+                } else {
+                    return true;
+                }
+            });
+        else
+            filteredCreditCardDebts = creditcarddebtsList;
+
+        setCreditCardDebts(filteredCreditCardDebts);
+        setCreditCardDebtsFetched(true); // Set creditcarddebtsFetched to true after filtering
+        if (onCreditCardDebtsFetched) {
+            onCreditCardDebtsFetched(filteredCreditCardDebts.length); // Notify parent component
+        }
+    };
+
     useEffect(() => {
         fetchCreditCardDebts();
-        
     }, [currentUserId]);
+
+    useEffect(() => {
+        filterCreditCardDebts(originalCreditCardDebts); // Filter creditcarddebts when includePastCreditCardDebts changes
+    }, [includePastCreditCardDebts]); // Include Past CreditCardDebts to creditcarddebt/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -189,6 +202,12 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastCreditCardDebts} onChange={() => setIncludePastCreditCardDebts(!includePastCreditCardDebts)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Credit Card Debts</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
