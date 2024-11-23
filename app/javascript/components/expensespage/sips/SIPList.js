@@ -138,15 +138,15 @@ const SIPList = forwardRef((props, ref) => {
 
     const columns = [
         { field: 'name', headerName: 'SIP Name', width: 200, headerClassName: 'header-theme'},
-        { field: 'type', headerName: 'SIP Type', width: 200, headerClassName: 'header-theme'},
-        { field: 'location', headerName: 'SIP Location', width: 150, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'type', headerName: 'SIP Type', width: 100, headerClassName: 'header-theme'},
+        { field: 'location', headerName: 'SIP Location', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'amount', headerName: 'Total  (/mth)', width: 175, headerClassName: 'header-theme' , renderCell: (params) => {
+        { field: 'amount', headerName: 'Total  (/mth)', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.amount);
          }},
         { field: 'frequency', headerName: 'Payment Frequency', width: 100, headerClassName: 'header-theme' },

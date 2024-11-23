@@ -119,15 +119,15 @@ const EMIList = forwardRef((props, ref) => {
 
     const columns = [
         { field: 'name', headerName: 'EMI Name', width: 200, headerClassName: 'header-theme'},
-        { field: 'type', headerName: 'EMI Type', width: 200, headerClassName: 'header-theme'},
-        { field: 'location', headerName: 'EMI Location', width: 150, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'type', headerName: 'EMI Type', width: 100, headerClassName: 'header-theme'},
+        { field: 'location', headerName: 'EMI Location', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'amount', headerName: 'Total  (/mth)', width: 175, headerClassName: 'header-theme' , renderCell: (params) => {
+        { field: 'amount', headerName: 'Total  (/mth)', width: 150, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.amount);
          }},
         { field: 'start_date', headerName: 'Start Date', width: 150, headerClassName: 'header-theme' },
