@@ -459,7 +459,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
     };
 
     return (
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '90vh', overflowY: 'auto' }}>
+        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
             <Snackbar
                 open={!!successMessage}
                 autoHideDuration={6000}
@@ -773,7 +773,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     aria-describedby="modal-description"
                                     sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
-                                    <Box sx={{ width: 1000, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
+                                    <Box sx={{ width: '90%', maxWidth: 1000, height: '90%', maxHeight: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative', overflowY: 'auto' }}>
+                                    {/* <Box sx={{ width: 1000, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}> */}
                                         <HomeLoanEMICalculator property={property} />
                                         <IconButton
                                             onClick={handleModalClose}
@@ -1124,7 +1125,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                         />
                     </Grid>
                     <Grid item size={12}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
                             <Button
                                 variant="contained"
                                 color="primary"

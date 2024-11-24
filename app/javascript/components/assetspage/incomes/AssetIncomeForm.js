@@ -102,7 +102,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
     };
 
     return (
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '90vh', overflowY: 'auto' }}>
+        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
             <Snackbar
                 open={!!successMessage}
                 autoHideDuration={6000}
@@ -328,7 +328,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                         />
                     </Grid>
                     <Grid item size={12}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
                             <Button
                                 variant="contained"
                                 color="primary"

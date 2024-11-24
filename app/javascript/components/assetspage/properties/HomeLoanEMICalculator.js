@@ -215,7 +215,7 @@ const HomeLoanEMICalculator = ({ property }) => {
     };
 
     return (
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '90vh', overflowY: 'auto' }}>
+        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
             <Snackbar
                 open={!!successMessage}
                 autoHideDuration={6000}

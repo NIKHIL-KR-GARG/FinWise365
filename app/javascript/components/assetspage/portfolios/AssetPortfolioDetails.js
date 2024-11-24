@@ -217,7 +217,7 @@ const AssetPortfolioDetails = ({ portfolio: initialPortfolio, portfoliodetails: 
     ];
 
     return (
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '90vh', overflowY: 'auto' }}>
+        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 2 }}>
                 <Typography variant="h6" component="h2">
                     <SavingsIcon style={{ color: 'purple', marginRight: '10px' }} />

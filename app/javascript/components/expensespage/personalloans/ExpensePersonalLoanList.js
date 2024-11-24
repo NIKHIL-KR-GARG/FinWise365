@@ -241,7 +241,7 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
                 aria-describedby="form-modal-description"
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-                <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
+                <Box sx={{ width: '90%', maxWidth: 650, height: '90%', maxHeight: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative', overflowY: 'auto' }}>
                     {selectedPersonalLoan && <ExpensePersonalLoanForm personalloan={selectedPersonalLoan} action={action} onClose={handleFormModalClose} refreshPersonalLoanList={refreshPersonalLoanList}/>} {/* Pass action to form */}
                     <IconButton 
                         onClick={handleFormModalClose} 

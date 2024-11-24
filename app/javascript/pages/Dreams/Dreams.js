@@ -438,7 +438,7 @@ const Dreams = () => {
                 aria-describedby="form-modal-description"
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-                <Box sx={{ width: 650, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
+                <Box sx={{ width: '90%', maxWidth: 650, height: '90%', maxHeight: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative', overflowY: 'auto' }}>
                     {dreamAction === 'Add Property' && (
                         <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )}
