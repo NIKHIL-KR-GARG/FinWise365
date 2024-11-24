@@ -29,6 +29,7 @@ import ExpenseOtherForm from '../../components/expensespage/others/ExpenseOtherF
 import ExpensesGraph from '../../components/expensespage/ExpensesGraph';
 import EMIList from '../../components/expensespage/emis/EMIList';
 import SIPList from '../../components/expensespage/sips/SIPList';
+import TaxList from '../../components/expensespage/taxes/TaxList';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -44,6 +45,7 @@ const Expenses = () => {
     const otherListRef = useRef(null);
     const emiListRef = useRef(null);
     const sipListRef = useRef(null);
+    const taxListRef = useRef(null);
 
     const [homeCount, setHomeCount] = useState(0);
     const [propertyCount, setPropertyCount] = useState(0);
@@ -52,6 +54,7 @@ const Expenses = () => {
     const [otherCount, setOtherCount] = useState(0);
     const [emiCount, setEMICount] = useState(0);
     const [sipCount, setSIPCount] = useState(0);
+    const [taxCount, setTaxCount] = useState(0);
 
     useEffect(() => {
         if (homeListRef.current) {
@@ -74,6 +77,9 @@ const Expenses = () => {
         }
         if (sipListRef.current) {
             setSIPCount(sipListRef.current.getSIPCount());
+        }
+        if (taxListRef.current) {
+            setTaxCount(taxListRef.current.getTaxCount());
         }
     }, []);
 
@@ -153,6 +159,9 @@ const Expenses = () => {
     };
     const handleSIPsFetched = (count) => {
         setSIPCount(count);
+    };
+    const handleTaxesFetched = (count) => {
+        setTaxCount(count);
     };
 
     const today = new Date().toLocaleDateString('en-GB', {
@@ -307,7 +316,7 @@ const Expenses = () => {
                                     <SIPList ref={sipListRef} onSIPsFetched={handleSIPsFetched} />
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, bgcolor: 'lightgrey' }}>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1a-content"
@@ -315,12 +324,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceIcon sx={{ mr: 1, color: 'orange' }} /> {/* Updated color */}
-                                        Taxes - Income Tax, Property Tax
-                                        {/* ({otherCount}) */}
+                                        Taxes - Income Tax, Property Tax ({taxCount})
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    {/* <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} /> */}
+                                    <TaxList ref={taxListRef} onTaxesFetched={handleTaxesFetched} />
                                 </AccordionDetails>
                             </Accordion>
                         </Box>
