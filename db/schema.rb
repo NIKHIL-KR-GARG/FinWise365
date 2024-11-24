@@ -216,6 +216,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "emi_amount"
     t.float "interest_payments"
     t.float "total_cost"
+    t.boolean "is_on_lease"
+    t.date "lease_start_date"
+    t.date "lease_end_date"
+    t.float "lease_amount"
+    t.float "lease_growth_rate"
   end
 
   create_table "dreams", force: :cascade do |t|

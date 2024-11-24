@@ -31,6 +31,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
     const [includePastIncomes, setIncludePastIncomes] = useState(false); // State for switch
     const [originalIncomes, setOriginalIncomes] = useState([]); // State to store original incomes
     const [properties, setProperties] = useState([]); // State to store properties
+    const [vehicles, setVehicles] = useState([]); // State to store portfolios
     const [portfolios, setPortfolios] = useState([]); // State to store portfolios
     const [otherAssets, setOtherAssets] = useState([]); // State to store portfolios
 
@@ -40,6 +41,16 @@ const AssetIncomeList = forwardRef((props, ref) => {
             return response.data;
         } catch (error) {
             console.error('Error fetching properties:', error);
+            return [];
+        }
+    };
+
+    const fetchVehicles = async () => {
+        try {
+            const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching vehicles:', error);
             return [];
         }
     };
@@ -72,20 +83,23 @@ const AssetIncomeList = forwardRef((props, ref) => {
             const propertiesResponse = await fetchProperties();
             if (propertiesResponse && propertiesResponse.length > 0) setProperties(propertiesResponse); // Store properties if fetched
 
+            const vehiclesResponse = await fetchVehicles();
+            if (vehiclesResponse && vehiclesResponse.length > 0) setVehicles(vehiclesResponse); // Store vehicles if fetched
+
             const portfoliosResponse = await fetchPortfolios();
             if (portfoliosResponse && portfoliosResponse.length > 0) setPortfolios(portfoliosResponse); // Store portfolios if fetched
 
             const otherAssetsResponse = await fetchOtherAssets();
             if (otherAssetsResponse && otherAssetsResponse.length > 0) setOtherAssets(otherAssetsResponse); // Store other assets if fetched
 
-            filterIncomes(response.data, propertiesResponse, portfoliosResponse, otherAssetsResponse); // Filter incomes based on switch
+            filterIncomes(response.data, propertiesResponse, vehiclesResponse, portfoliosResponse, otherAssetsResponse); // Filter incomes based on switch
 
         } catch (error) {
             console.error('Error fetching incomes:', error);
         }
     };
 
-    const filterIncomes = (incomesList, propertiesList, portfoliosList, otherAssetsList) => {
+    const filterIncomes = (incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList) => {
         let filteredIncomes = [];
         if (!includePastIncomes)
             // filter on income where end_date is greater than today
@@ -185,11 +199,27 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 income_frequency: otherAsset.payout_frequency
             }));
 
-        setIncomes([...filteredIncomes, ...rentalIncomes, ...dividends, ...coupons, ...payouts]);
+        // add lease as income as well
+        const leases = vehiclesList
+            .filter(vehicle => vehicle.is_on_lease && (new Date(vehicle.lease_start_date) <= today) && (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today))
+            .map(vehicle => ({
+                id: `lease-${vehicle.id}`,
+                income_name: `Lease - ${vehicle.vehicle_name}`,
+                income_type: 'Lease',
+                location: vehicle.location,
+                currency: vehicle.currency,
+                amount: vehicle.lease_amount,
+                start_date: vehicle.lease_start_date,
+                end_date: vehicle.lease_end_date,
+                is_recurring: true,
+                income_frequency: 'Monthly'
+            }));
+
+        setIncomes([...filteredIncomes, ...rentalIncomes, ...leases ,...dividends, ...coupons, ...payouts]);
         setIncomesFetched(true); // Set incomesFetched to true after fetching
 
         if (onIncomesFetched) {
-            onIncomesFetched(filteredIncomes.length + rentalIncomes.length + dividends.length + coupons.length + payouts.length); // Notify parent component
+            onIncomesFetched(filteredIncomes.length + rentalIncomes.length + leases.length + dividends.length + coupons.length + payouts.length); // Notify parent component
         }
     };
 
@@ -198,7 +228,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
     }, [currentUserId]);
 
     useEffect(() => {
-        filterIncomes(originalIncomes, properties, portfolios, otherAssets); // Filter incomes when includePastIncomes changes
+        filterIncomes(originalIncomes, properties, vehicles ,portfolios, otherAssets); // Filter incomes when includePastIncomes changes
     }, [includePastIncomes]); // Include Past Incomes to income/grid array
 
     const handleFormModalClose = () => {
@@ -282,7 +312,8 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 params.row.income_type !== 'Rental'
                     && params.row.income_type !== 'Dividend'
                     && params.row.income_type !== 'Coupon' 
-                    && params.row.income_type !== 'PayOut' ? (
+                    && params.row.income_type !== 'PayOut' 
+                    && params.row.income_type !== 'Lease' ? (
                     <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
                         {params.value}
                     </a>
@@ -319,7 +350,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 <div>
                     {params.row.income_type !== 'Rental'
                         && params.row.income_type !== 'Dividend'
-                        && params.row.income_type !== 'Coupon' && (
+                        && params.row.income_type !== 'Coupon' 
+                        && params.row.income_type !== 'PayOut' 
+                        && params.row.income_type !== 'Lease' && (
                             <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
                         )}
                 </div>

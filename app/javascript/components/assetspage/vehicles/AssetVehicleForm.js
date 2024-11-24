@@ -49,17 +49,22 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         loan_duration: 0,
         loan_type: "Fixed",
         loan_interest_rate: VehicleLoanRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
-        is_plan_to_sell: action === 'Sell' ? true : false,
-        sale_date: "",
-        sale_amount: 0.0,
-        scrap_value: 0.0,
-        depreciation_rate: 0.0,
         ltv_percentage: 0.0,
         ltv_value: 0.0,
         down_payment: 0.0,
         emi_amount: 0.0,
         interest_payments: 0.0,
-        total_cost: 0.0
+        total_cost: 0.0,
+        is_on_lease: false,
+        lease_start_date: "",
+        lease_end_date: "",
+        lease_amount: 0.0,
+        lease_growth_rate: 0.0,
+        is_plan_to_sell: action === 'Sell' ? true : false,
+        sale_date: "",
+        sale_amount: 0.0,
+        scrap_value: 0.0,
+        depreciation_rate: 0.0
     });
 
     const handleModalOpen = () => {
@@ -132,6 +137,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.monthly_expenses)) errors.monthly_expenses = 'Monthly Expenses should be numeric';
         if (isNaN(vehicle.scrap_value)) errors.scrap_value = 'Scrap Value should be numeric';
         if (isNaN(vehicle.depreciation_rate)) errors.depreciation_rate = 'Depreciation Rate should be numeric';
+        if (isNaN(vehicle.lease_amount)) errors.lease_amount = 'Lease Amount should be numeric';
+        if (isNaN(vehicle.lease_growth_rate)) errors.lease_growth_rate = 'Lease Growth Rate should be numeric';
        
         if (vehicle.is_funded_by_loan) {
             if (!vehicle.loan_type) errors.loan_type = 'Loan Type is required';
@@ -154,6 +161,19 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (new Date(vehicle.sale_date) < new Date(vehicle.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date'; 
         }
 
+        if (vehicle.is_on_lease) {
+            if (!vehicle.lease_start_date) errors.lease_start_date = 'Lease Start Date is required';
+            if (!vehicle.lease_end_date) errors.lease_end_date = 'Lease End Date is required';
+            if (!vehicle.lease_amount) errors.lease_amount = 'Lease Amount is required';
+            if (!vehicle.lease_growth_rate) errors.lease_growth_rate = 'Lease Growth Rate is required';
+            // check that lease end date is greater than lease start date
+            if (new Date(vehicle.lease_end_date) < new Date(vehicle.lease_start_date)) errors.lease_end_date = 'Lease End Date cannot be before Lease Start Date';
+            // check that the lease start date is not before purchase date
+            if (new Date(vehicle.lease_start_date) < new Date(vehicle.purchase_date)) errors.lease_start_date = 'Lease Start Date cannot be before Purchase Date';
+            // check that the lease end date is not after sale date
+            if (vehicle.is_plan_to_sell && new Date(vehicle.lease_end_date) > new Date(vehicle.sale_date)) errors.lease_end_date = 'Lease End Date cannot be after Sale Date';
+        }   
+
         if (action === 'Add') {
             // check that the purchase_date is not in the future
             if (new Date(vehicle.purchase_date) > new Date()) errors.purchase_date = 'Purchase Date cannot be in the future';
@@ -164,7 +184,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         }
         else if (action === 'Sell') {
             // check that the sale_date is greater than purchase_date
-            if (new Date(vehicle.sale_date) < new Date(vehicle.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
+            if (new Date(vehicle.sale_date) < new Date(vehicle.purchase_date)) errors.sale_date = 'Sale Date cannot be before Purchase Date';
         }
 
         setErrors(errors);
@@ -761,6 +781,82 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                 <FormControlLabel
                                     control={
                                         <Checkbox
+                                            checked={vehicle.is_on_lease}
+                                            onChange={handleChange}
+                                            name="is_on_lease"
+                                        />}
+                                    label="I plan to lease this vehicle"
+                                />
+                            )}
+                            </Grid>
+                            {vehicle.is_on_lease && (
+                                <>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Lease Start Date"
+                                            name="lease_start_date"
+                                            type="date"
+                                            value={vehicle.lease_start_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.lease_start_date}
+                                            helperText={errors.lease_start_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Lease End Date"
+                                            name="lease_end_date"
+                                            type="date"
+                                            value={vehicle.lease_end_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.lease_end_date}
+                                            helperText={errors.lease_end_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Lease Growth Rate (%)"
+                                            name="lease_growth_rate"
+                                            value={vehicle.lease_growth_rate}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.lease_growth_rate}
+                                            helperText={errors.lease_growth_rate}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Lease Amount"
+                                            name="lease_amount"
+                                            value={vehicle.lease_amount}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.lease_amount}
+                                            helperText={errors.lease_amount}
+                                        />
+                                    </Grid>
+                                </>
+                            )}
+                        </Grid>
+                    </Box>
+
+                    <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
+                        <Grid container spacing={2}>
+                            <Grid item size={12}>
+                            { ((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
                                             checked={vehicle.is_plan_to_sell}
                                             onChange={handleChange}
                                             name="is_plan_to_sell"
@@ -792,6 +888,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             onChange={handleChange}
                                             fullWidth
                                             InputLabelProps={{ shrink: true }}
+                                            error={!!errors.sale_date}
+                                            helperText={errors.sale_date}
                                         />
                                     </Grid>
                                     <Grid item size={6}>
