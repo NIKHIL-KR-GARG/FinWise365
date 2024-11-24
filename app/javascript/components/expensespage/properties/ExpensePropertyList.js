@@ -30,18 +30,33 @@ const ExpensePropertyList = forwardRef((props, ref) => {
 
     const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch
     const [originalProperties, setOriginalProperties] = useState([]); // State to store original properties
+    const [assetProperties, setAssetProperties] = useState([]); // State to store asset_properties
+
+    const fetchAssetProperties = async () => {
+        try {
+            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching property assets:', error);
+        }
+    };
 
     const fetchProperties = async () => {
         try {
             const response = await axios.get(`/api/expense_properties?user_id=${currentUserId}`);
             setOriginalProperties(response.data); // Save the original properties
-            filterProperties(response.data); // Filter properties based on the switch state
+
+            // fetch asset properties and set state
+            const assetPropertiesResponse = await fetchAssetProperties();
+            if (assetPropertiesResponse && assetPropertiesResponse.length > 0) setAssetProperties(assetPropertiesResponse);
+            
+            filterProperties(response.data, assetPropertiesResponse); // Filter properties based on the switch state
         } catch (error) {
             console.error('Error fetching properties:', error);
         }
-    };
+    };  
 
-    const filterProperties = (propertiesList) => {
+    const filterProperties = (propertiesList, assetPropertiesList) => {
         let filteredProperties = [];
         if (!includePastProperties)
             // filter where end_date is null or greater than today
@@ -55,10 +70,32 @@ const ExpensePropertyList = forwardRef((props, ref) => {
         else
             filteredProperties = propertiesList;
 
-        setProperties(filteredProperties);
+        // add asset properties to the filtered properties list
+        const propertyMaintenance = assetPropertiesList
+            .filter(assetProperty => {
+                if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
+                else if (new Date(assetProperty.purchase_date) <= new Date() &&
+                    (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()))
+                    return true;
+                else return false;
+            }) 
+            .map(assetProperty => ({
+                id: `propertymaintenance-${assetProperty.id}`,
+                property_name: `Maintenance - ${assetProperty.property_name}`,
+                property_type: assetProperty.property_type,
+                location: assetProperty.location,
+                currency: assetProperty.currency,
+                // if property is under construction, start_date is possession_date else start date is purchase_date
+                start_date: assetProperty.is_under_construction ? assetProperty.possession_date : assetProperty.purchase_date, 
+                // if is plan to sell, end_date is sale_date else end_date is null
+                end_date: assetProperty.is_plan_to_sell ? assetProperty.sale_date : "", 
+                total_expense: assetProperty.property_maintenance
+            }));
+
+        setProperties([...filteredProperties, ...propertyMaintenance]);
         setPropertiesFetched(true); // Set propertiesFetched to true after filtering
         if (onPropertiesFetched) {
-            onPropertiesFetched(filteredProperties.length); // Notify parent component
+            onPropertiesFetched(filteredProperties.length + propertyMaintenance.length) // Notify parent component
         }
     };
 
@@ -67,7 +104,7 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     }, [currentUserId]);
 
     useEffect(() => {
-        filterProperties(originalProperties); // Filter properties when includePastProperties changes
+        filterProperties(originalProperties, assetProperties); // Filter properties when includePastProperties changes
     }, [includePastProperties]); // Include Past Properties to property/grid array
 
     const handleFormModalClose = () => {
@@ -142,11 +179,21 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     };
 
     const columns = [
-        { field: 'property_name', headerName: 'Property Name', width: 200, headerClassName: 'header-theme', renderCell: (params) => (
-            <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                {params.value}
-            </a>
-        )},
+        {
+            field: 'property_name',
+            headerName: 'Property Name',
+            width: 200,
+            headerClassName: 'header-theme',
+            renderCell: (params) => (
+                params.value.includes('Maintenance') ? (
+                    <span>{params.value}</span>
+                ) : (
+                    <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                        {params.value}
+                    </a>
+                )
+            )
+        },
         { field: 'property_type', headerName: 'Property Type', width: 100, headerClassName: 'header-theme' },
         { field: 'location', headerName: 'Property Location', width: 150, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
@@ -166,9 +213,13 @@ const ExpensePropertyList = forwardRef((props, ref) => {
             width: 100,
             headerClassName: 'header-theme',
             renderCell: (params) => (
-                <div>
-                    <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
-                </div>
+                params.row.property_name.includes('Maintenance') ? (
+                    <span></span>
+                ) : (
+                    <div>
+                        <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
+                    </div>
+                )
             ),
         },
     ];

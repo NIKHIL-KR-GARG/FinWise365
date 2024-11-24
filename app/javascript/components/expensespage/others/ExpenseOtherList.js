@@ -207,9 +207,13 @@ const ExpenseOtherList = forwardRef((props, ref) => {
             width: 100,
             headerClassName: 'header-theme',
             renderCell: (params) => (
-                <div>
-                    <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
-                </div>
+                params.row.expense_name.includes('Vehicle Expenses') ? (
+                    <span></span>
+                ) : (
+                    <div>
+                        <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
+                    </div>
+                )
             ),
         },
     ];
