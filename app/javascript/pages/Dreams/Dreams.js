@@ -24,6 +24,7 @@ import AssetVehicleList from '../../components/assetspage/vehicles/AssetVehicleL
 import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleForm';
 import DreamList from '../../components/dreamspage/DreamList';
 import DreamForm from '../../components/dreamspage/DreamForm';
+import DreamsGraph from '../../components/dreamspage/DreamsGraph';
 
 const Dreams = () => {
     const [open, setOpen] = useState(true);
@@ -222,7 +223,7 @@ const Dreams = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            {/* <DreamsGraph /> */}
+                            <DreamsGraph />
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
@@ -440,10 +441,10 @@ const Dreams = () => {
             >
                 <Box sx={{ width: '90%', maxWidth: 650, height: '90%', maxHeight: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative', overflowY: 'auto' }}>
                     {dreamAction === 'Add Property' && (
-                        <AssetPropertyForm property={null} action={action} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
+                        <AssetPropertyForm property={null} action={'Dream'} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
                     )}
                     {dreamAction === 'Add Vehicle' && (
-                        <AssetVehicleForm vehicle={null} action={action} onClose={handleFormModalClose} refreshVehicleList={handleVehicleAdded} />
+                        <AssetVehicleForm vehicle={null} action={'Dream'} onClose={handleFormModalClose} refreshVehicleList={handleVehicleAdded} />
                     )}
                     {dreamAction === 'Add Education' && (
                         <DreamForm dream={null} action={action} onClose={handleFormModalClose} refreshDreamList={handleEducationAdded} dreamType={'Education'} />
