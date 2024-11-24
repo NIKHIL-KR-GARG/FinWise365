@@ -38,6 +38,10 @@ class CreateAssetProperties < ActiveRecord::Migration[7.2]
       t.float :emi_amount
       t.float :interest_payments
       t.float :total_cost
+      t.float :rental_growth_rate
+      t.boolean :is_under_construction
+      t.date :launch_date
+      t.date :possession_date
 
       t.timestamps
     end

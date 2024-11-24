@@ -62,6 +62,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         rental_start_date: "",
         rental_end_date: "",
         rental_amount: 0.0,
+        rental_growth_rate: 0.0,
         growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: action === 'Sell' ? true : false,
         sale_date: "",
@@ -75,7 +76,10 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         down_payment: 0.0,
         emi_amount: 0.0,
         interest_payments: 0.0,
-        total_cost: 0.0
+        total_cost: 0.0,
+        is_under_construction: false,
+        launch_date: "",
+        possession_date: ""
     });
 
     const handleModalOpen = () => {
@@ -110,6 +114,14 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 sale_amount: 0.0
             }));
         }
+        // if under construction is unchecked, then set launch date and possession date to empty
+        if (name === 'is_under_construction' && !checked) {
+            setProperty(prevProperty => ({
+                ...prevProperty,
+                launch_date: '',
+                possession_date: ''
+            }));
+        }
     };
 
     useEffect(() => {
@@ -138,6 +150,71 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (!property.purchase_date) errors.purchase_date = 'Purchase Date is required';
         if (!property.purchase_price) errors.purchase_price = 'Purchase Price is required';
 
+        if (property.is_funded_by_loan) {
+            if (!property.loan_type) errors.loan_type = 'Loan Type is required';
+            if (!property.loan_amount) errors.loan_amount = 'Loan Amount is required';
+            if (!property.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
+            if (!property.loan_duration) errors.loan_duration = 'Loan Duration is required';
+           
+            // check that the loan amount is less than the purchase price
+            if (parseFloat(property.loan_amount) > parseFloat(property.purchase_price)) errors.loan_amount = 'Loan Amount cannot be greater than Purchase Price';
+            // check that the loan duration is not more than 30 years
+            if (parseFloat(property.loan_duration) > 360) errors.loan_duration = 'Loan Duration cannot be more than 30 years';
+            // check that the loan interest rate is not more than 20%
+            if (parseFloat(property.loan_interest_rate) > 20) errors.loan_interest_rate = 'Loan Interest Rate cannot be more than 20%';
+
+            if (property.loan_type === 'Fixed' && property.is_loan_locked) {
+                if (!property.loan_locked_till) errors.loan_locked_till = 'Loan Locked Till Date is required';
+                // check that the loan locked till date is not in the past
+                if (new Date(property.loan_locked_till) < new Date()) errors.loan_locked_till = 'Loan Locked Till Date cannot be in the past';
+                // check that the loan locked till date is not less than purchase date
+                if (new Date(property.loan_locked_till) < new Date(property.purchase_date)) errors.loan_locked_till = 'Loan Locked Till Date cannot be before Purchase Date';
+            }
+        }
+
+        if (property.is_on_rent) {
+            if (!property.rental_start_date) errors.rental_start_date = 'Rental Start Date is required';
+            if (!property.rental_amount) errors.rental_amount = 'Rental Amount is required';
+            if (!property.rental_growth_rate) errors.rental_growth_rate = 'Rental Growth Rate is required';
+            //chcek that the rental start dat is not before purchase date
+            if (new Date(property.rental_start_date) < new Date(property.purchase_date)) errors.rental_start_date = 'Rental Start Date cannot be before Purchase Date';
+            //check that the rental end date is not before rental start date
+            if (property.rental_end_date && new Date(property.rental_end_date) < new Date(property.rental_start_date)) errors.rental_end_date = 'Rental End Date cannot be before Rental Start Date';
+        }
+
+        if (property.is_plan_to_sell) {
+            if (!property.sale_date) errors.sale_date = 'Sale Date is required';
+            if (!property.sale_amount) errors.sale_amount = 'Sale Amount is required';
+            // check that the sale_date is greater than purchase_date
+            if (new Date(property.sale_date) < new Date(property.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
+            //check that the rental end date is not after sale date
+            if (property.rental_end_date && new Date(property.rental_end_date) > new Date(property.sale_date)) errors.rental_end_date = 'Rental End Date cannot be after Sale Date';
+        }
+
+        if (property.is_under_construction) {
+            if (!property.launch_date) errors.launch_date = 'Launch Date is required';
+            if (!property.possession_date) errors.possession_date = 'Possession Date is required';
+            // check that the possession_date is not before launch_date
+            if (new Date(property.possession_date) < new Date(property.launch_date)) errors.possession_date = 'Possession Date cannot be before Launch Date';
+            // check that purchase date is not before launch date
+            if (new Date(property.purchase_date) < new Date(property.launch_date)) errors.purchase_date = 'Purchase Date cannot be before Launch Date';
+            // check the rental start date is not before possession date
+            if (property.is_on_rent && new Date(property.rental_start_date) < new Date(property.possession_date)) errors.rental_start_date = 'Rental Start Date cannot be before Possession Date';
+        }
+
+        if (action === 'Add') {
+            // check that the purchase_date is not in the future
+            if (new Date(property.purchase_date) > new Date()) errors.purchase_date = 'Purchase Date cannot be in the future';
+        }
+        else if (action === 'Dream') {
+            // check that the purchase_date is not in the past
+            if (new Date(property.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
+        }
+        else if (action === 'Sell') {
+            // check that the sale_date is greater than purchase_date
+            if (new Date(property.sale_date) < new Date(property.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
+        }
+
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(property.purchase_price)) errors.purchase_price = 'Purchase Price should be numeric';
         if (isNaN(property.loan_amount)) errors.loan_amount = 'Loan Amount should be numeric';
@@ -151,60 +228,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (isNaN(property.property_maintenance)) errors.property_maintenance = 'Annual Property Maintenance Amount should be numeric';
         if (isNaN(property.stamp_duty)) errors.stamp_duty = 'Stamp Duty Rate should be numeric';
         if (isNaN(property.other_fees)) errors.other_fees = 'Other Fees should be numeric';
+        if (isNaN(property.rental_growth_rate)) errors.rental_growth_rate = 'Rental Growth Rate should be numeric';
 
-        if (property.is_funded_by_loan) {
-            if (!property.loan_type) errors.loan_type = 'Loan Type is required';
-            if (!property.loan_amount) errors.loan_amount = 'Loan Amount is required';
-            if (!property.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
-            if (!property.loan_duration) errors.loan_duration = 'Loan Duration is required';
-            if (property.is_loan_locked) {
-                if (!property.loan_locked_till) errors.loan_locked_till = 'Loan Locked Till is required';
-            }
-            // check that the loan amount is less than the purchase price
-            if (parseFloat(property.loan_amount) > parseFloat(property.purchase_price)) errors.loan_amount = 'Loan Amount cannot be greater than Purchase Price';
-            // check that the loan duration is not more than 30 years
-            if (parseFloat(property.loan_duration) > 360) errors.loan_duration = 'Loan Duration cannot be more than 30 years';
-            // check that the loan interest rate is not more than 20%
-            if (parseFloat(property.loan_interest_rate) > 20) errors.loan_interest_rate = 'Loan Interest Rate cannot be more than 20%';
-            // check that the loan locked till date is not in the past
-            if (new Date(property.loan_locked_till) < new Date()) errors.loan_locked_till = 'Loan Locked Till Date cannot be in the past';
-            
-            if (property.is_loan_locked) {
-                if (!property.loan_locked_till) errors.loan_locked_till = 'Loan Locked Till Date is required';
-                // check that the loan locked till date is not less than purchase date
-                if (new Date(property.loan_locked_till) < new Date(property.purchase_date)) errors.loan_locked_till = 'Loan Locked Till Date cannot be before Purchase Date';
-            }
-        }
-        if (property.is_on_rent) {
-            if (!property.rental_start_date) errors.rental_start_date = 'Rental Start Date is required';
-            if (!property.rental_amount) errors.rental_amount = 'Rental Amount is required';
-            //chcek that the rental start dat is not before purchase date
-            if (new Date(property.rental_start_date) < new Date(property.purchase_date)) errors.rental_start_date = 'Rental Start Date cannot be before Purchase Date';
-            //check that the rental end date is not before rental start date
-            if (property.rental_end_date && new Date(property.rental_end_date) < new Date(property.rental_start_date)) errors.rental_end_date = 'Rental End Date cannot be before Rental Start Date';
-        }
-        if (property.is_plan_to_sell) {
-            if (!property.sale_date) errors.sale_date = 'Sale Date is required';
-            if (!property.sale_amount) errors.sale_amount = 'Sale Amount is required';
-            // check that the sale_date is greater than purchase_date
-            if (new Date(property.sale_date) < new Date(property.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
-            //check that the rental end date is not after sale date
-            if (property.rental_end_date && new Date(property.rental_end_date) > new Date(property.sale_date)) errors.rental_end_date = 'Rental End Date cannot be after Sale Date';
-        }
-        
-        if (action === 'Add') {
-            // check that the purchase_date is not in the future
-            if (new Date(property.purchase_date) > new Date()) errors.purchase_date = 'Purchase Date cannot be in the future';
-        }
-        else if (action === 'Dream') {
-            // check that the purchase_date is not in the past
-            if (new Date(property.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
-        }
-        else if (action === 'Sell') {
-            // check that the sale_date is greater than purchase_date
-            if (new Date(property.sale_date) < new Date(property.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
-        }
-    
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -717,7 +742,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             InputLabelProps={{ shrink: property.other_fees !== '' }} // Updated line
                         />
                     </Grid>
-                    <Grid item size={6}>
+                    {/* <Grid item size={6}>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -726,6 +751,20 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     name="is_primary_property"
                                 />}
                             label="Is this your Primary Property"
+                        />
+                    </Grid> */}
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Property Value Growth Rate (%)"
+                            name="growth_rate"
+                            value={property.growth_rate}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.growth_rate}
+                            helperText={errors.growth_rate}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -736,11 +775,90 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             value={property.current_value}
                             onChange={handleChange}
                             fullWidth
+                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.current_value}
                             helperText={errors.current_value}
                         />
                     </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Property Tax (Monthly)"
+                            name="property_tax"
+                            value={property.property_tax}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.property_tax}
+                            helperText={errors.property_tax}
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            variant="standard"
+                            label="Property Maintenance (monthly)"
+                            name="property_maintenance"
+                            value={property.property_maintenance}
+                            onChange={handleChange}
+                            fullWidth
+                            required
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.property_maintenance}
+                            helperText={errors.property_maintenance}
+                        />
+                    </Grid>
+
+                    <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
+                        <Grid container spacing={2}>
+                            <Grid item size={12}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={property.is_under_construction}
+                                            onChange={handleChange}
+                                            name="is_under_construction"
+                                        />}
+                                    label="Property is under contruction?"
+                                />
+                            </Grid>
+                            {property.is_under_construction && (
+                                <>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Launch Date"
+                                            name="launch_date"
+                                            type="date"
+                                            value={property.launch_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.launch_date}
+                                            helperText={errors.launch_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Possession Date"
+                                            name="possession_date"
+                                            type="date"
+                                            value={property.possession_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.possession_date}
+                                            helperText={errors.possession_date}
+                                        />
+                                    </Grid>
+                                </>
+                            )}
+                        </Grid>
+                    </Box>
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
@@ -774,7 +892,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
                                     <Box sx={{ width: '90%', maxWidth: 1000, height: '90%', maxHeight: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative', overflowY: 'auto' }}>
-                                    {/* <Box sx={{ width: 1000, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}> */}
                                         <HomeLoanEMICalculator property={property} />
                                         <IconButton
                                             onClick={handleModalClose}
@@ -802,6 +919,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.loan_type}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             error={!!errors.loan_type}
                                             helperText={errors.loan_type}
                                         >
@@ -817,6 +935,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.loan_amount}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.loan_amount}
                                             helperText={errors.loan_amount}
@@ -830,6 +949,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.loan_interest_rate}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.loan_interest_rate}
                                             helperText={errors.loan_interest_rate}
@@ -843,6 +963,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.loan_duration}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.loan_duration}
                                             helperText={errors.loan_duration}
@@ -966,7 +1087,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
                         <Grid container spacing={2}>
-                            <Grid item size={6}>
+                            <Grid item size={12}>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -974,24 +1095,11 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             name="is_on_rent"
                                         />}
-                                    label="I will put this property on Rent"
+                                    label="Property on Rent?"
                                 />
                             </Grid>
                             {property.is_on_rent && (
                                 <>
-                                    <Grid item size={6}>
-                                            <TextField
-                                                variant="standard"
-                                                label="Rental Amount (Monthly)"
-                                                name="rental_amount"
-                                                value={property.rental_amount}
-                                                onChange={handleChange}
-                                                fullWidth
-                                                slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                                                error={!!errors.rental_amount}
-                                                helperText={errors.rental_amount}
-                                            />
-                                        </Grid>
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
@@ -1001,6 +1109,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.rental_start_date}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             InputLabelProps={{ shrink: true }}
                                             error={!!errors.rental_start_date}
                                             helperText={errors.rental_start_date}
@@ -1015,9 +1124,38 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.rental_end_date}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             InputLabelProps={{ shrink: true }}
                                             error={!!errors.rental_end_date}
                                             helperText={errors.rental_end_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Rental Amount (Monthly)"
+                                            name="rental_amount"
+                                            value={property.rental_amount}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.rental_amount}
+                                            helperText={errors.rental_amount}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Rental Growth Rate (%)"
+                                            name="rental_growth_rate"
+                                            value={property.rental_growth_rate}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.rental_growth_rate}
+                                            helperText={errors.rental_growth_rate}
                                         />
                                     </Grid>
                                 </>
@@ -1062,6 +1200,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.sale_date}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             InputLabelProps={{ shrink: true }}
                                             error={!!errors.sale_date}
                                             helperText={errors.sale_date}
@@ -1075,6 +1214,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.sale_amount}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.sale_amount}
                                             helperText={errors.sale_amount}
@@ -1085,45 +1225,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                         </Grid>
                     </Box>
 
-                    <Grid item size={12}>
-                        <TextField
-                            variant="standard"
-                            label="Property Value Growth Rate (%)"
-                            name="growth_rate"
-                            value={property.growth_rate}
-                            onChange={handleChange}
-                            fullWidth
-                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.growth_rate}
-                            helperText={errors.growth_rate}
-                        />
-                    </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                            variant="standard"
-                            label="Property Tax (Monthly)"
-                            name="property_tax"
-                            value={property.property_tax}
-                            onChange={handleChange}
-                            fullWidth
-                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.property_tax}
-                            helperText={errors.property_tax}
-                        />
-                    </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                            variant="standard"
-                            label="Property Maintenance (monthly)"
-                            name="property_maintenance"
-                            value={property.property_maintenance}
-                            onChange={handleChange}
-                            fullWidth
-                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.property_maintenance}
-                            helperText={errors.property_maintenance}
-                        />
-                    </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
                             <Button

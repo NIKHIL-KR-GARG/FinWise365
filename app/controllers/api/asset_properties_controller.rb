@@ -87,6 +87,10 @@ class Api::AssetPropertiesController < ApplicationController
             :emi_amount,
             :interest_payments,
             :total_cost,
+            :rental_growth_rate,
+            :is_under_construction,
+            :launch_date,
+            :possession_date,
             :created_at,
             :updated_at
         ) 

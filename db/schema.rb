@@ -184,6 +184,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_20_142951) do
     t.float "emi_amount"
     t.float "interest_payments"
     t.float "total_cost"
+    t.float "rental_growth_rate"
+    t.boolean "is_under_construction"
+    t.date "launch_date"
+    t.date "possession_date"
   end
 
   create_table "asset_vehicles", force: :cascade do |t|
