@@ -92,9 +92,11 @@ const Dreams = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const propertiesResponse = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-                const vehiclesResponse = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
-                const dreamsResponse = await axios.get(`/api/dreams?user_id=${currentUserId}`);
+                const [propertiesResponse, vehiclesResponse, dreamsResponse] = await Promise.all([
+                    axios.get(`/api/asset_properties?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}`),
+                    axios.get(`/api/dreams?user_id=${currentUserId}`)
+                ]);
 
                 // filter properties where purchase_date is in the future
                 const propertiesList = propertiesResponse.data.filter(property => new Date(property.purchase_date) >= new Date());
@@ -107,8 +109,8 @@ const Dreams = () => {
                 const otherList = dreamsResponse.data.filter(dream => dream.dream_type === 'Other');
 
                 // set state for all the lists
-                setProperties(propertiesList);
-                setVehicles(vehiclesList);
+                // setProperties(propertiesList);
+                // setVehicles(vehiclesList);
                 setEducation(educationList);
                 setTravel(travelList);
                 setRelocation(relocationList);
