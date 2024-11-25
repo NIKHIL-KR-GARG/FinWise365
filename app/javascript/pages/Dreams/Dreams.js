@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
-//icons
+import axios from 'axios';
+import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
@@ -25,6 +25,8 @@ import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleF
 import DreamList from '../../components/dreamspage/DreamList';
 import DreamForm from '../../components/dreamspage/DreamForm';
 import DreamsGraph from '../../components/dreamspage/DreamsGraph';
+import { ExchangeRate } from '../../components/common/DefaultValues';
+import FormatCurrency from '../../components/common/FormatCurrency';
 
 const Dreams = () => {
     const [open, setOpen] = useState(true);
@@ -52,6 +54,20 @@ const Dreams = () => {
     const relocationListRef = useRef(null);
     const otherListRef = useRef(null);
 
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // const [properties, setProperties] = useState([]);
+    // const [vehicles, setVehicles] = useState([]);
+    const [education, setEducation] = useState([]);
+    const [travel, setTravel] = useState([]);
+    const [relocation, setRelocation] = useState([]);
+    const [other, setOther] = useState([]);
+    const [dreamsList, setDreamsList] = useState([]);
+
+    const currentUserId = localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
@@ -72,6 +88,170 @@ const Dreams = () => {
             setOtherCount(otherListRef.current.getDreamCount());
         }
     }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const propertiesResponse = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
+                const vehiclesResponse = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
+                const dreamsResponse = await axios.get(`/api/dreams?user_id=${currentUserId}`);
+
+                // filter properties where purchase_date is in the future
+                const propertiesList = propertiesResponse.data.filter(property => new Date(property.purchase_date) >= new Date());
+                // filter vehicles where purchase_date is in the future
+                const vehiclesList = vehiclesResponse.data.filter(vehicle => new Date(vehicle.purchase_date) >= new Date());
+                // filter dreams where dream_type = 'Education' or 'Travel' or 'Relocation' or 'Other'
+                const educationList = dreamsResponse.data.filter(dream => dream.dream_type === 'Education');
+                const travelList = dreamsResponse.data.filter(dream => dream.dream_type === 'Travel');
+                const relocationList = dreamsResponse.data.filter(dream => dream.dream_type === 'Relocation');
+                const otherList = dreamsResponse.data.filter(dream => dream.dream_type === 'Other');
+
+                // set state for all the lists
+                setProperties(propertiesList);
+                setVehicles(vehiclesList);
+                setEducation(educationList);
+                setTravel(travelList);
+                setRelocation(relocationList);
+                setOther(otherList);
+
+                // starting the current year add rows to the dreamsList array for the next 50 years
+                const year = new Date().getFullYear();
+                const dreamsList = [];
+                for (let i = year; i <= (year + 50); i++) {
+                    dreamsList.push({
+                        year: i,
+                        property: 0,
+                        vehicle: 0,
+                        education: 0,
+                        travel: 0,
+                        relocation: 0,
+                        other: 0,
+                        total_value: 0
+                    });
+                }
+
+                let maxYear = new Date().getFullYear();
+
+                // loop though the properties and add the value to the corresponding year
+                propertiesList.forEach(property => {
+                    const purchaseYear = new Date(property.purchase_date).getFullYear();
+                    const purchaseValue = parseFloat(property.purchase_price);
+                    const stampDuty = parseFloat(property.stamp_duty);
+                    const otherFees = parseFloat(property.other_fees);
+                    const totalCost = purchaseValue + stampDuty + otherFees;
+                    const exchangeRate = ExchangeRate.find(rate => rate.from === property.currency && rate.to === currentUserBaseCurrency);
+                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                    const convertedValue = parseFloat(totalCost * conversionRate);
+                    // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the property column
+                    dreamsList.find(dream => dream.year === purchaseYear).property += convertedValue;
+                    if (purchaseYear > maxYear) maxYear = purchaseYear;
+                });
+
+                // loop though the vehicles and add the value to the corresponding year
+                vehiclesList.forEach(vehicle => {
+                    const purchaseYear = new Date(vehicle.purchase_date).getFullYear();
+                    const purchaseValue = parseFloat(vehicle.purchase_price);
+                    const exchangeRate = ExchangeRate.find(rate => rate.from === vehicle.currency && rate.to === currentUserBaseCurrency);
+                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                    const convertedValue = parseFloat(purchaseValue * conversionRate);
+                    // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the vehicle column
+                    dreamsList.find(dream => dream.year === purchaseYear).vehicle += convertedValue;
+                    if (purchaseYear > maxYear) maxYear = purchaseYear;
+                });
+
+                // loop though the education and add the value to the corresponding year
+                educationList.forEach(education => {
+                    const educationYear = new Date(education.dream_date).getFullYear();
+                    const educationValue = parseFloat(education.amount);
+                    const exchangeRate = ExchangeRate.find(rate => rate.from === education.currency && rate.to === currentUserBaseCurrency);
+                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                    const convertedValue = parseFloat(educationValue) * parseFloat(conversionRate);
+                    if (education.end_date) {
+                        const educationEndYear = new Date(education.end_date).getFullYear();
+                        for (let i = educationYear; i <= educationEndYear; i++) {
+                            // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
+                            dreamsList.find(dream => dream.year === i).education += convertedValue;
+                        }
+                        if (educationEndYear > maxYear) maxYear = educationEndYear;
+                    }
+                    else {
+                        // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
+                        dreamsList.find(dream => dream.year === educationYear).education += convertedValue;
+                        if (educationYear > maxYear) maxYear = educationYear;
+                    }
+                });
+
+                // loop though the travel and add the value to the corresponding year
+                travelList.forEach(travel => {
+                    const travelYear = new Date(travel.dream_date).getFullYear();
+                    const travelValue = parseFloat(travel.amount);
+                    const exchangeRate = ExchangeRate.find(rate => rate.from === travel.currency && rate.to === currentUserBaseCurrency);
+                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                    const convertedValue = parseFloat(travelValue * conversionRate);
+                    // find the corresponding row in the dreamsList array where year = travelYear and add the value to the travel column
+                    dreamsList.find(dream => dream.year === travelYear).travel += convertedValue;
+                    if (travelYear > maxYear) maxYear = travelYear;
+                });
+
+                // loop though the relocation and add the value to the corresponding year
+                relocationList.forEach(relocation => {
+                    const relocationYear = new Date(relocation.dream_date).getFullYear();
+                    const relocationValue = parseFloat(relocation.amount);
+                    const exchangeRate = ExchangeRate.find(rate => rate.from === relocation.currency && rate.to === currentUserBaseCurrency);
+                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                    const convertedValue = parseFloat(relocationValue * conversionRate);
+                    // find the corresponding row in the dreamsList array where year = relocationYear and add the value to the relocation column
+                    dreamsList.find(dream => dream.year === relocationYear).relocation += convertedValue;
+                    if (relocationYear > maxYear) maxYear = relocationYear;
+                });
+                
+                // loop though the other dreams and add the value to the corresponding year
+                otherList.forEach(other => {
+                    const otherYear = new Date(other.dream_date).getFullYear();
+                    const otherValue = parseFloat(other.amount);
+                    const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
+                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                    const convertedValue = parseFloat(otherValue * conversionRate);
+                    // find the corresponding row in the dreamsList array where year = otherYear and add the value to the other column
+                    dreamsList.find(dream => dream.year === otherYear).other += convertedValue;
+                    if (otherYear > maxYear) maxYear = otherYear;
+                });    
+                
+                // loop through the dreamsList array from maxYear + 1 to end of array and delete all these rows as these are empty rows
+                for (let i = year; i <= (year + 50); i++) {                    
+                    dreamsList.find(dream => dream.year === i).total_value =   
+                        dreamsList.find(dream => dream.year === i).property +
+                        dreamsList.find(dream => dream.year === i).vehicle +
+                        dreamsList.find(dream => dream.year === i).education +
+                        dreamsList.find(dream => dream.year === i).travel +
+                        dreamsList.find(dream => dream.year === i).relocation +
+                        dreamsList.find(dream => dream.year === i).other;
+                    
+                    if (i > maxYear) {
+                        dreamsList.splice(dreamsList.findIndex(dream => dream.year === i), 1);
+                    }
+                }
+
+                // set state for dreamsList
+                setDreamsList(dreamsList);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Error fetching data');
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [currentUserId]);
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    if (error) {
+        return <Typography color="error">{error}</Typography>;
+    }
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -223,7 +403,7 @@ const Dreams = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            <DreamsGraph />
+                            <DreamsGraph dreamsList={dreamsList}/>
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
@@ -235,7 +415,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <HomeIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Properties ({propertyCount}) {/* Display property count */}
+                                        Properties ({propertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.property, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -250,7 +430,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarIcon sx={{ mr: 1, color: 'red' }} />
-                                        Vehicles ({vehicleCount}) {/* Display vehicle count */}
+                                        Vehicles ({vehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.vehicle, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -265,11 +445,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <SchoolIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Education ({educationCount}) {/* Display education count */}
+                                        Education ({educationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.education, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <DreamList ref={educationListRef} onDreamsFetched={handleEducationFetched} dreamType={'Education'}/>
+                                    <DreamList ref={educationListRef} onDreamsFetched={handleEducationFetched} dreamType={'Education'} dreamsList={education}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -280,11 +460,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <FlightIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Travel ({travelCount}) {/* Display travel count */}
+                                        Travel ({travelCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.travel, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <DreamList ref={travelListRef} onDreamsFetched={handleTravelFetched} dreamType={'Travel'} />
+                                    <DreamList ref={travelListRef} onDreamsFetched={handleTravelFetched} dreamType={'Travel'} dreamsList={travel}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -295,11 +475,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MovingIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Relocation ({relocationCount}) {/* Display relocation count */}
+                                        Relocation ({relocationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.relocation, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <DreamList ref={relocationListRef} onDreamsFetched={handleRelocationFetched} dreamType={'Relocation'}/>
+                                    <DreamList ref={relocationListRef} onDreamsFetched={handleRelocationFetched} dreamType={'Relocation'} dreamsList={relocation}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -310,11 +490,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
-                                        Other Dreams ({otherCount}) {/* Display other dreams count */}
+                                        Other Dreams ({otherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.other, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <DreamList ref={otherListRef} onDreamsFetched={handleOtherFetched} dreamType={'Other'}/>
+                                    <DreamList ref={otherListRef} onDreamsFetched={handleOtherFetched} dreamType={'Other'} dreamsList={other}/>
                                 </AccordionDetails>
                             </Accordion>
                         </Box>

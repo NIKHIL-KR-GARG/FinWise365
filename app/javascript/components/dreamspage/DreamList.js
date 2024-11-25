@@ -13,7 +13,7 @@ import CountryList from '../common/CountryList';
 import FormatCurrency from '../common/FormatCurrency';
 
 const DreamList = forwardRef((props, ref) => {
-    const { onDreamsFetched, dreamType } = props; // Destructure the new prop
+    const { onDreamsFetched, dreamType, dreamsList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [dreams, setDreams] = useState([]);
@@ -30,12 +30,9 @@ const DreamList = forwardRef((props, ref) => {
 
     const fetchDreams = async () => {
         try {
-            const response = await axios.get(`/api/dreams?user_id=${currentUserId}`);
-            const filteredDreams = dreamType ? response.data.filter(dream => dream.dream_type === dreamType) : response.data;
-            
-            // filter further by either end date in the future or start date in the future
+            // filter by either end date in the future or start date in the future
             const today = new Date();
-            const filteredActiveDreams = filteredDreams.filter(dream => {
+            const filteredActiveDreams = dreamsList.filter(dream => {
                 if (!dream.end_date && new Date(dream.dream_date) >= today) return true;
                 else if (dream.end_date && new Date(dream.end_date) >= today) return true;
                 else return false;
