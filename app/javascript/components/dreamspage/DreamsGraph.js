@@ -24,7 +24,7 @@ const DreamsGraph = ({dreamsList}) => {
 
     return (
         <Box display="flex" justifyContent="center" alignItems="center" p={1} width="100%">
-            <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
+            <Grid container spacing={2} justifyContent="center" width="80%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
                 <Grid item size={12}>
                     <Typography variant="h6" align="center" pb={1} pt={1}>
                         Total Dreams: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.total_value, 0))}
@@ -33,7 +33,7 @@ const DreamsGraph = ({dreamsList}) => {
                 <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
                     <ResponsiveContainer width="80%" height="100%">
                         <BarChart layout="horizontal" data={dreamsList}>
-                            <CartesianGrid strokeDasharray="3 3" />
+                            {/* <CartesianGrid strokeDasharray="3 3" /> */}
                             <XAxis dataKey="year" />
                             <YAxis />
                             <Tooltip />
