@@ -20,12 +20,11 @@ import AssetPropertyForm from './AssetPropertyForm';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPropertyList = forwardRef((props, ref) => {
-    const { onPropertiesFetched, listAction } = props; // Destructure the new prop
+    const { onPropertiesFetched, listAction, propertiesList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [properties, setProperties] = useState([]);
     const [propertiesFetched, setPropertiesFetched] = useState(false); // State to track if properties are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -35,17 +34,6 @@ const AssetPropertyList = forwardRef((props, ref) => {
     const [propertyToDelete, setPropertyToDelete] = useState(null); // State for property to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'property_name', sort: 'asc' }]); // Initialize with default sorting
     const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch
-    const [originalProperties, setOriginalProperties] = useState([]); // State to store original properties
-
-    const fetchProperties = async () => {
-        try {
-            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            setOriginalProperties(response.data); // Save the original properties
-            filterProperties(response.data); // Filter properties based on the switch state
-        } catch (error) {
-            console.error('Error fetching properties:', error);
-        }
-    };
 
     const filterProperties = (propertiesList) => {
         let filteredProperties = [];
@@ -67,11 +55,11 @@ const AssetPropertyList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchProperties();
-    }, [currentUserId, listAction]); // Fetch properties on component mount and when currentUserId or listAction changes
+        filterProperties(propertiesList);
+    }, [listAction]); // Fetch properties on component mount and when currentUserId or listAction changes
 
     useEffect(() => {
-        filterProperties(originalProperties); // Filter properties when includePastProperties changes
+        filterProperties(propertiesList); // Filter properties when includePastProperties changes
     }, [includePastProperties]); // Include Past Properties to properties/grid array
 
     const handleFormModalClose = () => {

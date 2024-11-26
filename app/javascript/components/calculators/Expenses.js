@@ -1,4 +1,4 @@
-import { CalculateInterest } from "../common/CalculateInterestAndPrincipal";
+import { CalculateInterest } from "./CalculateInterestAndPrincipal";
 import { ExchangeRate } from "../common/DefaultValues";
 
 export const homeExpense = (home, date, baseCurrency) => {
@@ -119,19 +119,6 @@ export const otherExpense = (other, date, baseCurrency) => {
             if (isSIPMonth(startDate, date, other.recurring_frequency)) {
                 otherExpense += parseFloat(other.recurring_amount);
             }                     
-            // const diffMonths = (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth());
-            // if (other.recurring_frequency === 'Monthly') {
-            //     otherExpense += parseFloat(other.recurring_amount);
-            // }
-            // else if (other.recurring_frequency === 'Quarterly' && diffMonths % 3 === 0) {
-            //     otherExpense += parseFloat(other.recurring_amount);
-            // }
-            // else if (other.recurring_frequency === 'Semi-Annually' && diffMonths % 6 === 0) {
-            //     otherExpense += parseFloat(other.recurring_amount);
-            // }
-            // else if (other.recurring_frequency === 'Annually' && diffMonths % 12 === 0) {
-            //     otherExpense += parseFloat(other.recurring_amount);
-            // }
             const totalInterest = CalculateInterest (
                 "Recurring",
                 "Compounding",

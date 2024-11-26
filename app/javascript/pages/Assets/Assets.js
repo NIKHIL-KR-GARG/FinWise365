@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link } from '@mui/material'; // Added Backdrop
-//icons
+import axios from 'axios'; 
+import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, CircularProgress } from '@mui/material'; // Added CircularProgress
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
@@ -11,8 +11,8 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';import Savin
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
 import AddIcon from '@mui/icons-material/Add';
-import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
-import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined'; // Import the appropriate icon for Precious Metals
+import CloseIconFilled from '@mui/icons-material/Close'; 
+import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
@@ -32,6 +32,9 @@ import AssetPortfolioForm from '../../components/assetspage/portfolios/AssetPort
 import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
 import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
+import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue } from '../../components/calculators/Assets';
+import FormatCurrency from '../../components/common/FormatCurrency';
+
 const Assets = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
@@ -40,25 +43,36 @@ const Assets = () => {
     const [assetAction, setAssetAction] = useState(''); // State for action
 
     const propertyListRef = useRef(null);
-    const [propertyCount, setPropertyCount] = useState(0); // State for property count
-
     const vehicleListRef = useRef(null);
-    const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
-
     const accountListRef = useRef(null);
-    const [accountCount, setAccountCount] = useState(0); // State for account count
-
     const depositListRef = useRef(null);
-    const [depositCount, setDepositCount] = useState(0); // State for deposit count
-
     const incomeListRef = useRef(null);
-    const [incomeCount, setIncomeCount] = useState(0); // State for income count
-
     const portfolioListRef = useRef(null);
-    const [portfolioCount, setPortfolioCount] = useState(0); // State for portfolio count
-
     const otherListRef = useRef(null);
+
+    const [propertyCount, setPropertyCount] = useState(0); // State for property count
+    const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
+    const [accountCount, setAccountCount] = useState(0); // State for account count
+    const [depositCount, setDepositCount] = useState(0); // State for deposit count
+    const [incomeCount, setIncomeCount] = useState(0); // State for income count
+    const [portfolioCount, setPortfolioCount] = useState(0); // State for portfolio count
     const [otherCount, setOtherCount] = useState(0); // State for other count
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const [properties, setProperties] = useState([]);
+    const [vehicles, setVehicles] = useState([]);
+    const [accounts, setAccounts] = useState([]);
+    const [deposits, setDeposits] = useState([]);
+    const [incomes, setIncomes] = useState([]);
+    const [portfolios, setPortfolios] = useState([]);
+    const [others, setOthers] = useState([]);
+
+    const [assetsData, setAssetsData] = useState([]);
+
+    const currentUserId = localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
     useEffect(() => {
         if (propertyListRef.current) {
@@ -83,6 +97,109 @@ const Assets = () => {
             setOtherCount(otherListRef.current.getOtherCount());
         }
     }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // fetch all the data
+                const [propertiesResponse, vehiclesResponse, accountsResponse, 
+                    depositsResponse, incomesResponse, portfoliosResponse, 
+                    othersResponse] = await Promise.all([
+                    axios.get(`/api/asset_properties?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_accounts?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_deposits?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_incomes?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_portfolios?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_others?user_id=${currentUserId}`)
+                ]);
+
+                // set state for all the lists
+                setProperties(propertiesResponse.data);
+                setVehicles(vehiclesResponse.data);
+                setAccounts(accountsResponse.data);
+                setDeposits(depositsResponse.data);
+                setIncomes(incomesResponse.data);
+                setPortfolios(portfoliosResponse.data);
+                setOthers(othersResponse.data);
+
+                const today = new Date();
+
+                // get value of all the properties as of today/this month
+                let propertyAssetsValue = 0.0;
+                for (let i = 0; i < propertiesResponse.data.length; i++) {
+                    const property = propertiesResponse.data[i];
+                    propertyAssetsValue += parseFloat(propertyAssetValue(property, today, currentUserBaseCurrency));
+                }
+
+                // get value of all the vehicles as of today/this month
+                let vehicleAssetsValue = 0.0;
+                for (let i = 0; i < vehiclesResponse.data.length; i++) {
+                    const vehicle = vehiclesResponse.data[i];
+                    vehicleAssetsValue += parseFloat(vehicleAssetValue(vehicle, today, currentUserBaseCurrency));
+                }
+
+                // get value of all the accounts as of today/this month
+                let accountAssetsValue = 0.0;
+                for (let i = 0; i < accountsResponse.data.length; i++) {
+                    const account = accountsResponse.data[i];
+                    accountAssetsValue += parseFloat(accountAssetValue(account, today, currentUserBaseCurrency));
+                }
+
+                // get value of all the deposits as of today/this month
+                let depositAssetsValue = 0.0;
+                for (let i = 0; i < depositsResponse.data.length; i++) {
+                    const deposit = depositsResponse.data[i];
+                    depositAssetsValue += parseFloat(depositAssetValue(deposit, today, currentUserBaseCurrency));
+                }
+
+                // get value of all the incomes as of today/this month (not needed for now)
+
+                // get value of all the portfolios as of today/this month
+                let portfolioAssetsValue = 0.0;
+                for (let i = 0; i < portfoliosResponse.data.length; i++) {
+                    const portfolio = portfoliosResponse.data[i];
+                    portfolioAssetsValue += parseFloat(portfolioAssetValue(portfolio, today, currentUserBaseCurrency));
+                }
+
+                // get value of all the other assets as of today/this month
+                let otherAssetsValue = 0.0;
+                for (let i = 0; i < othersResponse.data.length; i++) {
+                    const other = othersResponse.data[i];
+                    otherAssetsValue += parseFloat(otherAssetValue(other, today, currentUserBaseCurrency));
+                }
+
+                setAssetsData([
+                    {
+                        name: 'Assets',
+                        Properties: parseFloat(propertyAssetsValue).toFixed(2),
+                        Vehicles: parseFloat(vehicleAssetsValue).toFixed(2),
+                        Accounts: parseFloat(accountAssetsValue).toFixed(2),
+                        Deposits: parseFloat(depositAssetsValue).toFixed(2),
+                        Portfolios: parseFloat(portfolioAssetsValue).toFixed(2),
+                        Others: parseFloat(otherAssetsValue).toFixed(2)
+                    }
+                ]);
+
+                setLoading(false);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Error fetching data');
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [currentUserId]);
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    if (error) {
+        return <Typography color="error">{error}</Typography>;
+    }
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -217,7 +334,7 @@ const Assets = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            <AssetsGraph />
+                            <AssetsGraph assetsData={assetsData}/>
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
@@ -244,11 +361,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <BusinessOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Properties ({propertyCount}) {/* Display property count */}
+                                        Properties ({propertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, assetsData? parseFloat(assetsData[0].Properties) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={action}/>
+                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={action} propertiesList={properties}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -259,11 +376,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarOutlinedIcon sx={{ mr: 1, color: 'green' }} />
-                                        Vehicles ({vehicleCount}) {/* Display vehicle count */}
+                                        Vehicles ({vehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, assetsData? parseFloat(assetsData[0].Vehicles) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={action}/>
+                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={action} vehiclesList={vehicles}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -274,11 +391,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceOutlinedIcon sx={{ mr: 1, color: 'red' }} />
-                                        Savings/Current Accounts ({accountCount}) {/* Display account count */}
+                                        Savings/Current Accounts ({accountCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, assetsData? parseFloat(assetsData[0].Accounts) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetAccountList ref={accountListRef} onAccountsFetched={handleAccountsFetched} />
+                                    <AssetAccountList ref={accountListRef} onAccountsFetched={handleAccountsFetched} accountsList={accounts}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -289,11 +406,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <SavingsOutlinedIcon sx={{ mr: 1, color: 'brown' }} /> 
-                                        Fixed/Recurring Deposits ({depositCount})
+                                        Fixed/Recurring Deposits ({depositCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, assetsData? parseFloat(assetsData[0].Deposits) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetDepositList ref={depositListRef} onDepositsFetched={handleDepositsFetched} />
+                                    <AssetDepositList ref={depositListRef} onDepositsFetched={handleDepositsFetched} depositsList={deposits}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -304,11 +421,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <ShowChartOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                                        Investment Portfolio ({portfolioCount})
+                                        Investment Portfolio ({portfolioCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, assetsData? parseFloat(assetsData[0].Portfolios) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPortfolioList ref={portfolioListRef} onPortfoliosFetched={handlePortfoliosFetched} />
+                                    <AssetPortfolioList ref={portfolioListRef} onPortfoliosFetched={handlePortfoliosFetched} portfoliosList={portfolios}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -319,11 +436,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <FolderSpecialOutlinedIcon sx={{ mr: 1, color: 'brown' }} />
-                                        Other Assets  ({otherCount})
+                                        Other Assets ({otherCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, assetsData? parseFloat(assetsData[0].Others) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} />
+                                    <AssetOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} othersList={others}/>
                                 </AccordionDetails>
                             </Accordion>
                             {/*

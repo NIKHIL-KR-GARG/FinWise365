@@ -72,9 +72,6 @@ const Expenses = () => {
     const [assetDeposits, setAssetDeposits] = useState([]);
     const [assetPortfolios, setAssetPortfolios] = useState([]);
     const [assetOthers, setAssetOthers] = useState([]);
-    // const [emis, setEMIs] = useState([]);
-    // const [sips, setSIPs] = useState([]);
-    // const [taxes, setTaxes] = useState([]);   
 
     const [expensesData, setExpensesData] = useState([]);
 

@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetDepositList = forwardRef((props, ref) => {
-    const { onDepositsFetched } = props; // Destructure the new prop
+    const { onDepositsFetched, depositsList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [deposits, setDeposits] = useState([]);
     const [depositsFetched, setDepositsFetched] = useState(false); // State to track if deposits are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -29,17 +28,6 @@ const AssetDepositList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'deposit_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastDeposits, setIncludePastDeposits] = useState(false); // State for switch
-    const [originalDeposits, setOriginalDeposits] = useState([]); // State to store original deposits
-
-    const fetchDeposits = async () => {
-        try {
-            const response = await axios.get(`/api/asset_deposits?user_id=${currentUserId}`);
-            setOriginalDeposits(response.data); // Save the original deposits
-            filterDeposits(response.data); // Filter deposits based on the switch state
-        } catch (error) {
-            console.error('Error fetching deposits:', error);
-        }
-    };
 
     const filterDeposits = (depositsList) => {
         let filteredDeposits = [];
@@ -56,11 +44,11 @@ const AssetDepositList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchDeposits();
-    }, [currentUserId]);
+        filterDeposits(depositsList);
+    }, []);
 
     useEffect(() => {
-        filterDeposits(originalDeposits); // Filter deposits when includePastDeposits changes
+        filterDeposits(depositsList); // Filter deposits when includePastDeposits changes
     }, [includePastDeposits]); // Include Past Deposits to deposit/grid array
 
     const handleFormModalClose = () => {

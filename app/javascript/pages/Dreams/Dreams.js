@@ -57,8 +57,8 @@ const Dreams = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // const [properties, setProperties] = useState([]);
-    // const [vehicles, setVehicles] = useState([]);
+    const [properties, setProperties] = useState([]);
+    const [vehicles, setVehicles] = useState([]);
     const [education, setEducation] = useState([]);
     const [travel, setTravel] = useState([]);
     const [relocation, setRelocation] = useState([]);
@@ -109,8 +109,8 @@ const Dreams = () => {
                 const otherList = dreamsResponse.data.filter(dream => dream.dream_type === 'Other');
 
                 // set state for all the lists
-                // setProperties(propertiesList);
-                // setVehicles(vehiclesList);
+                setProperties(propertiesResponse.data);
+                setVehicles(vehiclesResponse.data);
                 setEducation(educationList);
                 setTravel(travelList);
                 setRelocation(relocationList);
@@ -421,7 +421,7 @@ const Dreams = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={action}/>
+                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={'Dream'} propertiesList={properties}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -436,7 +436,7 @@ const Dreams = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={action}/>
+                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={'Dream'} vehiclesList={vehicles}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>

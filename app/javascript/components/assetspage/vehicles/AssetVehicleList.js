@@ -17,12 +17,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetVehicleList = forwardRef((props, ref) => {
-    const { onVehiclesFetched, listAction } = props; // Destructure the new prop
+    const { onVehiclesFetched, listAction, vehiclesList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [vehicles, setVehicles] = useState([]);
     const [vehiclesFetched, setVehiclesFetched] = useState(false); // State to track if vehicles are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -33,17 +32,6 @@ const AssetVehicleList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'vehicle_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastVehicles, setIncludePastVehicles] = useState(false); // State for switch
-    const [originalVehicles, setOriginalVehicles] = useState([]); // State to store original vehicles
-
-    const fetchVehicles = async () => {
-        try {
-            const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
-            setOriginalVehicles(response.data); // Save the original vehicles
-            filterVehicles(response.data); // Filter properties based on the switch state
-        } catch (error) {
-            console.error('Error fetching vehicles:', error);
-        }
-    };
 
     const filterVehicles = (vehiclesList) => {
         let filteredVehicles = [];
@@ -65,11 +53,11 @@ const AssetVehicleList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchVehicles();
-    }, [currentUserId, listAction]);
+        filterVehicles(vehiclesList);
+    }, [listAction]);
 
     useEffect(() => {
-        filterVehicles(originalVehicles); // Filter vehicles when includePastVehicles changes
+        filterVehicles(vehiclesList); // Filter vehicles when includePastVehicles changes
     }, [includePastVehicles]); // Include Past Vehicles to vehicles/grid array
 
     const handleFormModalClose = () => {

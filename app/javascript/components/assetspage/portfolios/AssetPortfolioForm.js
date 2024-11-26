@@ -14,7 +14,7 @@ import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 import AssetPortfolioDetails from './AssetPortfolioDetails';
-import { CalculateInterest } from '../../common/CalculateInterestAndPrincipal';
+import { CalculateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refreshPortfolioList }) => {
 

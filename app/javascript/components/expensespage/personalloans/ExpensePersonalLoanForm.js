@@ -8,7 +8,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
-import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../common/CalculateInterestAndPrincipal';
+import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, onClose, refreshPersonalLoanList }) => {
 

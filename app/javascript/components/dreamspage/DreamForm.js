@@ -8,7 +8,7 @@ import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices
 import CurrencyList from '../common/CurrencyList';
 import CountryList from '../common/CountryList';
 import FormatCurrency from '../common/FormatCurrency';
-import { calculateFlatRateEMI } from '../common/CalculateInterestAndPrincipal';
+import { calculateFlatRateEMI } from '../calculators/CalculateInterestAndPrincipal';
 
 const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dreamType }) => {
 

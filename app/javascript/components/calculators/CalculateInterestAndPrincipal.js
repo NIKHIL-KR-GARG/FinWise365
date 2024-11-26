@@ -108,3 +108,13 @@ export const calculateFlatRateInterest = (principal, rate, tenure) => {
     const totalInterest = (parseFloat(principal) * (parseFloat(rate) / 100) * (parseInt(tenure) / 12));
     return parseFloat(totalInterest);
 };
+
+export const pmt = (rate, nper, pv) => {
+    if (rate === 0) return -(pv / nper);
+    const pvif = Math.pow(1 + rate, nper);
+    return -(rate * pv * pvif) / (pvif - 1);
+};
+
+export const calculateDepreciationValue = (initialValue, rate, years) => {
+    return initialValue * Math.pow(1 - rate / 100, years);
+};

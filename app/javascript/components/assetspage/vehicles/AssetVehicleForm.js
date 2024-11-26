@@ -15,7 +15,7 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 import FlatRateLoanEMICalculator from '../../common/FlatRateLoanEMICalculator';
 import { VehicleLoanRate } from '../../common/DefaultValues';
-import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../common/CalculateInterestAndPrincipal';
+import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVehicleList }) => {
 

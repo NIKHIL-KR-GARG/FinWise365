@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetAccountList = forwardRef((props, ref) => {
-    const { onAccountsFetched } = props; // Destructure the new prop
+    const { onAccountsFetched, accountsList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [accounts, setAccounts] = useState([]);
     const [accountsFetched, setAccountsFetched] = useState(false); // State to track if accounts are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -29,17 +28,6 @@ const AssetAccountList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'account_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastAccounts, setIncludePastAccounts] = useState(false); // State for switch
-    const [originalAccounts, setOriginalAccounts] = useState([]); // State to store original accounts
-
-    const fetchAccounts = async () => {
-        try {
-            const response = await axios.get(`/api/asset_accounts?user_id=${currentUserId}`);
-            setOriginalAccounts(response.data); // Store original accounts
-            filterAccounts(response.data); // Filter accounts based on switch
-        } catch (error) {
-            console.error('Error fetching accounts:', error);
-        }
-    };
 
     const filterAccounts = (accountsList) => {
         let filteredAccounts = [];
@@ -56,11 +44,11 @@ const AssetAccountList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchAccounts();
-    }, [currentUserId]);
+        filterAccounts(accountsList);
+    }, []);
 
     useEffect(() => {
-        filterAccounts(originalAccounts); // Filter accounts when includePastAccounts changes
+        filterAccounts(accountsList); // Filter accounts when includePastAccounts changes
     }, [includePastAccounts]); // Include Past Accounts to account/grid array
 
     const handleFormModalClose = () => {

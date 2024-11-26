@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetPortfolioList = forwardRef((props, ref) => {
-    const { onPortfoliosFetched } = props; // Destructure the new prop
+    const { onPortfoliosFetched, portfoliosList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [portfolios, setPortfolios] = useState([]);
     const [portfoliosFetched, setPortfoliosFetched] = useState(false); // State to track if portfolios are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -29,17 +28,6 @@ const AssetPortfolioList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'portfolio_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastPortfolios, setIncludePastPortfolios] = useState(false); // State for switch
-    const [originalPortfolios, setOriginalPortfolios] = useState([]); // State to store original portfolios
-
-    const fetchPortfolios = async () => {
-        try {
-            const response = await axios.get(`/api/asset_portfolios?user_id=${currentUserId}`);
-            setOriginalPortfolios(response.data); // Store original portfolios
-            filterPortfolios(response.data); // Filter portfolios based on switch            
-        } catch (error) {
-            console.error('Error fetching portfolios:', error);
-        }
-    };
 
     const filterPortfolios = (portfoliosList) => {
         let filteredPortfolios = [];
@@ -62,11 +50,11 @@ const AssetPortfolioList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchPortfolios();
-    }, [currentUserId]);
+        filterPortfolios(portfoliosList);
+    }, []);
 
     useEffect(() => {
-        filterPortfolios(originalPortfolios); // Filter portfolios when includePastPortfolios changes
+        filterPortfolios(portfoliosList); // Filter portfolios when includePastPortfolios changes
     }, [includePastPortfolios]); // include Past Portfolios to portfolio/grid array
 
     const handleFormModalClose = () => {

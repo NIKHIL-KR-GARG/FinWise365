@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetOtherList = forwardRef((props, ref) => {
-    const { onOthersFetched } = props; // Destructure the new prop
+    const { onOthersFetched, othersList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [others, setOthers] = useState([]);
     const [othersFetched, setOthersFetched] = useState(false); // State to track if others are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -28,18 +27,7 @@ const AssetOtherList = forwardRef((props, ref) => {
     const [otherToDelete, setOtherToDelete] = useState(null); // State for other to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'other_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch
-    const [originalOthers, setOriginalOthers] = useState([]); // State to store original others
-
-    const fetchOthers = async () => {
-        try {
-            const response = await axios.get(`/api/asset_others?user_id=${currentUserId}`);
-            setOriginalOthers(response.data); // Store original others
-            filterOthers(response.data); // Filter others based on switch
-        } catch (error) {
-            console.error('Error fetching others:', error);
-        }
-    };
+    const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch to include past others
 
     const filterOthers = (othersList) => {
         let filteredOthers = [];
@@ -63,11 +51,11 @@ const AssetOtherList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchOthers();
-    }, [currentUserId]);
+        filterOthers(othersList);
+    }, []);
 
     useEffect(() => {
-        filterOthers(originalOthers); // Filter others when includePastOthers changes
+        filterOthers(othersList); // Filter others when includePastOthers changes
     }, [includePastOthers]); // Include Past Others to other/grid array
 
     const handleFormModalClose = () => {
