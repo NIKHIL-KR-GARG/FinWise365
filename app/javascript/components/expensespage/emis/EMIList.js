@@ -1,6 +1,5 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { Alert, Snackbar, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -10,7 +9,7 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const EMIList = forwardRef((props, ref) => {
-    const { onEMIsFetched } = props; // Destructure the new prop
+    const { onEMIsFetched, propertiesList, vehiclesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [emis, setEMIs] = useState({
@@ -23,36 +22,11 @@ const EMIList = forwardRef((props, ref) => {
         end_date: ''
     });
     const [emisFetched, setEMIsFetched] = useState(false); // State to track if emis are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
     const [sortingModel, setSortingModel] = useState([{ field: 'emi_name', sort: 'asc' }]); // Initialize with default sorting
 
-      const fetchProperties = async () => {
+    const fetchEMIs = (propertiesList, vehiclesList) => {
         try {
-            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching properties:', error);
-            return [];
-        }
-    };
-
-    const fetchVehicles = async () => {
-        try {
-            const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching vehicles:', error);
-            return [];
-        }
-    };
-    
-    const fetchEMIs = async () => {
-        try {
-            // fetch properties and vehicles for EMI's
-            const propertiesList = await fetchProperties();
-            const vehiclesList = await fetchVehicles();
-
             const propertyEMIs = propertiesList
             .filter(property => {
                 // derive end date based on purchase date and loan_duration
@@ -108,8 +82,8 @@ const EMIList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchEMIs();
-    }, [currentUserId]);
+        fetchEMIs(propertiesList, vehiclesList);
+    }, []);
 
     useImperativeHandle(ref, () => ({
         getEMICount() {

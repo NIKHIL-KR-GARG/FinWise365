@@ -38,12 +38,12 @@ const DreamsGraph = ({dreamsList}) => {
                             <YAxis />
                             <Tooltip />
                             <Legend content={renderLegend} />
-                            <Bar dataKey="property" stackId="a" fill="#8884d8" />
-                            <Bar dataKey="vehicle" stackId="a" fill="#82ca9d" />
-                            <Bar dataKey="education" stackId="a" fill="#ffc658" />
-                            <Bar dataKey="travel" stackId="a" fill="#ff7300" />
-                            <Bar dataKey="relocation" stackId="a" fill="#ff0000" />
-                            <Bar dataKey="other" stackId="a" fill="#00c49f" />
+                            <Bar dataKey="Property" stackId="a" fill="#8884d8" />
+                            <Bar dataKey="Vehicle" stackId="a" fill="#82ca9d" />
+                            <Bar dataKey="Education" stackId="a" fill="#ffc658" />
+                            <Bar dataKey="Travel" stackId="a" fill="#ff7300" />
+                            <Bar dataKey="Relocation" stackId="a" fill="#ff0000" />
+                            <Bar dataKey="Other" stackId="a" fill="#00c49f" />
                         </BarChart>
                     </ResponsiveContainer>
                 </Grid>

@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const ExpenseOtherList = forwardRef((props, ref) => {
-    const { onOthersFetched } = props; // Destructure the new prop
+    const { onOthersFetched, othersList, vehiclesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [others, setOthers] = useState([]);
     const [othersFetched, setOthersFetched] = useState(false); // State to track if others are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -29,33 +28,6 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'other_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch
-    const [originalOthers, setOriginalOthers] = useState([]); // State to store original others
-    const [vehicles, setVehicles] = useState([]); // State to store properties
-
-    const fetchVehicles = async () => {
-        try {
-            const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching vehicles:', error);
-            return [];
-        }
-    };
-
-    const fetchOthers = async () => {
-        try {
-            const response = await axios.get(`/api/expense_others?user_id=${currentUserId}`);
-            setOriginalOthers(response.data); // Save the original others
-
-            // fetch vehicles and set state
-            const vehiclesList = await fetchVehicles();
-            if (vehiclesList && vehiclesList.length > 0) setVehicles(vehiclesList);
-
-            filterOthers(response.data, vehiclesList); // Filter others based on the switch state
-        } catch (error) {
-            console.error('Error fetching others:', error);
-        }
-    };
 
     const filterOthers = (othersList, vehiclesList) => {
         let filteredOthers = [];
@@ -92,11 +64,11 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchOthers();
-    }, [currentUserId]);
+        filterOthers(othersList, vehiclesList);
+    }, []);
 
     useEffect(() => {
-        filterOthers(originalOthers, vehicles); // Filter others when includePastOthers changes
+        filterOthers(othersList, vehiclesList); // Filter others when includePastOthers changes
     }, [includePastOthers]); // Include Past Others to other/grid array
 
     const handleFormModalClose = () => {

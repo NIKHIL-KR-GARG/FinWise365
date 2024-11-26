@@ -122,12 +122,12 @@ const Dreams = () => {
                 for (let i = year; i <= (year + 50); i++) {
                     dreamsList.push({
                         year: i,
-                        property: 0,
-                        vehicle: 0,
-                        education: 0,
-                        travel: 0,
-                        relocation: 0,
-                        other: 0,
+                        Property: 0,
+                        Vehicle: 0,
+                        Education: 0,
+                        Travel: 0,
+                        Relocation: 0,
+                        Other: 0,
                         total_value: 0
                     });
                 }
@@ -145,7 +145,7 @@ const Dreams = () => {
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
                     const convertedValue = parseFloat(totalCost * conversionRate);
                     // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the property column
-                    dreamsList.find(dream => dream.year === purchaseYear).property += convertedValue;
+                    dreamsList.find(dream => dream.year === purchaseYear).Property += convertedValue;
                     if (purchaseYear > maxYear) maxYear = purchaseYear;
                 });
 
@@ -157,7 +157,7 @@ const Dreams = () => {
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
                     const convertedValue = parseFloat(purchaseValue * conversionRate);
                     // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the vehicle column
-                    dreamsList.find(dream => dream.year === purchaseYear).vehicle += convertedValue;
+                    dreamsList.find(dream => dream.year === purchaseYear).Vehicle += convertedValue;
                     if (purchaseYear > maxYear) maxYear = purchaseYear;
                 });
 
@@ -172,13 +172,13 @@ const Dreams = () => {
                         const educationEndYear = new Date(education.end_date).getFullYear();
                         for (let i = educationYear; i <= educationEndYear; i++) {
                             // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
-                            dreamsList.find(dream => dream.year === i).education += convertedValue;
+                            dreamsList.find(dream => dream.year === i).Education += convertedValue;
                         }
                         if (educationEndYear > maxYear) maxYear = educationEndYear;
                     }
                     else {
                         // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
-                        dreamsList.find(dream => dream.year === educationYear).education += convertedValue;
+                        dreamsList.find(dream => dream.year === educationYear).Education += convertedValue;
                         if (educationYear > maxYear) maxYear = educationYear;
                     }
                 });
@@ -191,7 +191,7 @@ const Dreams = () => {
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
                     const convertedValue = parseFloat(travelValue * conversionRate);
                     // find the corresponding row in the dreamsList array where year = travelYear and add the value to the travel column
-                    dreamsList.find(dream => dream.year === travelYear).travel += convertedValue;
+                    dreamsList.find(dream => dream.year === travelYear).Travel += convertedValue;
                     if (travelYear > maxYear) maxYear = travelYear;
                 });
 
@@ -203,7 +203,7 @@ const Dreams = () => {
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
                     const convertedValue = parseFloat(relocationValue * conversionRate);
                     // find the corresponding row in the dreamsList array where year = relocationYear and add the value to the relocation column
-                    dreamsList.find(dream => dream.year === relocationYear).relocation += convertedValue;
+                    dreamsList.find(dream => dream.year === relocationYear).Relocation += convertedValue;
                     if (relocationYear > maxYear) maxYear = relocationYear;
                 });
                 
@@ -215,19 +215,19 @@ const Dreams = () => {
                     const conversionRate = exchangeRate ? exchangeRate.value : 1;
                     const convertedValue = parseFloat(otherValue * conversionRate);
                     // find the corresponding row in the dreamsList array where year = otherYear and add the value to the other column
-                    dreamsList.find(dream => dream.year === otherYear).other += convertedValue;
+                    dreamsList.find(dream => dream.year === otherYear).Other += convertedValue;
                     if (otherYear > maxYear) maxYear = otherYear;
                 });    
                 
                 // loop through the dreamsList array from maxYear + 1 to end of array and delete all these rows as these are empty rows
                 for (let i = year; i <= (year + 50); i++) {                    
                     dreamsList.find(dream => dream.year === i).total_value =   
-                        dreamsList.find(dream => dream.year === i).property +
-                        dreamsList.find(dream => dream.year === i).vehicle +
-                        dreamsList.find(dream => dream.year === i).education +
-                        dreamsList.find(dream => dream.year === i).travel +
-                        dreamsList.find(dream => dream.year === i).relocation +
-                        dreamsList.find(dream => dream.year === i).other;
+                        dreamsList.find(dream => dream.year === i).Property +
+                        dreamsList.find(dream => dream.year === i).Vehicle +
+                        dreamsList.find(dream => dream.year === i).Education +
+                        dreamsList.find(dream => dream.year === i).Travel +
+                        dreamsList.find(dream => dream.year === i).Relocation +
+                        dreamsList.find(dream => dream.year === i).Other;
                     
                     if (i > maxYear) {
                         dreamsList.splice(dreamsList.findIndex(dream => dream.year === i), 1);
@@ -417,7 +417,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <HomeIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Properties ({propertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.property, 0))}</strong>
+                                        Properties ({propertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Property, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -432,7 +432,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarIcon sx={{ mr: 1, color: 'red' }} />
-                                        Vehicles ({vehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.vehicle, 0))}</strong>
+                                        Vehicles ({vehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Vehicle, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -447,7 +447,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <SchoolIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Education ({educationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.education, 0))}</strong>
+                                        Education ({educationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Education, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -462,7 +462,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <FlightIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Travel ({travelCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.travel, 0))}</strong>
+                                        Travel ({travelCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Travel, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -477,7 +477,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MovingIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Relocation ({relocationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.relocation, 0))}</strong>
+                                        Relocation ({relocationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Relocation, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -492,7 +492,7 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
-                                        Other Dreams ({otherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.other, 0))}</strong>
+                                        Other Dreams ({otherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Other, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>

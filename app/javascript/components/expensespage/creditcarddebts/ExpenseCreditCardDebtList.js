@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
-    const { onCreditCardDebtsFetched } = props; // Destructure the new prop
+    const { onCreditCardDebtsFetched, creditcarddebtsList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [creditcarddebts, setCreditCardDebts] = useState([]);
     const [creditcarddebtsFetched, setCreditCardDebtsFetched] = useState(false); // State to track if creditcarddebts are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -29,17 +28,6 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'card_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastCreditCardDebts, setIncludePastCreditCardDebts] = useState(false); // State for switch
-    const [originalCreditCardDebts, setOriginalCreditCardDebts] = useState([]); // State to store original credicarddebts
-
-    const fetchCreditCardDebts = async () => {
-        try {
-            const response = await axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}`);
-            setOriginalCreditCardDebts(response.data); // Save the original credicarddebts
-            filterCreditCardDebts(response.data); // Filter credicarddebts based on the switch state
-        } catch (error) {
-            console.error('Error fetching creditcarddebts:', error);
-        }
-    };
 
     const filterCreditCardDebts = (creditcarddebtsList) => {
         let filteredCreditCardDebts = [];
@@ -63,11 +51,11 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchCreditCardDebts();
-    }, [currentUserId]);
+        filterCreditCardDebts(creditcarddebtsList);
+    }, []);
 
     useEffect(() => {
-        filterCreditCardDebts(originalCreditCardDebts); // Filter creditcarddebts when includePastCreditCardDebts changes
+        filterCreditCardDebts(creditcarddebtsList); // Filter creditcarddebts when includePastCreditCardDebts changes
     }, [includePastCreditCardDebts]); // Include Past CreditCardDebts to creditcarddebt/grid array
 
     const handleFormModalClose = () => {

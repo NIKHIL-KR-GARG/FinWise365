@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const ExpenseHomeList = forwardRef((props, ref) => {
-    const { onHomesFetched } = props; // Destructure the new prop
+    const { onHomesFetched, homesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [homes, setHomes] = useState([]);
     const [homesFetched, setHomesFetched] = useState(false); // State to track if homes are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -29,18 +28,7 @@ const ExpenseHomeList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'home_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastHomes, setIncludePastHomes] = useState(false); // State for switch
-    const [originalHomes, setOriginalHomes] = useState([]); // State to store original homes
-
-    const fetchHomes = async () => {
-        try {
-            const response = await axios.get(`/api/expense_homes?user_id=${currentUserId}`);
-            setOriginalHomes(response.data); // Save the original homes
-            filterHomes(response.data); // Filter homes based on the switch state
-        } catch (error) {
-            console.error('Error fetching homes:', error);
-        }
-    };
-
+    
     const filterHomes = (homesList) => {
         let filteredHomes = [];
         if (!includePastHomes)
@@ -63,12 +51,12 @@ const ExpenseHomeList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchHomes();
-    }, [currentUserId]);
+        filterHomes(homesList); // Filter homes based on the switch state
+    }, []);
 
     useEffect(() => {
-        filterHomes(originalHomes); // Filter homes when includePastHomes changes
-    }, [includePastHomes]); // Include Past Homes to home/grid array
+        filterHomes(homesList); // Filter homes when includePastHomes changes
+    }, [includePastHomes]); // Include Past Homes in home/grid array
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);

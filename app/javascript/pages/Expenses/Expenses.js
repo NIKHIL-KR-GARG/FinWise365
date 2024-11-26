@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link } from '@mui/material';
-//icons
+import axios from 'axios';
+import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
@@ -31,6 +31,9 @@ import EMIList from '../../components/expensespage/emis/EMIList';
 import SIPList from '../../components/expensespage/sips/SIPList';
 import TaxList from '../../components/expensespage/taxes/TaxList';
 
+import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
+import FormatCurrency from '../../components/common/FormatCurrency';
+
 const Expenses = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
@@ -55,6 +58,28 @@ const Expenses = () => {
     const [emiCount, setEMICount] = useState(0);
     const [sipCount, setSIPCount] = useState(0);
     const [taxCount, setTaxCount] = useState(0);
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const [homes, setHomes] = useState([]);
+    const [properties, setProperties] = useState([]);
+    const [creditCardDebts, setCreditCardDebts] = useState([]);
+    const [personalLoans, setPersonalLoans] = useState([]);
+    const [otherExpenses, setOtherExpenses] = useState([]);
+    const [assetProperties, setAssetProperties] = useState([]);
+    const [assetVehicles, setAssetVehicles] = useState([]);
+    const [assetDeposits, setAssetDeposits] = useState([]);
+    const [assetPortfolios, setAssetPortfolios] = useState([]);
+    const [assetOthers, setAssetOthers] = useState([]);
+    // const [emis, setEMIs] = useState([]);
+    // const [sips, setSIPs] = useState([]);
+    // const [taxes, setTaxes] = useState([]);   
+
+    const [expensesData, setExpensesData] = useState([]);
+
+    const currentUserId = localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
     useEffect(() => {
         if (homeListRef.current) {
@@ -82,6 +107,150 @@ const Expenses = () => {
             setTaxCount(taxListRef.current.getTaxCount());
         }
     }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // fetch all the data
+                const [homesResponse, propertiesResponse, creditCardDebtsResponse, 
+                    personalLoansResponse, othersResponse, assetPropertiesResponse,
+                    assetVehiclesResponse, assetDepositsResponse, assetPortfoliosResponse,
+                    assetOthersResponse] = await Promise.all([
+                    axios.get(`/api/expense_homes?user_id=${currentUserId}`),
+                    axios.get(`/api/expense_properties?user_id=${currentUserId}`),
+                    axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}`),
+                    axios.get(`/api/expense_personal_loans?user_id=${currentUserId}`),
+                    axios.get(`/api/expense_others?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_properties?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_deposits?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_portfolios?user_id=${currentUserId}`),
+                    axios.get(`/api/asset_others?user_id=${currentUserId}`)
+                ]);
+
+                // set state for all the lists
+                setHomes(homesResponse.data);
+                setProperties(propertiesResponse.data);
+                setCreditCardDebts(creditCardDebtsResponse.data);
+                setPersonalLoans(personalLoansResponse.data);
+                setOtherExpenses(othersResponse.data);
+                setAssetProperties(assetPropertiesResponse.data);
+                setAssetVehicles(assetVehiclesResponse.data);
+                setAssetDeposits(assetDepositsResponse.data);
+                setAssetPortfolios(assetPortfoliosResponse.data);
+                setAssetOthers(assetOthersResponse.data);
+
+                const today = new Date();
+                // get all the home expenses for the current month
+                let homeExpenses = 0.0;
+                for (let i = 0; i < homesResponse.data.length; i++) {
+                    let home = homesResponse.data[i];
+                    homeExpenses += parseFloat(homeExpense(home, today, currentUserBaseCurrency));
+                }
+
+                // get all the property expenses for the current month
+                let propertyExpenses = 0.0;
+                for (let i = 0; i < propertiesResponse.data.length; i++) {
+                    let property = propertiesResponse.data[i];
+                    propertyExpenses += parseFloat(propertyExpense(property, today, currentUserBaseCurrency));
+                }
+                // add maintenance from asset properties
+                for (let i = 0; i < assetPropertiesResponse.data.length; i++) {
+                    let property = assetPropertiesResponse.data[i];
+                    propertyExpenses += parseFloat(maintananeExpenseProperty(property, today, currentUserBaseCurrency));
+                }
+
+                // get all the credit card debt expenses for the current month
+                let creditCardDebtExpenses = 0.0;
+                for (let i = 0; i < creditCardDebtsResponse.data.length; i++) {
+                    let creditCardDebt = creditCardDebtsResponse.data[i];
+                    creditCardDebtExpenses += parseFloat(creditCardDebtExpense(creditCardDebt, today, currentUserBaseCurrency));
+                }
+
+                // get all the personal loan expenses for the current month
+                let personalLoanExpenses = 0.0;
+                for (let i = 0; i < personalLoansResponse.data.length; i++) {
+                    let personalLoan = personalLoansResponse.data[i];
+                    personalLoanExpenses += parseFloat(personalLoanExpense(personalLoan, today, currentUserBaseCurrency));
+                }
+
+                // get all the other expenses for the current month
+                let otherExpenses = 0.0;
+                for (let i = 0; i < othersResponse.data.length; i++) {
+                    let other = othersResponse.data[i];
+                    otherExpenses += parseFloat(otherExpense(other, today, currentUserBaseCurrency));
+                }
+                // add monthly expense from asset vehicles
+                for (let i = 0; i < assetVehiclesResponse.data.length; i++) {
+                    let vehicle = assetVehiclesResponse.data[i];
+                    otherExpenses += parseFloat(otherExpenseVehicle(vehicle, today, currentUserBaseCurrency));
+                }
+                
+                // get all the emi expenses for the current month
+                let emiExpenses = 0.0;
+                for (let i = 0; i < assetPropertiesResponse.data.length; i++) {
+                    let property = assetPropertiesResponse.data[i];
+                    emiExpenses += parseFloat(emiExpenseProperty(property, today, currentUserBaseCurrency));
+                }
+                for (let i = 0; i < assetVehiclesResponse.data.length; i++) {
+                    let vehicle = assetVehiclesResponse.data[i];
+                    emiExpenses += parseFloat(emiExpenseVehicle(vehicle, today, currentUserBaseCurrency));
+                }
+
+                // get all the sip expenses for the current month
+                let sipExpenses = 0.0;
+                for (let i = 0; i < assetDepositsResponse.data.length; i++) {
+                    let deposit = assetDepositsResponse.data[i];
+                    sipExpenses += parseFloat(sipExpenseDeposit(deposit, today, currentUserBaseCurrency));
+                }
+                for (let i = 0; i < assetPortfoliosResponse.data.length; i++) {
+                    let portfolio = assetPortfoliosResponse.data[i];
+                    sipExpenses += parseFloat(sipExpensePortfolio(portfolio, today, currentUserBaseCurrency));
+                }
+                for (let i = 0; i < assetOthersResponse.data.length; i++) {
+                    let other = assetOthersResponse.data[i];
+                    sipExpenses += parseFloat(sipExpenseOtherAsset(other, today, currentUserBaseCurrency));
+                }
+
+                // get all the tax expenses for the current month
+                let taxExpenses = 0.0;
+                for (let i = 0; i < assetPropertiesResponse.data.length; i++) {
+                    let property = assetPropertiesResponse.data[i];
+                    taxExpenses += parseFloat(taxExpenseProperty(property, today, currentUserBaseCurrency));
+                }
+
+                // set the expenses list
+                setExpensesData([
+                    { name: 'Home Expenses', value: parseFloat(homeExpenses.toFixed(2)) },
+                    { name: 'Property Expenses', value: parseFloat(propertyExpenses.toFixed(2)) },
+                    { name: 'Credit Card Debt Expenses', value: parseFloat(creditCardDebtExpenses.toFixed(2)) },
+                    { name: 'Personal Loan Expenses', value: parseFloat(personalLoanExpenses.toFixed(2)) },
+                    { name: 'Other Expenses', value: parseFloat(otherExpenses.toFixed(2)) },
+                    { name: 'EMI Expenses', value: parseFloat(emiExpenses.toFixed(2)) },
+                    { name: 'SIP Expenses', value: parseFloat(sipExpenses.toFixed(2)) },
+                    { name: 'Tax Expenses', value: parseFloat(taxExpenses.toFixed(2)) }
+                ]);
+
+                setLoading(false);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Error fetching data');
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [currentUserId]);
+
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    if (error) {
+        return <Typography color="error">{error}</Typography>;
+    }
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -207,7 +376,7 @@ const Expenses = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            <ExpensesGraph />
+                            <ExpensesGraph expensesData={expensesData}/>
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
@@ -219,11 +388,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <HomeIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Home Expenses ({homeCount})
+                                        Home Expenses ({homeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Home Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpenseHomeList ref={homeListRef} onHomesFetched={handleHomesFetched} />
+                                    <ExpenseHomeList ref={homeListRef} onHomesFetched={handleHomesFetched} homesList={homes}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -234,11 +403,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <ApartmentIcon sx={{ mr: 1, color: 'red' }} />
-                                        Property Expenses ({propertyCount})
+                                        Property Expenses ({propertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Property Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpensePropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} />
+                                    <ExpensePropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} propertiesList={properties} assetPropertiesList={assetProperties}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -249,11 +418,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <CreditCardIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Credit Card Debts ({creditCardDebtCount})
+                                        Credit Card Debts ({creditCardDebtCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Credit Card Debt Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpenseCreditCardDebtList ref={creditCardDebtListRef} onCreditCardDebtsFetched={handleCreditCardDebtsFetched} />
+                                    <ExpenseCreditCardDebtList ref={creditCardDebtListRef} onCreditCardDebtsFetched={handleCreditCardDebtsFetched} creditcarddebtsList={creditCardDebts}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -264,11 +433,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <PersonIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Personal Loans ({personalLoanCount})
+                                        Personal Loans ({personalLoanCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Personal Loan Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpensePersonalLoanList ref={personalLoanListRef} onPersonalLoansFetched={handlePersonalLoansFetched} />
+                                    <ExpensePersonalLoanList ref={personalLoanListRef} onPersonalLoansFetched={handlePersonalLoansFetched} personalloansList={personalLoans}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -279,11 +448,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
-                                        Other Expenses ({otherCount})
+                                        Other Expenses ({otherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Other Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} />
+                                    <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} othersList={otherExpenses} vehiclesList={assetVehicles}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -294,11 +463,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarIcon sx={{ mr: 1, color: 'blue' }} /> {/* Updated color */}
-                                        Current EMI's - Property/Vehicle ({emiCount})
+                                        Current EMI's - Property/Vehicle ({emiCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'EMI Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <EMIList ref={emiListRef} onEMIsFetched={handleEMIsFetched} />
+                                    <EMIList ref={emiListRef} onEMIsFetched={handleEMIsFetched} propertiesList={assetProperties} vehiclesList={assetVehicles}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -309,11 +478,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <SavingsIcon sx={{ mr: 1, color: 'purple' }} /> {/* Updated color */}
-                                        Current SIP's - Investment Portfolios ({sipCount})
+                                        Current SIP's - Investment Portfolios ({sipCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'SIP Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <SIPList ref={sipListRef} onSIPsFetched={handleSIPsFetched} />
+                                    <SIPList ref={sipListRef} onSIPsFetched={handleSIPsFetched} depositsList={assetDeposits} portfoliosList={assetPortfolios} otherAssetsList={assetOthers}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -324,11 +493,11 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceIcon sx={{ mr: 1, color: 'orange' }} /> {/* Updated color */}
-                                        Taxes - Income Tax, Property Tax ({taxCount})
+                                        Taxes - Income Tax, Property Tax ({taxCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Tax Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <TaxList ref={taxListRef} onTaxesFetched={handleTaxesFetched} />
+                                    <TaxList ref={taxListRef} onTaxesFetched={handleTaxesFetched} assetPropertiesList={assetProperties}/>
                                 </AccordionDetails>
                             </Accordion>
                         </Box>

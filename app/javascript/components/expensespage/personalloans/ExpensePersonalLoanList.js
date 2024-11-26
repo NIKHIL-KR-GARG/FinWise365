@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const ExpensePersonalLoanList = forwardRef((props, ref) => {
-    const { onPersonalLoansFetched } = props; // Destructure the new prop
+    const { onPersonalLoansFetched, personalloansList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [personalloans, setPersonalLoans] = useState([]);
     const [personalloansFetched, setPersonalLoansFetched] = useState(false); // State to track if personalloans are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -29,17 +28,6 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'card_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastPersonalLoans, setIncludePastPersonalLoans] = useState(false); // State for switch
-    const [originalPersonalLoans, setOriginalPersonalLoans] = useState([]); // State to store original personalloans
-
-    const fetchPersonalLoans = async () => {
-        try {
-            const response = await axios.get(`/api/expense_personal_loans?user_id=${currentUserId}`);
-            setOriginalPersonalLoans(response.data); // Save the original personalloans
-            filterPersonalLoans(response.data); // Filter personalloans based on the switch state
-        } catch (error) {
-            console.error('Error fetching personal loans:', error);
-        }
-    };
 
     const filterPersonalLoans = (personalloansList) => {
         let filteredPersonalLoans = [];
@@ -63,11 +51,11 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchPersonalLoans();
-    }, [currentUserId]);
+        filterPersonalLoans(personalloansList);
+    }, []);
 
     useEffect(() => {
-        filterPersonalLoans(originalPersonalLoans); // Filter personalloans when includePastPersonalLoans changes
+        filterPersonalLoans(personalloansList); // Filter personalloans when includePastPersonalLoans changes
     }, [includePastPersonalLoans]); // Include Past PersonalLoans to personalloan/grid array
 
 

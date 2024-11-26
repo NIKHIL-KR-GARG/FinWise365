@@ -1,6 +1,5 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { Alert, Snackbar, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -10,7 +9,7 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const TaxList = forwardRef((props, ref) => {
-    const { onTaxesFetched } = props; // Destructure the new prop
+    const { onTaxesFetched, assetPropertiesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [taxes, setTaxes] = useState({
@@ -25,24 +24,11 @@ const TaxList = forwardRef((props, ref) => {
         end_date: ''
     });
     const [taxesFetched, setTaxesFetched] = useState(false); // State to track if taxes are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
     const [sortingModel, setSortingModel] = useState([{ field: 'tax_name', sort: 'asc' }]); // Initialize with default sorting
-
-    const fetchAssetProperties = async () => {
-        try {
-            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching property assets:', error);
-        }
-    };
     
-    const fetchTaxes = async () => {
+    const fetchTaxes = (assetPropertiesList) => {
         try {
-            // fetch asset properties
-            const assetPropertiesList = await fetchAssetProperties();
-
             // filter asset properties and add to taxes list
             const propertyTax = assetPropertiesList
                 .filter(assetProperty => {
@@ -77,8 +63,8 @@ const TaxList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchTaxes();
-    }, [currentUserId]);
+        fetchTaxes(assetPropertiesList);
+    }, []);
 
     useImperativeHandle(ref, () => ({
         getTaxCount() {

@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const ExpensePropertyList = forwardRef((props, ref) => {
-    const { onPropertiesFetched } = props; // Destructure the new prop
+    const { onPropertiesFetched, propertiesList, assetPropertiesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [properties, setProperties] = useState([]);
     const [propertiesFetched, setPropertiesFetched] = useState(false); // State to track if properties are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -28,33 +27,7 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     const [propertyToDelete, setPropertyToDelete] = useState(null); // State for property to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'property_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch
-    const [originalProperties, setOriginalProperties] = useState([]); // State to store original properties
-    const [assetProperties, setAssetProperties] = useState([]); // State to store asset_properties
-
-    const fetchAssetProperties = async () => {
-        try {
-            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching property assets:', error);
-        }
-    };
-
-    const fetchProperties = async () => {
-        try {
-            const response = await axios.get(`/api/expense_properties?user_id=${currentUserId}`);
-            setOriginalProperties(response.data); // Save the original properties
-
-            // fetch asset properties and set state
-            const assetPropertiesResponse = await fetchAssetProperties();
-            if (assetPropertiesResponse && assetPropertiesResponse.length > 0) setAssetProperties(assetPropertiesResponse);
-            
-            filterProperties(response.data, assetPropertiesResponse); // Filter properties based on the switch state
-        } catch (error) {
-            console.error('Error fetching properties:', error);
-        }
-    };  
+    const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch to include past properties
 
     const filterProperties = (propertiesList, assetPropertiesList) => {
         let filteredProperties = [];
@@ -100,11 +73,11 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchProperties();
-    }, [currentUserId]);
+        filterProperties(propertiesList, assetPropertiesList);
+    }, []);
 
     useEffect(() => {
-        filterProperties(originalProperties, assetProperties); // Filter properties when includePastProperties changes
+        filterProperties(propertiesList, assetPropertiesList); // Filter properties when includePastProperties changes
     }, [includePastProperties]); // Include Past Properties to property/grid array
 
     const handleFormModalClose = () => {
