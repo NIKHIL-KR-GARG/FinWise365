@@ -11,6 +11,7 @@ import '../../common/GridHeader.css';
 import AssetIncomeForm from './AssetIncomeForm';
 import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
+import { portfolioAssetValue } from '../../calculators/Assets';
 
 const AssetIncomeList = forwardRef((props, ref) => {
     const { onIncomesFetched, incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList } = props; // Destructure the new prop
@@ -63,7 +64,8 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 income_type: 'Dividend',
                 location: portfolio.location,
                 currency: portfolio.currency,
-                amount: portfolio.dividend_amount,
+                // amount: portfolio.dividend_amount,
+                amount: calculateDividendAmount(parseFloat(portfolioAssetValue(portfolio, new Date(), portfolio.currency)), portfolio.dividend_frequency, portfolio.dividend_rate),
                 start_date: portfolio.buying_date,
                 end_date: portfolio.sale_date,
                 is_recurring: true,
@@ -160,6 +162,14 @@ const AssetIncomeList = forwardRef((props, ref) => {
     useEffect(() => {
         filterIncomes(incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList); // Filter incomes when includePastIncomes changes
     }, [includePastIncomes]); // Include Past Incomes to income/grid array
+
+    const calculateDividendAmount = (value, frequency, rate) => {
+        let dividendAmount = value * (rate / 100);
+        if (frequency === 'Monthly') dividendAmount = dividendAmount / 12;
+        else if (frequency === 'Quarterly') dividendAmount = dividendAmount / 4;
+        else if (frequency === 'Semi-Annually') dividendAmount = dividendAmount / 2;
+        return parseFloat(dividendAmount).toFixed(2);
+    };
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);

@@ -77,22 +77,6 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                 [name]: newValue
             });
         }
-        // check if dividend rate is changed, then calculate dividend amount and update in the portfolio
-        if (name === 'dividend_rate') {
-            const dividendAmount = portfolio.buying_value * (value / 100);
-            setPortfolio((prevPortfolio) => ({
-                ...prevPortfolio,
-                dividend_amount: dividendAmount
-            }));
-        }
-        // else if dividend amount is changed, then calculate dividend rate and update in the portfolio
-        if (name === 'dividend_amount') {
-            const dividendRate = (value / portfolio.buying_value) * 100;
-            setPortfolio((prevPortfolio) => ({
-                ...prevPortfolio,
-                dividend_rate: dividendRate
-            }));
-        }
         // if portfolio type is changed to Bonds, then make growth rate field 0 and empty out the dividend fields
         if (name === 'portfolio_type') {
             if (value === 'Bonds') {
@@ -154,6 +138,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
     };
 
     const calculateDividendAmount = (frequency, rate) => {
+
         let dividendAmount = portfolio.buying_value * (rate / 100);
         if (frequency === 'Monthly') dividendAmount = dividendAmount / 12;
         else if (frequency === 'Quarterly') dividendAmount = dividendAmount / 4;
@@ -843,7 +828,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                         <Grid item size={6}>
                                             <TextField
                                                 variant="standard"
-                                                label="Dividend Amount"
+                                                label="Dividend Amount (Based on Original Buying Value)"
                                                 name="dividend_amount"
                                                 value={FormatCurrency(portfolio.currency, parseFloat(portfolio.dividend_amount))}
                                                 onChange={handleChange}
