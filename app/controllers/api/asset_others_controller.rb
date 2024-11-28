@@ -5,7 +5,7 @@ class Api::AssetOthersController < ApplicationController
     # GET /api/asset_others
     def index
         if params[:user_id]
-            @asset_others = AssetOther.where(user_id: params[:user_id])
+            @asset_others = AssetOther.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @asset_others = AssetOther.all
         end
@@ -71,6 +71,7 @@ class Api::AssetOthersController < ApplicationController
             :payout_value,
             :total_interest,
             :total_principal,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

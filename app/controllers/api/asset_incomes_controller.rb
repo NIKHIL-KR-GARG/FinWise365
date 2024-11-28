@@ -4,7 +4,7 @@ class Api::AssetIncomesController < ApplicationController
     # GET /api/asset_incomes
     def index
         if params[:user_id]
-            @asset_incomes = AssetIncome.where(user_id: params[:user_id])
+            @asset_incomes = AssetIncome.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @asset_incomes = AssetIncome.all
         end
@@ -61,6 +61,7 @@ class Api::AssetIncomesController < ApplicationController
             :is_recurring,
             :income_frequency,
             :growth_rate,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

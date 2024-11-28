@@ -416,6 +416,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
+                                disabled={personalloan.is_dummy_data}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

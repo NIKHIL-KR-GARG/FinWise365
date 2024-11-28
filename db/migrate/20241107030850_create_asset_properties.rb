@@ -42,7 +42,8 @@ class CreateAssetProperties < ActiveRecord::Migration[7.2]
       t.boolean :is_under_construction
       t.date :launch_date
       t.date :possession_date
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

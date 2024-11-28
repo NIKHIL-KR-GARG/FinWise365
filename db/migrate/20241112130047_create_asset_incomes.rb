@@ -12,7 +12,8 @@ class CreateAssetIncomes < ActiveRecord::Migration[7.2]
       t.boolean :is_recurring
       t.string :income_frequency
       t.float :growth_rate
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

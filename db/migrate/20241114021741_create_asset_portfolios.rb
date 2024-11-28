@@ -29,7 +29,8 @@ class CreateAssetPortfolios < ActiveRecord::Migration[7.2]
       t.float :profit_percentage
       t.float :loss
       t.float :loss_percentage
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

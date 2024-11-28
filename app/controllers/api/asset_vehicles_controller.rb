@@ -4,7 +4,7 @@ class Api::AssetVehiclesController < ApplicationController
     # GET /api/asset_vehicles
     def index
         if params[:user_id]
-            @asset_vehicles = AssetVehicle.where(user_id: params[:user_id])
+            @asset_vehicles = AssetVehicle.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @asset_vehicles = AssetVehicle.all
         end
@@ -82,6 +82,7 @@ class Api::AssetVehiclesController < ApplicationController
             :sale_amount,
             :scrap_value,
             :depreciation_rate,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

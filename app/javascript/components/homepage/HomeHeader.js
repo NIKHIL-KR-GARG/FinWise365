@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Box, Avatar, Link } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Box, Avatar, Link, Button } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PowerIcon from '@mui/icons-material/Power';
+import PowerOffIcon from '@mui/icons-material/PowerOff';
 import HomeUserMenuModal from './HomeUserMenuModal';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const HomeHeader = ({ open, handleDrawerToggle }) => {
     
+    const navigate = useNavigate();
+
+    const currentUserId = localStorage.getItem('currentUserId');
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
-    //const currentUserLastName = localStorage.getItem('currentUserLastName');
-    //const currentUserEmail = localStorage.getItem('currentUserEmail');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-
+    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    
     const [anchorEl, setAnchorEl] = useState(null);
+    const [isDemoData, setIsDemoData] = useState(currentUserDisplayDummyData === 'true');
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -22,6 +28,35 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
 
     const handleClosePopover = () => {
         setAnchorEl(null);
+    };
+
+    const [user, setUser] = useState({
+        is_display_dummy_data: currentUserDisplayDummyData === 'true'
+    });
+
+    useEffect(() => {
+        setIsDemoData(currentUserDisplayDummyData === 'true');
+    }, [currentUserDisplayDummyData]);
+
+    const handleDemoDataToggle = async () => {
+        try {
+            const updatedUser = {
+                ...user,
+                is_display_dummy_data: !isDemoData
+            };
+
+            const response = await axios.put(`/api/users/${currentUserId}`, updatedUser);
+            if (response.status === 200) {
+                setUser(updatedUser);
+                setIsDemoData(!isDemoData);
+
+                localStorage.setItem('currentUserDisplayDummyData', !isDemoData);
+                // Redirect to the home page
+                navigate('/home');
+            }
+        } catch (error) {
+            console.error('Error updating demo data:', error);
+        }
     };
 
     return (
@@ -44,6 +79,19 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
                         >
                             {open ? <ChevronLeftIcon /> : <MenuIcon />}
                         </IconButton>
+                    </Box>
+                    <Box sx={{ justifyContent: 'center', alignItems: 'center', gap: 2, flexGrow: 1 }}>
+                        <Typography variant="h7" sx={{ color: 'white', mr: 2, fontStyle: 'italic' }}>
+                            Discover the power of financial wisdom with the <strong>"demo data"</strong> and start adding <strong>"your data"</strong> when you are ready!
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            startIcon={isDemoData ? <PowerOffIcon /> : <PowerIcon />}
+                            onClick={handleDemoDataToggle}
+                        >
+                            {isDemoData ? 'Switch off demo data' : 'Switch on demo data'}
+                        </Button>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 2, pr: 2, alignItems: 'center' }}>
                         <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: '#fff9e6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black' }}>

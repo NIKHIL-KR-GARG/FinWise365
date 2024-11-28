@@ -78,6 +78,7 @@ class Api::UsersController < ApplicationController
         :nationality,
         :is_email_verified,
         :is_phone_no_verified,
+        :is_display_dummy_data,
         :created_at,
         :updated_at
       )

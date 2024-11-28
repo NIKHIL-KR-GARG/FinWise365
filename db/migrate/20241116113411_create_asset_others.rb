@@ -21,7 +21,8 @@ class CreateAssetOthers < ActiveRecord::Migration[7.2]
       t.float :total_interest
       t.float :total_principal
       t.string :payout_frequency
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

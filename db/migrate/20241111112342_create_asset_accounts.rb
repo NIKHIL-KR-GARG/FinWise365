@@ -13,7 +13,8 @@ class CreateAssetAccounts < ActiveRecord::Migration[7.2]
       t.float :minimum_balance
       t.boolean :is_plan_to_close
       t.date :closure_date
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

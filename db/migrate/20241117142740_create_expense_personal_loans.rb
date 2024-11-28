@@ -12,7 +12,8 @@ class CreateExpensePersonalLoans < ActiveRecord::Migration[7.2]
       t.float :loan_amount
       t.float :interest_rate
       t.float :emi_amount
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

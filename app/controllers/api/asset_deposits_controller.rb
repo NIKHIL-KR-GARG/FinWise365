@@ -4,7 +4,7 @@ class Api::AssetDepositsController < ApplicationController
     # GET /api/asset_deposits
     def index
         if params[:user_id]
-            @asset_deposits = AssetDeposit.where(user_id: params[:user_id])
+            @asset_deposits = AssetDeposit.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @asset_deposits = AssetDeposit.all
         end
@@ -67,6 +67,7 @@ class Api::AssetDepositsController < ApplicationController
             :payment_amount,
             :total_interest,
             :total_principal,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

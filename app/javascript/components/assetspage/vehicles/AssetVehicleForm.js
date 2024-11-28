@@ -916,6 +916,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
+                                disabled={vehicle.is_dummy_data}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

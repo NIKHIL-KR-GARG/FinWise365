@@ -26,7 +26,8 @@ class CreateExpenseProperties < ActiveRecord::Migration[7.2]
       t.float :expense_value_8
       t.float :total_expense
       t.float :inflation_rate
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

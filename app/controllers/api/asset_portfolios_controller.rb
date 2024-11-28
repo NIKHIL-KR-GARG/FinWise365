@@ -4,7 +4,7 @@ class Api::AssetPortfoliosController < ApplicationController
     # GET /api/asset_portfolios
     def index
         if params[:user_id]
-            @asset_portfolios = AssetPortfolio.where(user_id: params[:user_id])
+            @asset_portfolios = AssetPortfolio.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @asset_portfolios = AssetPortfolio.all
         end
@@ -78,6 +78,7 @@ class Api::AssetPortfoliosController < ApplicationController
             :profit_percentage,
             :loss,
             :loss_percentage,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

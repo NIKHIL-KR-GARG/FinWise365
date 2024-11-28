@@ -4,7 +4,7 @@ class Api::ExpenseOthersController < ApplicationController
     # GET /api/expense_others
     def index
         if params[:user_id]
-            @expense_others = ExpenseOther.where(user_id: params[:user_id])
+            @expense_others = ExpenseOther.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @expense_others = ExpenseOther.all
         end
@@ -62,6 +62,7 @@ class Api::ExpenseOthersController < ApplicationController
             :recurring_amount,
             :inflation_rate,
             :recurring_frequency,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

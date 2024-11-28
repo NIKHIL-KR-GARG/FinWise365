@@ -13,7 +13,8 @@ class CreateExpenseOthers < ActiveRecord::Migration[7.2]
       t.float :recurring_amount
       t.float :inflation_rate
       t.string :recurring_frequency
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

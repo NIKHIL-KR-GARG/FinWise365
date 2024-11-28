@@ -33,6 +33,7 @@ class CreateAssetVehicles < ActiveRecord::Migration[7.2]
       t.date :lease_end_date
       t.float :lease_amount
       t.float :lease_growth_rate
+      t.boolean :is_dummy_data
       
       t.timestamps
     end

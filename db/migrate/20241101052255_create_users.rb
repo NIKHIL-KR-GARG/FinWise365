@@ -16,6 +16,7 @@ class CreateUsers < ActiveRecord::Migration[7.2]
       t.boolean :is_phone_no_verified
       t.string :gender
       t.string :nationality
+      t.boolean :is_display_dummy_data
 
       t.timestamps
     end

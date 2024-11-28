@@ -67,7 +67,8 @@ const Dreams = () => {
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-
+    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
@@ -93,9 +94,9 @@ const Dreams = () => {
         const fetchData = async () => {
             try {
                 const [propertiesResponse, vehiclesResponse, dreamsResponse] = await Promise.all([
-                    axios.get(`/api/asset_properties?user_id=${currentUserId}`),
-                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}`),
-                    axios.get(`/api/dreams?user_id=${currentUserId}`)
+                    axios.get(`/api/asset_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                 ]);
 
                 // filter properties where purchase_date is in the future

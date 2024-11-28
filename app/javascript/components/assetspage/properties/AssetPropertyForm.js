@@ -1231,6 +1231,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
+                                disabled={property.is_dummy_data}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

@@ -621,6 +621,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
+                                disabled={other.is_dummy_data}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

@@ -486,6 +486,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
+                                disabled={dream.is_dummy_data}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

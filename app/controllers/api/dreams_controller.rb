@@ -4,7 +4,7 @@ class Api::DreamsController < ApplicationController
     # GET /api/dreams
     def index
         if params[:user_id]
-            @dreams = Dream.where(user_id: params[:user_id])
+            @dreams = Dream.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @dreams = Dream.all
         end
@@ -65,6 +65,7 @@ class Api::DreamsController < ApplicationController
             :loan_end_date,
             :interest_rate,
             :emi_amount,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

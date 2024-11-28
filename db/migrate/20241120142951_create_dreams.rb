@@ -16,6 +16,7 @@ class CreateDreams < ActiveRecord::Migration[7.2]
       t.date :loan_end_date
       t.float :interest_rate
       t.float :emi_amount
+      t.boolean :is_dummy_data
 
       t.timestamps
     end

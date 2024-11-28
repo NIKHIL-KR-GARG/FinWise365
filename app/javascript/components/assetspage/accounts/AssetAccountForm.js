@@ -398,6 +398,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
+                                disabled={account.is_dummy_data}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

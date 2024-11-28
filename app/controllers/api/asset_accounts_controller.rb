@@ -4,7 +4,7 @@ class Api::AssetAccountsController < ApplicationController
     # GET /api/asset_accounts
     def index
         if params[:user_id]
-            @asset_accounts = AssetAccount.where(user_id: params[:user_id])
+            @asset_accounts = AssetAccount.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @asset_accounts = AssetAccount.all
         end
@@ -62,6 +62,7 @@ class Api::AssetAccountsController < ApplicationController
             :minimum_balance,
             :is_plan_to_close,
             :closure_date,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

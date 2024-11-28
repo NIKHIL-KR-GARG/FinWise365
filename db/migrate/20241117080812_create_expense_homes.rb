@@ -21,7 +21,8 @@ class CreateExpenseHomes < ActiveRecord::Migration[7.2]
       t.float :miscellaneous
       t.float :total_expense
       t.float :inflation_rate
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

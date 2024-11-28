@@ -4,7 +4,7 @@ class Api::ExpenseHomesController < ApplicationController
     # GET /api/expense_homes
     def index
         if params[:user_id]
-            @expense_homes = ExpenseHome.where(user_id: params[:user_id])
+            @expense_homes = ExpenseHome.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @expense_homes = ExpenseHome.all
         end
@@ -70,6 +70,7 @@ class Api::ExpenseHomesController < ApplicationController
             :miscellaneous,
             :total_expense,
             :inflation_rate,
+            :is_dummy_data,
             :created_at,
             :updated_at
         ) 

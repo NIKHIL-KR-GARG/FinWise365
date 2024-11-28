@@ -18,7 +18,8 @@ class CreateAssetDeposits < ActiveRecord::Migration[7.2]
       t.float :payment_amount
       t.float :total_interest
       t.float :total_principal
-
+      t.boolean :is_dummy_data
+      
       t.timestamps
     end
   end

@@ -81,7 +81,8 @@ const Expenses = () => {
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-
+    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    
     useEffect(() => {
         if (homeListRef.current) {
             setHomeCount(homeListRef.current.getHomeCount());
@@ -121,16 +122,16 @@ const Expenses = () => {
                     personalLoansResponse, othersResponse, assetPropertiesResponse,
                     assetVehiclesResponse, assetDepositsResponse, assetPortfoliosResponse,
                     assetOthersResponse] = await Promise.all([
-                    axios.get(`/api/expense_homes?user_id=${currentUserId}`),
-                    axios.get(`/api/expense_properties?user_id=${currentUserId}`),
-                    axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}`),
-                    axios.get(`/api/expense_personal_loans?user_id=${currentUserId}`),
-                    axios.get(`/api/expense_others?user_id=${currentUserId}`),
-                    axios.get(`/api/asset_properties?user_id=${currentUserId}`),
-                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}`),
-                    axios.get(`/api/asset_deposits?user_id=${currentUserId}`),
-                    axios.get(`/api/asset_portfolios?user_id=${currentUserId}`),
-                    axios.get(`/api/asset_others?user_id=${currentUserId}`)
+                    axios.get(`/api/expense_homes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_personal_loans?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/asset_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/asset_deposits?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/asset_portfolios?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/asset_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                 ]);
 
                 // set state for all the lists

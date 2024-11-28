@@ -30,10 +30,11 @@ const LoginCallback = () => {
                         },
                     });
 
-                    const { id, first_name, last_name } = response.data;
+                    const { id, first_name, last_name, is_display_dummy_data } = response.data;
                     localStorage.setItem('currentUserId', id);
                     localStorage.setItem('currentUserFirstName', first_name || '');
                     localStorage.setItem('currentUserLastName', last_name || '');
+                    localStorage.setItem('currentUserDisplayDummyData', is_display_dummy_data || true);
  
                     // Redirect to the home page after successful login
                     navigate('/home');

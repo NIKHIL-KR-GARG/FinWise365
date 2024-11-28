@@ -278,6 +278,7 @@ const AssetPortfolioDetails = ({ portfolio: initialPortfolio, portfoliodetails: 
                     variant="contained"
                     color="primary"
                     onClick={handleSave}
+                    disabled={initialPortfolio.is_dummy_data}
                     sx={{
                         fontSize: '1rem',
                         padding: '10px 40px',
