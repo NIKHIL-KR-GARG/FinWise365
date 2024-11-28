@@ -32,7 +32,7 @@ import AssetPortfolioForm from '../../components/assetspage/portfolios/AssetPort
 import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
 import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
-import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue } from '../../components/calculators/Assets';
+import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
 import FormatCurrency from '../../components/common/FormatCurrency';
 
 const Assets = () => {
@@ -70,6 +70,7 @@ const Assets = () => {
     const [others, setOthers] = useState([]);
 
     const [assetsData, setAssetsData] = useState([]);
+    const [incomesData, setIncomesData] = useState([]);
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -153,8 +154,6 @@ const Assets = () => {
                     depositAssetsValue += parseFloat(depositAssetValue(deposit, today, currentUserBaseCurrency));
                 }
 
-                // get value of all the incomes as of today/this month (not needed for now)
-
                 // get value of all the portfolios as of today/this month
                 let portfolioAssetsValue = 0.0;
                 for (let i = 0; i < portfoliosResponse.data.length; i++) {
@@ -178,6 +177,69 @@ const Assets = () => {
                         Deposits: parseFloat(depositAssetsValue).toFixed(2),
                         Portfolios: parseFloat(portfolioAssetsValue).toFixed(2),
                         Others: parseFloat(otherAssetsValue).toFixed(2)
+                    }
+                ]);
+
+                // get value of all the incomes as of today/this month
+                let totalIncomeValue = 0.0;
+                let incomeAssetsValue = 0.0;
+                for (let i = 0; i < incomesResponse.data.length; i++) {
+                    const income = incomesResponse.data[i];
+                    incomeAssetsValue += parseFloat(incomeAssetValue(income, today, currentUserBaseCurrency));
+                }
+                totalIncomeValue += incomeAssetsValue;
+
+                // add rental as income as well
+                let incomePropertyRentalAssetsValue = 0.0;
+                for (let i = 0; i < propertiesResponse.data.length; i++) {
+                    const property = propertiesResponse.data[i];
+                    incomePropertyRentalAssetsValue += parseFloat(incomePropertyRentalAssetValue(property, today, currentUserBaseCurrency));
+                }
+                totalIncomeValue += incomePropertyRentalAssetsValue;
+
+                // add coupon as income as well
+                let incomeCouponAssetsValue = 0.0;
+                for (let i = 0; i < portfoliosResponse.data.length; i++) {
+                    const portfolio = portfoliosResponse.data[i];
+                    incomeCouponAssetsValue += parseFloat(incomeCouponAssetValue(portfolio, today, currentUserBaseCurrency));
+                }
+                totalIncomeValue += incomeCouponAssetsValue;
+
+                // add dividend as income as well
+                let incomeDividendAssetsValue = 0.0;
+                for (let i = 0; i < portfoliosResponse.data.length; i++) {
+                    const portfolio = portfoliosResponse.data[i];
+                    incomeDividendAssetsValue += parseFloat(incomeDividendAssetValue(portfolio, today, currentUserBaseCurrency));
+                }
+                totalIncomeValue += incomeDividendAssetsValue;
+
+                // add payout as income as well
+                let incomePayoutAssetsValue = 0.0;
+                for (let i = 0; i < othersResponse.data.length; i++) {
+                    const other = othersResponse.data[i];
+                    incomePayoutAssetsValue += parseFloat(incomePayoutAssetValue(other, today, currentUserBaseCurrency));
+                }
+                totalIncomeValue += incomePayoutAssetsValue;
+
+                // add vehicle lease as income as well
+                let incomeLeaseAssetsValue = 0.0;
+                for (let i = 0; i < vehiclesResponse.data.length; i++) {
+                    const vehicle = vehiclesResponse.data[i];
+                    incomeLeaseAssetsValue += parseFloat(incomeLeaseAssetValue(vehicle, today, currentUserBaseCurrency));
+                }
+                totalIncomeValue += incomeLeaseAssetsValue;
+
+                // set data for the incomes graph
+                setIncomesData([
+                    {
+                        name: 'Incomes',
+                        Income: parseFloat(incomeAssetsValue).toFixed(2),
+                        Rental: parseFloat(incomePropertyRentalAssetsValue).toFixed(2),
+                        Coupon: parseFloat(incomeCouponAssetsValue).toFixed(2),
+                        Dividend: parseFloat(incomeDividendAssetsValue).toFixed(2),
+                        Payout: parseFloat(incomePayoutAssetsValue).toFixed(2),
+                        Lease: parseFloat(incomeLeaseAssetsValue).toFixed(2),
+                        TotalIncome: parseFloat(totalIncomeValue).toFixed(2),
                     }
                 ]);
 
@@ -334,7 +396,7 @@ const Assets = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            <AssetsGraph assetsData={assetsData}/>
+                            <AssetsGraph assetsData={assetsData} incomesData={incomesData}/>
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
@@ -346,11 +408,11 @@ const Assets = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                                        Income ({incomeCount}) {/* Display income streams count */}
+                                        Income ({incomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].TotalIncome) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} />
+                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} incomesList={incomes} propertiesList={properties} vehiclesList={vehicles} portfoliosList={portfolios} otherAssetsList={others}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>

@@ -13,12 +13,11 @@ import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
 
 const AssetIncomeList = forwardRef((props, ref) => {
-    const { onIncomesFetched } = props; // Destructure the new prop
+    const { onIncomesFetched, incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [incomes, setIncomes] = useState([]);
     const [incomesFetched, setIncomesFetched] = useState(false); // State to track if incomes are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -28,76 +27,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
     const [incomeToDelete, setIncomeToDelete] = useState(null); // State for income to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const [includePastIncomes, setIncludePastIncomes] = useState(false); // State for switch
-    const [originalIncomes, setOriginalIncomes] = useState([]); // State to store original incomes
-    const [properties, setProperties] = useState([]); // State to store properties
-    const [vehicles, setVehicles] = useState([]); // State to store portfolios
-    const [portfolios, setPortfolios] = useState([]); // State to store portfolios
-    const [otherAssets, setOtherAssets] = useState([]); // State to store portfolios
-
-    const fetchProperties = async () => {
-        try {
-            const response = await axios.get(`/api/asset_properties?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching properties:', error);
-            return [];
-        }
-    };
-
-    const fetchVehicles = async () => {
-        try {
-            const response = await axios.get(`/api/asset_vehicles?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching vehicles:', error);
-            return [];
-        }
-    };
-
-    const fetchPortfolios = async () => {
-        try {
-            const response = await axios.get(`/api/asset_portfolios?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching portfolios:', error);
-            return [];
-        }
-    };
-
-    const fetchOtherAssets = async () => {
-        try {
-            const response = await axios.get(`/api/asset_others?user_id=${currentUserId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching other assets:', error);
-            return [];
-        }
-    };
-
-    const fetchIncomes = async () => {
-        try {
-            const response = await axios.get(`/api/asset_incomes?user_id=${currentUserId}`);
-            setOriginalIncomes(response.data); // Store original incomes
-
-            const propertiesResponse = await fetchProperties();
-            if (propertiesResponse && propertiesResponse.length > 0) setProperties(propertiesResponse); // Store properties if fetched
-
-            const vehiclesResponse = await fetchVehicles();
-            if (vehiclesResponse && vehiclesResponse.length > 0) setVehicles(vehiclesResponse); // Store vehicles if fetched
-
-            const portfoliosResponse = await fetchPortfolios();
-            if (portfoliosResponse && portfoliosResponse.length > 0) setPortfolios(portfoliosResponse); // Store portfolios if fetched
-
-            const otherAssetsResponse = await fetchOtherAssets();
-            if (otherAssetsResponse && otherAssetsResponse.length > 0) setOtherAssets(otherAssetsResponse); // Store other assets if fetched
-
-            filterIncomes(response.data, propertiesResponse, vehiclesResponse, portfoliosResponse, otherAssetsResponse); // Filter incomes based on switch
-
-        } catch (error) {
-            console.error('Error fetching incomes:', error);
-        }
-    };
+    const [includePastIncomes, setIncludePastIncomes] = useState(false); // State for switch to include past incomes
 
     const filterIncomes = (incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList) => {
         let filteredIncomes = [];
@@ -224,11 +154,11 @@ const AssetIncomeList = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        fetchIncomes();
-    }, [currentUserId]);
+        filterIncomes(incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList);
+    }, []);
 
     useEffect(() => {
-        filterIncomes(originalIncomes, properties, vehicles ,portfolios, otherAssets); // Filter incomes when includePastIncomes changes
+        filterIncomes(incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList); // Filter incomes when includePastIncomes changes
     }, [includePastIncomes]); // Include Past Incomes to income/grid array
 
     const handleFormModalClose = () => {

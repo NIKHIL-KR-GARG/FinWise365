@@ -4,7 +4,7 @@ import { Typography, Box, Tabs, Tab } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import FormatCurrency from '../common/FormatCurrency';
 
-const AssetsGraph = ({ assetsData }) => {
+const AssetsGraph = ({ assetsData, incomesData }) => {
     const [tabIndex, setTabIndex] = useState(0);
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
@@ -48,7 +48,7 @@ const AssetsGraph = ({ assetsData }) => {
             >
                 <Tab label="Total Assets" />
                 <Tab label="Liquid Assets" />
-                <Tab label="Income Streams" />
+                <Tab label="Regular Income" />
             </Tabs>
             {tabIndex === 0 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
@@ -104,12 +104,25 @@ const AssetsGraph = ({ assetsData }) => {
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
                     <Grid item size={12}>
                         <Typography variant="h6" align="center" pb={1} pt={1}>
-                            {/* Empty Tab */}
+                        Regular Income: ({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(incomesData[0].Income) + parseFloat(incomesData[0].Rental) + parseFloat(incomesData[0].Coupon) + parseFloat(incomesData[0].Dividend) + parseFloat(incomesData[0].Payout) + parseFloat(incomesData[0].Lease))}
                         </Typography>
                     </Grid>
                     <Grid item size={12} display="flex" justifyContent="center" style={{ height: '20vh' }}>
-                        {/* <ResponsiveContainer width="80%" height="100%">
-                        </ResponsiveContainer> */}
+                        <ResponsiveContainer width="80%" height="100%">
+                            <BarChart layout="vertical" data={incomesData}>
+                                {/* <CartesianGrid strokeDasharray="3 3" /> */}
+                                <XAxis type="number" />
+                                <YAxis type="category" dataKey="name" />
+                                <Tooltip />
+                                <Legend content={renderLegend} />
+                                <Bar dataKey="Income" stackId="a" fill="#8884d8" />
+                                <Bar dataKey="Rental" stackId="a" fill="#82ca9d" />
+                                <Bar dataKey="Coupon" stackId="a" fill="#ffc658" />
+                                <Bar dataKey="Dividend" stackId="a" fill="#ff7300" />
+                                <Bar dataKey="Payout" stackId="a" fill="#ff0000" />
+                                <Bar dataKey="Lease" stackId="a" fill="#0000ff" />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </Grid>
                 </Grid>
             )}
