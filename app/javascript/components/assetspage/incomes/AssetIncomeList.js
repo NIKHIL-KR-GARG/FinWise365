@@ -124,10 +124,11 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 amount: otherAsset.payout_value,
                 start_date: otherAsset.payout_date,
                 end_date: `${
-                    //set end date to payout_date + payout_duration (months)
-                    otherAsset.payout_type === 'Recurring' ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + parseInt(otherAsset.payout_duration))) : new Date(otherAsset.payout_date)
-                    }`,
-                is_recurring: `${otherAsset.payout_type === 'Recurring'}`,
+                    otherAsset.payout_type === 'Recurring' 
+                        ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + parseInt(otherAsset.payout_duration))).toISOString().split('T')[0] 
+                        : new Date(otherAsset.payout_date).toISOString().split('T')[0]
+                }`,
+                is_recurring: otherAsset.payout_type === 'Recurring',
                 income_frequency: otherAsset.payout_frequency
             }));
 

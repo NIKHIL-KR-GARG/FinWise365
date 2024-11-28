@@ -143,8 +143,8 @@ const DreamList = forwardRef((props, ref) => {
         { field: 'amount', headerName: 'Amount', width: 125, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.amount);
          }},
-        { field: 'is_funded_by_loan', headerName: 'Recurring?', width: 75, headerClassName: 'header-theme', type: 'boolean' },
-        { field: 'loan_amount', headerName: 'Recurring Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
+        { field: 'is_funded_by_loan', headerName: 'Loan?', width: 75, headerClassName: 'header-theme', type: 'boolean' },
+        { field: 'loan_amount', headerName: 'Loan Amount', width: 100, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.loan_amount);
          }},
         {

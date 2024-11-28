@@ -47,7 +47,7 @@ const EMIList = forwardRef((props, ref) => {
                 currency: property.currency,
                 amount: property.emi_amount,
                 start_date: property.purchase_date,
-                end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + parseInt(property.loan_duration)))}`
+                end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
             }));
 
             const vehicleEMIs = vehiclesList
@@ -69,7 +69,7 @@ const EMIList = forwardRef((props, ref) => {
                 currency: vehicle.currency,
                 amount: vehicle.emi_amount,
                 start_date: vehicle.purchase_date,
-                end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + parseInt(vehicle.loan_duration)))}`
+                end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
             }));
 
             setEMIs([...propertyEMIs, ...vehicleEMIs]); // Set combined EMIs to state
