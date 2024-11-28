@@ -34,6 +34,7 @@ import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
 import FormatCurrency from '../../components/common/FormatCurrency';
+import { today } from '../../components/common/DateFunctions';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -353,12 +354,6 @@ const Assets = () => {
     const handleOthersFetched = (count) => {
         setOtherCount(count);
     };
-
-    const today = new Date().toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-    }).replace(/ /g, '-');
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

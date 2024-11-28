@@ -80,15 +80,16 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
                             {open ? <ChevronLeftIcon /> : <MenuIcon />}
                         </IconButton>
                     </Box>
-                    <Box sx={{ justifyContent: 'center', alignItems: 'center', gap: 2, flexGrow: 1 }}>
-                        <Typography variant="h7" sx={{ color: 'white', mr: 2, fontStyle: 'italic' }}>
-                            Discover the power of financial wisdom with the <strong>"demo data"</strong> and start adding <strong>"your data"</strong> when you are ready!
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, flexGrow: 1, pr: 2 }}>
+                        <Typography variant="h7" sx={{ color: 'white', mr: 2, fontStyle: 'italic', textAlign: 'center' }}>
+                            Discover the power of financial wisdom with the <strong>"demo data"</strong> <br/>and start adding <strong>"your data"</strong> when you are ready!
                         </Typography>
                         <Button
                             variant="contained"
                             color="secondary"
                             startIcon={isDemoData ? <PowerOffIcon /> : <PowerIcon />}
                             onClick={handleDemoDataToggle}
+                            sx={{ fontSize: '0.75rem'}} // Adjust the font size here
                         >
                             {isDemoData ? 'Switch off demo data' : 'Switch on demo data'}
                         </Button>

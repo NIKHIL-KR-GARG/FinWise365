@@ -27,6 +27,7 @@ import DreamForm from '../../components/dreamspage/DreamForm';
 import DreamsGraph from '../../components/dreamspage/DreamsGraph';
 import { ExchangeRate } from '../../components/common/DefaultValues';
 import FormatCurrency from '../../components/common/FormatCurrency';
+import { today } from '../../components/common/DateFunctions';
 
 const Dreams = () => {
     const [open, setOpen] = useState(true);
@@ -362,12 +363,6 @@ const Dreams = () => {
             navigate('/assets');
         }
     };
-
-    const today = new Date().toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-    }).replace(/ /g, '-');
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

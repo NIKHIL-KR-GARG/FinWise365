@@ -34,6 +34,7 @@ import MortgageAndLoanList from '../../components/expensespage/mortgageandloans/
 
 import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
 import FormatCurrency from '../../components/common/FormatCurrency';
+import { today } from '../../components/common/DateFunctions';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -342,12 +343,6 @@ const Expenses = () => {
         setMortgageAndLoanCount(count);
         setMortgageAndLoanAmount(amount);
     };
-
-    const today = new Date().toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-    }).replace(/ /g, '-');
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
