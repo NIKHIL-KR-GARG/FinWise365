@@ -7,28 +7,30 @@ import CloseIcon from '@mui/icons-material/Close';
 import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import FormatCurrency from '../../common/FormatCurrency';
+import { calculateMortgageBalance, calculateFlatRateLoanBalance } from '../../calculators/Assets';
 
-const EMIList = forwardRef((props, ref) => {
-    const { onEMIsFetched, propertiesList, vehiclesList } = props; // Destructure the new prop
+const MortgageAndLoanList = forwardRef((props, ref) => {
+    const { onMortgageAndLoansFetched, propertiesList, vehiclesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
-    const [emis, setEMIs] = useState({
+    const [mortgageandloans, setMortgageAndLoans] = useState({
         id: '',
         name: '',
         type: '',
         location: '',
         currency: '',
-        amount: 0,
+        orginal_amount: 0,
+        balance_amount: 0,
         start_date: '',
         end_date: ''
     });
-    const [emisFetched, setEMIsFetched] = useState(false); // State to track if emis are fetched
+    const [mortgageandloansFetched, setMortgageAndLoansFetched] = useState(false); // State to track if mortgageandloans are fetched
     const theme = useTheme();
-    const [sortingModel, setSortingModel] = useState([{ field: 'emi_name', sort: 'asc' }]); // Initialize with default sorting
+    const [sortingModel, setSortingModel] = useState([{ field: 'mortgageandloan_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const fetchEMIs = (propertiesList, vehiclesList) => {
+    const fetchMortgageAndLoans = (propertiesList, vehiclesList) => {
         try {
-            const propertyEMIs = propertiesList
+            const propertyMortgageAndLoans = propertiesList
             .filter(property => {
                 // derive end date based on purchase date and loan_duration
                 if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
@@ -40,17 +42,18 @@ const EMIList = forwardRef((props, ref) => {
                 }
             })
             .map(property => ({
-                id: `propertyemi-${property.id}`,
-                name: `EMI - ${property.property_name}`,
+                id: `propertymortgageandloan-${property.id}`,
+                name: `Mortgage - ${property.property_name}`,
                 type: 'Property',
                 location: property.location,
                 currency: property.currency,
-                amount: property.emi_amount,
+                orginal_amount: property.loan_amount,
+                balance_amount: calculateMortgageBalance(property, new Date()),
                 start_date: property.purchase_date,
                 end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + parseInt(property.loan_duration)))}`
             }));
 
-            const vehicleEMIs = vehiclesList
+            const vehicleMortgageAndLoans = vehiclesList
             .filter(vehicle => {
                 if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
                 else if (!vehicle.is_funded_by_loan) return false;
@@ -62,48 +65,57 @@ const EMIList = forwardRef((props, ref) => {
                 }
             })
             .map(vehicle => ({
-                id: `vehicleemi-${vehicle.id}`,
-                name: `EMI - ${vehicle.vehicle_name}`,
+                id: `vehiclemortgageandloan-${vehicle.id}`,
+                name: `Loan - ${vehicle.vehicle_name}`,
                 type: 'Vehicle',
                 location: vehicle.location,
                 currency: vehicle.currency,
-                amount: vehicle.emi_amount,
+                orginal_amount: vehicle.loan_amount,
+                balance_amount: calculateFlatRateLoanBalance(vehicle, new Date()),
                 start_date: vehicle.purchase_date,
                 end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + parseInt(vehicle.loan_duration)))}`
             }));
 
-            setEMIs([...propertyEMIs, ...vehicleEMIs]); // Set combined EMIs to state
-            setEMIsFetched(true); // Set emisFetched to true after fetching
-            if (onEMIsFetched) {
-                onEMIsFetched(propertyEMIs.length + vehicleEMIs.length); // Notify parent component
+            setMortgageAndLoans([...propertyMortgageAndLoans, ...vehicleMortgageAndLoans]); // Set combined MortgageAndLoans to state
+            setMortgageAndLoansFetched(true); // Set mortgageandloansFetched to true after fetching
+            if (onMortgageAndLoansFetched) {
+                const count = propertyMortgageAndLoans.length + vehicleMortgageAndLoans.length;
+                const amount = propertyMortgageAndLoans.reduce((acc, property) => acc + property.balance_amount, 0) + vehicleMortgageAndLoans.reduce((acc, vehicle) => acc + vehicle.balance_amount, 0);
+                onMortgageAndLoansFetched(count, amount); // Notify parent component
             }
         } catch (error) {
-            console.error('Error fetching EMIs:', error);
+            console.error('Error fetching MortgageAndLoans:', error);
         }
     };
 
     useEffect(() => {
-        fetchEMIs(propertiesList, vehiclesList);
+        fetchMortgageAndLoans(propertiesList, vehiclesList);
     }, []);
 
     useImperativeHandle(ref, () => ({
-        getEMICount() {
-            return emisFetched ? emis.length : 0; // Return count only if emis are fetched
-        }
+        getMortgageAndLoanCount() {
+            return mortgageandloansFetched ? mortgageandloans.length : 0; // Return count only if mortgageandloans are fetched
+        },
+        getMortgageAndLoanAmount() {
+            return mortgageandloans.reduce((acc, mortgageandloan) => acc + mortgageandloan.balance_amount, 0);
+        }   
     }));
 
     const columns = [
-        { field: 'name', headerName: 'EMI Name', width: 200, headerClassName: 'header-theme'},
-        { field: 'type', headerName: 'EMI Type', width: 100, headerClassName: 'header-theme'},
-        { field: 'location', headerName: 'EMI Location', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
+        { field: 'name', headerName: 'Name', width: 200, headerClassName: 'header-theme'},
+        { field: 'type', headerName: 'Type', width: 100, headerClassName: 'header-theme'},
+        { field: 'location', headerName: 'Location', width: 100, headerClassName: 'header-theme', renderCell: (params) => {
             const countryCode = params.value;
             const country = CountryList.filter(e => e.code === countryCode);
             if (country.length > 0) return country[0].name;
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'amount', headerName: 'Total  (/mth)', width: 150, headerClassName: 'header-theme' , renderCell: (params) => {
-            return FormatCurrency(params.row.currency, params.row.amount);
+        { field: 'original_amount', headerName: 'Original Amount', width: 150, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.orginal_amount);
+         }},
+         { field: 'balance_amount', headerName: 'Balance Amount', width: 150, headerClassName: 'header-theme' , renderCell: (params) => {
+            return FormatCurrency(params.row.currency, params.row.balance_amount);
          }},
         { field: 'start_date', headerName: 'Start Date', width: 150, headerClassName: 'header-theme' },
         { field: 'end_date', headerName: 'End Date', width: 150, headerClassName: 'header-theme' },
@@ -137,7 +149,7 @@ const EMIList = forwardRef((props, ref) => {
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"
-                rows={emis}
+                rows={mortgageandloans}
                 columns={columns}
                 sortingModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
@@ -159,4 +171,4 @@ const EMIList = forwardRef((props, ref) => {
     );
 });
 
-export default EMIList;
+export default MortgageAndLoanList;

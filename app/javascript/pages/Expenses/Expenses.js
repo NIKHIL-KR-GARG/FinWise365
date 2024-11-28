@@ -30,6 +30,7 @@ import ExpensesGraph from '../../components/expensespage/ExpensesGraph';
 import EMIList from '../../components/expensespage/emis/EMIList';
 import SIPList from '../../components/expensespage/sips/SIPList';
 import TaxList from '../../components/expensespage/taxes/TaxList';
+import MortgageAndLoanList from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
 
 import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
 import FormatCurrency from '../../components/common/FormatCurrency';
@@ -49,6 +50,7 @@ const Expenses = () => {
     const emiListRef = useRef(null);
     const sipListRef = useRef(null);
     const taxListRef = useRef(null);
+    const mortgageAndLoanListRef = useRef(null);
 
     const [homeCount, setHomeCount] = useState(0);
     const [propertyCount, setPropertyCount] = useState(0);
@@ -58,6 +60,8 @@ const Expenses = () => {
     const [emiCount, setEMICount] = useState(0);
     const [sipCount, setSIPCount] = useState(0);
     const [taxCount, setTaxCount] = useState(0);
+    const [mortgageAndLoanCount, setMortgageAndLoanCount] = useState(0);
+    const [mortgageAndLoanAmount, setMortgageAndLoanAmount] = useState(0);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -102,6 +106,10 @@ const Expenses = () => {
         }
         if (taxListRef.current) {
             setTaxCount(taxListRef.current.getTaxCount());
+        }
+        if (mortgageAndLoanListRef.current) {
+            setMortgageAndLoanCount(mortgageAndLoanListRef.current.getMortgageAndLoanCount());
+            setMortgageAndLoanAmount(mortgageAndLoanListRef.current.getMortgageAndLoanAmount());
         }
     }, []);
 
@@ -329,6 +337,10 @@ const Expenses = () => {
     const handleTaxesFetched = (count) => {
         setTaxCount(count);
     };
+    const handleMortgageAndLoansFetched = (count, amount) => {
+        setMortgageAndLoanCount(count);
+        setMortgageAndLoanAmount(amount);
+    };
 
     const today = new Date().toLocaleDateString('en-GB', {
         day: '2-digit',
@@ -450,6 +462,21 @@ const Expenses = () => {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} othersList={otherExpenses} vehiclesList={assetVehicles}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <DirectionsCarIcon sx={{ mr: 1, color: 'blue' }} /> {/* Updated color */}
+                                        Current Mortgage & Loans - Property/Vehicle ({mortgageAndLoanCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(mortgageAndLoanAmount))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <MortgageAndLoanList ref={mortgageAndLoanListRef} onMortgageAndLoansFetched={handleMortgageAndLoansFetched} propertiesList={assetProperties} vehiclesList={assetVehicles}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>

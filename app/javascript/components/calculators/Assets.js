@@ -36,7 +36,7 @@ export const propertyAssetValue = (property, date, baseCurrency) => {
     return propertyAssetValue;
 };
 
-const calculateMortgageBalance = (property, date) => {
+export const calculateMortgageBalance = (property, date) => {
     
     var outstandingBalance = parseFloat(property.loan_amount);
     const monthlyRate = parseFloat(property.loan_interest_rate) / 100 / 12;
@@ -80,7 +80,7 @@ export const vehicleAssetValue = (vehicle, date, baseCurrency) => {
     return vehicleAssetValue;
 };
 
-const calculateFlatRateLoanBalance = (vehicle, date) => {
+export const calculateFlatRateLoanBalance = (vehicle, date) => {
     const totalMonths = parseInt(vehicle.loan_duration);
     const monthsPaidSoFar = (date.getFullYear() - new Date(vehicle.purchase_date).getFullYear()) * 12 + (date.getMonth() - new Date(vehicle.purchase_date).getMonth());
     const remainingLoanBalance = parseFloat(vehicle.loan_amount)/totalMonths * (totalMonths - monthsPaidSoFar);    
