@@ -7,7 +7,7 @@ import HomeIcon from '@mui/icons-material/Home';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }) => {
 

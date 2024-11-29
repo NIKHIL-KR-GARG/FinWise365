@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Box, TextField, Button, Snackbar, Alert, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
-import FormatCurrency from './FormatCurrency';
+import { FormatCurrency } from  './FormatCurrency';
  
 const FlatRateLoanEMICalculator = ({ purchase_price, loan_amount, loan_duration, currency, interest_rate }) => {
 

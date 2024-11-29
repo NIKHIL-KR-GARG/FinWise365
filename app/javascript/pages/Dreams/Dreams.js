@@ -26,7 +26,7 @@ import DreamList from '../../components/dreamspage/DreamList';
 import DreamForm from '../../components/dreamspage/DreamForm';
 import DreamsGraph from '../../components/dreamspage/DreamsGraph';
 import { ExchangeRate } from '../../components/common/DefaultValues';
-import FormatCurrency from '../../components/common/FormatCurrency';
+import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
 
 const Dreams = () => {

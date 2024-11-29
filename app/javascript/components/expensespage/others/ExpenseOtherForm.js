@@ -7,7 +7,7 @@ import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 import { CalculatePrincipal, CalculateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherList }) => {

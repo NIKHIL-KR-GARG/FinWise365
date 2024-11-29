@@ -10,7 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import ExpensePersonalLoanForm from './ExpensePersonalLoanForm';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpensePersonalLoanList = forwardRef((props, ref) => {
     const { onPersonalLoansFetched, personalloansList } = props; // Destructure the new prop

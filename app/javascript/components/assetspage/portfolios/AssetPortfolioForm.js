@@ -12,7 +12,7 @@ import CloseIconFilled from '@mui/icons-material/Close'; // Import filled versio
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 import AssetPortfolioDetails from './AssetPortfolioDetails';
 import { CalculateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 

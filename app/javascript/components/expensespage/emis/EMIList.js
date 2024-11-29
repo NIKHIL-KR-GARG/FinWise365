@@ -6,7 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const EMIList = forwardRef((props, ref) => {
     const { onEMIsFetched, propertiesList, vehiclesList } = props; // Destructure the new prop

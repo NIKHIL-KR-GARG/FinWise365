@@ -3,7 +3,7 @@ import { Typography, Box, TextField, Button, Snackbar, Alert, IconButton } from 
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 import { PieChart, Pie, Cell } from 'recharts';
 
 const HomeLoanEMICalculator = ({ property }) => {

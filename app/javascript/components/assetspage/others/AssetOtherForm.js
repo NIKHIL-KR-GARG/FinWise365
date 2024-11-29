@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 import { CalculatePrincipal, CalculateInterest, CalculatePayoutValue } from '../../calculators/CalculateInterestAndPrincipal';
 
 const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList }) => {

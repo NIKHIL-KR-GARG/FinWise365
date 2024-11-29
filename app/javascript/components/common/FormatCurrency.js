@@ -1,4 +1,4 @@
-const FormatCurrency = (currency, amount) => {
+export const FormatCurrency = (currency, amount) => {
     if (!currency || !amount) return '0';
     if (currency === 'USD') return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     else if (currency === 'SGD') return amount.toLocaleString('en-SG', { style: 'currency', currency: 'SGD' });
@@ -12,4 +12,25 @@ const FormatCurrency = (currency, amount) => {
     else return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 };
 
-export default FormatCurrency;
+export const FormatCurrencyForGrid = (value, currency) => {
+    if (isNaN(value)) return '0';
+
+    if (currency === 'USD') {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(value);
+    }
+    else if (currency === 'SGD') {
+        return new Intl.NumberFormat('en-SG', {
+            style: 'currency',
+            currency: 'SGD'
+        }).format(value);
+    }
+    else if (currency === 'INR') {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR'
+        }).format(value);
+    }
+};

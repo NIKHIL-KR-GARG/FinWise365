@@ -5,7 +5,7 @@ import SavingsIcon from '@mui/icons-material/AccountBalance'; // PMS portfolio i
 import DescriptionIcon from '@mui/icons-material/Description'; // Excel icon
 import * as XLSX from "xlsx";
 import { useTheme } from '@mui/material/styles'; // Add this import
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 import axios from 'axios';
 
 const AssetPortfolioDetails = ({ portfolio: initialPortfolio, portfoliodetails: initialPortfolioDetails, action: initialAction, onCloseDetails, onCloseForm, refreshPortfolioList }) => {

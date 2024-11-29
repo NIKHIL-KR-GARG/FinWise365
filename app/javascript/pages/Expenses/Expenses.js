@@ -33,7 +33,7 @@ import TaxList from '../../components/expensespage/taxes/TaxList';
 import MortgageAndLoanList from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
 
 import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
-import FormatCurrency from '../../components/common/FormatCurrency';
+import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
 
 const Expenses = () => {

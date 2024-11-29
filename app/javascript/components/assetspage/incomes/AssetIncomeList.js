@@ -10,7 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import AssetIncomeForm from './AssetIncomeForm';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 import { portfolioAssetValue } from '../../calculators/Assets';
 
 const AssetIncomeList = forwardRef((props, ref) => {

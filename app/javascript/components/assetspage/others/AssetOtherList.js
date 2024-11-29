@@ -10,7 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import AssetOtherForm from './AssetOtherForm';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetOtherList = forwardRef((props, ref) => {
     const { onOthersFetched, othersList } = props; // Destructure the new prop

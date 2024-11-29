@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 import { CalculatePrincipal, CalculateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDepositList }) => {

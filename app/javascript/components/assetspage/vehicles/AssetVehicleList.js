@@ -14,7 +14,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import AssetVehicleForm from './AssetVehicleForm';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetVehicleList = forwardRef((props, ref) => {
     const { onVehiclesFetched, listAction, vehiclesList } = props; // Destructure the new prop

@@ -10,7 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import ExpenseCreditCardDebtForm from './ExpenseCreditCardDebtForm';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
     const { onCreditCardDebtsFetched, creditcarddebtsList } = props; // Destructure the new prop

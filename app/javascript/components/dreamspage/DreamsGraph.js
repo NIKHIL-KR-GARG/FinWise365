@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid2';
 import { Typography, Box } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import FormatCurrency from '../common/FormatCurrency';
+import { FormatCurrency } from '../common/FormatCurrency';
 
 const DreamsGraph = ({dreamsList}) => {
 

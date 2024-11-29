@@ -33,7 +33,7 @@ import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
 import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
-import FormatCurrency from '../../components/common/FormatCurrency';
+import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
 
 const Assets = () => {

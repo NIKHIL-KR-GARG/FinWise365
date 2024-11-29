@@ -10,7 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../../common/GridHeader.css';
 import ExpenseHomeForm from './ExpenseHomeForm';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpenseHomeList = forwardRef((props, ref) => {
     const { onHomesFetched, homesList } = props; // Destructure the new prop

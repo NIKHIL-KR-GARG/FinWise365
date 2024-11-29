@@ -17,7 +17,7 @@ import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
 import { HomeLoanRate, HomeValueGrowthRate } from '../../common/DefaultValues';
 import HomeLoanEMICalculator from './HomeLoanEMICalculator';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetPropertyForm = ({ property: initialProperty, action, onClose, refreshPropertyList }) => {
 

@@ -19,26 +19,3 @@ export const isSameMonthAndYear = (date1, date2) => {
         return true;
     }
 };
-
-export const FormatCurrencyForGrid = (value, currency) => {
-    if (isNaN(value)) return '0';
-
-    if (currency === 'USD') {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(value);
-    }
-    else if (currency === 'SGD') {
-        return new Intl.NumberFormat('en-SG', {
-            style: 'currency',
-            currency: 'SGD'
-        }).format(value);
-    }
-    else if (currency === 'INR') {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR'
-        }).format(value);
-    }
-};

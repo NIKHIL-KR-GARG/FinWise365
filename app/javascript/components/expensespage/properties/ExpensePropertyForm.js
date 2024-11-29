@@ -13,7 +13,7 @@ import OtherIcon from '@mui/icons-material/Category';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refreshPropertyList }) => {
 

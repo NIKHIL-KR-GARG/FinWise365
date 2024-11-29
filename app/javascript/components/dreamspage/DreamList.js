@@ -10,7 +10,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, B
 import '../common/GridHeader.css';
 import DreamForm from './DreamForm';
 import CountryList from '../common/CountryList';
-import FormatCurrency from '../common/FormatCurrency';
+import { FormatCurrency } from '../common/FormatCurrency';
 
 const DreamList = forwardRef((props, ref) => {
     const { onDreamsFetched, dreamType, dreamsList } = props; // Destructure the new prop

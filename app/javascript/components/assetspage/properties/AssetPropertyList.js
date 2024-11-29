@@ -17,7 +17,7 @@ import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" pr
 import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import AssetPropertyForm from './AssetPropertyForm';
-import FormatCurrency from '../../common/FormatCurrency';
+import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetPropertyList = forwardRef((props, ref) => {
     const { onPropertiesFetched, listAction, propertiesList } = props; // Destructure the new prop
