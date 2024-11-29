@@ -65,7 +65,7 @@ const UserProfile = () => {
                     localStorage.setItem('currentUserDateOfBirth', appuser.date_of_birth);
                     localStorage.setItem('currentUserEmail', appuser.email);
                     localStorage.setItem('currentUserBaseCurrency', appuser.base_currency);
-                    //localStorage.setItem('currentUserLifeExpectancy', appuser.life_expectancy);
+                    localStorage.setItem('currentUserLifeExpectancy', appuser.life_expectancy);
                     localStorage.setItem('currentUserNationality', appuser.nationality);
                     localStorage.setItem('currentUserCountryOfResidence', appuser.country_of_residence);
                     localStorage.setItem('currentUserIsPermanentResident', appuser.is_permanent_resident);
@@ -135,7 +135,7 @@ const UserProfile = () => {
                 localStorage.setItem('currentUserDateOfBirth', user.date_of_birth);
                 localStorage.setItem('currentUserEmail', user.email);
                 localStorage.setItem('currentUserBaseCurrency', user.base_currency);
-                //localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);
+                localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);
                 localStorage.setItem('currentUserNationality', user.nationality);
                 localStorage.setItem('currentUserCountryOfResidence', user.country_of_residence);
                 localStorage.setItem('currentUserIsPermanentResident', user.is_permanent_resident);

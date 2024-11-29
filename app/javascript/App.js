@@ -10,6 +10,7 @@ import AccountSettings from './pages/AccountSettings/AccountSettings';
 import Assets from './pages/Assets/Assets';
 import Expenses from './pages/Expenses/Expenses';
 import Dreams from './pages/Dreams/Dreams';
+import Cashflows from './pages/Cashflows/Cashflows';
 
 const App = () => {
 
@@ -23,6 +24,7 @@ const App = () => {
         <Route path='/assets' element={<AuthenticationGuard component={Assets} />} />
         <Route path='/expenses' element={<AuthenticationGuard component={Expenses} />} />
         <Route path='/dreams' element={<AuthenticationGuard component={Dreams} />} />
+        <Route path='/cashflows' element={<AuthenticationGuard component={Cashflows} />} />
       </Routes>
     </>
   );

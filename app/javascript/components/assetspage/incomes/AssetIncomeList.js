@@ -60,7 +60,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
             .filter(portfolio => portfolio.is_paying_dividend && (new Date(portfolio.buying_date) <= today) && (!portfolio.sale_date || new Date(portfolio.sale_date) >= today))
             .map(portfolio => ({
                 id: `dividend-${portfolio.id}`,
-                income_name: `Dividend - ${portfolio.portfolio_name}`,
+                income_name: `Dividend Income - ${portfolio.portfolio_name}`,
                 income_type: 'Dividend',
                 location: portfolio.location,
                 currency: portfolio.currency,
@@ -95,7 +95,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 }
                 return {
                     id: `coupon-${portfolio.id}`,
-                    income_name: `Coupon - ${portfolio.portfolio_name}`,
+                    income_name: `Coupon Income - ${portfolio.portfolio_name}`,
                     income_type: 'Coupon',
                     location: portfolio.location,
                     currency: portfolio.currency,
@@ -117,7 +117,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
             })
             .map(otherAsset => ({
                 id: `payout-${otherAsset.id}`,
-                income_name: `PayOut - ${otherAsset.asset_name}`,
+                income_name: `PayOut Income - ${otherAsset.asset_name}`,
                 income_type: 'PayOut',
                 location: otherAsset.location,
                 currency: otherAsset.currency,
@@ -137,7 +137,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
             .filter(vehicle => vehicle.is_on_lease && (new Date(vehicle.lease_start_date) <= today) && (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today))
             .map(vehicle => ({
                 id: `lease-${vehicle.id}`,
-                income_name: `Lease - ${vehicle.vehicle_name}`,
+                income_name: `Lease Income - ${vehicle.vehicle_name}`,
                 income_type: 'Lease',
                 location: vehicle.location,
                 currency: vehicle.currency,

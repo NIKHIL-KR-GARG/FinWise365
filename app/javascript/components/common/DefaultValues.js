@@ -22,6 +22,11 @@ export const ExchangeRate = [
     { from: "INR", to: "USD", value: "0.0118" }
 ];
 
+export const GrowthRate = [
+    { key: "SG", value: "0.5" },
+    { key: "IN", value: "3.5" }
+];
+
 //export const CarLoanRate = [
 //    { key: "SG", value: "" },
 //    { key: "IN", value: "" }

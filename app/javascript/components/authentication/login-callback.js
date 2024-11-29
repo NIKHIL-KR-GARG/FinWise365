@@ -30,11 +30,15 @@ const LoginCallback = () => {
                         },
                     });
 
-                    const { id, first_name, last_name, is_display_dummy_data } = response.data;
+                    const { id, first_name, last_name, is_display_dummy_data, date_of_birth, life_expectancy, country_of_residence } = response.data;
                     localStorage.setItem('currentUserId', id);
                     localStorage.setItem('currentUserFirstName', first_name || '');
                     localStorage.setItem('currentUserLastName', last_name || '');
+                    localStorage.setItem('currentUserDateOfBirth', date_of_birth);
+                    localStorage.setItem('currentUserLifeExpectancy', life_expectancy);
+                    localStorage.setItem('currentUserCountryOfResidence', country_of_residence);
                     localStorage.setItem('currentUserDisplayDummyData', is_display_dummy_data || true);
+
  
                     // Redirect to the home page after successful login
                     navigate('/home');

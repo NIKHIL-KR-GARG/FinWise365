@@ -1,13 +1,14 @@
 import { CalculateInterest, pmt, calculateDepreciationValue, CalculatePrincipal } from "./CalculateInterestAndPrincipal";
 import { ExchangeRate } from "../common/DefaultValues";
+import { isSameMonthAndYear } from "../common/DateFunctions";
 
 export const propertyAssetValue = (property, date, baseCurrency) => {
     let propertyAssetValue = 0;
     if (property) {
-        if (new Date(property.purchase_date) > date) return 0;
-        else if (property.is_plan_to_sell && (new Date(property.sale_date) < date)) return 0;
-        if (property.is_plan_to_sell && (new Date(property.sale_date).getFullYear() === date.getFullYear() && new Date(property.sale_date).getMonth() === date.getMonth()))
-            propertyAssetValue = parseFloat(property.sale_value);
+        if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
+        else if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
+        if (property.is_plan_to_sell && isSameMonthAndYear(new Date(property.sale_date), date))
+            propertyAssetValue = parseFloat(property.sale_amount);
         else {
             const startDate = new Date(property.purchase_date);
             const months = (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth());
@@ -56,10 +57,10 @@ export const calculateMortgageBalance = (property, date) => {
 export const vehicleAssetValue = (vehicle, date, baseCurrency) => {
     let vehicleAssetValue = 0;
     if (vehicle) {
-        if (new Date(vehicle.purchase_date) > date) return 0;
-        else if (vehicle.is_plan_to_sell && (new Date(vehicle.sale_date) < date)) return 0;
-        else if (vehicle.is_plan_to_sell && (new Date(vehicle.sale_date).getFullYear() === date.getFullYear() && new Date(vehicle.sale_date).getMonth() === date.getMonth()))
-            vehicleAssetValue = parseFloat(vehicle.sale_value);
+        if (new Date(vehicle.purchase_date) > date && !isSameMonthAndYear(new Date(vehicle.purchase_date), date)) return 0;
+        else if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date && !isSameMonthAndYear(new Date(vehicle.sale_date), date)) return 0;
+        else if (vehicle.is_plan_to_sell && isSameMonthAndYear(new Date(vehicle.sale_date), date))
+            vehicleAssetValue = parseFloat(vehicle.sale_amount);
         else {
             const startDate = new Date(vehicle.purchase_date);
             const months = (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth());
@@ -90,8 +91,8 @@ export const calculateFlatRateLoanBalance = (vehicle, date) => {
 export const accountAssetValue = (account, date, baseCurrency) => {
     let accountAssetValue = 0;
     if (account) {
-        if (account.is_plan_to_close && new Date(account.closure_date) < date) return 0;
-        if (new Date(account.opening_date) > date) return 0;
+        if (account.is_plan_to_close && new Date(account.closure_date) < date && !isSameMonthAndYear(new Date(account.closure_date), date)) return 0;
+        if (new Date(account.opening_date) > date && !isSameMonthAndYear(new Date(account.opening_date), date)) return 0;
         const fromCurrency = account.currency;
         const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
         const conversionRate = exchangeRate ? exchangeRate.value : 1;
@@ -103,7 +104,8 @@ export const accountAssetValue = (account, date, baseCurrency) => {
 export const depositAssetValue = (deposit, date, baseCurrency) => {
     let depositAssetValue = 0;
     if (deposit) {
-        if (new Date(deposit.maturity_date) < date || new Date(deposit.opening_date) > date) return 0;
+        if ((new Date(deposit.maturity_date) < date && !isSameMonthAndYear(new Date(deposit.maturity_date), date)) || 
+            (new Date(deposit.opening_date) > date && !isSameMonthAndYear(new Date(deposit.opening_date), date))) return 0;
         
         const months = (date.getFullYear() - new Date(deposit.opening_date).getFullYear()) * 12 + date.getMonth() - new Date(deposit.opening_date).getMonth();
         const interest = CalculateInterest(
@@ -135,10 +137,10 @@ export const depositAssetValue = (deposit, date, baseCurrency) => {
 export const portfolioAssetValue = (portfolio, date, baseCurrency) => {
     let portfolioAssetValue = 0.0;
     if (portfolio) {
-        if (portfolio.buying_date > date) return 0;
-        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date) return 0;
+        if (new Date(portfolio.buying_date) > date && !isSameMonthAndYear(new Date(portfolio.buying_date), date)) return 0;
+        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date && !isSameMonthAndYear(new Date(portfolio.sale_date), date)) return 0;
         if (portfolio.portfolio_type === "Bonds") {
-            if (new Date(portfolio.maturity_date) < date) return 0;
+            if (new Date(portfolio.maturity_date) < date && !isSameMonthAndYear(new Date(portfolio.maturity_date), date)) return 0;
             else portfolioAssetValue = parseFloat(portfolio.buying_value);
         }
         else {
@@ -174,13 +176,13 @@ export const portfolioAssetValue = (portfolio, date, baseCurrency) => {
 export const otherAssetValue = (other, date, baseCurrency) => {
     let otherAssetValue = 0;
     if (other) {
-        if (new Date(other.start_date) > date) return 0;
-        if (other.payout_type === 'Fixed' && new Date(other.payout_date) < date) return 0;
+        if (new Date(other.start_date) > date && !isSameMonthAndYear(new Date(other.start_date), date)) return 0;
+        if (other.payout_type === 'Fixed' && new Date(other.payout_date) < date && !isSameMonthAndYear(new Date(other.payout_date), date)) return 0;
         // check if payout is already completed based on other.start_date && payout_duration
         const payoutDate = new Date(other.payout_date);
         const payoutDuration = other.payout_duration ? parseInt(other.payout_duration) : 0;
         const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));
-        if (other.payout_type === 'Recurring' && payoutEndDate < date) return 0;
+        if (other.payout_type === 'Recurring' && payoutEndDate < date && !isSameMonthAndYear(payoutEndDate, date)) return 0;
 
         let monthsFromStartTillDate = 0;
         // let monthsFromStartTillPayoutDate = 0;
@@ -274,10 +276,11 @@ export const otherAssetValue = (other, date, baseCurrency) => {
 export const incomeAssetValue = (income, date, baseCurrency) => {
     let incomeAssetValue = 0;
     if (income) {
-        if (new Date(income.start_date) > date || (income.end_date && new Date(income.end_date) < date) ) return 0;
+        if ((new Date(income.start_date) > date && !isSameMonthAndYear(new Date(income.start_date), date)) || 
+            (income.end_date && new Date(income.end_date) < date && !isSameMonthAndYear(new Date(income.end_date), date)) ) return 0;
         else {
             // check if the start date is this month
-            if (new Date(income.start_date).getFullYear() === date.getFullYear() && new Date(income.start_date).getMonth() === date.getMonth()) {
+            if (isSameMonthAndYear(new Date(income.start_date), date)) {
                 incomeAssetValue = parseFloat(income.amount);
             }
             const months = (date.getFullYear() - new Date(income.start_date).getFullYear()) * 12 + date.getMonth() - new Date(income.start_date).getMonth();
@@ -304,9 +307,11 @@ export const incomeAssetValue = (income, date, baseCurrency) => {
 export const incomePropertyRentalAssetValue = (property, date, baseCurrency) => {
     let incomePropertyRentalAssetValue = 0;
     if (property) {
-        if (new Date(property.purchase_date) > date) return 0;
-        else if (property.is_plan_to_sell && (new Date(property.sale_date) < date)) return 0;
-        if (property.is_on_rent && (new Date(property.rental_start_date) <= date) && (!property.rental_end_date || new Date(property.rental_end_date) >= date)) {
+        if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
+        else if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
+        if (property.is_on_rent && 
+                (new Date(property.rental_start_date).getMonth() <= date.getMonth() && new Date(property.rental_start_date).getFullYear() <= date.getFullYear()) && 
+                (!property.rental_end_date || (new Date(property.rental_end_date).getMonth() >= date.getMonth() && new Date(property.rental_end_date).getFullYear() >= date.getFullYear()))) {
             const months = (date.getFullYear() - new Date(property.rental_start_date).getFullYear()) * 12 + date.getMonth() - new Date(property.rental_start_date).getMonth();
             const increment = CalculateInterest(
                 "Fixed",
@@ -331,10 +336,10 @@ export const incomePropertyRentalAssetValue = (property, date, baseCurrency) => 
 export const incomeCouponAssetValue = (portfolio, date, baseCurrency) => {
     let incomeCouponAssetValue = 0;
     if (portfolio) {
-        if (portfolio.buying_date > date) return 0;
-        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date) return 0;
+        if (new Date(portfolio.buying_date) > date && !isSameMonthAndYear(new Date(portfolio.buying_date), date)) return 0;
+        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date && !isSameMonthAndYear(new Date(portfolio.sale_date), date)) return 0;
         if (portfolio.portfolio_type === "Bonds") {
-            if (new Date(portfolio.maturity_date) < date) return 0;
+            if (new Date(portfolio.maturity_date) < date && !isSameMonthAndYear(new Date(portfolio.maturity_date), date)) return 0;
             else {
                 if (isValueMonth(new Date(portfolio.buying_date), date, portfolio.coupon_frequency)) {
                     // calculate the coupon value (coupon is fixed)
@@ -357,8 +362,8 @@ export const incomeCouponAssetValue = (portfolio, date, baseCurrency) => {
 export const incomeDividendAssetValue = (portfolio, date, baseCurrency) => {
     let incomeDividendAssetValue = 0;
     if (portfolio) {
-        if (portfolio.buying_date > date) return 0;
-        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date) return 0;
+        if (new Date(portfolio.buying_date) > date && !isSameMonthAndYear(new Date(portfolio.buying_date), date)) return 0;
+        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date && !isSameMonthAndYear(new Date(portfolio.sale_date), date)) return 0;
         if (portfolio.is_paying_dividend) {
 
             // get current portfolio value (this is already converted to base currency)
@@ -390,13 +395,13 @@ const isValueMonth = (startDate, currentDate, frequency) => {
 export const incomePayoutAssetValue = (other, date, baseCurrency) => {
     let incomePayoutAssetValue = 0;
     if (other) {
-        if (new Date(other.start_date) > date) return 0;
+        if (new Date(other.start_date) > date && !isSameMonthAndYear(new Date(other.start_date), date)) return 0;
         if (other.payout_type === 'Fixed') return 0;
         // check if payout is already completed based on other.start_date && payout_duration
         const payoutDate = new Date(other.payout_date);
         const payoutDuration = other.payout_duration ? parseInt(other.payout_duration) : 0;
         const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));
-        if (payoutEndDate < date) return 0;
+        if (payoutEndDate < date && !isSameMonthAndYear(payoutEndDate, date)) return 0;
         
         if (isValueMonth(new Date(other.payout_date), date, other.payout_frequency)) {
             incomePayoutAssetValue = parseFloat(other.payout_value);
@@ -412,9 +417,11 @@ export const incomePayoutAssetValue = (other, date, baseCurrency) => {
 export const incomeLeaseAssetValue = (vehicle, date, baseCurrency) => {
     let incomeLeaseAssetValue = 0;
     if (vehicle) {
-        if (new Date(vehicle.purchase_date) > date) return 0;
-        else if (vehicle.is_plan_to_sell && (new Date(vehicle.sale_date) < date)) return 0;
-        if (vehicle.is_on_lease && (new Date(vehicle.lease_start_date) <= date) && (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= date)) {
+        if (new Date(vehicle.purchase_date) > date && !isSameMonthAndYear(new Date(vehicle.purchase_date), date)) return 0;
+        else if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date && !isSameMonthAndYear(new Date(vehicle.sale_date), date)) return 0;
+        if (vehicle.is_on_lease && 
+                (new Date(vehicle.lease_start_date).getMonth() <= date.getMonth() && new Date(vehicle.lease_start_date).getFullYear() <= date.getFullYear()) && 
+                (!vehicle.lease_end_date || (new Date(vehicle.lease_end_date).getMonth() >= date.getMonth() && new Date(vehicle.lease_end_date).getFullYear() >= date.getFullYear()))) {
             const months = (date.getFullYear() - new Date(vehicle.lease_start_date).getFullYear()) * 12 + date.getMonth() - new Date(vehicle.lease_start_date).getMonth();
             const increment = CalculateInterest(
                 "Fixed",

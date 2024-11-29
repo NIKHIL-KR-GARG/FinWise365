@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Box, Typography, Breadcrumbs, Divider } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
+import { Box, Typography, Breadcrumbs, Link, Divider } from '@mui/material';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
-//import HomeFooter from '../../components/homepage/HomeFooter';
+import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
 
-const Home = () => {
+const Cashflow = () => {
     const [open, setOpen] = useState(true);
 
     const handleDrawerToggle = () => {
@@ -31,26 +31,34 @@ const Home = () => {
                     }}
                 >
                     <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
-                        <Typography color="textPrimary">Home</Typography>
+                        <Link underline="hover" color="inherit" href="/home">
+                            Home
+                        </Link>
+                        <Link underline="hover" color="inherit" href="">
+                            Analyze
+                        </Link>
+                        <Typography color="textPrimary">Cashflow</Typography>
+                        
                     </Breadcrumbs>
-                    <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
+                    <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: '100%' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <HomeIcon sx={{ mr: 1 }} />
-                                My Homepage
+                                <AttachMoneyIcon sx={{ mr: 1 }} />
+                                Cashflow Projections
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
                                 {'( '}Today, {today} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
-                        <Divider sx={{ my: 2 }} />
+                        <Box sx={{ width: '100%', p: 0, justifyContent: 'center' }}>
+                            <AssetsCashflow />
+                        </Box>
                     </Box>
                 </Box>
             </Box>
-            {/*<HomeFooter />*/}
         </Box>
     );
 };
 
-export default Home;
+export default Cashflow;

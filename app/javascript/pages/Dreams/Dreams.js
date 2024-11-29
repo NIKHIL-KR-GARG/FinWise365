@@ -27,7 +27,7 @@ import DreamForm from '../../components/dreamspage/DreamForm';
 import DreamsGraph from '../../components/dreamspage/DreamsGraph';
 import { ExchangeRate } from '../../components/common/DefaultValues';
 import FormatCurrency from '../../components/common/FormatCurrency';
-import { today } from '../../components/common/DateFunctions';
+import { formatMonthYear } from '../../components/common/DateFunctions';
 
 const Dreams = () => {
     const [open, setOpen] = useState(true);
@@ -396,7 +396,7 @@ const Dreams = () => {
                                 My Dreams
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of Today, {today} {')'}
+                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />

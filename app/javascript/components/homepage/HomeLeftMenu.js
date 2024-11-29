@@ -132,7 +132,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                 </ListItem>
                 <Collapse in={analyzeOpen} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItem component={Link} to="/cashflows" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <AttachMoneyIcon fontSize="small" />
                             </ListItemIcon>

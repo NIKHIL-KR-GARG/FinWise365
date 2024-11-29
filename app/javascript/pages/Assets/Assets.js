@@ -34,7 +34,7 @@ import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
 import FormatCurrency from '../../components/common/FormatCurrency';
-import { today } from '../../components/common/DateFunctions';
+import { formatMonthYear } from '../../components/common/DateFunctions';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -387,7 +387,7 @@ const Assets = () => {
                                 My Assets
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of Today, {today} {')'}
+                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />

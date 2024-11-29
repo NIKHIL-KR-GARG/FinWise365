@@ -34,7 +34,7 @@ import MortgageAndLoanList from '../../components/expensespage/mortgageandloans/
 
 import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
 import FormatCurrency from '../../components/common/FormatCurrency';
-import { today } from '../../components/common/DateFunctions';
+import { formatMonthYear } from '../../components/common/DateFunctions';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -376,7 +376,7 @@ const Expenses = () => {
                                 My Expenses
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of Today, {today} {')'}
+                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
