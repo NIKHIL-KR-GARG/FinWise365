@@ -196,6 +196,26 @@ export const emiExpenseVehicle = (vehicle, date, baseCurrency) => {
     return emiExpenseVehicle;
 }
 
+export const emiExpenseDream = (dream, date, baseCurrency) => {
+    let emiExpenseDream = 0;
+    if (dream) {
+        if (!dream.is_funded_by_loan) return 0;
+        else {
+            const startDate = new Date(dream.loan_start_date);
+            const endDate = new Date(dream.loan_end_date);
+            if ((startDate > date && !isSameMonthAndYear(startDate, date)) ||
+                (endDate < date && !isSameMonthAndYear(endDate, date))) return 0;
+            else {
+                const fromCurrency = dream.currency;
+                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                emiExpenseDream = parseFloat(dream.emi_amount) * conversionRate;
+            }
+        }
+    }
+    return emiExpenseDream;
+}
+
 export const sipExpenseDeposit = (deposit, date, baseCurrency) => {
     let sipExpenseDeposit = 0;
     if (deposit) {

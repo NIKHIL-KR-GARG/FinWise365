@@ -19,7 +19,7 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
             const year = curr.year;
             if (!acc[year]) {
                 acc[year] = { total: 0, home: 0, property: 0, propertyMaintenance: 0, creditCardDebt: 0, personalLoan: 0, 
-                            otherExpense: 0, vehicleExpense: 0, vehicleEMI: 0, propertyEMI: 0, depositSIP: 0, 
+                            otherExpense: 0, vehicleExpense: 0, vehicleEMI: 0, propertyEMI: 0, dreamEMI: 0, depositSIP: 0, 
                             portfolioSIP: 0, otherSIP: 0, propertyTax:0, dreamProperty: 0, dreamVehicle: 0,
                             dreamEducation: 0, dreamTravel: 0, dreamRelocation: 0, dreamOther: 0, age: curr.age };
             }
@@ -50,6 +50,9 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
             }
             if (curr.liability_type === 'Property EMI') {
                 acc[year].propertyEMI += curr.liability_value;
+            }
+            if (curr.liability_type === 'Dream EMI') {
+                acc[year].dreamEMI += curr.liability_value;
             }
             if (curr.liability_type === 'Deposit SIP') {
                 acc[year].depositSIP += curr.liability_value;
@@ -99,6 +102,7 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
             vehicleExpense: yearlyData[year].vehicleExpense.toFixed(2),
             vehicleEMI: yearlyData[year].vehicleEMI.toFixed(2),
             propertyEMI: yearlyData[year].propertyEMI.toFixed(2),
+            dreamEMI: yearlyData[year].dreamEMI.toFixed(2),
             depositSIP: yearlyData[year].depositSIP.toFixed(2),
             portfolioSIP: yearlyData[year].portfolioSIP.toFixed(2),
             otherSIP: yearlyData[year].otherSIP.toFixed(2),
@@ -116,7 +120,7 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
         { field: 'year', headerName: 'Year', width: 100 },
         { field: 'age', headerName: 'Age', width: 100 },
         ...['home', 'property', 'propertyMaintenance', 'creditCardDebt', 'personalLoan', 'otherExpense', 'vehicleExpense', 
-            'vehicleEMI', 'propertyEMI', 'depositSIP', 'portfolioSIP', 'otherSIP', 'propertyTax', 
+            'vehicleEMI', 'propertyEMI', 'dreamEMI', 'depositSIP', 'portfolioSIP', 'otherSIP', 'propertyTax', 
             'dreamProperty', 'dreamVehicle', 'dreamEducation', 'dreamTravel', 'dreamRelocation', 'dreamOther', 'total'].map(type => ({
             field: type,
             headerName: type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1'),
@@ -137,6 +141,7 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
         vehicleExpense: row.vehicleExpense,
         vehicleEMI: row.vehicleEMI,
         propertyEMI: row.propertyEMI,
+        dreamEMI: row.dreamEMI,
         depositSIP: row.depositSIP,
         portfolioSIP: row.portfolioSIP,
         otherSIP: row.otherSIP,
@@ -193,6 +198,7 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
                                 <Line type="monotone" dataKey="vehicleExpense" stroke="#00ffff" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="vehicleEMI" stroke="#ffa500" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="propertyEMI" stroke="#800080" strokeWidth={3} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamEMI" stroke="#008080" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="depositSIP" stroke="#008000" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="portfolioSIP" stroke="#000080" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="otherSIP" stroke="#808000" strokeWidth={3} activeDot={{ r: 8 }} />

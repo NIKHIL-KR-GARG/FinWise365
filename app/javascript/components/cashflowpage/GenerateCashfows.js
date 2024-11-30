@@ -10,7 +10,7 @@ import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
 import MoneyOffOutlinedIcon from '@mui/icons-material/MoneyOffOutlined';
 
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
-import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
+import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, emiExpenseDream, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
 import { propertyDreamExpense, vehicleDreamExpense, educationDreamExpense, travelDreamExpense, relocationDreamExpense, otherDreamExpense } from '../../components/calculators/Dreams';
 
 import { getMonthEndDate } from '../../components/common/DateFunctions';
@@ -181,6 +181,10 @@ const GenerateCashflows = () => {
         else if (liability_type === 'Vehicle EMI') {
             liabilityValue = parseFloat(emiExpenseVehicle(object, monthEndDate, currentUserBaseCurrency));
             liabilityName = 'EMI - ' + object.vehicle_name;
+        }
+        else if (liability_type === 'Dream EMI') {
+            liabilityValue = parseFloat(emiExpenseDream(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'EMI - ' + object.dream_name;
         }
         else if (liability_type === 'Deposit SIP') {
             liabilityValue = parseFloat(sipExpenseDeposit(object, monthEndDate, currentUserBaseCurrency));
@@ -452,6 +456,11 @@ const GenerateCashflows = () => {
                     for (let j = 0; j < properties.length; j++) {
                         let property = properties[j];
                         insertLiabilityCashflow('Property EMI', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // add EMI from dreams as well
+                    for (let j = 0; j < dreams.length; j++) {
+                        let dream = dreams[j];
+                            insertLiabilityCashflow('Dream EMI', dream, month, year, age, monthEndDate, currentUserBaseCurrency);
                     }
                     // get all the sip expenses for the month
                     for (let j = 0; j < deposits.length; j++) {
