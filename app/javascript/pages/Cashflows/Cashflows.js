@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Typography, Breadcrumbs, Link, Divider } from '@mui/material';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
-import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
-import MoneyOffOutlinedIcon from '@mui/icons-material/MoneyOffOutlined';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
-import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
+import GenerateCashflows from '../../components/cashflowpage/GenerateCashfows';
 
 const Cashflow = () => {
     const [open, setOpen] = useState(true);
@@ -56,45 +51,7 @@ const Cashflow = () => {
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
-                        <Box sx={{ alignItems: 'center' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 'bold', alignItems: 'center', justifyContent: 'space-between' }}>
-                               <SavingsOutlinedIcon sx={{ mr: 1, color: 'green' }} />
-                                Net Worth
-                            </Typography>
-                            {/* <AssetsCashflow /> */}
-                        </Box>
-                        <Box>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <TrendingUpOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                                        My Assets ()
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetsCashflow />
-                                </AccordionDetails>
-                            </Accordion>        
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <MoneyOffOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                                        My Expenses ()
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    {/* <AssetsCashflow /> */}
-                                </AccordionDetails>
-                            </Accordion>                     
-                        </Box>
+                        <GenerateCashflows />
                     </Box>
                 </Box>
             </Box>
