@@ -84,6 +84,8 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
         }));
     };
 
+    const maxTotalValue = Math.max(...chartData().map(data => parseFloat(data.total)));
+
     const columns = [
         { field: 'year', headerName: 'Year', width: 100 },
         { field: 'age', headerName: 'Age', width: 100 },
@@ -138,13 +140,13 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
                 <Tab label="Assets Cashflow Data" />
             </Tabs>
             {tabIndex === 0 && (
-                <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} p={2}>
+                <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#e0f7fa" borderRadius={2} p={2}>
                     <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData()}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} />
-                                <YAxis tick={{ fontSize: 14 }} domain={['auto', 'auto']} />
+                                <YAxis tick={{ fontSize: 14 }} domain={[0, maxTotalValue]} />
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
                                 <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} />

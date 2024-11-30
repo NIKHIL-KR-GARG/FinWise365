@@ -179,7 +179,7 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
                 <Tab label="Expenses Data" />
             </Tabs>
             {tabIndex === 0 && (
-                <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#e0f7fa" borderRadius={2} p={2}>
+                <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} p={2}>
                     <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData()}>

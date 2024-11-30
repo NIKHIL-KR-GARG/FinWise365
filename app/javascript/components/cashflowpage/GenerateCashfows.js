@@ -17,6 +17,7 @@ import { getMonthEndDate } from '../../components/common/DateFunctions';
 import { GrowthRate } from '../common/DefaultValues';
 import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
 import LiabilitiesCashflow from '../../components/cashflowpage/LiabilitiesCashflow';
+import NetCashflow from '../../components/cashflowpage/NetCashflow';
 
 const GenerateCashflows = () => {
 
@@ -36,18 +37,25 @@ const GenerateCashflows = () => {
     const [liabilitiesCashflowData, setLiabilitiesCashflowData] = useState([]);
     let liabilitiesCashflow = [];
 
+    const [netCashflowData, setNetCashflowData] = useState([]);
+    let netCashflow = [];
+
     const insertAssetCashflow = (asset_type, object, month, year, age, monthEndDate, currentUserBaseCurrency) => {
 
         let assetValue = 0.0;
         let assetName = '';
+        let is_locked = false;
+        let is_cash = false;
 
         if (asset_type === 'Property') {
             assetValue = parseFloat(propertyAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.property_name;
+            is_locked = true;
         }
         else if (asset_type === 'Vehicle') {
             assetValue = parseFloat(vehicleAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.vehicle_name;
+            is_locked = true;
         }
         else if (asset_type === 'Account') {
             assetValue = parseFloat(accountAssetValue(object, monthEndDate, currentUserBaseCurrency));
@@ -64,30 +72,37 @@ const GenerateCashflows = () => {
         else if (asset_type === 'Other') {
             assetValue = parseFloat(otherAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.asset_name;
+            is_locked = true;
         }
         else if (asset_type === 'Income') {
             assetValue = parseFloat(incomeAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.income_name;
+            is_cash = true;
         }
         else if (asset_type === 'Rental Income') {
             assetValue = parseFloat(incomePropertyRentalAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = 'Rental Income - ' + object.property_name;
+            is_cash = true;
         }
         else if (asset_type === 'Coupon Income') {
             assetValue = parseFloat(incomeCouponAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = 'Coupon Income - ' + object.portfolio_name;
+            is_cash = true;
         }
         else if (asset_type === 'Dividend Income') {
             assetValue = parseFloat(incomeDividendAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = 'Dividend Income - ' + object.portfolio_name;
+            is_cash = true;
         }
         else if (asset_type === 'Payout Income') {
             assetValue = parseFloat(incomePayoutAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.asset_name;
+            is_cash = true;
         }
         else if (asset_type === 'Lease Income') {
             assetValue = parseFloat(incomeLeaseAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = 'Lease Income - ' + object.vehicle_name;
+            is_cash = true;
         }
 
         // push to assetsCashflow array
@@ -98,25 +113,53 @@ const GenerateCashflows = () => {
             asset_id: object.id,
             asset_type: asset_type,
             asset_name: assetName,
-            asset_value: assetValue
+            asset_value: assetValue,
+            is_locked: is_locked,
+            is_cash: is_cash   
         });
+
+        // find the last month's cashflow value for this asset
+        const lastMonthCashflow = assetsCashflow.find(
+            (cashflow) =>
+                cashflow.month === ((month === 1) ? 12 : month - 1) &&
+                cashflow.year === ((month === 1) ? year - 1 : year) &&
+                cashflow.asset_id === object.id &&
+                cashflow.asset_type === asset_type
+        );
 
         // check if this asset has been sold or closed in the last month
         // if yes, then add the sale/closure value i.e. last month's cashflow value to disposable income line
         if (!assetValue || assetValue === 0) {
-            // find the last month's cashflow value for this asset
-            const lastMonthCashflow = assetsCashflow.find(
-                (cashflow) =>
-                    cashflow.month === ((month === 1) ? 12 : month - 1) &&
-                    cashflow.year === ((month === 1) ? year - 1 : year) &&
-                    cashflow.asset_id === object.id &&
-                    cashflow.asset_type === asset_type
-            );
-
             if (lastMonthCashflow && parseFloat(lastMonthCashflow.asset_value) > 0) {
                 updateDisposableCashflow(month, year, age, parseFloat(lastMonthCashflow.asset_value));
             }
         }
+        else {
+            // if this is one of the income streams, add last month's value to this month's value
+            if (asset_type === 'Income' || asset_type === 'Rental Income' || 
+                asset_type === 'Coupon Income' || asset_type === 'Dividend Income' || 
+                asset_type === 'Payout Income' || asset_type === 'Lease Income') {
+                
+                let incomeValue = assetValue;
+                if (lastMonthCashflow && parseFloat(lastMonthCashflow.asset_value) > 0) {
+                    const defaultGrowthRate = parseFloat(GrowthRate.find((rate) => rate.key === currentUserCountryOfResidence).value || 0);
+                    const lastMonthIncomeValueNow = parseFloat(lastMonthCashflow.asset_value) + (parseFloat(lastMonthCashflow.asset_value) * (defaultGrowthRate / 100) / 12);
+                    incomeValue += lastMonthIncomeValueNow;
+                }
+
+                // update the asset value in the assetsCashflow array
+                const thisMonthAsset = assetsCashflow.find(
+                    (cashflow) =>
+                        cashflow.month === month &&
+                        cashflow.year === year &&
+                        cashflow.asset_id === object.id &&
+                        cashflow.asset_type === asset_type
+                );
+                if (thisMonthAsset) 
+                    thisMonthAsset.asset_value = parseFloat(incomeValue);
+            }
+        }
+        return assetValue;
     }
 
     const updateDisposableCashflow = (month, year, age, assetValue) => {
@@ -144,7 +187,9 @@ const GenerateCashflows = () => {
                 asset_id: -1,
                 asset_type: 'Disposable Cash',
                 asset_name: 'Disposable Cash',
-                asset_value: parseFloat(currentAssetValue)
+                asset_value: parseFloat(currentAssetValue),
+                is_locked: false,
+                is_cash: true
             });
         }
     }
@@ -245,6 +290,84 @@ const GenerateCashflows = () => {
             liability_name: liabilityName,
             liability_value: liabilityValue
         });
+
+        return liabilityValue;
+    }
+
+    const updateIncomeLinesForExpenses = (expenseForMonth, month, year) => {
+        let remainingExpense = expenseForMonth;
+        // find disposable cash line for this month
+        const thisMonthDisposableCash = assetsCashflow.find(
+            (cashflow) =>
+                cashflow.month === month &&
+                cashflow.year === year &&
+                cashflow.asset_id === -1 &&
+                cashflow.asset_type === 'Disposable Cash'
+        );
+        if (thisMonthDisposableCash){
+            if (thisMonthDisposableCash.asset_value > remainingExpense) {
+                thisMonthDisposableCash.asset_value -= remainingExpense;
+                remainingExpense = 0;
+            }
+            else {
+                remainingExpense -= thisMonthDisposableCash.asset_value;
+                thisMonthDisposableCash.asset_value = 0;
+            }
+        }
+        // if there is still some expense left, then reduce it from the income lines
+        if (remainingExpense > 0) {
+            // find all the income lines for this month
+            const incomeLines = assetsCashflow.filter(
+                (cashflow) =>
+                    cashflow.month === month &&
+                    cashflow.year === year &&
+                    cashflow.is_cash === true
+            );
+            if (incomeLines.length > 0) {
+                for (let i = 0; i < incomeLines.length; i++) {
+                    const incomeLine = incomeLines[i];
+                    if (incomeLine.asset_value > remainingExpense) {
+                        incomeLine.asset_value -= remainingExpense;
+                        remainingExpense = 0;
+                        break;
+                    }
+                    else {
+                        remainingExpense -= incomeLine.asset_value;
+                        incomeLine.asset_value = 0;
+                    }
+                }
+            }
+        }
+        return remainingExpense;
+    }
+
+    const updateUnlockedAssetsForExpenses = (remainingExpenseForMonth, month, year) => {
+        let remainingExpense = remainingExpenseForMonth;
+        // find all the unlocked assets for this month
+        const unlockedAssets = assetsCashflow.filter(
+            (cashflow) =>
+                cashflow.month === month &&
+                cashflow.year === year &&
+                cashflow.is_locked === false
+        );
+        if (unlockedAssets.length > 0) {
+
+            // TODO: HANDLE ASSET SPECIFIC UPDATES
+
+            for (let i = 0; i < unlockedAssets.length; i++) {
+                const unlockedAsset = unlockedAssets[i];
+                if (unlockedAsset.asset_value > remainingExpense) {
+                    unlockedAsset.asset_value -= remainingExpense;
+                    remainingExpense = 0;
+                    break;
+                }
+                else {
+                    remainingExpense -= unlockedAsset.asset_value;
+                    unlockedAsset.asset_value = 0;
+                }
+            }
+        }
+        return remainingExpense;
     }
 
     useEffect(() => {
@@ -315,12 +438,25 @@ const GenerateCashflows = () => {
                 const projectionYears = currentUserLifeExpectancy - age;
                 const projectionMonths = (projectionYears * 12) + (12 - month + 1);
 
+                let incomeForMonth = 0.0;
+                let expenseForMonth = 0.0;
+                let netPositionForMonth = 0.0;
+                let unlockedAssetsForMonth = 0.0;
+                let lockedAssetsForMonth = 0.0;
+                let netWorthForMonth = 0.0;
+
                 // loop from current month to end month of life expectancy
                 for (let i = 1; i <= projectionMonths; i++) {
                     // derive the month end date for the month and year
                     const monthEndDate = getMonthEndDate(month, year);
+                    incomeForMonth = 0.0;
+                    expenseForMonth = 0.0;
+                    netPositionForMonth = 0.0;
+                    unlockedAssetsForMonth = 0.0;
+                    lockedAssetsForMonth = 0.0;
+                    netWorthForMonth = 0.0;
 
-                    // ----------------- start section for assets cashflow calculation -----------------
+                    // ----------------- start section for assets cashflow calculation --------------------------
 
                     // check if there is a disposable cash line for previous month
                     // if yes, then calculate the growth rate and add the growth to the disposable cash for this month
@@ -342,7 +478,9 @@ const GenerateCashflows = () => {
                             asset_id: -1,
                             asset_type: 'Disposable Cash',
                             asset_name: 'Disposable Cash',
-                            asset_value: disposableCashValue
+                            asset_value: disposableCashValue,
+                            is_locked: false,
+                            is_cash: true
                         });
                     }
 
@@ -350,170 +488,245 @@ const GenerateCashflows = () => {
                     // get value of all the properties as of this month
                     for (let j = 0; j < properties.length; j++) {
                         const property = properties[j];
-                        insertAssetCashflow('Property', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue = insertAssetCashflow('Property', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        lockedAssetsForMonth += assetValue;
                     }
                     // get value of all the vehicles as of this month
                     for (let j = 0; j < vehicles.length; j++) {
                         const vehicle = vehicles[j];
-                        insertAssetCashflow('Vehicle', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue = insertAssetCashflow('Vehicle', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        lockedAssetsForMonth += assetValue;
                     }
                     // get value of all the accounts as of this month
                     for (let j = 0; j < accounts.length; j++) {
                         const account = accounts[j];
-                        insertAssetCashflow('Account', account, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue = insertAssetCashflow('Account', account, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        unlockedAssetsForMonth += assetValue;
                     }
                     // get value of all the deposits as of this month
                     for (let j = 0; j < deposits.length; j++) {
                         const deposit = deposits[j];
-                        insertAssetCashflow('Deposit', deposit, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue = insertAssetCashflow('Deposit', deposit, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        unlockedAssetsForMonth += assetValue;
                     }
                     // get value of all the portfolios as of this month
                     for (let j = 0; j < portfolios.length; j++) {
                         const portfolio = portfolios[j];
-                        insertAssetCashflow('Portfolio', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue =  insertAssetCashflow('Portfolio', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        unlockedAssetsForMonth += assetValue;
                     }
                     // get value of all the other assets as of this month
                     for (let j = 0; j < others.length; j++) {
                         const other = others[j];
-                        insertAssetCashflow('Other', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue = insertAssetCashflow('Other', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        lockedAssetsForMonth += assetValue;
                     }
                     // get value of all the incomes as of this month
                     for (let j = 0; j < incomes.length; j++) {
                         const income = incomes[j];
-                        insertAssetCashflow('Income', income, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue = insertAssetCashflow('Income', income, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        incomeForMonth += assetValue;
                     }
                     // add rental as income as well
                     for (let j = 0; j < properties.length; j++) {
                         const property = properties[j];
-                        if (property.is_on_rent)
-                            insertAssetCashflow('Rental Income', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        if (property.is_on_rent) {
+                            const assetValue = insertAssetCashflow('Rental Income', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                            incomeForMonth += assetValue;
+                        }
                     }
                     // add coupon as income as well
                     // add dividend as income as well
                     for (let j = 0; j < portfolios.length; j++) {
                         const portfolio = portfolios[j];
-                        if (portfolio.portfolio_type === 'Bonds')
-                            insertAssetCashflow('Coupon Income', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
-                        else if (portfolio.is_paying_dividend)
-                            insertAssetCashflow('Dividend Income', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        if (portfolio.portfolio_type === 'Bonds') {
+                            const assetValue = insertAssetCashflow('Coupon Income', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                            incomeForMonth += assetValue;
+                        }
+                        else if (portfolio.is_paying_dividend) {
+                            const assetValue = insertAssetCashflow('Dividend Income', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                            incomeForMonth += assetValue;
+                        }   
                     }
                     // add payout as income as well
                     for (let j = 0; j < others.length; j++) {
                         const other = others[j];
-                        if (other.payout_type === 'Recurring')
-                            insertAssetCashflow('Payout Income', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        if (other.payout_type === 'Recurring') {
+                            const assetValue = insertAssetCashflow('Payout Income', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                            incomeForMonth += assetValue;
+                        }
                     }
                     // add vehicle lease as income as well
                     for (let j = 0; j < vehicles.length; j++) {
                         const vehicle = vehicles[j];
-                        if (vehicle.is_on_lease)
-                            insertAssetCashflow('Lease Income', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        if (vehicle.is_on_lease) {
+                            const assetValue = insertAssetCashflow('Lease Income', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                            incomeForMonth += assetValue;
+                        }
                     }
 
-                    // ----------------- end section for assets cashflow calculation -----------------
+                    // ----------------- end section for assets cashflow calculation ------------------------
 
                     // ----------------- start section for liabilities cashflow calculation -----------------
+
                     // get all the home expenses for the month
                     for (let j = 0; j < homes.length; j++) {
                         let home = homes[j];
-                        insertLiabilityCashflow('Home', home, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Home', home, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get all the property expenses for the month
                     for (let j = 0; j < expenseProperties.length; j++) {
                         let property = expenseProperties[j];
-                        insertLiabilityCashflow('Property', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Property', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // add maintenance from asset properties
                     for (let j = 0; j < properties.length; j++) {
                         let property = properties[j];
-                        insertLiabilityCashflow('Property Maintenance', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Property Maintenance', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get all the credit card debts expenses for the month
                     for (let j = 0; j < creditCardDebts.length; j++) {
                         let creditCardDebt = creditCardDebts[j];
-                        insertLiabilityCashflow('Credit Card Debt', creditCardDebt, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Credit Card Debt', creditCardDebt, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get all the personal loans expenses for the month
                     for (let j = 0; j < personalLoans.length; j++) {
                         let personalLoan = personalLoans[j];
-                        insertLiabilityCashflow('Personal Loan', personalLoan, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Personal Loan', personalLoan, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get all the other expenses for the month
                     for (let j = 0; j < expenseOthers.length; j++) {
                         let other = expenseOthers[j];
-                        insertLiabilityCashflow('Other Expense', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Other Expense', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // add monthly expense from asset vehicles
                     for (let j = 0; j < vehicles.length; j++) {
                         let vehicle = vehicles[j];
-                        insertLiabilityCashflow('Vehicle Expense', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Vehicle Expense', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get all the emi expenses for the month
                     for (let j = 0; j < vehicles.length; j++) {
                         let vehicle = vehicles[j];
-                        insertLiabilityCashflow('Vehicle EMI', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Vehicle EMI', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     for (let j = 0; j < properties.length; j++) {
                         let property = properties[j];
-                        insertLiabilityCashflow('Property EMI', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Property EMI', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // add EMI from dreams as well
                     for (let j = 0; j < dreams.length; j++) {
                         let dream = dreams[j];
-                            insertLiabilityCashflow('Dream EMI', dream, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Dream EMI', dream, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get all the sip expenses for the month
                     for (let j = 0; j < deposits.length; j++) {
                         let deposit = deposits[j];
-                        insertLiabilityCashflow('Deposit SIP', deposit, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Deposit SIP', deposit, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     for (let j = 0; j < portfolios.length; j++) {
                         let portfolio = portfolios[j];
-                        insertLiabilityCashflow('Portfolio SIP', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Portfolio SIP', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     for (let j = 0; j < others.length; j++) {
                         let other = others[j];
-                        insertLiabilityCashflow('Other SIP', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Other SIP', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get all the tax expenses for the month
                     for (let j = 0; j < properties.length; j++) {
                         let property = properties[j];
-                        insertLiabilityCashflow('Property Tax', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Property Tax', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
 
                     // add expenses from the dreams to the expenses cashflow
                     // get expenses for buying a property in the future
                     for (let j = 0; j < properties.length; j++) {
                         let property = properties[j];
-                        insertLiabilityCashflow('Property Dream', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Property Dream', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get expenses for buying a vehicle in the future
                     for (let j = 0; j < vehicles.length; j++) {
                         let vehicle = vehicles[j];
-                        insertLiabilityCashflow('Vehicle Dream', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Vehicle Dream', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get expenses for education in the future
                     for (let j = 0; j < educations.length; j++) {
                         let education = educations[j];
-                        insertLiabilityCashflow('Education Dream', education, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Education Dream', education, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get expenses for travel in the future
                     for (let j = 0; j < travels.length; j++) {
                         let travel = travels[j];
-                        insertLiabilityCashflow('Travel Dream', travel, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Travel Dream', travel, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get expenses for relocation in the future
                     for (let j = 0; j < relocations.length; j++) {
                         let relocation = relocations[j];
-                        insertLiabilityCashflow('Relocation Dream', relocation, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Relocation Dream', relocation, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     // get expenses for other dreams in the future
                     for (let j = 0; j < otherDreams.length; j++) {
                         let otherDream = otherDreams[j];
-                        insertLiabilityCashflow('Other Dream', otherDream, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const expenseValue = insertLiabilityCashflow('Other Dream', otherDream, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        expenseForMonth += expenseValue;
                     }
                     
                     // ----------------- end section for liabilities cashflow calculation -----------------
+
+                    // ----------------- start section for net cashflow calculation -----------------
+
+                    // total expense, total income, Gap, unlocked Assets, locked Assets, Net Worth
+                    netPositionForMonth = parseFloat(incomeForMonth) - parseFloat(expenseForMonth);
+                    // if net position is positive, then add it to unlocked assets
+                    if (netPositionForMonth > 0) {
+                        // add the extra income to unlocked assets
+                        unlockedAssetsForMonth += netPositionForMonth;
+                        // reduce the expenses from the income lines
+                        updateIncomeLinesForExpenses(expenseForMonth, month, year); 
+                    }
+                    else {
+                        // reduce the expenses from the income lines
+                        const remainingExpense = updateIncomeLinesForExpenses(expenseForMonth, month, year);
+                        // if there is still some expense left, then reduce it from the unlocked assets
+                        if (remainingExpense > 0) {
+                            unlockedAssetsForMonth -= remainingExpense; // could be negative or positive
+                            // and update the unlocked asset lines
+                            updateUnlockedAssetsForExpenses(remainingExpense, month, year);
+                        }
+                    }
+                    netWorthForMonth = parseFloat(unlockedAssetsForMonth) + parseFloat(lockedAssetsForMonth);
+                    // push to net cash flow array
+                    netCashflow.push({
+                        month: month,
+                        year: year,
+                        age: age,
+                        income: incomeForMonth,
+                        expense: expenseForMonth,
+                        net_position: netPositionForMonth,
+                        unlocked_assets: unlockedAssetsForMonth,
+                        locked_assets: lockedAssetsForMonth,
+                        net_worth: netWorthForMonth
+                    });
+
+                    // ----------------- end section for net cashflow calculation -----------------
 
                     // check and adjust the year, month and age
                     if (month === 12) {
@@ -526,6 +739,7 @@ const GenerateCashflows = () => {
 
                 setAssetsCashflowData(assetsCashflow);
                 setLiabilitiesCashflowData(liabilitiesCashflow);
+                setNetCashflowData(netCashflow);
                 setLoading(false);
 
             } catch (error) {
@@ -581,7 +795,7 @@ const GenerateCashflows = () => {
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            {/* <AssetsCashflow assetsCashflowData={assetsCashflowData}/> */}
+                            <NetCashflow netCashflowData={netCashflowData}/>
                         </AccordionDetails>
                     </Accordion>
                 <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} 
@@ -594,7 +808,7 @@ const GenerateCashflows = () => {
                     >
                         <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                             <TrendingUpOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                            My Assets ()
+                            My Assets
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
@@ -611,7 +825,7 @@ const GenerateCashflows = () => {
                     >
                         <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                             <MoneyOffOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                            My Expenses ()
+                            My Expenses
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>

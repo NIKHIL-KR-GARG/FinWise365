@@ -144,26 +144,31 @@ export const portfolioAssetValue = (portfolio, date, baseCurrency) => {
             else portfolioAssetValue = parseFloat(portfolio.buying_value);
         }
         else {
-            // calculate the growth based on the growth rate
-            const months = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
-            const interest = CalculateInterest(
-                'Recurring',
-                'Simple',
-                parseFloat(portfolio.growth_rate),
-                parseFloat(portfolio.buying_value),
-                months,
-                portfolio.sip_frequency,
-                parseFloat(portfolio.sip_amount),
-                portfolio.sip_frequency // does not matter as it is simple interest
-            )
-            const principal = CalculatePrincipal(
-                'Recurring',
-                parseFloat(portfolio.buying_value) || 0,
-                months,
-                portfolio.sip_frequency,
-                parseFloat(portfolio.sip_amount) || 0
-            );
-            portfolioAssetValue = parseFloat(principal) + parseFloat(interest);
+            if (portfolio.is_plan_to_sell && isSameMonthAndYear(new Date(portfolio.sale_date), date)) {
+                portfolioAssetValue = parseFloat(portfolio.sale_value);
+            }
+            else {
+                // calculate the growth based on the growth rate
+                const months = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
+                const interest = CalculateInterest(
+                    'Recurring',
+                    'Simple',
+                    parseFloat(portfolio.growth_rate),
+                    parseFloat(portfolio.buying_value),
+                    months,
+                    portfolio.sip_frequency,
+                    parseFloat(portfolio.sip_amount),
+                    portfolio.sip_frequency // does not matter as it is simple interest
+                )
+                const principal = CalculatePrincipal(
+                    'Recurring',
+                    parseFloat(portfolio.buying_value) || 0,
+                    months,
+                    portfolio.sip_frequency,
+                    parseFloat(portfolio.sip_amount) || 0
+                );
+                portfolioAssetValue = parseFloat(principal) + parseFloat(interest);
+            }
         }
         const fromCurrency = portfolio.currency;
         const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
