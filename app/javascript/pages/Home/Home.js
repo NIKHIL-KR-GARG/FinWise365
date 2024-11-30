@@ -6,6 +6,7 @@ import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
 //import HomeFooter from '../../components/homepage/HomeFooter';
+import GenerateCashflows from '../../components/cashflowpage/GenerateCashfows';
 
 const Home = () => {
     const [open, setOpen] = useState(true);
@@ -44,7 +45,8 @@ const Home = () => {
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
-                        <Divider sx={{ my: 2 }} />
+                        <GenerateCashflows hideAccordians={true}/>
+                        {/* <Divider sx={{ my: 2 }} /> */}
                     </Box>
                 </Box>
             </Box>

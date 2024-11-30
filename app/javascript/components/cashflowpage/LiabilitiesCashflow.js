@@ -190,26 +190,26 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
                                 <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="home" stroke="#ff69b4" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="propertyMaintenance" stroke="#8884d8" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="creditCardDebt" stroke="#0000ff" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="personalLoan" stroke="#ff4500" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="otherExpense" stroke="#ff00ff" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="vehicleExpense" stroke="#00ffff" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="vehicleEMI" stroke="#ffa500" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="propertyEMI" stroke="#800080" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamEMI" stroke="#008080" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="depositSIP" stroke="#008000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="portfolioSIP" stroke="#000080" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="otherSIP" stroke="#808000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="propertyTax" stroke="#800000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamProperty" stroke="#ff1493" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamVehicle" stroke="#00bfff" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamEducation" stroke="#32cd32" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamTravel" stroke="#ff6347" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamRelocation" stroke="#8a2be2" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamOther" stroke="#ff4500" strokeWidth={3} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="home" stroke="#ff69b4" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="propertyMaintenance" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="creditCardDebt" stroke="#0000ff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="personalLoan" stroke="#ff4500" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="otherExpense" stroke="#ff00ff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="vehicleExpense" stroke="#00ffff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="vehicleEMI" stroke="#ffa500" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="propertyEMI" stroke="#800080" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamEMI" stroke="#008080" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="depositSIP" stroke="#008000" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="portfolioSIP" stroke="#000080" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="otherSIP" stroke="#808000" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="propertyTax" stroke="#800000" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamProperty" stroke="#ff1493" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamVehicle" stroke="#00bfff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamEducation" stroke="#32cd32" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamTravel" stroke="#ff6347" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamRelocation" stroke="#8a2be2" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dreamOther" stroke="#ff4500" strokeWidth={1} activeDot={{ r: 8 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </Grid>

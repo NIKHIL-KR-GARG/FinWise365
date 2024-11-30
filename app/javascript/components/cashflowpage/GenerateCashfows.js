@@ -19,7 +19,7 @@ import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
 import LiabilitiesCashflow from '../../components/cashflowpage/LiabilitiesCashflow';
 import NetCashflow from '../../components/cashflowpage/NetCashflow';
 
-const GenerateCashflows = () => {
+const GenerateCashflows = ({hideAccordians}) => {
 
     const currentUserId = parseInt(localStorage.getItem('currentUserId'));
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -115,7 +115,8 @@ const GenerateCashflows = () => {
             asset_name: assetName,
             asset_value: assetValue,
             is_locked: is_locked,
-            is_cash: is_cash
+            is_cash: is_cash,
+            is_updated: false
         });
 
         // find the last month's cashflow value for this asset
@@ -164,8 +165,9 @@ const GenerateCashflows = () => {
 
     const updateDisposableCashflow = (month, year, age, assetValue) => {
 
-        const defaultGrowthRate = parseFloat(GrowthRate.find((rate) => rate.key === currentUserCountryOfResidence).value || 0);
-        const currentAssetValue = assetValue + (assetValue * (defaultGrowthRate / 100) / 12);
+        // const defaultGrowthRate = parseFloat(GrowthRate.find((rate) => rate.key === currentUserCountryOfResidence).value || 0);
+        // const currentAssetValue = assetValue + (assetValue * (defaultGrowthRate / 100) / 12);
+        const currentAssetValue = assetValue;
 
         const thisMonthDisposableCash = assetsCashflow.find(
             (cashflow) =>
@@ -189,7 +191,8 @@ const GenerateCashflows = () => {
                 asset_name: 'Disposable Cash',
                 asset_value: parseFloat(currentAssetValue),
                 is_locked: false,
-                is_cash: true
+                is_cash: true,
+                is_updated: false
             });
         }
     }
@@ -341,29 +344,29 @@ const GenerateCashflows = () => {
         return remainingExpense;
     }
 
-    const updateUnlockedAssetsForExpenses = (remainingExpenseForMonth, month, year) => {
+    const updateLiquidAssetsForExpenses = (remainingExpenseForMonth, month, year) => {
         let remainingExpense = remainingExpenseForMonth;
-        // find all the unlocked assets for this month
-        const unlockedAssets = assetsCashflow.filter(
+        // find all the liquid assets for this month
+        const liquidAssets = assetsCashflow.filter(
             (cashflow) =>
                 cashflow.month === month &&
                 cashflow.year === year &&
                 cashflow.is_locked === false
         );
-        if (unlockedAssets.length > 0) {
+        if (liquidAssets.length > 0) {
 
-            // TODO: HANDLE ASSET SPECIFIC UPDATES
-
-            for (let i = 0; i < unlockedAssets.length; i++) {
-                const unlockedAsset = unlockedAssets[i];
-                if (unlockedAsset.asset_value > remainingExpense) {
-                    unlockedAsset.asset_value -= remainingExpense;
+            for (let i = 0; i < liquidAssets.length; i++) {
+                const liquidAsset = liquidAssets[i];
+                if (liquidAsset.asset_value > remainingExpense) {
+                    liquidAsset.asset_value -= remainingExpense;
+                    liquidAsset.is_updated = true;
                     remainingExpense = 0;
                     break;
                 }
                 else {
-                    remainingExpense -= unlockedAsset.asset_value;
-                    unlockedAsset.asset_value = 0;
+                    remainingExpense -= liquidAsset.asset_value;
+                    liquidAsset.asset_value = 0;
+                    liquidAsset.is_updated = true;
                 }
             }
         }
@@ -441,7 +444,7 @@ const GenerateCashflows = () => {
                 let incomeForMonth = 0.0;
                 let expenseForMonth = 0.0;
                 let netPositionForMonth = 0.0;
-                let unlockedAssetsForMonth = 0.0;
+                let liquidAssetsForMonth = 0.0;
                 let lockedAssetsForMonth = 0.0;
                 let netWorthForMonth = 0.0;
 
@@ -452,7 +455,7 @@ const GenerateCashflows = () => {
                     incomeForMonth = 0.0;
                     expenseForMonth = 0.0;
                     netPositionForMonth = 0.0;
-                    unlockedAssetsForMonth = 0.0;
+                    liquidAssetsForMonth = 0.0;
                     lockedAssetsForMonth = 0.0;
                     netWorthForMonth = 0.0;
 
@@ -480,7 +483,8 @@ const GenerateCashflows = () => {
                             asset_name: 'Disposable Cash',
                             asset_value: disposableCashValue,
                             is_locked: false,
-                            is_cash: true
+                            is_cash: true,
+                            is_updated: false
                         });
                     }
 
@@ -501,19 +505,19 @@ const GenerateCashflows = () => {
                     for (let j = 0; j < accounts.length; j++) {
                         const account = accounts[j];
                         const assetValue = insertAssetCashflow('Account', account, month, year, age, monthEndDate, currentUserBaseCurrency);
-                        unlockedAssetsForMonth += assetValue;
+                        liquidAssetsForMonth += assetValue;
                     }
                     // get value of all the deposits as of this month
                     for (let j = 0; j < deposits.length; j++) {
                         const deposit = deposits[j];
                         const assetValue = insertAssetCashflow('Deposit', deposit, month, year, age, monthEndDate, currentUserBaseCurrency);
-                        unlockedAssetsForMonth += assetValue;
+                        liquidAssetsForMonth += assetValue;
                     }
                     // get value of all the portfolios as of this month
                     for (let j = 0; j < portfolios.length; j++) {
                         const portfolio = portfolios[j];
                         const assetValue = insertAssetCashflow('Portfolio', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
-                        unlockedAssetsForMonth += assetValue;
+                        liquidAssetsForMonth += assetValue;
                     }
                     // get value of all the other assets as of this month
                     for (let j = 0; j < others.length; j++) {
@@ -693,26 +697,64 @@ const GenerateCashflows = () => {
 
                     // ----------------- start section for net cashflow calculation -----------------
 
-                    // total expense, total income, Gap, unlocked Assets, locked Assets, Net Worth
+                    // total expense, total income, Gap, liquid Assets, locked Assets, Net Worth
                     netPositionForMonth = parseFloat(incomeForMonth) - parseFloat(expenseForMonth);
-                    // if net position is positive, then add it to unlocked assets
+                    // if net position is positive, then add it to liquid assets
                     if (netPositionForMonth > 0) {
-                        // add the extra income to unlocked assets
-                        unlockedAssetsForMonth += netPositionForMonth;
+                        // add the extra income to liquid assets
+                        liquidAssetsForMonth += netPositionForMonth;
                         // reduce the expenses from the income lines
                         updateIncomeLinesForExpenses(expenseForMonth, month, year);
                     }
                     else {
                         // reduce the expenses from the income lines
                         const remainingExpense = updateIncomeLinesForExpenses(expenseForMonth, month, year);
-                        // if there is still some expense left, then reduce it from the unlocked assets
+                        // if there is still some expense left, then reduce it from the liquid assets
                         if (remainingExpense > 0) {
-                            unlockedAssetsForMonth -= remainingExpense; // could be negative or positive
-                            // and update the unlocked asset lines
-                            updateUnlockedAssetsForExpenses(remainingExpense, month, year);
+                            liquidAssetsForMonth -= remainingExpense; // could be negative or positive
+                            // and update the liquid asset lines
+                            updateLiquidAssetsForExpenses(remainingExpense, month, year);
                         }
                     }
-                    netWorthForMonth = parseFloat(unlockedAssetsForMonth) + parseFloat(lockedAssetsForMonth);
+
+                    // the issue is that the functions are calculating the asset value for the month and we cannot update the asset value from the original asset.
+                    // we need to find a way to update the current value
+                    for (let j = 0; j < assetsCashflow.length; j++) {
+                        const asset = assetsCashflow[j];
+                        if (asset.is_updated) {
+                            if (asset.asset_type === 'Account') {
+                                const account = accounts.find(acc => acc.id === asset.asset_id);
+                                if (account) {
+                                    // update value and put start date as this month
+                                    account.account_balance = asset.asset_value;
+                                    account.opening_date = monthEndDate;
+                                }
+                            }
+                            else if (asset.asset_type === 'Deposit') {
+                                const deposit = deposits.find(dep => dep.id === asset.asset_id);
+                                if (deposit) {
+                                    // close the deposit and move any remaining value to disposable cash
+                                    deposit.maturity_date = monthEndDate;
+                                    deposit.amount = 0;
+
+                                    if (asset.asset_value > 0) {
+                                        updateDisposableCashflow(month, year, age, parseFloat(asset.asset_value));
+                                        asset.asset_value = 0;
+                                    }
+                                }
+                            }
+                            else if (asset.asset_type === 'Portfolio') {
+                                const portfolio = portfolios.find(port => port.id === asset.asset_id);
+                                if (portfolio) {
+                                    // update value and put start date as this month
+                                    portfolio.buying_date = monthEndDate;
+                                    portfolio.buying_value = asset.asset_value;
+                                }
+                            }
+                        }
+                    }
+
+                    netWorthForMonth = parseFloat(liquidAssetsForMonth) + parseFloat(lockedAssetsForMonth);
                     // push to net cash flow array
                     netCashflow.push({
                         month: month,
@@ -721,7 +763,7 @@ const GenerateCashflows = () => {
                         income: incomeForMonth,
                         expense: expenseForMonth,
                         net_position: netPositionForMonth,
-                        unlocked_assets: unlockedAssetsForMonth,
+                        liquid_assets: liquidAssetsForMonth,
                         locked_assets: lockedAssetsForMonth,
                         net_worth: netWorthForMonth
                     });
@@ -796,40 +838,45 @@ const GenerateCashflows = () => {
                     <NetCashflow netCashflowData={netCashflowData} />
                 </AccordionDetails>
             </Accordion>
-            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }}
-            // defaultExpanded
-            >
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                >
-                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                        <TrendingUpOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                        My Assets
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <AssetsCashflow assetsCashflowData={assetsCashflowData} />
-                </AccordionDetails>
-            </Accordion>
-            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }}
-            // defaultExpanded
-            >
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                >
-                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                        <MoneyOffOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                        My Expenses
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <LiabilitiesCashflow liabilitiesCashflowData={liabilitiesCashflowData} />
-                </AccordionDetails>
-            </Accordion>
+            {hideAccordians === false && (
+                <>
+                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }}
+                    // defaultExpanded
+                    >
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                        >
+                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                <TrendingUpOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                                My Assets
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <AssetsCashflow assetsCashflowData={assetsCashflowData} />
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }}
+                    // defaultExpanded
+                    >
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                        >
+                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                <MoneyOffOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                                My Expenses
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <LiabilitiesCashflow liabilitiesCashflowData={liabilitiesCashflowData} />
+                        </AccordionDetails>
+                    </Accordion>
+                </>
+            )}  
+
         </Box>
     );
 };

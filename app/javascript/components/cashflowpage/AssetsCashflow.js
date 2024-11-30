@@ -149,19 +149,19 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
                                 <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="vehicle" stroke="#8884d8" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="account" stroke="#0000ff" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="deposit" stroke="#00ff00" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="portfolio" stroke="#ff00ff" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="income" stroke="#00ffff" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="otherAsset" stroke="#ff6600" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="rentalIncome" stroke="#ffa500" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="couponIncome" stroke="#800080" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dividendIncome" stroke="#008000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="payoutIncome" stroke="#000080" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="leaseIncome" stroke="#808000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="disposableCash" stroke="#800000" strokeWidth={3} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="vehicle" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="account" stroke="#0000ff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="deposit" stroke="#00ff00" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="portfolio" stroke="#ff00ff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="income" stroke="#00ffff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="otherAsset" stroke="#ff6600" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="rentalIncome" stroke="#ffa500" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="couponIncome" stroke="#800080" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="dividendIncome" stroke="#008000" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="payoutIncome" stroke="#000080" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="leaseIncome" stroke="#808000" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="disposableCash" stroke="#800000" strokeWidth={1} activeDot={{ r: 8 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </Grid>

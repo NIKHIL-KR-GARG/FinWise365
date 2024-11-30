@@ -51,7 +51,7 @@ const Cashflow = () => {
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
-                        <GenerateCashflows />
+                        <GenerateCashflows hideAccordians={false}/>
                     </Box>
                 </Box>
             </Box>
