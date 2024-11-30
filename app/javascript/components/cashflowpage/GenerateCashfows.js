@@ -10,9 +10,13 @@ import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
 import MoneyOffOutlinedIcon from '@mui/icons-material/MoneyOffOutlined';
 
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
+import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
+import { propertyDreamExpense, vehicleDreamExpense, educationDreamExpense, travelDreamExpense, relocationDreamExpense, otherDreamExpense } from '../../components/calculators/Dreams';
+
 import { getMonthEndDate } from '../../components/common/DateFunctions';
 import { GrowthRate } from '../common/DefaultValues';
 import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
+import LiabilitiesCashflow from '../../components/cashflowpage/LiabilitiesCashflow';
 
 const GenerateCashflows = () => {
 
@@ -28,6 +32,9 @@ const GenerateCashflows = () => {
 
     const [assetsCashflowData, setAssetsCashflowData] = useState([]);
     let assetsCashflow = [];
+
+    const [liabilitiesCashflowData, setLiabilitiesCashflowData] = useState([]);
+    let liabilitiesCashflow = [];
 
     const insertAssetCashflow = (asset_type, object, month, year, age, monthEndDate, currentUserBaseCurrency) => {
 
@@ -142,6 +149,100 @@ const GenerateCashflows = () => {
         }
     }
 
+    const insertLiabilityCashflow = (liability_type, object, month, year, age, monthEndDate, currentUserBaseCurrency) => {
+
+        let liabilityValue = 0.0;
+        let liabilityName = '';
+
+        if (liability_type === 'Home') {
+            liabilityValue = parseFloat(homeExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = object.home_name;
+        }
+        else if (liability_type === 'Property') {
+            liabilityValue = parseFloat(propertyExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = object.property_name;
+        }
+        else if (liability_type === 'Credit Card Debt') {
+            liabilityValue = parseFloat(creditCardDebtExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = object.card_name;
+        }
+        else if (liability_type === 'Personal Loan') {
+            liabilityValue = parseFloat(personalLoanExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = object.loan_name;
+        }
+        else if (liability_type === 'Other Expense') {
+            liabilityValue = parseFloat(otherExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = object.expense_name;
+        }
+        else if (liability_type === 'Property EMI') {
+            liabilityValue = parseFloat(emiExpenseProperty(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'EMI - ' + object.property_name;
+        }
+        else if (liability_type === 'Vehicle EMI') {
+            liabilityValue = parseFloat(emiExpenseVehicle(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'EMI - ' + object.vehicle_name;
+        }
+        else if (liability_type === 'Deposit SIP') {
+            liabilityValue = parseFloat(sipExpenseDeposit(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'SIP - ' + object.deposit_name;
+        }
+        else if (liability_type === 'Portfolio SIP') {
+            liabilityValue = parseFloat(sipExpensePortfolio(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'SIP - ' + object.portfolio_name;
+        }
+        else if (liability_type === 'Other SIP') {
+            liabilityValue = parseFloat(sipExpenseOtherAsset(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'SIP - ' + object.asset_name;
+        }
+        else if (liability_type === 'Property Tax') {
+            liabilityValue = parseFloat(taxExpenseProperty(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Tax - ' + object.property_name;
+        }
+        else if (liability_type === 'Property Maintenance') {
+            liabilityValue = parseFloat(maintananeExpenseProperty(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Maintenance - ' + object.property_name;
+        }
+        else if (liability_type === 'Vehicle Expense') {
+            liabilityValue = parseFloat(otherExpenseVehicle(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Vehicle Expense - ' + object.vehicle_name;
+        }
+        else if (liability_type === 'Vehicle Dream') {
+            liabilityValue = parseFloat(vehicleDreamExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Dream Vehicle - ' + object.vehicle_name;
+        }
+        else if (liability_type === 'Property Dream') {
+            liabilityValue = parseFloat(propertyDreamExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Dream Property - ' + object.property_name;
+        }
+        else if (liability_type === 'Education Dream') {
+            liabilityValue = parseFloat(educationDreamExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Dream Education - ' + object.dream_name;
+        }
+        else if (liability_type === 'Travel Dream') {
+            liabilityValue = parseFloat(travelDreamExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Dream Travel - ' + object.dream_name;
+        }
+        else if (liability_type === 'Relocation Dream') {
+            liabilityValue = parseFloat(relocationDreamExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Dream Relocation - ' + object.dream_name;
+        }
+        else if (liability_type === 'Other Dream') {
+            liabilityValue = parseFloat(otherDreamExpense(object, monthEndDate, currentUserBaseCurrency));
+            liabilityName = 'Dream Other - ' + object.dream_name;
+        }
+
+        // push to liabilitysCashflow array
+        liabilitiesCashflow.push({
+            month: month,
+            year: year,
+            age: age,
+            liability_id: object.id,
+            liability_type: liability_type,
+            liability_name: liabilityName,
+            liability_value: liabilityValue
+        });
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -173,6 +274,32 @@ const GenerateCashflows = () => {
                 const portfolios = portfoliosResponse.data;
                 const others = othersResponse.data;
 
+                // fetch all the expenses data
+                const [homesResponse, expensePropertiesResponse, creditCardDebtsResponse, 
+                    personalLoansResponse, expenseOthersResponse] = await Promise.all([
+                    axios.get(`/api/expense_homes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_personal_loans?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                ]);
+
+                const homes = homesResponse.data;
+                const expenseProperties = expensePropertiesResponse.data;
+                const creditCardDebts = creditCardDebtsResponse.data;
+                const personalLoans = personalLoansResponse.data;
+                const expenseOthers = expenseOthersResponse.data;
+
+                // fetch all the dreams data
+                const dreamsResponse = await axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`)
+
+                const dreams = dreamsResponse.data;
+                // filter dreams where dream_type = 'Education' or 'Travel' or 'Relocation' or 'Other'
+                const educations = dreams.filter(dream => dream.dream_type === 'Education');
+                const travels= dreams.filter(dream => dream.dream_type === 'Travel');
+                const relocations = dreams.filter(dream => dream.dream_type === 'Relocation');
+                const otherDreams = dreams.filter(dream => dream.dream_type === 'Other');
+
                 const today = new Date();
                 // derive current age
                 const dob = new Date(currentUserDateOfBirth);
@@ -188,6 +315,9 @@ const GenerateCashflows = () => {
                 for (let i = 1; i <= projectionMonths; i++) {
                     // derive the month end date for the month and year
                     const monthEndDate = getMonthEndDate(month, year);
+
+                    // ----------------- start section for assets cashflow calculation -----------------
+
                     // check if there is a disposable cash line for previous month
                     // if yes, then calculate the growth rate and add the growth to the disposable cash for this month
                     const lastMonthDisposableCash = assetsCashflow.find(
@@ -276,6 +406,106 @@ const GenerateCashflows = () => {
                             insertAssetCashflow('Lease Income', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
                     }
 
+                    // ----------------- end section for assets cashflow calculation -----------------
+
+                    // ----------------- start section for liabilities cashflow calculation -----------------
+                    // get all the home expenses for the month
+                    for (let j = 0; j < homes.length; j++) {
+                        let home = homes[j];
+                        insertLiabilityCashflow('Home', home, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get all the property expenses for the month
+                    for (let j = 0; j < expenseProperties.length; j++) {
+                        let property = expenseProperties[j];
+                        insertLiabilityCashflow('Property', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // add maintenance from asset properties
+                    for (let j = 0; j < properties.length; j++) {
+                        let property = properties[j];
+                        insertLiabilityCashflow('Property Maintenance', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get all the credit card debts expenses for the month
+                    for (let j = 0; j < creditCardDebts.length; j++) {
+                        let creditCardDebt = creditCardDebts[j];
+                        insertLiabilityCashflow('Credit Card Debt', creditCardDebt, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get all the personal loans expenses for the month
+                    for (let j = 0; j < personalLoans.length; j++) {
+                        let personalLoan = personalLoans[j];
+                        insertLiabilityCashflow('Personal Loan', personalLoan, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get all the other expenses for the month
+                    for (let j = 0; j < expenseOthers.length; j++) {
+                        let other = expenseOthers[j];
+                        insertLiabilityCashflow('Other Expense', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // add monthly expense from asset vehicles
+                    for (let j = 0; j < vehicles.length; j++) {
+                        let vehicle = vehicles[j];
+                        insertLiabilityCashflow('Vehicle Expense', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get all the emi expenses for the month
+                    for (let j = 0; j < vehicles.length; j++) {
+                        let vehicle = vehicles[j];
+                        insertLiabilityCashflow('Vehicle EMI', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    for (let j = 0; j < properties.length; j++) {
+                        let property = properties[j];
+                        insertLiabilityCashflow('Property EMI', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get all the sip expenses for the month
+                    for (let j = 0; j < deposits.length; j++) {
+                        let deposit = deposits[j];
+                        insertLiabilityCashflow('Deposit SIP', deposit, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    for (let j = 0; j < portfolios.length; j++) {
+                        let portfolio = portfolios[j];
+                        insertLiabilityCashflow('Portfolio SIP', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    for (let j = 0; j < others.length; j++) {
+                        let other = others[j];
+                        insertLiabilityCashflow('Other SIP', other, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get all the tax expenses for the month
+                    for (let j = 0; j < properties.length; j++) {
+                        let property = properties[j];
+                        insertLiabilityCashflow('Property Tax', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+
+                    // add expenses from the dreams to the expenses cashflow
+                    // get expenses for buying a property in the future
+                    for (let j = 0; j < properties.length; j++) {
+                        let property = properties[j];
+                        insertLiabilityCashflow('Property Dream', property, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get expenses for buying a vehicle in the future
+                    for (let j = 0; j < vehicles.length; j++) {
+                        let vehicle = vehicles[j];
+                        insertLiabilityCashflow('Vehicle Dream', vehicle, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get expenses for education in the future
+                    for (let j = 0; j < educations.length; j++) {
+                        let education = educations[j];
+                        insertLiabilityCashflow('Education Dream', education, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get expenses for travel in the future
+                    for (let j = 0; j < travels.length; j++) {
+                        let travel = travels[j];
+                        insertLiabilityCashflow('Travel Dream', travel, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get expenses for relocation in the future
+                    for (let j = 0; j < relocations.length; j++) {
+                        let relocation = relocations[j];
+                        insertLiabilityCashflow('Relocation Dream', relocation, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    // get expenses for other dreams in the future
+                    for (let j = 0; j < otherDreams.length; j++) {
+                        let otherDream = otherDreams[j];
+                        insertLiabilityCashflow('Other Dream', otherDream, month, year, age, monthEndDate, currentUserBaseCurrency);
+                    }
+                    
+                    // ----------------- end section for liabilities cashflow calculation -----------------
+
                     // check and adjust the year, month and age
                     if (month === 12) {
                         month = 1;
@@ -286,6 +516,7 @@ const GenerateCashflows = () => {
                 }
 
                 setAssetsCashflowData(assetsCashflow);
+                setLiabilitiesCashflowData(liabilitiesCashflow);
                 setLoading(false);
 
             } catch (error) {
@@ -328,17 +559,25 @@ const GenerateCashflows = () => {
                     {errorMessage}
                 </Alert>
             </Snackbar>
-                <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: '100%' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <SavingsOutlinedIcon sx={{ mr: 1, color: 'green' }} />
-                                Net Worth
-                            </Box>
-                        </Typography>
-                        {/* <AssetsCashflow assetsCashflowData={assetsCashflowData}/> */}
-                    </Box>
             <Box>
                 <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
+                        <AccordionSummary
+                            // expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                        >
+                            <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <SavingsOutlinedIcon sx={{ mr: 1, color: 'green' }} />
+                                Net Worth
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            {/* <AssetsCashflow assetsCashflowData={assetsCashflowData}/> */}
+                        </AccordionDetails>
+                    </Accordion>
+                <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} 
+                // defaultExpanded
+                >
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content"
@@ -353,7 +592,9 @@ const GenerateCashflows = () => {
                         <AssetsCashflow assetsCashflowData={assetsCashflowData}/>
                     </AccordionDetails>
                 </Accordion>
-                <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
+                <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} 
+                // defaultExpanded
+                >
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content"
@@ -365,7 +606,7 @@ const GenerateCashflows = () => {
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        {/* <AssetsCashflow /> */}
+                        <LiabilitiesCashflow liabilitiesCashflowData={liabilitiesCashflowData}/>
                     </AccordionDetails>
                 </Accordion>
             </Box>

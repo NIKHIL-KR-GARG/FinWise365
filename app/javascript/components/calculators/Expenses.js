@@ -1,20 +1,22 @@
 import { CalculateInterest } from "./CalculateInterestAndPrincipal";
 import { ExchangeRate } from "../common/DefaultValues";
+import { isSIPMonth, isSameMonthAndYear } from "../common/DateFunctions";
 
 export const homeExpense = (home, date, baseCurrency) => {
     let homeExpense = 0;
     if (home) {
         const startDate = new Date(home.start_date);
-        if (startDate <= date && (home.end_date === null || new Date(home.end_date) >= date)) {
+        if ((startDate <= date || isSameMonthAndYear(startDate, date)) && 
+            (!home.end_date || new Date(home.end_date) >= date || isSameMonthAndYear(new Date(home.end_date), date))) {
             if (home.inflation_rate > 0) {
                 const totalInterest = CalculateInterest(
                     "Recurring",
                     "Compounding",
                     home.inflation_rate,
-                    0,
+                    parseFloat(home.total_expense),
                     (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth()),
                     "Annually",
-                    parseFloat(home.total_expense),
+                    0,
                     "Annually"
                 );
                 homeExpense = home.total_expense + totalInterest;
@@ -33,16 +35,17 @@ export const propertyExpense = (property, date, baseCurrency) => {
     let propertyExpense = 0;
     if (property) {
         const startDate = new Date(property.start_date);
-        if (startDate <= date && (property.end_date === null || new Date(property.end_date) >= date)) {
+        if ((startDate <= date || isSameMonthAndYear(startDate, date)) && 
+            (!property.end_date || new Date(property.end_date) >= date || isSameMonthAndYear(new Date(property.end_date), date))) {
             if (property.inflation_rate > 0) {
                 const totalInterest = CalculateInterest(
                     "Recurring",
                     "Compounding",
                     property.inflation_rate,
-                    0,
+                    parseFloat(property.total_expense),
                     (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth()),
                     "Annually",
-                    parseFloat(property.total_expense),
+                    0,
                     "Annually"
                 );
                 propertyExpense = property.total_expense + totalInterest;
@@ -60,9 +63,9 @@ export const propertyExpense = (property, date, baseCurrency) => {
 export const maintananeExpenseProperty = (property, date, baseCurrency) => {
     let maintananeExpenseProperty = 0;
     if (property) {
-        if (property.is_under_construction && new Date(property.possession_date) > date) return 0;
-        else if (property.is_plan_to_sell && new Date(property.sale_date) < date) return 0;
-        else if (new Date(property.purchase_date) > date) return 0;
+        if (property.is_under_construction && new Date(property.possession_date) > date && !isSameMonthAndYear(new Date(property.possession_date), date)) return 0;
+        else if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
+        else if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
         else {
             const fromCurrency = property.currency;
             const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
@@ -78,7 +81,7 @@ export const creditCardDebtExpense = (creditCardDebt, date, baseCurrency) => {
     if (creditCardDebt) {
         const startDate = new Date(creditCardDebt.start_date);
         const endDate = new Date(creditCardDebt.end_date);
-        if (startDate <= date && endDate >= date) {
+        if ((startDate <= date || isSameMonthAndYear(startDate, date)) && (endDate >= date || isSameMonthAndYear(endDate, date))) {
             const fromCurrency = creditCardDebt.currency;
             const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
             const conversionRate = exchangeRate ? exchangeRate.value : 1;
@@ -93,7 +96,7 @@ export const personalLoanExpense = (personalLoan, date, baseCurrency) => {
     if (personalLoan) {
         const startDate = new Date(personalLoan.start_date);
         const endDate = new Date(personalLoan.end_date);
-        if (startDate <= date && endDate >= date) {
+        if ((startDate <= date || isSameMonthAndYear(startDate, date)) && (endDate >= date || isSameMonthAndYear(endDate, date))) {
             const fromCurrency = personalLoan.currency;
             const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
             const conversionRate = exchangeRate ? exchangeRate.value : 1;
@@ -108,12 +111,12 @@ export const otherExpense = (other, date, baseCurrency) => {
     if (other) {
         const startDate = new Date(other.expense_date);
          // check if the month of expense date same as month of today's date
-         if (startDate >= date && startDate.getMonth() === date.getMonth() && startDate.getFullYear() === date.getFullYear()) {
+         if (startDate >= date || isSameMonthAndYear(startDate, date)) {
             otherExpense += parseFloat(other.amount);
         }
 
         // check if we have a recurring expense and end_date is after today
-        if (other.is_recurring & (other.end_date === null || new Date(other.end_date) >= date)) {
+        if (other.is_recurring & (!other.end_date || new Date(other.end_date) >= date || isSameMonthAndYear(new Date(other.end_date), date))) {
             // check if this the correct month for recurring expense based on recurring_frequency
             const diffMonths = (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth());
             if (isSIPMonth(startDate, date, other.recurring_frequency)) {
@@ -123,10 +126,10 @@ export const otherExpense = (other, date, baseCurrency) => {
                 "Recurring",
                 "Compounding",
                 other.inflation_rate,
-                0,
+                other.recurring_amount,
                 diffMonths,
                 other.recurring_frequency,
-                other.recurring_amount,
+                0,
                 other.recurring_frequency
             );
             otherExpense += totalInterest;
@@ -142,7 +145,7 @@ export const otherExpense = (other, date, baseCurrency) => {
 export const otherExpenseVehicle = (vehicle, date, baseCurrency) => {
     let otherExpenseVehicle = 0;
     if (vehicle) {
-        if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date) return 0;
+        if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date && !isSameMonthAndYear(new Date(vehicle.sale_date), date)) return 0;
         else {
                 const fromCurrency = vehicle.currency;
                 const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
@@ -156,12 +159,12 @@ export const otherExpenseVehicle = (vehicle, date, baseCurrency) => {
 export const emiExpenseProperty = (property, date, baseCurrency) => {
     let emiExpenseProperty = 0;
     if (property) {
-        if (property.is_plan_to_sell && new Date(property.sale_date) < date) return 0;
+        if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
         else if (!property.is_funded_by_loan) return 0;
         else {
             const startDate = new Date(property.purchase_date);
             const endDate = new Date(startDate.setMonth(startDate.getMonth() + parseInt(property.loan_duration)));
-            if (endDate < date) return 0;
+            if (endDate < date && !isSameMonthAndYear(endDate, date)) return 0;
             else {
                 const fromCurrency = property.currency;
                 const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
@@ -176,12 +179,12 @@ export const emiExpenseProperty = (property, date, baseCurrency) => {
 export const emiExpenseVehicle = (vehicle, date, baseCurrency) => {
     let emiExpenseVehicle = 0;
     if (vehicle) {
-        if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date) return 0;
+        if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date && !isSameMonthAndYear(new Date(vehicle.sale_date), date)) return 0;
         else if (!vehicle.is_funded_by_loan) return 0;
         else {
             const startDate = new Date(vehicle.purchase_date);
             const endDate = new Date(startDate.setMonth(startDate.getMonth() + parseInt(vehicle.loan_duration)));
-            if (endDate < date) return 0;
+            if (endDate < date && !isSameMonthAndYear(endDate, date)) return 0;
             else {
                 const fromCurrency = vehicle.currency;
                 const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
@@ -197,7 +200,7 @@ export const sipExpenseDeposit = (deposit, date, baseCurrency) => {
     let sipExpenseDeposit = 0;
     if (deposit) {
         if (deposit.deposit_type !== 'Recurring') return 0;
-        else if (new Date(deposit.maturity_date) < date) return 0;
+        else if (new Date(deposit.maturity_date) < date && !isSameMonthAndYear(new Date(deposit.maturity_date), date)) return 0;
         else {
             // check if this the correct month for sip expense based on frequency
             if (isSIPMonth(new Date(deposit.opening_date), date, deposit.payment_frequency)) {
@@ -214,7 +217,7 @@ export const sipExpenseDeposit = (deposit, date, baseCurrency) => {
 export const sipExpensePortfolio = (portfolio, date, baseCurrency) => {
     let sipExpensePortfolio = 0;
     if (portfolio) {
-        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date) return 0;
+        if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date && !isSameMonthAndYear(new Date(portfolio.sale_date), date)) return 0;
         else if (!portfolio.is_sip) return 0;
         else {
             // check if this the correct month for sip expense based on frequency
@@ -233,7 +236,7 @@ export const sipExpenseOtherAsset = (otherAsset, date, baseCurrency) => {
     let sipExpenseOtherAsset = 0;
     if (otherAsset) {
         if (!otherAsset.is_recurring_payment) return 0;
-        else if (new Date(otherAsset.payment_end_date) < date) return 0;
+        else if (new Date(otherAsset.payment_end_date) < date && !isSameMonthAndYear(new Date(otherAsset.payment_end_date), date)) return 0;
         else {
             // check if this the correct month for sip expense based on frequency
             if (isSIPMonth(new Date(otherAsset.start_date), date, otherAsset.payment_frequency)) {
@@ -250,9 +253,9 @@ export const sipExpenseOtherAsset = (otherAsset, date, baseCurrency) => {
 export const taxExpenseProperty = (property, date, baseCurrency) => {
     let taxExpenseProperty = 0;
     if (property) {
-        if (property.is_under_construction && new Date(property.possession_date) > date) return 0;
-        else if (property.is_plan_to_sell && new Date(property.sale_date) < date) return 0;
-        else if (new Date(property.purchase_date) > date) return 0;
+        if (property.is_under_construction && new Date(property.possession_date) > date && !isSameMonthAndYear(new Date(property.possession_date), date)) return 0;
+        else if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
+        else if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
         else {
             const fromCurrency = property.currency;
             const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
@@ -261,13 +264,4 @@ export const taxExpenseProperty = (property, date, baseCurrency) => {
         }
     }
     return taxExpenseProperty;
-}
-
-const isSIPMonth = (startDate, currentDate, frequency) => {
-    const diffMonths = (currentDate.getFullYear() - startDate.getFullYear()) * 12 + (currentDate.getMonth() - startDate.getMonth());
-    if (frequency === 'Monthly') return true;
-    else if (frequency === 'Quarterly' && diffMonths % 3 === 0) return true;
-    else if (frequency === 'Semi-Annually' && diffMonths % 6 === 0) return true;
-    else if (frequency === 'Annually' && diffMonths % 12 === 0) return true;
-    else return false;
 }

@@ -3,9 +3,9 @@ import Grid from '@mui/material/Grid2';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Box, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
-import { FormatCurrencyForGrid } from  '../../components/common/FormatCurrency';
+import { FormatCurrencyForGrid } from '../../components/common/FormatCurrency';
 
-const AssetsCashflow = ({assetsCashflowData}) => {
+const AssetsCashflow = ({ assetsCashflowData }) => {
 
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const [tabIndex, setTabIndex] = useState(0);
@@ -18,7 +18,7 @@ const AssetsCashflow = ({assetsCashflowData}) => {
         const yearlyData = assetsCashflowData.filter(data => data.month === 12).reduce((acc, curr) => {
             const year = curr.year;
             if (!acc[year]) {
-                acc[year] = { total: 0, property: 0, vehicle: 0, account: 0, deposit: 0, portfolio: 0, income: 0, rentalIncome: 0, couponIncome: 0, dividendIncome: 0, payoutIncome: 0, leaseIncome: 0, disposableCash: 0, age: curr.age };
+                acc[year] = { total: 0, property: 0, vehicle: 0, account: 0, deposit: 0, portfolio: 0, income: 0, otherAsset: 0, rentalIncome: 0, couponIncome: 0, dividendIncome: 0, payoutIncome: 0, leaseIncome: 0, disposableCash: 0, age: curr.age };
             }
             acc[year].total += curr.asset_value;
             if (curr.asset_type === 'Property') {
@@ -38,6 +38,9 @@ const AssetsCashflow = ({assetsCashflowData}) => {
             }
             if (curr.asset_type === 'Income') {
                 acc[year].income += curr.asset_value;
+            }
+            if (curr.asset_type === 'Other') {
+                acc[year].otherAsset += curr.asset_value;
             }
             if (curr.asset_type === 'Rental Income') {
                 acc[year].rentalIncome += curr.asset_value;
@@ -71,6 +74,7 @@ const AssetsCashflow = ({assetsCashflowData}) => {
             deposit: yearlyData[year].deposit.toFixed(2),
             portfolio: yearlyData[year].portfolio.toFixed(2),
             income: yearlyData[year].income.toFixed(2),
+            otherAsset: yearlyData[year].otherAsset.toFixed(2),
             rentalIncome: yearlyData[year].rentalIncome.toFixed(2),
             couponIncome: yearlyData[year].couponIncome.toFixed(2),
             dividendIncome: yearlyData[year].dividendIncome.toFixed(2),
@@ -83,7 +87,7 @@ const AssetsCashflow = ({assetsCashflowData}) => {
     const columns = [
         { field: 'year', headerName: 'Year', width: 100 },
         { field: 'age', headerName: 'Age', width: 100 },
-        ...['property', 'vehicle', 'account', 'deposit', 'portfolio', 'income', 'rentalIncome', 'couponIncome', 'dividendIncome', 'payoutIncome', 'leaseIncome', 'disposableCash', 'total'].map(type => ({
+        ...['property', 'vehicle', 'account', 'deposit', 'portfolio', 'income', 'otherAsset', 'rentalIncome', 'couponIncome', 'dividendIncome', 'payoutIncome', 'leaseIncome', 'disposableCash', 'total'].map(type => ({
             field: type,
             headerName: type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1'),
             width: 125
@@ -100,6 +104,7 @@ const AssetsCashflow = ({assetsCashflowData}) => {
         deposit: row.deposit,
         portfolio: row.portfolio,
         income: row.income,
+        otherAsset: row.otherAsset,
         rentalIncome: row.rentalIncome,
         couponIncome: row.couponIncome,
         dividendIncome: row.dividendIncome,
@@ -149,6 +154,7 @@ const AssetsCashflow = ({assetsCashflowData}) => {
                                 <Line type="monotone" dataKey="deposit" stroke="#00ff00" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="portfolio" stroke="#ff00ff" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="income" stroke="#00ffff" strokeWidth={3} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="otherAsset" stroke="#ff6600" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="rentalIncome" stroke="#ffa500" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="couponIncome" stroke="#800080" strokeWidth={3} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="dividendIncome" stroke="#008000" strokeWidth={3} activeDot={{ r: 8 }} />
@@ -190,8 +196,8 @@ const AssetsCashflow = ({assetsCashflowData}) => {
                     </Grid>
                 </Grid>
             )}
-    </Box>
-);
+        </Box>
+    );
 };
 
 export default AssetsCashflow;

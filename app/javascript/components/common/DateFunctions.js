@@ -19,3 +19,12 @@ export const isSameMonthAndYear = (date1, date2) => {
         return true;
     }
 };
+
+export const isSIPMonth = (startDate, currentDate, frequency) => {
+    const diffMonths = (currentDate.getFullYear() - startDate.getFullYear()) * 12 + (currentDate.getMonth() - startDate.getMonth());
+    if (frequency === 'Monthly') return true;
+    else if (frequency === 'Quarterly' && diffMonths % 3 === 0) return true;
+    else if (frequency === 'Semi-Annually' && diffMonths % 6 === 0) return true;
+    else if (frequency === 'Annually' && diffMonths % 12 === 0) return true;
+    else return false;
+}
