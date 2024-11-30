@@ -25,7 +25,7 @@ const NetCashflow = ({ netCashflowData }) => {
             acc[year].net_position = curr.net_position;
             acc[year].unlocked_assets = curr.unlocked_assets;
             acc[year].locked_assets = curr.locked_assets;
-            acc[year].net_worth = curr.net_worth;          
+            acc[year].net_worth = curr.net_worth;
             return acc;
         }, {});
 
@@ -65,8 +65,7 @@ const NetCashflow = ({ netCashflowData }) => {
     }));
 
     return (
-
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
+        <Box>
             <Tabs
                 value={tabIndex}
                 onChange={handleTabChange}

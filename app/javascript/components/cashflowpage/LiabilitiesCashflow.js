@@ -3,10 +3,10 @@ import Grid from '@mui/material/Grid2';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Box, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
-import { FormatCurrencyForGrid } from  '../../components/common/FormatCurrency';
+import { FormatCurrencyForGrid } from '../../components/common/FormatCurrency';
 
-const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
-    
+const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
+
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const [tabIndex, setTabIndex] = useState(0);
 
@@ -18,10 +18,12 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
         const yearlyData = liabilitiesCashflowData.reduce((acc, curr) => {
             const year = curr.year;
             if (!acc[year]) {
-                acc[year] = { total: 0, home: 0, property: 0, propertyMaintenance: 0, creditCardDebt: 0, personalLoan: 0, 
-                            otherExpense: 0, vehicleExpense: 0, vehicleEMI: 0, propertyEMI: 0, dreamEMI: 0, depositSIP: 0, 
-                            portfolioSIP: 0, otherSIP: 0, propertyTax:0, dreamProperty: 0, dreamVehicle: 0,
-                            dreamEducation: 0, dreamTravel: 0, dreamRelocation: 0, dreamOther: 0, age: curr.age };
+                acc[year] = {
+                    total: 0, home: 0, property: 0, propertyMaintenance: 0, creditCardDebt: 0, personalLoan: 0,
+                    otherExpense: 0, vehicleExpense: 0, vehicleEMI: 0, propertyEMI: 0, dreamEMI: 0, depositSIP: 0,
+                    portfolioSIP: 0, otherSIP: 0, propertyTax: 0, dreamProperty: 0, dreamVehicle: 0,
+                    dreamEducation: 0, dreamTravel: 0, dreamRelocation: 0, dreamOther: 0, age: curr.age
+                };
             }
             acc[year].total += curr.liability_value;
             if (curr.liability_type === 'Home') {
@@ -119,13 +121,13 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
     const columns = [
         { field: 'year', headerName: 'Year', width: 100 },
         { field: 'age', headerName: 'Age', width: 100 },
-        ...['home', 'property', 'propertyMaintenance', 'creditCardDebt', 'personalLoan', 'otherExpense', 'vehicleExpense', 
-            'vehicleEMI', 'propertyEMI', 'dreamEMI', 'depositSIP', 'portfolioSIP', 'otherSIP', 'propertyTax', 
+        ...['home', 'property', 'propertyMaintenance', 'creditCardDebt', 'personalLoan', 'otherExpense', 'vehicleExpense',
+            'vehicleEMI', 'propertyEMI', 'dreamEMI', 'depositSIP', 'portfolioSIP', 'otherSIP', 'propertyTax',
             'dreamProperty', 'dreamVehicle', 'dreamEducation', 'dreamTravel', 'dreamRelocation', 'dreamOther', 'total'].map(type => ({
-            field: type,
-            headerName: type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1'),
-            width: 125
-        }))
+                field: type,
+                headerName: type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1'),
+                width: 125
+            }))
     ];
 
     const rows = chartData().map((row, index) => ({
@@ -156,8 +158,7 @@ const LiabilitiesCashflow = ({liabilitiesCashflowData}) => {
     }));
 
     return (
-
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
+        <Box>
             <Tabs
                 value={tabIndex}
                 onChange={handleTabChange}

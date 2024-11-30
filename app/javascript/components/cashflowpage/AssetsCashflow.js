@@ -117,8 +117,7 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
     }));
 
     return (
-
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
+        <Box>
             <Tabs
                 value={tabIndex}
                 onChange={handleTabChange}

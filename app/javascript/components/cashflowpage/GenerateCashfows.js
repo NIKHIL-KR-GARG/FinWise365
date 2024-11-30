@@ -115,7 +115,7 @@ const GenerateCashflows = () => {
             asset_name: assetName,
             asset_value: assetValue,
             is_locked: is_locked,
-            is_cash: is_cash   
+            is_cash: is_cash
         });
 
         // find the last month's cashflow value for this asset
@@ -136,10 +136,10 @@ const GenerateCashflows = () => {
         }
         else {
             // if this is one of the income streams, add last month's value to this month's value
-            if (asset_type === 'Income' || asset_type === 'Rental Income' || 
-                asset_type === 'Coupon Income' || asset_type === 'Dividend Income' || 
+            if (asset_type === 'Income' || asset_type === 'Rental Income' ||
+                asset_type === 'Coupon Income' || asset_type === 'Dividend Income' ||
                 asset_type === 'Payout Income' || asset_type === 'Lease Income') {
-                
+
                 let incomeValue = assetValue;
                 if (lastMonthCashflow && parseFloat(lastMonthCashflow.asset_value) > 0) {
                     const defaultGrowthRate = parseFloat(GrowthRate.find((rate) => rate.key === currentUserCountryOfResidence).value || 0);
@@ -155,7 +155,7 @@ const GenerateCashflows = () => {
                         cashflow.asset_id === object.id &&
                         cashflow.asset_type === asset_type
                 );
-                if (thisMonthAsset) 
+                if (thisMonthAsset)
                     thisMonthAsset.asset_value = parseFloat(incomeValue);
             }
         }
@@ -304,7 +304,7 @@ const GenerateCashflows = () => {
                 cashflow.asset_id === -1 &&
                 cashflow.asset_type === 'Disposable Cash'
         );
-        if (thisMonthDisposableCash){
+        if (thisMonthDisposableCash) {
             if (thisMonthDisposableCash.asset_value > remainingExpense) {
                 thisMonthDisposableCash.asset_value -= remainingExpense;
                 remainingExpense = 0;
@@ -402,14 +402,14 @@ const GenerateCashflows = () => {
                 const others = othersResponse.data;
 
                 // fetch all the expenses data
-                const [homesResponse, expensePropertiesResponse, creditCardDebtsResponse, 
+                const [homesResponse, expensePropertiesResponse, creditCardDebtsResponse,
                     personalLoansResponse, expenseOthersResponse] = await Promise.all([
-                    axios.get(`/api/expense_homes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    axios.get(`/api/expense_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    axios.get(`/api/expense_personal_loans?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                ]);
+                        axios.get(`/api/expense_homes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                        axios.get(`/api/expense_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                        axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                        axios.get(`/api/expense_personal_loans?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                        axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    ]);
 
                 const homes = homesResponse.data;
                 const expenseProperties = expensePropertiesResponse.data;
@@ -418,12 +418,12 @@ const GenerateCashflows = () => {
                 const expenseOthers = expenseOthersResponse.data;
 
                 // fetch all the dreams data
-                const dreamsResponse = await axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`)
+                const dreamsResponse = await axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`)
 
                 const dreams = dreamsResponse.data;
                 // filter dreams where dream_type = 'Education' or 'Travel' or 'Relocation' or 'Other'
                 const educations = dreams.filter(dream => dream.dream_type === 'Education');
-                const travels= dreams.filter(dream => dream.dream_type === 'Travel');
+                const travels = dreams.filter(dream => dream.dream_type === 'Travel');
                 const relocations = dreams.filter(dream => dream.dream_type === 'Relocation');
                 const otherDreams = dreams.filter(dream => dream.dream_type === 'Other');
 
@@ -512,7 +512,7 @@ const GenerateCashflows = () => {
                     // get value of all the portfolios as of this month
                     for (let j = 0; j < portfolios.length; j++) {
                         const portfolio = portfolios[j];
-                        const assetValue =  insertAssetCashflow('Portfolio', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
+                        const assetValue = insertAssetCashflow('Portfolio', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
                         unlockedAssetsForMonth += assetValue;
                     }
                     // get value of all the other assets as of this month
@@ -546,7 +546,7 @@ const GenerateCashflows = () => {
                         else if (portfolio.is_paying_dividend) {
                             const assetValue = insertAssetCashflow('Dividend Income', portfolio, month, year, age, monthEndDate, currentUserBaseCurrency);
                             incomeForMonth += assetValue;
-                        }   
+                        }
                     }
                     // add payout as income as well
                     for (let j = 0; j < others.length; j++) {
@@ -688,7 +688,7 @@ const GenerateCashflows = () => {
                         const expenseValue = insertLiabilityCashflow('Other Dream', otherDream, month, year, age, monthEndDate, currentUserBaseCurrency);
                         expenseForMonth += expenseValue;
                     }
-                    
+
                     // ----------------- end section for liabilities cashflow calculation -----------------
 
                     // ----------------- start section for net cashflow calculation -----------------
@@ -700,7 +700,7 @@ const GenerateCashflows = () => {
                         // add the extra income to unlocked assets
                         unlockedAssetsForMonth += netPositionForMonth;
                         // reduce the expenses from the income lines
-                        updateIncomeLinesForExpenses(expenseForMonth, month, year); 
+                        updateIncomeLinesForExpenses(expenseForMonth, month, year);
                     }
                     else {
                         // reduce the expenses from the income lines
@@ -757,8 +757,7 @@ const GenerateCashflows = () => {
     }
 
     return (
-
-        <Box sx={{ fontSize: 'xx-small', p: 2, maxHeight: '100vh' }}>
+        <Box>
             <Snackbar
                 open={!!errorMessage}
                 autoHideDuration={6000}
@@ -782,57 +781,55 @@ const GenerateCashflows = () => {
                     {errorMessage}
                 </Alert>
             </Snackbar>
-            <Box>
-                <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
-                        <AccordionSummary
-                            // expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                        >
-                            <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <SavingsOutlinedIcon sx={{ mr: 1, color: 'green' }} />
-                                Net Worth
-                            </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <NetCashflow netCashflowData={netCashflowData}/>
-                        </AccordionDetails>
-                    </Accordion>
-                <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} 
-                // defaultExpanded
+            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
+                <AccordionSummary
+                    // expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
                 >
-                    <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                    >
-                        <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                            <TrendingUpOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                            My Assets
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <AssetsCashflow assetsCashflowData={assetsCashflowData}/>
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} 
-                // defaultExpanded
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <SavingsOutlinedIcon sx={{ mr: 1, color: 'green' }} />
+                        Net Worth
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <NetCashflow netCashflowData={netCashflowData} />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }}
+            // defaultExpanded
+            >
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
                 >
-                    <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                    >
-                        <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                            <MoneyOffOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                            My Expenses
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <LiabilitiesCashflow liabilitiesCashflowData={liabilitiesCashflowData}/>
-                    </AccordionDetails>
-                </Accordion>
-            </Box>
+                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                        <TrendingUpOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                        My Assets
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <AssetsCashflow assetsCashflowData={assetsCashflowData} />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }}
+            // defaultExpanded
+            >
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                >
+                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                        <MoneyOffOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                        My Expenses
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <LiabilitiesCashflow liabilitiesCashflowData={liabilitiesCashflowData} />
+                </AccordionDetails>
+            </Accordion>
         </Box>
     );
 };
