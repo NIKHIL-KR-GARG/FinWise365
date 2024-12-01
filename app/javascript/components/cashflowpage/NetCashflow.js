@@ -44,6 +44,31 @@ const NetCashflow = ({ netCashflowData }) => {
         return formattedData;
     };
 
+    const getYAxisDomain = (data) => {
+        const values = data.flatMap(d => [
+            parseFloat(d.income),
+            parseFloat(d.expense),
+            parseFloat(d.net_position),
+            parseFloat(d.liquid_assets),
+            parseFloat(d.locked_assets),
+            parseFloat(d.net_worth)
+        ]);
+        return [Math.min(...values), Math.max(...values)];
+    };
+
+    const formatYAxisTick = (tick) => {
+        if (Math.abs(tick) >= 1e9) {
+            return `${(tick / 1e9).toFixed(1)}B`;
+        } else if (Math.abs(tick) >= 1e6) {
+            return `${(tick / 1e6).toFixed(1)}M`;
+        } else if (Math.abs(tick) >= 1e3) {
+            return `${(tick / 1e3).toFixed(1)}K`;
+        }
+        return tick.toFixed(1);
+    };
+
+    const yAxisDomain = getYAxisDomain(chartData());
+
     const columns = [
         { field: 'year', headerName: 'Year', width: 100 },
         { field: 'age', headerName: 'Age', width: 100 },
@@ -95,7 +120,7 @@ const NetCashflow = ({ netCashflowData }) => {
                             <LineChart data={chartData()}>
                                 <CartesianGrid strokeDasharray="2 2" />
                                 <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1} />
-                                <YAxis tick={{ fontSize: 14 }} domain={['auto', 'auto']} tickCount={10} interval={0}/>
+                                <YAxis tick={{ fontSize: 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick} />
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
                                 {/* <Line type="monotone" dataKey="income" stroke="#1f77b4" strokeWidth={1} activeDot={{ r: 8 }} />

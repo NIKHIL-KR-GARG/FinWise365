@@ -383,7 +383,7 @@ const GenerateCashflows = ({hideAccordians}) => {
         const fetchData = async () => {
             try {
 
-                if (!currentUserLifeExpectancy || !currentUserCountryOfResidence || !currentUserDateOfBirth) {
+                if (!currentUserLifeExpectancy || !currentUserCountryOfResidence || isNaN(currentUserDateOfBirth.getTime()) || currentUserDateOfBirth >= new Date()) {
                     setErrorMessage('Please set life expectancy, country of residence and date of birth in your profile');
                     setLoading(false);
                     return;
@@ -402,13 +402,13 @@ const GenerateCashflows = ({hideAccordians}) => {
                         axios.get(`/api/asset_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     ]);
 
-                const properties = propertiesResponse.data;
-                const vehicles = vehiclesResponse.data;
-                const accounts = accountsResponse.data;
-                const deposits = depositsResponse.data;
-                const incomes = incomesResponse.data;
-                const portfolios = portfoliosResponse.data;
-                const others = othersResponse.data;
+                const properties = propertiesResponse?.data || [];
+                const vehicles = vehiclesResponse?.data || [];
+                const accounts = accountsResponse?.data || [];
+                const deposits = depositsResponse?.data || [];
+                const incomes = incomesResponse?.data || [];
+                const portfolios = portfoliosResponse?.data || [];
+                const others = othersResponse?.data || [];
 
                 // fetch all the expenses data
                 const [homesResponse, expensePropertiesResponse, creditCardDebtsResponse,
@@ -420,21 +420,21 @@ const GenerateCashflows = ({hideAccordians}) => {
                         axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     ]);
 
-                const homes = homesResponse.data;
-                const expenseProperties = expensePropertiesResponse.data;
-                const creditCardDebts = creditCardDebtsResponse.data;
-                const personalLoans = personalLoansResponse.data;
-                const expenseOthers = expenseOthersResponse.data;
+                const homes = homesResponse?.data || [];
+                const expenseProperties = expensePropertiesResponse?.data || [];
+                const creditCardDebts = creditCardDebtsResponse?.data || [];
+                const personalLoans = personalLoansResponse?.data || [];
+                const expenseOthers = expenseOthersResponse?.data || [];
 
                 // fetch all the dreams data
                 const dreamsResponse = await axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`)
 
-                const dreams = dreamsResponse.data;
+                const dreams = dreamsResponse?.data || [];
                 // filter dreams where dream_type = 'Education' or 'Travel' or 'Relocation' or 'Other'
-                const educations = dreams.filter(dream => dream.dream_type === 'Education');
-                const travels = dreams.filter(dream => dream.dream_type === 'Travel');
-                const relocations = dreams.filter(dream => dream.dream_type === 'Relocation');
-                const otherDreams = dreams.filter(dream => dream.dream_type === 'Other');
+                const educations = dreams.filter(dream => dream.dream_type === 'Education') || [];
+                const travels = dreams.filter(dream => dream.dream_type === 'Travel') || [];
+                const relocations = dreams.filter(dream => dream.dream_type === 'Relocation') || [];
+                const otherDreams = dreams.filter(dream => dream.dream_type === 'Other') || [];
 
                 const today = new Date();
                 // derive current age
@@ -493,6 +493,7 @@ const GenerateCashflows = ({hideAccordians}) => {
                             is_updated: false,
                             growth_rate: 0.0 // does not matter as we always use the disposable cash value first to handle expenses
                         });
+                        liquidAssetsForMonth += disposableCashValue;
                     }
 
                     // loop through all the assets and calculate the cashflow for each month
@@ -707,7 +708,7 @@ const GenerateCashflows = ({hideAccordians}) => {
                     // total expense, total income, Gap, liquid Assets, locked Assets, Net Worth
                     netPositionForMonth = parseFloat(incomeForMonth) - parseFloat(expenseForMonth);
                     // if net position is positive, then add it to liquid assets
-                    if (netPositionForMonth > 0) {
+                    if (netPositionForMonth >= 0) {
                         // add the extra income to liquid assets
                         liquidAssetsForMonth += netPositionForMonth;
                         // reduce the expenses from the income lines
@@ -724,8 +725,7 @@ const GenerateCashflows = ({hideAccordians}) => {
                         }
                     }
 
-                    // the issue is that the functions are calculating the asset value for the month and we cannot update the asset value from the original asset.
-                    // we need to find a way to update the current value
+                    // update asset classes whereever values has been changed/reduced
                     for (let j = 0; j < assetsCashflow.length; j++) {
                         const asset = assetsCashflow[j];
                         if (asset.is_updated) {

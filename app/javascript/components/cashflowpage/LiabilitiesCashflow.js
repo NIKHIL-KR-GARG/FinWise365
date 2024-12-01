@@ -215,6 +215,34 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
 
     const maxTotalValue = (Math.max(...chartData().map(data => parseFloat(data.total).toFixed(0))) + 1);
 
+    const getYAxisDomain = (data) => {
+        const values = data.flatMap(d => [
+            parseFloat(d.total),
+            parseFloat(d.homeAndProperty),
+            parseFloat(d.loanAndDebt),
+            parseFloat(d.emi),
+            parseFloat(d.sip),
+            parseFloat(d.tax),
+            parseFloat(d.otherExpense),
+            parseFloat(d.dream)
+        ]);
+        return [Math.min(...values), Math.max(...values)];
+    };
+
+
+    const formatYAxisTick = (tick) => {
+        if (Math.abs(tick) >= 1e9) {
+            return `${(tick / 1e9).toFixed(1)}B`;
+        } else if (Math.abs(tick) >= 1e6) {
+            return `${(tick / 1e6).toFixed(1)}M`;
+        } else if (Math.abs(tick) >= 1e3) {
+            return `${(tick / 1e3).toFixed(1)}K`;
+        }
+        return tick.toFixed(1);
+    };
+
+    const yAxisDomain = getYAxisDomain(chartData());
+
     return (
         <Box>
             <Tabs
@@ -244,7 +272,7 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
                             <LineChart data={chartData()}>
                                 <CartesianGrid strokeDasharray="2 2" />
                                 <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1}/>
-                                <YAxis tick={{ fontSize: 14 }} domain={[0, maxTotalValue]} tickCount={15} interval={0} />
+                                <YAxis tick={{ fontSize: 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick}/>
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
                                 <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} name="Total Expenses"/>
