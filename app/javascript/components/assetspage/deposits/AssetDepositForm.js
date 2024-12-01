@@ -74,7 +74,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         // check if deposit term is changed, then calculate maturity date
         else if (name === 'deposit_term') {
             const maturityDate = new Date(deposit.opening_date);
-            maturityDate.setMonth(maturityDate.getMonth() + parseInt(value));
+            maturityDate.setMonth(maturityDate.getMonth() + 1 + parseInt(value));
             setDeposit((prevDeposit) => ({
                 ...prevDeposit,
                 maturity_date: maturityDate.toISOString().split('T')[0]

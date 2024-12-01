@@ -52,7 +52,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         // check if expense duration is changed, then calculate end date
         if (name === 'duration') {
             const endDate = new Date(other.expense_date);
-            endDate.setMonth(endDate.getMonth() + parseInt(value));
+            endDate.setMonth(endDate.getMonth() + 1 + parseInt(value));
             setOther((prevOther) => ({
                 ...prevOther,
                 end_date: endDate.toISOString().split('T')[0]
@@ -71,7 +71,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         //calulate end date based on duration if expense date is changed
         else if (name === 'expense_date') {
             if (other.is_recurring) {
-                const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(other.duration));
+                const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(other.duration));
                 setOther((prevOther) => ({
                     ...prevOther,
                     expense_date: value,

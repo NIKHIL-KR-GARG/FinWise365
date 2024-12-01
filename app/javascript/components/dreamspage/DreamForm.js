@@ -54,7 +54,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         // check if duration is changed, then calculate end date
         if (name === 'duration') {
             const endDate = new Date(dream.dream_date);
-            endDate.setMonth(endDate.getMonth() + parseInt(value));
+            endDate.setMonth(endDate.getMonth() + 1 + parseInt(value));
             setDream((prevDream) => ({
                 ...prevDream,
                 end_date: endDate.toISOString().split('T')[0]
@@ -71,7 +71,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             }));
         }
         else if (name === 'dream_date') {
-            const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(dream.duration));
+            const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(dream.duration));
             setDream((prevDream) => ({
                 ...prevDream,
                 dream_date: value,
@@ -81,7 +81,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         // check if loan duration is changed, then calculate loan end date
         else if (name === 'loan_duration') {
             const endDate = new Date(dream.loan_start_date);
-            endDate.setMonth(endDate.getMonth() + parseInt(value));
+            endDate.setMonth(endDate.getMonth() + 1 + parseInt(value));
             setDream((prevDream) => ({
                 ...prevDream,
                 loan_end_date: endDate.toISOString().split('T')[0]
@@ -99,7 +99,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         }
         else if (name === 'loan_start_date') {
             const endDate = new Date(value);
-            endDate.setMonth(new Date(value).getMonth() + parseInt(dream.loan_duration));
+            endDate.setMonth(new Date(value).getMonth() + 1 + parseInt(dream.loan_duration));
             setDream((prevDream) => ({
                 ...prevDream,
                 loan_start_date: value,

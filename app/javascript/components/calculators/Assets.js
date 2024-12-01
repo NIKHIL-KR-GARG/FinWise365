@@ -186,7 +186,7 @@ export const otherAssetValue = (other, date, baseCurrency) => {
         // check if payout is already completed based on other.start_date && payout_duration
         const payoutDate = new Date(other.payout_date);
         const payoutDuration = other.payout_duration ? parseInt(other.payout_duration) : 0;
-        const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));
+        const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
         if (other.payout_type === 'Recurring' && payoutEndDate < date && !isSameMonthAndYear(payoutEndDate, date)) return 0;
 
         let monthsFromStartTillDate = 0;
@@ -405,7 +405,7 @@ export const incomePayoutAssetValue = (other, date, baseCurrency) => {
         // check if payout is already completed based on other.start_date && payout_duration
         const payoutDate = new Date(other.payout_date);
         const payoutDuration = other.payout_duration ? parseInt(other.payout_duration) : 0;
-        const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));
+        const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
         if (payoutEndDate < date && !isSameMonthAndYear(payoutEndDate, date)) return 0;
         
         if (isValueMonth(new Date(other.payout_date), date, other.payout_frequency)) {

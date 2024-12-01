@@ -37,7 +37,7 @@ const AssetOtherList = forwardRef((props, ref) => {
             filteredOthers = othersList.filter(other => {
                 const payoutDate = new Date(other.payout_date);
                 const payoutDuration = parseInt(other.payout_duration);
-                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));
+                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
                 return payoutEndDate > today;
             });
         else

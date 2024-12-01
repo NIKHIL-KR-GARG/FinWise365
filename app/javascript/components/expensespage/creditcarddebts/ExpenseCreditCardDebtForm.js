@@ -60,7 +60,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
         // check if debt duration is changed, then calculate end date
         if (name === 'duration') {
             const endDate = new Date(creditcarddebt.start_date);
-            endDate.setMonth(endDate.getMonth() + parseInt(value));
+            endDate.setMonth(endDate.getMonth() + 1 + parseInt(value));
             setCreditCardDebt((prevCreditCardDebt) => ({
                 ...prevCreditCardDebt,
                 end_date: endDate.toISOString().split('T')[0]
@@ -78,7 +78,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
         }
         //calulate end date based on duration if start date is changed
         else if (name === 'start_date') {
-            const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(creditcarddebt.duration));
+            const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(creditcarddebt.duration));
             setCreditCardDebt((prevCreditCardDebt) => ({
                 ...prevCreditCardDebt,
                 start_date: value,

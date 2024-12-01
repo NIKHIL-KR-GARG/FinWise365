@@ -112,7 +112,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
             .filter(otherAsset => {
                 const payoutDate = new Date(otherAsset.payout_date);
                 const payoutDuration = otherAsset.payout_duration ? parseInt(otherAsset.payout_duration) : 0;
-                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + payoutDuration));
+                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
                 return payoutEndDate > today;
             })
             .map(otherAsset => ({
@@ -125,7 +125,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 start_date: otherAsset.payout_date,
                 end_date: `${
                     otherAsset.payout_type === 'Recurring' 
-                        ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + parseInt(otherAsset.payout_duration))).toISOString().split('T')[0] 
+                        ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + 1 + parseInt(otherAsset.payout_duration))).toISOString().split('T')[0] 
                         : new Date(otherAsset.payout_date).toISOString().split('T')[0]
                 }`,
                 is_recurring: otherAsset.payout_type === 'Recurring',

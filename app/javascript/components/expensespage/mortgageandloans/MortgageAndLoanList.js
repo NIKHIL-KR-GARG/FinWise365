@@ -37,7 +37,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
                 else if (!property.is_funded_by_loan) return false;
                 else {
                     const startDate = new Date(property.purchase_date);
-                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + parseInt(property.loan_duration)));
+                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
                     return endDate >= new Date();
                 }
             })
@@ -50,7 +50,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
                 orginal_amount: property.loan_amount,
                 balance_amount: calculateMortgageBalance(property, new Date()),
                 start_date: property.purchase_date,
-                end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
+                end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
             }));
 
             const vehicleMortgageAndLoans = vehiclesList
@@ -60,7 +60,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
                 else {
                     // derive end date based on purchase date and loan_duration
                     const startDate = new Date(vehicle.purchase_date);
-                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + parseInt(vehicle.loan_duration)));
+                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
                     return endDate >= new Date();
                 }
             })
@@ -73,7 +73,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
                 orginal_amount: vehicle.loan_amount,
                 balance_amount: calculateFlatRateLoanBalance(vehicle, new Date()),
                 start_date: vehicle.purchase_date,
-                end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
+                end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
             }));
 
             setMortgageAndLoans([...propertyMortgageAndLoans, ...vehicleMortgageAndLoans]); // Set combined MortgageAndLoans to state

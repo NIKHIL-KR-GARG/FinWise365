@@ -55,7 +55,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         // check if debt duration is changed, then calculate end date
         if (name === 'duration') {
             const endDate = new Date(personalloan.start_date);
-            endDate.setMonth(endDate.getMonth() + parseInt(value));
+            endDate.setMonth(endDate.getMonth() + 1 + parseInt(value));
             setPersonalLoan((prevPersonalLoan) => ({
                 ...prevPersonalLoan,
                 end_date: endDate.toISOString().split('T')[0]
@@ -73,7 +73,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         }
         //calulate end date based on duration if start date is changed
         else if (name === 'start_date') {
-            const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(personalloan.duration));
+            const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(personalloan.duration));
             setCreditCardDebt((prevPersonalLoan) => ({
                 ...prevPersonalLoan,
                 start_date: value,
