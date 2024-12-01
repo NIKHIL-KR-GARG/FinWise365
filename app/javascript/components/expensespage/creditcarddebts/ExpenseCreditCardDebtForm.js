@@ -11,7 +11,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import { FormatCurrency } from  '../../common/FormatCurrency';
+import { FormatCurrency } from '../../common/FormatCurrency';
 import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, action, onClose, refreshCreditCardDebtList }) => {
@@ -23,6 +23,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [creditcarddebt, setCreditCardDebt] = useState(initialCreditCardDebt || {
         user_id: 0,
@@ -36,7 +37,8 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
         end_date: '',
         loan_amount: 0.0,
         interest_rate: 0.0,
-        emi_amount: 0.0
+        emi_amount: 0.0,
+        is_dummy_data: false
     });
 
     const [calculatedValues, setCalculatedValues] = useState({
@@ -54,7 +56,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                 [name]: newValue
             });
         }
-        
+
         // check if debt duration is changed, then calculate end date
         if (name === 'duration') {
             const endDate = new Date(creditcarddebt.start_date);
@@ -463,11 +465,23 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                     </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={creditcarddebt.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={creditcarddebt.is_dummy_data}
+                                disabled={creditcarddebt.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { InputAdornment, Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { InputAdornment, Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem, ToggleButton, ToggleButtonGroup, Checkbox, FormControlLabel } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import { FormatCurrency } from  '../../common/FormatCurrency';
+import { FormatCurrency } from '../../common/FormatCurrency';
 
 const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }) => {
 
@@ -19,6 +19,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [home, setHome] = useState(initialHome || {
         user_id: 0,
@@ -40,7 +41,8 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         holidays: 0.0,
         miscellaneous: 0.0,
         total_expense: 0.0,
-        inflation_rate: 0.0
+        inflation_rate: 0.0,
+        is_dummy_data: false
     });
 
     const handleChange = (e) => {
@@ -590,11 +592,23 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={home.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={home.is_dummy_data}
+                                disabled={home.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

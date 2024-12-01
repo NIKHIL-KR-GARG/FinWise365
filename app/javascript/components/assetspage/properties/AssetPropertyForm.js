@@ -17,7 +17,7 @@ import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
 import { HomeLoanRate, HomeValueGrowthRate } from '../../common/DefaultValues';
 import HomeLoanEMICalculator from './HomeLoanEMICalculator';
-import { FormatCurrency } from  '../../common/FormatCurrency';
+import { FormatCurrency } from '../../common/FormatCurrency';
 
 const AssetPropertyForm = ({ property: initialProperty, action, onClose, refreshPropertyList }) => {
 
@@ -37,6 +37,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
     const currentUserNationality = localStorage.getItem('currentUserNationality');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserIsPermanentResident = localStorage.getItem('currentUserIsPermanentResident');
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [property, setProperty] = useState(initialProperty || {
         user_id: 0,
@@ -79,7 +80,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         total_cost: 0.0,
         is_under_construction: false,
         launch_date: "",
-        possession_date: ""
+        possession_date: "",
+        is_dummy_data: false
     });
 
     const handleModalOpen = () => {
@@ -155,7 +157,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (!property.loan_amount) errors.loan_amount = 'Loan Amount is required';
             if (!property.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
             if (!property.loan_duration) errors.loan_duration = 'Loan Duration is required';
-           
+
             // check that the loan amount is less than the purchase price
             if (parseFloat(property.loan_amount) > parseFloat(property.purchase_price)) errors.loan_amount = 'Loan Amount cannot be greater than Purchase Price';
             // check that the loan duration is not more than 30 years
@@ -242,17 +244,17 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 const response = initialProperty
                     ? await axios.put(`/api/asset_properties/${property.id}`, property)
                     : await axios.post('/api/asset_properties', property);
-                
+
                 let successMsg = '';
                 if (action === 'Add' || action === 'Dream') successMsg = 'Property added successfully';
                 else if (action === 'Edit') successMsg = 'Property updated successfully';
                 else if (action === 'Sell') successMsg = 'Property sale details updated successfully';
-                
+
                 setErrorMessage('');
                 onClose(); // Close the Asset Property Form window
                 refreshPropertyList(response.data, successMsg); // Pass the updated property and success message
             } catch (error) {
-                if (action === 'Add'|| action === 'Dream') setErrorMessage('Failed to add property');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add property');
                 else if (action === 'Edit') setErrorMessage('Failed to update property');
                 else if (action === 'Sell') setErrorMessage('Failed to update property sale details');
                 setSuccessMessage('');
@@ -370,11 +372,10 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             // check if the user has changed the form for property no. or purchase price or property location
             // if so, then update the property values
             // else keep the user entered values and calculate the other values
-            if (lastPropertyNumber === 0 
-                || lastPurchasePrice === 0 
-                || lastPropertyLocation === '' 
-                || lastPropertyType === '') 
-            {
+            if (lastPropertyNumber === 0
+                || lastPurchasePrice === 0
+                || lastPropertyLocation === ''
+                || lastPropertyType === '') {
                 if (property.is_funded_by_loan) loanAmountToUse = LTVValue;
                 stampDutyToUse = BuyerStampDuty + AdditionalBuyerStampDuty;
                 otherFeesToUse = OtherFees;
@@ -385,12 +386,11 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 setLastPropertyIsUnderLoan(property.is_funded_by_loan);
             }
             else {
-                if (lastPropertyNumber !== property.property_number 
-                    || lastPurchasePrice !== property.purchase_price 
+                if (lastPropertyNumber !== property.property_number
+                    || lastPurchasePrice !== property.purchase_price
                     || lastPropertyLocation !== property.location
                     || lastPropertyType !== property.property_type
-                    || lastPropertyIsUnderLoan  !== property.is_funded_by_loan) 
-                {
+                    || lastPropertyIsUnderLoan !== property.is_funded_by_loan) {
                     if (property.is_funded_by_loan) loanAmountToUse = LTVValue;
                     stampDutyToUse = BuyerStampDuty + AdditionalBuyerStampDuty;
                     otherFeesToUse = OtherFees;
@@ -446,7 +446,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (property.location === 'SG') BuyerStampDuty = stampDutyToUse - AdditionalBuyerStampDuty;
             else BuyerStampDuty = stampDutyToUse;
             OtherFees = otherFeesToUse;
-            
+
             // set all calculated values in the property object
             setProperty(prevProperty => ({
                 ...prevProperty,
@@ -534,17 +534,17 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <HomeIcon style={{ color: 'green', marginRight: '10px' }} />
-                    { (action === 'Add' || action === 'Dream') && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Purchase Property
                         </>
                     )}
-                    { action === 'Edit' && (
+                    {action === 'Edit' && (
                         <>
                             Update Property Details
                         </>
                     )}
-                    { action === 'Sell' && (
+                    {action === 'Sell' && (
                         <>
                             Update Property Details for Sale
                         </>
@@ -1001,88 +1001,88 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                 </>
                             )}
                         </Grid>
-                        
-                            <Accordion sx={{ pt: 1 }}>
-                                <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }}/>} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-                                    {getPropertyIcon(property.property_type)}
-                                    <Typography >Overall Cost</Typography>
-                                    {
-                                        property.is_funded_by_loan && (
-                                            <>
-                                                <Typography sx={{ ml: 'auto', color: 'white' }}>
-                                                    Loan EMI: {property.currency} {FormatCurrency(property.currency, parseFloat(property.emi_amount))} / month
-                                                </Typography>
-                                            </>
-                                        )}
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <Grid container>
-                                        <Grid item size={6}>
-                                            <Typography sx={{ fontSize: 'small' }}>Property Value:</Typography>
-                                        </Grid>
-                                        <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.purchase_price))}</Typography>
-                                        </Grid>
-                                        {property.is_funded_by_loan && (
-                                            <>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.ltv_percentage}%</Typography>
-                                                </Grid>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Loan Amount:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.ltv_value))}</Typography>
-                                                </Grid>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Down Payment:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.down_payment))}</Typography>
-                                                </Grid>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Interest Payments:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.interest_payments))}</Typography>
-                                                </Grid>
-                                            </>
-                                        )}
-                                        <Grid item size={6}>
-                                            <Typography sx={{ fontSize: 'small' }}>Stamp Duty:</Typography>
-                                        </Grid>
-                                        <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.buyer_stamp_duty))}</Typography>
-                                        </Grid>
-                                        {property.location === 'SG' && (
-                                            <>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Additional Buyer Stamp Duty:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.additional_buyer_stamp_duty))}</Typography>
-                                                </Grid>
-                                            </>
-                                        )}
-                                        <Grid item size={6}>
-                                            <Typography sx={{ fontSize: 'small' }}>Other Fees:</Typography>
-                                        </Grid>
-                                        <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.other_fees))}</Typography>
-                                        </Grid>
-                                        <Grid item size={6}>
-                                            <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
-                                        </Grid>
-                                        <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.total_cost))}</Typography>
-                                        </Grid>
+
+                        <Accordion sx={{ pt: 1 }}>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
+                                {getPropertyIcon(property.property_type)}
+                                <Typography >Overall Cost</Typography>
+                                {
+                                    property.is_funded_by_loan && (
+                                        <>
+                                            <Typography sx={{ ml: 'auto', color: 'white' }}>
+                                                Loan EMI: {property.currency} {FormatCurrency(property.currency, parseFloat(property.emi_amount))} / month
+                                            </Typography>
+                                        </>
+                                    )}
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Grid container>
+                                    <Grid item size={6}>
+                                        <Typography sx={{ fontSize: 'small' }}>Property Value:</Typography>
                                     </Grid>
-                                </AccordionDetails>
-                            </Accordion>
-                        
+                                    <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                        <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.purchase_price))}</Typography>
+                                    </Grid>
+                                    {property.is_funded_by_loan && (
+                                        <>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{property.ltv_percentage}%</Typography>
+                                            </Grid>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Loan Amount:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.ltv_value))}</Typography>
+                                            </Grid>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Down Payment:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.down_payment))}</Typography>
+                                            </Grid>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Interest Payments:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.interest_payments))}</Typography>
+                                            </Grid>
+                                        </>
+                                    )}
+                                    <Grid item size={6}>
+                                        <Typography sx={{ fontSize: 'small' }}>Stamp Duty:</Typography>
+                                    </Grid>
+                                    <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                        <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.buyer_stamp_duty))}</Typography>
+                                    </Grid>
+                                    {property.location === 'SG' && (
+                                        <>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Additional Buyer Stamp Duty:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.additional_buyer_stamp_duty))}</Typography>
+                                            </Grid>
+                                        </>
+                                    )}
+                                    <Grid item size={6}>
+                                        <Typography sx={{ fontSize: 'small' }}>Other Fees:</Typography>
+                                    </Grid>
+                                    <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                        <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.other_fees))}</Typography>
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
+                                    </Grid>
+                                    <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                        <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.total_cost))}</Typography>
+                                    </Grid>
+                                </Grid>
+                            </AccordionDetails>
+                        </Accordion>
+
                     </Box>
 
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
@@ -1166,28 +1166,28 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                            { ((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={property.is_plan_to_sell}
-                                            onChange={handleChange}
-                                            name="is_plan_to_sell"
-                                        />}
-                                    label="I plan to sell this property"
-                                />
-                            )}
-                            { (action === 'Sell') && (
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={property.is_plan_to_sell}
-                                            onChange={handleChange}
-                                            name="is_plan_to_sell"
-                                        />}
-                                    label="Sell this property"
-                                />
-                            )}
+                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={property.is_plan_to_sell}
+                                                onChange={handleChange}
+                                                name="is_plan_to_sell"
+                                            />}
+                                        label="I plan to sell this property"
+                                    />
+                                )}
+                                {(action === 'Sell') && (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={property.is_plan_to_sell}
+                                                onChange={handleChange}
+                                                name="is_plan_to_sell"
+                                            />}
+                                        label="Sell this property"
+                                    />
+                                )}
                             </Grid>
                             {property.is_plan_to_sell && (
                                 <>
@@ -1227,11 +1227,23 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
 
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={property.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={property.is_dummy_data}
+                                disabled={property.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

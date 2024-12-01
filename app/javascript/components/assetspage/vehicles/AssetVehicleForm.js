@@ -12,7 +12,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import { FormatCurrency } from  '../../common/FormatCurrency';
+import { FormatCurrency } from '../../common/FormatCurrency';
 import FlatRateLoanEMICalculator from '../../common/FlatRateLoanEMICalculator';
 import { VehicleLoanRate } from '../../common/DefaultValues';
 import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../calculators/CalculateInterestAndPrincipal';
@@ -31,7 +31,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
+
     const [vehicle, setVehicle] = useState(initialVehicle || {
         user_id: 0,
         vehicle_name: "",
@@ -64,7 +65,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         sale_date: "",
         sale_amount: 0.0,
         scrap_value: 0.0,
-        depreciation_rate: 0.0
+        depreciation_rate: 0.0,
+        is_dummy_data: false
     });
 
     const handleModalOpen = () => {
@@ -98,7 +100,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                 sale_date: '',
                 sale_amount: 0.0
             }));
-        }   
+        }
     };
 
     useEffect(() => {
@@ -139,7 +141,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (isNaN(vehicle.depreciation_rate)) errors.depreciation_rate = 'Depreciation Rate should be numeric';
         if (isNaN(vehicle.lease_amount)) errors.lease_amount = 'Lease Amount should be numeric';
         if (isNaN(vehicle.lease_growth_rate)) errors.lease_growth_rate = 'Lease Growth Rate should be numeric';
-       
+
         if (vehicle.is_funded_by_loan) {
             if (!vehicle.loan_type) errors.loan_type = 'Loan Type is required';
             if (!vehicle.loan_amount) errors.loan_amount = 'Loan Amount is required';
@@ -158,7 +160,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (!vehicle.sale_date) errors.sale_date = 'Sale Date is required';
             if (!vehicle.sale_amount) errors.sale_amount = 'Sale Amount is required';
             // check that the sale_date is greater than purchase_date
-            if (new Date(vehicle.sale_date) < new Date(vehicle.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date'; 
+            if (new Date(vehicle.sale_date) < new Date(vehicle.purchase_date)) errors.sale_date = ' Sale Date cannot be before Purchase Date';
         }
 
         if (vehicle.is_on_lease) {
@@ -172,7 +174,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (new Date(vehicle.lease_start_date) < new Date(vehicle.purchase_date)) errors.lease_start_date = 'Lease Start Date cannot be before Purchase Date';
             // check that the lease end date is not after sale date
             if (vehicle.is_plan_to_sell && new Date(vehicle.lease_end_date) > new Date(vehicle.sale_date)) errors.lease_end_date = 'Lease End Date cannot be after Sale Date';
-        }   
+        }
 
         if (action === 'Add') {
             // check that the purchase_date is not in the future
@@ -199,12 +201,12 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                 const response = initialVehicle
                     ? await axios.put(`/api/asset_vehicles/${vehicle.id}`, vehicle)
                     : await axios.post('/api/asset_vehicles', vehicle);
-                
+
                 let successMsg = '';
                 if (action === 'Add' || action === 'Dream') successMsg = 'Vehicle added successfully';
                 else if (action === 'Edit') successMsg = 'Vehicle updated successfully';
                 else if (action === 'Sell') successMsg = 'Vehicle sale details updated successfully';
-                
+
                 setErrorMessage('');
                 onClose(); // Close the Asset Vehicle Form window
                 refreshVehicleList(response.data, successMsg); // Pass the updated vehicle and success message
@@ -270,18 +272,16 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             // check if the user has changed the form for purchase price or vehicle location
             // if so, then update the vehicle values
             // else keep the user entered values and calculate the other values
-            if (lastPurchasePrice === 0 || lastVehicleLocation === '' ) 
-            {
+            if (lastPurchasePrice === 0 || lastVehicleLocation === '') {
                 if (vehicle.is_funded_by_loan) loanAmountToUse = LTVValue;
                 setLastPurchasePrice(vehicle.purchase_price);
                 setLastVehicleLocation(vehicle.location);
                 setLastVehicleIsUnderLoan(vehicle.is_funded_by_loan);
             }
             else {
-                if (lastPurchasePrice !== vehicle.purchase_price 
+                if (lastPurchasePrice !== vehicle.purchase_price
                     || lastVehicleLocation !== vehicle.location
-                    || lastVehicleIsUnderLoan  !== vehicle.is_funded_by_loan) 
-                {
+                    || lastVehicleIsUnderLoan !== vehicle.is_funded_by_loan) {
                     if (vehicle.is_funded_by_loan) loanAmountToUse = LTVValue;
                     setLastPurchasePrice(vehicle.purchase_price);
                     setLastVehicleLocation(vehicle.location);
@@ -312,7 +312,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
 
             LTVValue = loanAmountToUse;
             LTVPercentage = (LTVValue / vehicle.purchase_price) * 100;
-            
+
             setVehicle(prevVehicle => ({
                 ...prevVehicle,
                 ltv_percentage: LTVPercentage,
@@ -377,17 +377,17 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <CarIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    { (action === 'Add' || action === 'Dream') && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Purchase Vehicle
                         </>
                     )}
-                    { action === 'Edit' && (
+                    {action === 'Edit' && (
                         <>
                             Update Vehicle Details
                         </>
                     )}
-                    { action === 'Sell' && (
+                    {action === 'Sell' && (
                         <>
                             Update Vehicle Details for Sale
                         </>
@@ -631,12 +631,12 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                     sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
                                     <Box sx={{ width: 1000, height: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative' }}>
-                                        <FlatRateLoanEMICalculator 
-                                            purchase_price = {vehicle.purchase_price}
-                                            loan_amount = {vehicle.loan_amount} 
-                                            loan_duration = {vehicle.loan_duration} 
-                                            currency = {vehicle.currency} 
-                                            interest_rate = {vehicle.loan_interest_rate}
+                                        <FlatRateLoanEMICalculator
+                                            purchase_price={vehicle.purchase_price}
+                                            loan_amount={vehicle.loan_amount}
+                                            loan_duration={vehicle.loan_duration}
+                                            currency={vehicle.currency}
+                                            interest_rate={vehicle.loan_interest_rate}
                                         />
                                         <IconButton
                                             onClick={handleModalClose}
@@ -713,81 +713,81 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                 </>
                             )}
                         </Grid>
-                        
-                            <Accordion sx={{ pt: 1 }}>
-                                <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }}/>} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-                                    {getVehicleIcon(vehicle.vehicle_type)}
-                                    <Typography >Overall Cost</Typography>
-                                    {
-                                        vehicle.is_funded_by_loan && (
-                                            <>
-                                                <Typography sx={{ ml: 'auto', color: 'white' }}>
-                                                    Loan EMI: {vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.emi_amount))} / month
-                                                </Typography>
-                                            </>
-                                        )}
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <Grid container>
-                                        <Grid item size={6}>
-                                            <Typography sx={{ fontSize: 'small' }}>Vehicle Value:</Typography>
-                                        </Grid>
-                                        <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.purchase_price))}</Typography>
-                                        </Grid>
-                                        {vehicle.is_funded_by_loan && (
-                                            <>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.ltv_percentage}%</Typography>
-                                                </Grid>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Loan Amount:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.ltv_value))}</Typography>
-                                                </Grid>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Down Payment:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.down_payment))}</Typography>
-                                                </Grid>
-                                                <Grid item size={6}>
-                                                    <Typography sx={{ fontSize: 'small' }}>Interest Payments:</Typography>
-                                                </Grid>
-                                                <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                                    <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.interest_payments))}</Typography>
-                                                </Grid>
-                                            </>
-                                        )}
-                                        <Grid item size={6}>
-                                            <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
-                                        </Grid>
-                                        <Grid item size={6} sx={{ textAlign: 'right' }}>
-                                            <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.total_cost))}</Typography>
-                                        </Grid>
+
+                        <Accordion sx={{ pt: 1 }}>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
+                                {getVehicleIcon(vehicle.vehicle_type)}
+                                <Typography >Overall Cost</Typography>
+                                {
+                                    vehicle.is_funded_by_loan && (
+                                        <>
+                                            <Typography sx={{ ml: 'auto', color: 'white' }}>
+                                                Loan EMI: {vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.emi_amount))} / month
+                                            </Typography>
+                                        </>
+                                    )}
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Grid container>
+                                    <Grid item size={6}>
+                                        <Typography sx={{ fontSize: 'small' }}>Vehicle Value:</Typography>
                                     </Grid>
-                                </AccordionDetails>
-                            </Accordion>
+                                    <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                        <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.purchase_price))}</Typography>
+                                    </Grid>
+                                    {vehicle.is_funded_by_loan && (
+                                        <>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Loan-To-Value (LTV) %:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{vehicle.ltv_percentage}%</Typography>
+                                            </Grid>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Loan Amount:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.ltv_value))}</Typography>
+                                            </Grid>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Down Payment:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.down_payment))}</Typography>
+                                            </Grid>
+                                            <Grid item size={6}>
+                                                <Typography sx={{ fontSize: 'small' }}>Interest Payments:</Typography>
+                                            </Grid>
+                                            <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                                <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.interest_payments))}</Typography>
+                                            </Grid>
+                                        </>
+                                    )}
+                                    <Grid item size={6}>
+                                        <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
+                                    </Grid>
+                                    <Grid item size={6} sx={{ textAlign: 'right' }}>
+                                        <Typography sx={{ fontSize: 'small' }}>{vehicle.currency} {FormatCurrency(vehicle.currency, parseFloat(vehicle.total_cost))}</Typography>
+                                    </Grid>
+                                </Grid>
+                            </AccordionDetails>
+                        </Accordion>
                     </Box>
 
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                            { ((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={vehicle.is_on_lease}
-                                            onChange={handleChange}
-                                            name="is_on_lease"
-                                        />}
-                                    label="I plan to lease this vehicle"
-                                />
-                            )}
+                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={vehicle.is_on_lease}
+                                                onChange={handleChange}
+                                                name="is_on_lease"
+                                            />}
+                                        label="I plan to lease this vehicle"
+                                    />
+                                )}
                             </Grid>
                             {vehicle.is_on_lease && (
                                 <>
@@ -853,28 +853,28 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                            { ((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={vehicle.is_plan_to_sell}
-                                            onChange={handleChange}
-                                            name="is_plan_to_sell"
-                                        />}
-                                    label="I plan to sell this vehicle"
-                                />
-                            )}
-                            { (action === 'Sell') && (
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={vehicle.is_plan_to_sell}
-                                            onChange={handleChange}
-                                            name="is_plan_to_sell"
-                                        />}
-                                    label="Sell this vehicle"
-                                />
-                            )}
+                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={vehicle.is_plan_to_sell}
+                                                onChange={handleChange}
+                                                name="is_plan_to_sell"
+                                            />}
+                                        label="I plan to sell this vehicle"
+                                    />
+                                )}
+                                {(action === 'Sell') && (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={vehicle.is_plan_to_sell}
+                                                onChange={handleChange}
+                                                name="is_plan_to_sell"
+                                            />}
+                                        label="Sell this vehicle"
+                                    />
+                                )}
                             </Grid>
                             {vehicle.is_plan_to_sell && (
                                 <>
@@ -909,14 +909,26 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                             )}
                         </Grid>
                     </Box>
-                    
+
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={vehicle.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={vehicle.is_dummy_data}
+                                disabled={vehicle.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

@@ -20,14 +20,15 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
+
     const [dream, setDream] = useState(initialDream || {
         user_id: 0,
-        dream_name:'',
+        dream_name: '',
         dream_type: '',
         location: currentUserCountryOfResidence || '',
         currency: currentUserBaseCurrency || '',
-        dream_date:'',
+        dream_date: '',
         amount: 0.0,
         duration: 0,
         end_date: '',
@@ -37,6 +38,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         loan_end_date: '',
         interest_rate: 0.0,
         emi_amount: 0.0,
+        is_dummy_data: false
     });
 
     const handleChange = (e) => {
@@ -159,7 +161,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         if (isNaN(dream.duration)) errors.duration = 'Duration should be numeric';
         if (isNaN(dream.loan_duration)) errors.loan_duration = 'Loan Duration should be numeric';
         if (isNaN(dream.interest_rate)) errors.interest_rate = 'Interest Rate should be numeric';
-        if (isNaN(dream.emi_amount)) errors.emi_amount = 'EMI Amount should be numeric';        
+        if (isNaN(dream.emi_amount)) errors.emi_amount = 'EMI Amount should be numeric';
 
         setErrors(errors);
 
@@ -174,11 +176,11 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                 const response = initialDream
                     ? await axios.put(`/api/dreams/${dream.id}`, dream)
                     : await axios.post('/api/dreams', dream);
-                
+
                 let successMsg = '';
                 if (action === 'Add') successMsg = dreamType + ' added successfully';
                 else if (action === 'Edit') successMsg = dreamType + ' updated successfully';
-                
+
                 setErrorMessage('');
                 onClose(); // Close the  Dream Form window
                 refreshDreamList(response.data, successMsg); // Pass the updated dream and success message
@@ -195,15 +197,15 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
 
     const calculateTotal = () => {
 
-        if (!dream.dream_date || !dream.amount ) return;
-        if (dream.is_funded_by_loan && (!dream.loan_start_date || (!dream.loan_duration && !dream.loan_end_date) || !dream.interest_rate )) return;
-        
+        if (!dream.dream_date || !dream.amount) return;
+        if (dream.is_funded_by_loan && (!dream.loan_start_date || (!dream.loan_duration && !dream.loan_end_date) || !dream.interest_rate)) return;
+
         // calculate EMI amount
         if (dream.is_funded_by_loan) {
             let monthsForLoan = 0;
             if (dream.loan_duration) monthsForLoan = parseFloat(dream.loan_duration);
             else monthsForLoan = (new Date(dream.loan_end_date).getFullYear() - new Date(dream.loan_start_date).getFullYear()) * 12 + new Date(dream.loan_end_date).getMonth() - new Date(dream.loan_start_date).getMonth();
-            const emi = calculateFlatRateEMI (parseFloat(dream.amount), parseFloat(dream.interest_rate), monthsForLoan);
+            const emi = calculateFlatRateEMI(parseFloat(dream.amount), parseFloat(dream.interest_rate), monthsForLoan);
             setDream((prevDream) => ({
                 ...prevDream,
                 emi_amount: parseFloat(emi)
@@ -264,12 +266,12 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
                     <MiscellaneousServicesIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    { (action === 'Add' || action === 'Dream') && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add {dreamType}
                         </>
                     )}
-                    { action === 'Edit' && (
+                    {action === 'Edit' && (
                         <>
                             Update {dreamType} Details
                         </>
@@ -482,11 +484,23 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                     </Box>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={dream.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={dream.is_dummy_data}
+                                disabled={dream.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

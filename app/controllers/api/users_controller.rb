@@ -64,6 +64,7 @@ class Api::UsersController < ApplicationController
       params.require(:user).permit(
         :id,
         :email,
+        :is_admin,
         :first_name,
         :last_name,
         :phone_no,

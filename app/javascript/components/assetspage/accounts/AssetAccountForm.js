@@ -19,6 +19,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
     
     const [account, setAccount] = useState(initialAccount || {
         user_id: 0,
@@ -32,7 +33,8 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
         account_balance: 0.0,
         minimum_balance: 0.0,
         is_plan_to_close: action === 'Close' ? true : false,
-        closure_date: ""
+        closure_date: "",
+        is_dummy_data: false
     });
 
     const handleChange = (e) => {
@@ -394,11 +396,23 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                     </Box>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={account.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={account.is_dummy_data}
+                                disabled={account.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

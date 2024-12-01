@@ -22,7 +22,8 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDateOfBirth = localStorage.getItem('currentUserDateOfBirth');
-
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
+    
     const [other, setOther] = useState(initialOther || {
         user_id: 0,
         asset_name: '',
@@ -43,7 +44,8 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         payout_frequency: 'Monthly',
         payout_value: 0.0,
         total_interest: 0.0,
-        total_principal: 0.0
+        total_principal: 0.0,
+        is_dummy_data: false
     });
 
     const handleChange = (e) => {
@@ -617,11 +619,23 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                     </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                        {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={other.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={other.is_dummy_data}
+                                disabled={other.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

@@ -22,7 +22,8 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
+    
     const [deposit, setDeposit] = useState(initialDeposit || {
         user_id: 0,
         deposit_name: "",
@@ -40,7 +41,8 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         payment_frequency: "Monthly",
         payment_amount: 0.0,
         total_interest: 0.0,
-        total_principal: 0.0
+        total_principal: 0.0,
+        is_dummy_data: false
     });
 
     const handleChange = (e) => {
@@ -536,11 +538,23 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                     </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={deposit.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={deposit.is_dummy_data}
+                                disabled={deposit.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

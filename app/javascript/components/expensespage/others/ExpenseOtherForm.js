@@ -7,7 +7,7 @@ import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import { FormatCurrency } from  '../../common/FormatCurrency';
+import { FormatCurrency } from '../../common/FormatCurrency';
 import { CalculatePrincipal, CalculateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherList }) => {
@@ -20,13 +20,14 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
+
     const [other, setOther] = useState(initialOther || {
         user_id: 0,
-        expense_name:'',
+        expense_name: '',
         location: currentUserCountryOfResidence || '',
         currency: currentUserBaseCurrency || '',
-        expense_date:'',
+        expense_date: '',
         amount: 0.0,
         is_recurring: false,
         recurring_frequency: 'Monthly',
@@ -34,7 +35,8 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         end_date: '',
         recurring_amount: 0.0,
         inflation_rate: 0.0,
-        totalExpense: 0.0
+        totalExpense: 0.0,
+        is_dummy_data: false
     });
 
     const handleChange = (e) => {
@@ -118,7 +120,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         if (isNaN(other.amount)) errors.amount = 'Amount should be numeric';
         if (isNaN(other.recurring_amount)) errors.recurring_amount = 'Recurring Amount should be numeric';
         if (isNaN(other.inflation_rate)) errors.inflation_rate = 'Inflation Rate should be numeric';
-        
+
         // check that the end date is after the start date
         if (other.end_date && new Date(other.end_date) < new Date(other.expense_date)) {
             errors.end_date = 'End Date should be after Expense Date';
@@ -136,11 +138,11 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                 const response = initialOther
                     ? await axios.put(`/api/expense_others/${other.id}`, other)
                     : await axios.post('/api/expense_others', other);
-                
+
                 let successMsg = '';
                 if (action === 'Add') successMsg = 'Other expense added successfully';
                 else if (action === 'Edit') successMsg = 'Other expense updated successfully';
-                
+
                 setErrorMessage('');
                 onClose(); // Close the Expense Other Form window
                 refreshOtherList(response.data, successMsg); // Pass the updated other and success message
@@ -157,12 +159,12 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
 
     const calculateTotalExpense = () => {
 
-        if (!other.expense_date || !other.amount ) return;
-        if (other.is_recurring && (!other.recurring_frequency || !other.recurring_amount || !other.duration )) return;
+        if (!other.expense_date || !other.amount) return;
+        if (other.is_recurring && (!other.recurring_frequency || !other.recurring_amount || !other.duration)) return;
 
         if (other.is_recurring) {
             let monthsForRecurringExpense = (new Date(other.end_date).getFullYear() - new Date(other.expense_date).getFullYear()) * 12 + new Date(other.end_date).getMonth() - new Date(other.expense_date).getMonth();
-            const totalPrincipal = CalculatePrincipal (
+            const totalPrincipal = CalculatePrincipal(
                 "Fixed",
                 other.amount,
                 monthsForRecurringExpense,
@@ -172,7 +174,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
 
             let totalInterest = 0.0;
             // calculate interest till payment end date
-            totalInterest += CalculateInterest (
+            totalInterest += CalculateInterest(
                 "Fixed",
                 "Simple",
                 other.inflation_rate,
@@ -241,7 +243,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
                     <MiscellaneousServicesIcon style={{ color: 'purple', marginRight: '10px' }} />
-                        Other Expense
+                    Other Expense
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item size={6}>
@@ -433,11 +435,23 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                     </Box>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={other.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={other.is_dummy_data}
+                                disabled={other.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

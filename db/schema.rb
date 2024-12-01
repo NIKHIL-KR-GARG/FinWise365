@@ -57,7 +57,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.string "account_type", limit: 255
     t.string "location", limit: 255
     t.string "currency", limit: 255
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "asset_deposits", force: :cascade do |t|
@@ -80,7 +80,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.float "payment_amount"
     t.float "total_interest"
     t.float "total_principal"
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "asset_incomes", force: :cascade do |t|
@@ -97,7 +97,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.float "growth_rate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "asset_others", force: :cascade do |t|
@@ -123,7 +123,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.float "total_interest"
     t.float "total_principal"
     t.string "payout_frequency", limit: 255
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "asset_portfolio_details", force: :cascade do |t|
@@ -174,7 +174,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.float "loss_percentage"
     t.string "coupon_frequency", limit: 255
     t.date "maturity_date"
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "asset_properties", force: :cascade do |t|
@@ -221,7 +221,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.boolean "is_under_construction"
     t.date "launch_date"
     t.date "possession_date"
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "asset_vehicles", force: :cascade do |t|
@@ -259,7 +259,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.date "lease_end_date"
     t.float "lease_amount"
     t.float "lease_growth_rate"
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "dreams", force: :cascade do |t|
@@ -280,7 +280,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.float "emi_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "expense_credit_card_debts", force: :cascade do |t|
@@ -298,7 +298,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.float "emi_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "expense_homes", force: :cascade do |t|
@@ -324,7 +324,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.date "start_date"
     t.date "end_date"
     t.float "inflation_rate"
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "expense_others", force: :cascade do |t|
@@ -342,7 +342,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.boolean "is_recurring"
     t.float "recurring_amount"
     t.string "recurring_frequency", limit: 255
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "expense_personal_loans", force: :cascade do |t|
@@ -359,7 +359,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.float "emi_amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "expense_properties", force: :cascade do |t|
@@ -390,7 +390,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "inflation_rate"
-    t.boolean "is_dummy_data"
+    t.boolean "is_dummy_data", default: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -414,6 +414,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_24_111547) do
     t.boolean "is_permanent_resident"
     t.string "profile_picture", limit: 512
     t.boolean "is_display_dummy_data", default: true
+    t.boolean "is_admin"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

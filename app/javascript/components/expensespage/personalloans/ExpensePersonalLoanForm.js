@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { InputAdornment, Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem } from '@mui/material';
+import { InputAdornment, Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem, Checkbox, FormControlLabel } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
-import { FormatCurrency } from  '../../common/FormatCurrency';
+import { FormatCurrency } from '../../common/FormatCurrency';
 import { calculateFlatRateEMI, calculateFlatRateInterest } from '../../calculators/CalculateInterestAndPrincipal';
 
 const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, onClose, refreshPersonalLoanList }) => {
@@ -19,6 +19,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [personalloan, setPersonalLoan] = useState(initialPersonalLoan || {
         user_id: 0,
@@ -31,7 +32,8 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         end_date: '',
         loan_amount: 0.0,
         interest_rate: 0.0,
-        emi_amount: 0.0
+        emi_amount: 0.0,
+        is_dummy_data: false
     });
 
     const [calculatedValues, setCalculatedValues] = useState({
@@ -49,7 +51,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                 [name]: newValue
             });
         }
-        
+
         // check if debt duration is changed, then calculate end date
         if (name === 'duration') {
             const endDate = new Date(personalloan.start_date);
@@ -68,7 +70,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                 ...prevPersonalLoan,
                 duration: parseInt(duration)
             }));
-        } 
+        }
         //calulate end date based on duration if start date is changed
         else if (name === 'start_date') {
             const endDate = new Date(value).setMonth(new Date(value).getMonth() + parseInt(personalloan.duration));
@@ -412,11 +414,23 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                     </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={personalloan.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={personalloan.is_dummy_data}
+                                disabled={personalloan.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

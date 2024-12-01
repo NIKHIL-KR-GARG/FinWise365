@@ -69,6 +69,7 @@ const UserProfile = () => {
                     localStorage.setItem('currentUserNationality', appuser.nationality);
                     localStorage.setItem('currentUserCountryOfResidence', appuser.country_of_residence);
                     localStorage.setItem('currentUserIsPermanentResident', appuser.is_permanent_resident);
+                    localStorage.setItem('currentUserIsAdmin', appuser.is_admin);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);

@@ -26,6 +26,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [portfolio, setPortfolio] = useState(initialPortfolio || {
         user_id: 0,
@@ -55,7 +56,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         profit: 0.0,
         profit_percentage: 0.0,
         loss: 0.0,
-        loss_percentage: 0.0
+        loss_percentage: 0.0,
+        is_dummy_data: false
     });
 
     const [portfoliodetails, setPortfolioDetails] = useState([]);
@@ -953,11 +955,23 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                     </Grid>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            {currentUserIsAdmin && (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={portfolio.is_dummy_data}
+                                            onChange={handleChange}
+                                            name="is_dummy_data"
+                                        />
+                                    }
+                                    label="Is Dummy Data?"
+                                />
+                            )}
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleSave}
-                                disabled={portfolio.is_dummy_data}
+                                disabled={portfolio.is_dummy_data && !currentUserIsAdmin}
                                 sx={{
                                     fontSize: '1rem',
                                     padding: '10px 40px',

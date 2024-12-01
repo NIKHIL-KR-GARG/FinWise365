@@ -17,6 +17,7 @@ class CreateUsers < ActiveRecord::Migration[7.2]
       t.string :gender
       t.string :nationality
       t.boolean :is_display_dummy_data
+      t.boolean :is_admin
 
       t.timestamps
     end
