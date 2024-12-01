@@ -46,6 +46,7 @@ const GenerateCashflows = ({hideAccordians}) => {
         let assetName = '';
         let is_locked = false;
         let is_cash = false;
+        let growth_rate = 0.0;
 
         if (asset_type === 'Property') {
             assetValue = parseFloat(propertyAssetValue(object, monthEndDate, currentUserBaseCurrency));
@@ -60,14 +61,17 @@ const GenerateCashflows = ({hideAccordians}) => {
         else if (asset_type === 'Account') {
             assetValue = parseFloat(accountAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.account_name;
+            growth_rate = parseFloat(object.interest_rate);
         }
         else if (asset_type === 'Deposit') {
             assetValue = parseFloat(depositAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.deposit_name;
+            growth_rate = parseFloat(object.interest_rate);
         }
         else if (asset_type === 'Portfolio') {
             assetValue = parseFloat(portfolioAssetValue(object, monthEndDate, currentUserBaseCurrency));
             assetName = object.portfolio_name;
+            growth_rate = parseFloat(object.growth_rate);
         }
         else if (asset_type === 'Other') {
             assetValue = parseFloat(otherAssetValue(object, monthEndDate, currentUserBaseCurrency));
@@ -116,7 +120,8 @@ const GenerateCashflows = ({hideAccordians}) => {
             asset_value: assetValue,
             is_locked: is_locked,
             is_cash: is_cash,
-            is_updated: false
+            is_updated: false,
+            growth_rate: growth_rate
         });
 
         // find the last month's cashflow value for this asset
@@ -192,7 +197,8 @@ const GenerateCashflows = ({hideAccordians}) => {
                 asset_value: parseFloat(currentAssetValue),
                 is_locked: false,
                 is_cash: true,
-                is_updated: false
+                is_updated: false,
+                growth_rate: 0.0 // does not matter as we always use the disposable cash value first to handle expenses
             });
         }
     }
@@ -352,9 +358,9 @@ const GenerateCashflows = ({hideAccordians}) => {
                 cashflow.month === month &&
                 cashflow.year === year &&
                 cashflow.is_locked === false
-        );
-        if (liquidAssets.length > 0) {
+        ).sort((a, b) => a.growth_rate - b.growth_rate); // sort by growth_rate
 
+        if (liquidAssets.length > 0) {
             for (let i = 0; i < liquidAssets.length; i++) {
                 const liquidAsset = liquidAssets[i];
                 if (liquidAsset.asset_value > remainingExpense) {
@@ -362,7 +368,7 @@ const GenerateCashflows = ({hideAccordians}) => {
                     liquidAsset.is_updated = true;
                     remainingExpense = 0;
                     break;
-                }
+                } 
                 else {
                     remainingExpense -= liquidAsset.asset_value;
                     liquidAsset.asset_value = 0;
@@ -484,7 +490,8 @@ const GenerateCashflows = ({hideAccordians}) => {
                             asset_value: disposableCashValue,
                             is_locked: false,
                             is_cash: true,
-                            is_updated: false
+                            is_updated: false,
+                            growth_rate: 0.0 // does not matter as we always use the disposable cash value first to handle expenses
                         });
                     }
 
