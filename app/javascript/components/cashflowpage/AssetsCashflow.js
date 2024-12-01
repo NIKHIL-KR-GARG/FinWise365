@@ -36,6 +36,60 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
             if (curr.asset_type === 'Portfolio') {
                 acc[year].portfolio += curr.asset_value;
             }
+            if (curr.asset_type === 'Income' || curr.asset_type === 'Rental Income' || 
+                curr.asset_type === 'Coupon Income' || curr.asset_type === 'Dividend Income' || 
+                curr.asset_type === 'Payout Income' || curr.asset_type === 'Lease Income') {
+                acc[year].income += curr.asset_value;
+            }
+            if (curr.asset_type === 'Other') {
+                acc[year].otherAsset += curr.asset_value;
+            }
+            if (curr.asset_type === 'Disposable Cash') {
+                acc[year].disposableCash += curr.asset_value;
+            }
+            return acc;
+        }, {});
+
+        return Object.keys(yearlyData).map(year => ({
+            year,
+            yearWithAge: `${year} (${yearlyData[year].age})`,
+            age: yearlyData[year].age,
+            total: yearlyData[year].total.toFixed(2),
+            property: yearlyData[year].property.toFixed(2),
+            vehicle: yearlyData[year].vehicle.toFixed(2),
+            account: yearlyData[year].account.toFixed(2),
+            deposit: yearlyData[year].deposit.toFixed(2),
+            portfolio: yearlyData[year].portfolio.toFixed(2),
+            income: yearlyData[year].income.toFixed(2),
+            otherAsset: yearlyData[year].otherAsset.toFixed(2),
+            disposableCash: yearlyData[year].disposableCash.toFixed(2)
+        }));
+    };
+
+    const maxTotalValue = (Math.max(...chartData().map(data => parseFloat(data.total).toFixed(0))) + 1);
+
+    const tableData = () => {
+        const yearlyData = assetsCashflowData.filter(data => data.month === 12).reduce((acc, curr) => {
+            const year = curr.year;
+            if (!acc[year]) {
+                acc[year] = { total: 0, property: 0, vehicle: 0, account: 0, deposit: 0, portfolio: 0, income: 0, otherAsset: 0, rentalIncome: 0, couponIncome: 0, dividendIncome: 0, payoutIncome: 0, leaseIncome: 0, disposableCash: 0, age: curr.age };
+            }
+            acc[year].total += curr.asset_value;
+            if (curr.asset_type === 'Property') {
+                acc[year].property += curr.asset_value;
+            }
+            if (curr.asset_type === 'Vehicle') {
+                acc[year].vehicle += curr.asset_value;
+            }
+            if (curr.asset_type === 'Account') {
+                acc[year].account += curr.asset_value;
+            }
+            if (curr.asset_type === 'Deposit') {
+                acc[year].deposit += curr.asset_value;
+            }
+            if (curr.asset_type === 'Portfolio') {
+                acc[year].portfolio += curr.asset_value;
+            }
             if (curr.asset_type === 'Income') {
                 acc[year].income += curr.asset_value;
             }
@@ -84,8 +138,6 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
         }));
     };
 
-    const maxTotalValue = Math.max(...chartData().map(data => parseFloat(data.total)));
-
     const columns = [
         { field: 'year', headerName: 'Year', width: 100 },
         { field: 'age', headerName: 'Age', width: 100 },
@@ -96,7 +148,7 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
         }))
     ];
 
-    const rows = chartData().map((row, index) => ({
+    const rows = tableData().map((row, index) => ({
         id: index,
         year: row.year,
         age: row.age,
@@ -141,27 +193,22 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
             {tabIndex === 0 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#e0f7fa" borderRadius={2} p={2}>
                     <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="95%" height="100%">
                             <LineChart data={chartData()}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} />
-                                <YAxis tick={{ fontSize: 14 }} domain={[0, maxTotalValue]} />
+                                <CartesianGrid strokeDasharray="2 2" />
+                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1}/>
+                                <YAxis tick={{ fontSize: 14 }} domain={[0, maxTotalValue]} tickCount={15} interval={0}/>
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
-                                <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="vehicle" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="account" stroke="#0000ff" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="deposit" stroke="#00ff00" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="portfolio" stroke="#ff00ff" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="income" stroke="#00ffff" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} name="Total Assets" />
+                                <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={1} activeDot={{ r: 8 }} name="Properties"/>
+                                <Line type="monotone" dataKey="vehicle" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} name="Vehicles"/>
+                                <Line type="monotone" dataKey="account" stroke="#0000ff" strokeWidth={1} activeDot={{ r: 8 }} name="Accounts"/>
+                                <Line type="monotone" dataKey="deposit" stroke="#ffcc00" strokeWidth={1} activeDot={{ r: 8 }} name="Deposits"/>
+                                <Line type="monotone" dataKey="income" stroke="#ff6699" strokeWidth={1} activeDot={{ r: 8 }} name="Incomes"/>
+                                <Line type="monotone" dataKey="portfolio" stroke="#ff00ff" strokeWidth={1} activeDot={{ r: 8 }} name="Portfolios"/>
                                 <Line type="monotone" dataKey="otherAsset" stroke="#ff6600" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="rentalIncome" stroke="#ffa500" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="couponIncome" stroke="#800080" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dividendIncome" stroke="#008000" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="payoutIncome" stroke="#000080" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="leaseIncome" stroke="#808000" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="disposableCash" stroke="#800000" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="disposableCash" stroke="#800000" strokeWidth={1} activeDot={{ r: 8 }} name="Disposable Cash"/>
                             </LineChart>
                         </ResponsiveContainer>
                     </Grid>

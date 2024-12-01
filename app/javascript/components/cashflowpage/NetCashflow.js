@@ -90,20 +90,20 @@ const NetCashflow = ({ netCashflowData }) => {
             </Tabs>
             {tabIndex === 0 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} p={2}>
-                    <Grid item size={12} display="flex" justifyContent="center" style={{ height: '30vh' }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                    <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
+                        <ResponsiveContainer width="95%" height="100%">
                             <LineChart data={chartData()}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} />
-                                <YAxis tick={{ fontSize: 14 }} domain={['auto', 'auto']} />
+                                <CartesianGrid strokeDasharray="2 2" />
+                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1} />
+                                <YAxis tick={{ fontSize: 14 }} domain={['auto', 'auto']} tickCount={10} interval={0}/>
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
-                                <Line type="monotone" dataKey="income" stroke="#1f77b4" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="expense" stroke="#ff7f0e" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="net_position" stroke="#2ca02c" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="liquid_assets" stroke="#d62728" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="locked_assets" stroke="#9467bd" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="net_worth" stroke="#8c564b" strokeWidth={3} activeDot={{ r: 8 }} />
+                                {/* <Line type="monotone" dataKey="income" stroke="#1f77b4" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="expense" stroke="#ff7f0e" strokeWidth={1} activeDot={{ r: 8 }} /> */}
+                                <Line type="monotone" dataKey="net_position" stroke="#2ca02c" strokeWidth={3} activeDot={{ r: 8 }} name="Net Position" />
+                                {/* <Line type="monotone" dataKey="liquid_assets" stroke="#d62728" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="locked_assets" stroke="#9467bd" strokeWidth={1} activeDot={{ r: 8 }} /> */}
+                                <Line type="monotone" dataKey="net_worth" stroke="#8c564b" strokeWidth={3} activeDot={{ r: 8 }} name="Net Worth" />
                             </LineChart>
                         </ResponsiveContainer>
                     </Grid>

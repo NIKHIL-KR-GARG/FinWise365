@@ -14,7 +14,7 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
         setTabIndex(newIndex);
     };
 
-    const chartData = () => {
+    const tableData = () => {
         const yearlyData = liabilitiesCashflowData.reduce((acc, curr) => {
             const year = curr.year;
             if (!acc[year]) {
@@ -130,7 +130,7 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
             }))
     ];
 
-    const rows = chartData().map((row, index) => ({
+    const rows = tableData().map((row, index) => ({
         id: index,
         year: row.year,
         age: row.age,
@@ -157,6 +157,64 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
         total: row.total
     }));
 
+    const chartData = () => {
+        const yearlyData = liabilitiesCashflowData.reduce((acc, curr) => {
+            const year = curr.year;
+            if (!acc[year]) {
+                // acc[year] = {
+                //     total: 0, home: 0, property: 0, propertyMaintenance: 0, creditCardDebt: 0, personalLoan: 0,
+                //     otherExpense: 0, vehicleExpense: 0, vehicleEMI: 0, propertyEMI: 0, dreamEMI: 0, depositSIP: 0,
+                //     portfolioSIP: 0, otherSIP: 0, propertyTax: 0, dreamProperty: 0, dreamVehicle: 0,
+                //     dreamEducation: 0, dreamTravel: 0, dreamRelocation: 0, dreamOther: 0, age: curr.age
+                // };
+                acc[year] = {
+                    total: 0, homeAndProperty: 0, loanAndDebt: 0, otherExpense: 0, vehicleExpense: 0, emi: 0, sip: 0, tax: 0, dream: 0, age: curr.age
+                };
+            }
+            acc[year].total += curr.liability_value;
+            if (curr.liability_type === 'Home' || curr.liability_type === 'Property' || curr.liability_type === 'Property Maintenance') {
+                acc[year].homeAndProperty += curr.liability_value;
+            }
+            if (curr.liability_type === 'Credit Card Debt' || curr.liability_type === 'Personal Loan') {
+                acc[year].loanAndDebt += curr.liability_value;
+            }
+            if (curr.liability_type === 'Vehicle EMI' || curr.liability_type === 'Property EMI' || curr.liability_type === 'Dream EMI') {
+                acc[year].emi += curr.liability_value;
+            }
+            if (curr.liability_type === 'Deposit SIP' || curr.liability_type === 'Portfolio SIP' || curr.liability_type === 'Other SIP') {
+                acc[year].sip += curr.liability_value;
+            }
+            if (curr.liability_type === 'Property Tax') {
+                acc[year].tax += curr.liability_value;
+            }
+            if (curr.liability_type === 'Other Expense' || curr.liability_type === 'Vehicle Expense') {
+                acc[year].otherExpense += curr.liability_value;
+            }
+            if (curr.liability_type === 'Property Dream' || curr.liability_type === 'Vehicle Dream' || curr.liability_type === 'Education Dream' || 
+                curr.liability_type === 'Travel Dream' || curr.liability_type === 'Relocation Dream' || curr.liability_type === 'Other Dream') {
+                acc[year].dream += curr.liability_value;
+            }
+
+            return acc;
+        }, {});
+
+        return Object.keys(yearlyData).map(year => ({
+            year,
+            yearWithAge: `${year} (${yearlyData[year].age})`,
+            age: yearlyData[year].age,
+            total: yearlyData[year].total.toFixed(2),
+            homeAndProperty: yearlyData[year].homeAndProperty.toFixed(2),
+            loanAndDebt: yearlyData[year].loanAndDebt.toFixed(2),
+            emi: yearlyData[year].emi.toFixed(2),
+            sip: yearlyData[year].sip.toFixed(2),
+            tax: yearlyData[year].tax.toFixed(2),
+            otherExpense: yearlyData[year].otherExpense.toFixed(2),      
+            dream: yearlyData[year].dream.toFixed(2),
+        }));
+    };
+
+    const maxTotalValue = (Math.max(...chartData().map(data => parseFloat(data.total).toFixed(0))) + 1);
+
     return (
         <Box>
             <Tabs
@@ -182,34 +240,21 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
             {tabIndex === 0 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} p={2}>
                     <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="95%" height="100%">
                             <LineChart data={chartData()}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} />
-                                <YAxis tick={{ fontSize: 14 }} domain={['auto', 'auto']} />
+                                <CartesianGrid strokeDasharray="2 2" />
+                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1}/>
+                                <YAxis tick={{ fontSize: 14 }} domain={[0, maxTotalValue]} tickCount={15} interval={0} />
                                 <Tooltip contentStyle={{ fontSize: 14 }} />
                                 <Legend wrapperStyle={{ fontSize: 14 }} />
-                                <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="home" stroke="#ff69b4" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="propertyMaintenance" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="creditCardDebt" stroke="#0000ff" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="personalLoan" stroke="#ff4500" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="otherExpense" stroke="#ff00ff" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="vehicleExpense" stroke="#00ffff" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="vehicleEMI" stroke="#ffa500" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="propertyEMI" stroke="#800080" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamEMI" stroke="#008080" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="depositSIP" stroke="#008000" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="portfolioSIP" stroke="#000080" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="otherSIP" stroke="#808000" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="propertyTax" stroke="#800000" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamProperty" stroke="#ff1493" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamVehicle" stroke="#00bfff" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamEducation" stroke="#32cd32" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamTravel" stroke="#ff6347" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamRelocation" stroke="#8a2be2" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="dreamOther" stroke="#ff4500" strokeWidth={1} activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} name="Total Expenses"/>
+                                <Line type="monotone" dataKey="homeAndProperty" stroke="#ff00ff" strokeWidth={1} activeDot={{ r: 8 }} name="Propeties"/>
+                                <Line type="monotone" dataKey="loanAndDebt" stroke="#006400" strokeWidth={1} activeDot={{ r: 8 }} name="Debts"/>
+                                <Line type="monotone" dataKey="emi" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} name="EMIs"/>
+                                <Line type="monotone" dataKey="sip" stroke="#0000ff" strokeWidth={1} activeDot={{ r: 8 }} name="SIPs"/>
+                                <Line type="monotone" dataKey="tax" stroke="#ff4500" strokeWidth={1} activeDot={{ r: 8 }} name="Taxes"/>
+                                <Line type="monotone" dataKey="otherExpense" stroke="#800000" strokeWidth={1} activeDot={{ r: 8 }} name="Other Expenses"/>
+                                <Line type="monotone" dataKey="dream" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} name="Dreams"/>
                             </LineChart>
                         </ResponsiveContainer>
                     </Grid>
