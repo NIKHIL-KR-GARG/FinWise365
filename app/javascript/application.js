@@ -13,7 +13,7 @@ const root = createRoot(container);
 const domain = "dev-finwise365.us.auth0.com";
 const clientId = "mT9TX9EUVQw06Z58HbzJjYXvdVva8Hva";
 // const redirectUri = "http://localhost:3000/logincallback";
-const redirectUri = "http://www.finwise365.com/logincallback";
+const redirectUri = "http://finwise365:10000/logincallback";
 
 import { Auth0Provider } from '@auth0/auth0-react';
 
