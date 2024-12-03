@@ -30,6 +30,7 @@ const LoginCallback = () => {
                             'Content-Type': 'application/json',
                             'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
                         },
+                        withCredentials: true // Ensure credentials are sent with the request
                     });
 
                     const { id, first_name, last_name, date_of_birth, base_currency, life_expectancy, 
@@ -64,7 +65,7 @@ const LoginCallback = () => {
     }, [isAuthenticated, user, isLoading, navigate]);
 
     return (
-        <></>
+        <div>Loading...</div>
     );
 };
 
