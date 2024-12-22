@@ -110,29 +110,31 @@ export const otherExpense = (other, date, baseCurrency) => {
     let otherExpense = 0;
     if (other) {
         const startDate = new Date(other.expense_date);
-         // check if the month of expense date same as month of today's date
-         if (startDate >= date || isSameMonthAndYear(startDate, date)) {
+        // check if the month of expense date same as month of today's date
+        if (isSameMonthAndYear(startDate, date)) {
             otherExpense += parseFloat(other.amount);
         }
-
-        // check if we have a recurring expense and end_date is after today
-        if (other.is_recurring & (!other.end_date || new Date(other.end_date) >= date || isSameMonthAndYear(new Date(other.end_date), date))) {
-            // check if this the correct month for recurring expense based on recurring_frequency
-            const diffMonths = (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth());
-            if (isSIPMonth(startDate, date, other.recurring_frequency)) {
-                otherExpense += parseFloat(other.recurring_amount);
-            }                     
-            const totalInterest = CalculateInterest (
-                "Recurring",
-                "Compounding",
-                other.inflation_rate,
-                other.recurring_amount,
-                diffMonths,
-                other.recurring_frequency,
-                0,
-                other.recurring_frequency
-            );
-            otherExpense += totalInterest;
+        else if (startDate >= date) return 0; // if expense date is in future
+        else {
+            // check if we have a recurring expense and end_date is after today
+            if (other.is_recurring & (!other.end_date || new Date(other.end_date) >= date || isSameMonthAndYear(new Date(other.end_date), date))) {
+                // check if this the correct month for recurring expense based on recurring_frequency
+                const diffMonths = (date.getFullYear() - startDate.getFullYear()) * 12 + (date.getMonth() - startDate.getMonth());
+                if (isSIPMonth(startDate, date, other.recurring_frequency)) {
+                    otherExpense += parseFloat(other.recurring_amount);
+                }
+                const totalInterest = CalculateInterest(
+                    "Recurring",
+                    "Compounding",
+                    other.inflation_rate,
+                    other.recurring_amount,
+                    diffMonths,
+                    other.recurring_frequency,
+                    0,
+                    other.recurring_frequency
+                );
+                otherExpense += totalInterest;
+            }
         }
         const fromCurrency = other.currency;
         const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
@@ -256,6 +258,7 @@ export const sipExpenseOtherAsset = (otherAsset, date, baseCurrency) => {
     let sipExpenseOtherAsset = 0;
     if (otherAsset) {
         if (!otherAsset.is_recurring_payment) return 0;
+        else if (isSameMonthAndYear(new Date(otherAsset.start_date), date)) return 0;
         else if (new Date(otherAsset.payment_end_date) < date && !isSameMonthAndYear(new Date(otherAsset.payment_end_date), date)) return 0;
         else {
             // check if this the correct month for sip expense based on frequency

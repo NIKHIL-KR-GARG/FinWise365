@@ -194,7 +194,7 @@ export const otherAssetValue = (other, date, baseCurrency) => {
         let monthsFromStartTillPaymentEnd = 0;
         let monthsFromPaymentEndToDate = 0;
         // let monthsFromPaymentEndToPayoutDate = 0;
-        if (!other.is_recurring_payment) {
+        if (!other.is_recurring_payment || isSameMonthAndYear(new Date(other.start_date), date)) { // either there is no recurring payment or we are in the same month as start date
             if (other.payout_type === 'Fixed' && new Date(other.payout_date) >= date)
                 monthsFromStartTillDate = (date.getFullYear() - new Date(other.start_date).getFullYear()) * 12 + date.getMonth() - new Date(other.start_date).getMonth();
             else if (other.payout_type === 'Recurring' && new Date(other.payout_date) >= date)
@@ -281,30 +281,33 @@ export const otherAssetValue = (other, date, baseCurrency) => {
 export const incomeAssetValue = (income, date, baseCurrency) => {
     let incomeAssetValue = 0;
     if (income) {
-        if ((new Date(income.start_date) > date && !isSameMonthAndYear(new Date(income.start_date), date)) || 
-            (income.end_date && new Date(income.end_date) < date && !isSameMonthAndYear(new Date(income.end_date), date)) ) return 0;
-        else {
-            // check if the start date is this month
-            if (isSameMonthAndYear(new Date(income.start_date), date)) {
-                incomeAssetValue = parseFloat(income.amount);
-            }
-            const months = (date.getFullYear() - new Date(income.start_date).getFullYear()) * 12 + date.getMonth() - new Date(income.start_date).getMonth();
-            const increment = CalculateInterest(
-                "Fixed",
-                "Compounding",
-                income.growth_rate,
-                income.amount || 0,
-                months,
-                income.income_frequency,
-                0,
-                income.income_frequency // compounding frequency is same as income frequency
-            );
-            const totalValue = parseFloat(income.amount) + parseFloat(increment);
-            const fromCurrency = income.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            incomeAssetValue = totalValue * conversionRate;
+        if ((new Date(income.start_date) > date && !isSameMonthAndYear(new Date(income.start_date), date)) ||
+            (income.end_date && new Date(income.end_date) < date && !isSameMonthAndYear(new Date(income.end_date), date))) return 0;
+        // check if the start date is this month
+        else if (isSameMonthAndYear(new Date(income.start_date), date)) {
+            incomeAssetValue = parseFloat(income.amount);
         }
+        else {
+            // check if this is the correct month for the income
+            if (income.is_recurring && isValueMonth(new Date(income.start_date), date, income.income_frequency)) {
+                const months = (date.getFullYear() - new Date(income.start_date).getFullYear()) * 12 + date.getMonth() - new Date(income.start_date).getMonth();
+                const increment = CalculateInterest(
+                    "Fixed",
+                    "Compounding",
+                    income.growth_rate,
+                    income.amount || 0,
+                    months,
+                    income.income_frequency,
+                    0,
+                    income.income_frequency // compounding frequency is same as income frequency
+                );
+                incomeAssetValue = parseFloat(income.amount) + parseFloat(increment);
+            }
+        }
+        const fromCurrency = income.currency;
+        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
+        const conversionRate = exchangeRate ? exchangeRate.value : 1;
+        incomeAssetValue = incomeAssetValue * conversionRate;
     }
     return incomeAssetValue;
 }

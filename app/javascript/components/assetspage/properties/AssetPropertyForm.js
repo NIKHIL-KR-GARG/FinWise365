@@ -7,7 +7,7 @@ import ApartmentIcon from '@mui/icons-material/Apartment'; // HDB icon
 import CondoIcon from '@mui/icons-material/Domain'; // Condo icon
 import HouseIcon from '@mui/icons-material/House'; // Landed icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" property type
-import { Modal, Switch, Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Modal, Switch, Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, Accordion, AccordionSummary, AccordionDetails, FormHelperText } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
@@ -32,13 +32,15 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
     const [lastPropertyType, setLastPropertyType] = useState('');
     const [lastPropertyIsUnderLoan, setLastPropertyIsUnderLoan] = useState(false);
 
+    const [selectedPropertyLocation, setselectedPropertyLocation] = useState(localStorage.getItem('currentUserCountryOfResidence'));
+
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserNationality = localStorage.getItem('currentUserNationality');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserIsPermanentResident = localStorage.getItem('currentUserIsPermanentResident');
     const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
-
+    
     const [property, setProperty] = useState(initialProperty || {
         user_id: 0,
         property_name: "",
@@ -117,12 +119,23 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             }));
         }
         // if under construction is unchecked, then set launch date and possession date to empty
-        if (name === 'is_under_construction' && !checked) {
+        else if (name === 'is_under_construction' && !checked) {
             setProperty(prevProperty => ({
                 ...prevProperty,
                 launch_date: '',
                 possession_date: ''
             }));
+        }
+        // if location is changed then set selected location to the new location
+        else if (name === 'location') {
+            setselectedPropertyLocation(value);
+            // check if location has been changed from SG to something else and property type is HDB. If so, then clear the property type
+            if (value !== 'SG' && property.property_type === 'HDB') {
+                setProperty(prevProperty => ({
+                    ...prevProperty,
+                    property_type: ''
+                }));
+            }
         }
     };
 
@@ -133,6 +146,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
     useEffect(() => {
         if (initialProperty) {
             setProperty(initialProperty);
+            setselectedPropertyLocation(initialProperty.location);
         }
         if (action === 'Sell') {
             setProperty(prevProperty => ({
@@ -146,6 +160,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
 
         const errors = {};
 
+        if (!property.property_type) errors.property_type = 'Property Type is required';
         if (!property.property_name) errors.property_name = 'Property Name is required';
         if (!property.location) errors.location = 'Property Location is required';
         if (!property.currency) errors.currency = 'Currency is required';
@@ -550,10 +565,18 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                         </>
                     )}
                 </Typography>
-                <FormControl component="fieldset" >
+                <FormControl component="fieldset" 
+                    required
+                    error={!!errors.property_type}
+                >
                     <FormLabel component="legend">Select Property Type:</FormLabel>
-                    <RadioGroup sx={{ pb: 2 }} row aria-label="property_type" name="property_type" value={property.property_type} onChange={handleChange}>
-                        {currentUserCountryOfResidence === 'SG' && (
+                    <RadioGroup sx={{ pb: 2 }} row 
+                        aria-label="property_type" 
+                        name="property_type" 
+                        value={property.property_type} 
+                        onChange={handleChange}
+                    >
+                        {selectedPropertyLocation === 'SG' && (
                             <FormControlLabel
                                 value="HDB"
                                 control={<Radio />}
@@ -616,6 +639,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             }
                         />
                     </RadioGroup>
+                    <FormHelperText>{errors.property_type}</FormHelperText>
                 </FormControl>
                 <Grid container spacing={2}>
                     <Grid item size={6}>
@@ -1018,7 +1042,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             <AccordionDetails>
                                 <Grid container>
                                     <Grid item size={6}>
-                                        <Typography sx={{ fontSize: 'small' }}>Property Value:</Typography>
+                                        <Typography sx={{ fontSize: 'small' }}>Property Price:</Typography>
                                     </Grid>
                                     <Grid item size={6} sx={{ textAlign: 'right' }}>
                                         <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.purchase_price))}</Typography>
@@ -1074,7 +1098,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                         <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.other_fees))}</Typography>
                                     </Grid>
                                     <Grid item size={6}>
-                                        <Typography sx={{ fontSize: 'small' }}>Total Cost:</Typography>
+                                        <Typography sx={{ fontSize: 'small' }}>Total Cost (for the whole loan duration):</Typography>
                                     </Grid>
                                     <Grid item size={6} sx={{ textAlign: 'right' }}>
                                         <Typography sx={{ fontSize: 'small' }}>{property.currency} {FormatCurrency(property.currency, parseFloat(property.total_cost))}</Typography>
