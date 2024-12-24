@@ -4,6 +4,8 @@ import { isSameMonthAndYear } from "../common/DateFunctions";
 export const propertyDreamExpense = (property, date, baseCurrency) => {
     let propertyDreamExpense = 0;
     if (property) {
+        // check that it is not in the past
+        if (property.purchase_date < date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0; 
         // check if we are buying the property now
         if (isSameMonthAndYear(new Date(property.purchase_date), date)) {
             const purchaseValue = parseFloat(property.purchase_price);
@@ -26,6 +28,8 @@ export const propertyDreamExpense = (property, date, baseCurrency) => {
 export const vehicleDreamExpense = (vehicle, date, baseCurrency) => {
     let vehicleDreamExpense = 0;
     if (vehicle) {
+        // check that it is not in the past
+        if (vehicle.purchase_date < date && !isSameMonthAndYear(new Date(vehicle.purchase_date), date)) return 0;
         // check if we are buying the vehicle now
         if (isSameMonthAndYear(new Date(vehicle.purchase_date), date)) {
             const purchaseValue = parseFloat(vehicle.purchase_price);
@@ -45,6 +49,8 @@ export const vehicleDreamExpense = (vehicle, date, baseCurrency) => {
 export const educationDreamExpense = (education, date, baseCurrency) => {
     let educationDreamExpense = 0;
     if (education) {
+        // check that it is not in the past
+        if (education.end_date < date && !isSameMonthAndYear(new Date(education.end_date), date)) return 0;
         if (education.is_funded_by_loan) return 0;
         if ((education.dream_date > date && !isSameMonthAndYear(new Date(education.dream_date), date)) ||
             (education.end_date < date && !isSameMonthAndYear(new Date(education.end_date), date))) return 0;
@@ -61,6 +67,8 @@ export const educationDreamExpense = (education, date, baseCurrency) => {
 export const travelDreamExpense = (travel, date, baseCurrency) => {
     let travelDreamExpense = 0;
     if (travel) {
+        // check that it is not in the past
+        if (travel.dream_date < date && !isSameMonthAndYear(new Date(travel.dream_date), date)) return 0;
         if (travel.is_funded_by_loan) return 0;
         // if (travel.dream_date > date && !isSameMonthAndYear(new Date(travel.dream_date), date)) return 0;
         if (isSameMonthAndYear(new Date(travel.dream_date), date)) {
@@ -77,6 +85,8 @@ export const travelDreamExpense = (travel, date, baseCurrency) => {
 export const relocationDreamExpense = (relocation, date, baseCurrency) => {
     let relocationDreamExpense = 0;
     if (relocation) {
+        // check that it is not in the past
+        if (relocation.dream_date < date && !isSameMonthAndYear(new Date(relocation.dream_date), date)) return 0;
         if (relocation.is_funded_by_loan) return 0;
         // if (relocation.dream_date > date && !isSameMonthAndYear(new Date(relocation.dream_date), date)) return 0;
         if (isSameMonthAndYear(new Date(relocation.dream_date), date)) {
@@ -93,6 +103,8 @@ export const relocationDreamExpense = (relocation, date, baseCurrency) => {
 export const otherDreamExpense = (other, date, baseCurrency) => {
     let otherDreamExpense = 0;
     if (other) {
+        // check that it is not in the past
+        if (other.dream_date < date && !isSameMonthAndYear(new Date(other.dream_date), date)) return 0;
         if (other.is_funded_by_loan) return 0;
         // if (other.dream_date > date && !isSameMonthAndYear(new Date(other.dream_date), date)) return 0;
         if (isSameMonthAndYear(new Date(other.dream_date), date)) {

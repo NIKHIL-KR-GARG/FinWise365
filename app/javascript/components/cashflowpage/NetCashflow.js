@@ -15,17 +15,19 @@ const NetCashflow = ({ netCashflowData }) => {
     };
 
     const chartData = () => {
-        const yearlyData = netCashflowData.filter(data => data.month === 12).reduce((acc, curr) => {
+        const yearlyData = netCashflowData.reduce((acc, curr) => {
             const year = curr.year;
             if (!acc[year]) {
                 acc[year] = { income: 0, expense: 0, net_position: 0, liquid_assets: 0, locked_assets: 0, net_worth: 0, age: curr.age };
             }
-            acc[year].income = curr.income;
-            acc[year].expense = curr.expense;
-            acc[year].net_position = curr.net_position;
-            acc[year].liquid_assets = curr.liquid_assets;
-            acc[year].locked_assets = curr.locked_assets;
-            acc[year].net_worth = curr.net_worth;
+            acc[year].income += curr.income;
+            acc[year].expense += curr.expense;
+            acc[year].net_position += curr.net_position;
+            if (curr.month === 12) {
+                acc[year].liquid_assets = curr.liquid_assets;
+                acc[year].locked_assets = curr.locked_assets;
+                acc[year].net_worth = curr.net_worth;
+            }
             return acc;
         }, {});
 

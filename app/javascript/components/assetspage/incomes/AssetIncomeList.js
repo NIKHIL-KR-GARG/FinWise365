@@ -41,6 +41,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
         // add rental as income as well
         const today = new Date();
         const rentalIncomes = propertiesList
+            .filter(property => !property.is_plan_to_sell || (new Date(property.sale_date) >= today))
             .filter(property => property.is_on_rent && (new Date(property.rental_start_date) <= today) && (!property.rental_end_date || new Date(property.rental_end_date) >= today))
             .map(property => ({
                 id: `rental-${property.id}`,
@@ -134,6 +135,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
 
         // add lease as income as well
         const leases = vehiclesList
+            .filter(vehicle => !vehicle.is_plan_to_sell || (new Date(vehicle.sale_date) >= today))
             .filter(vehicle => vehicle.is_on_lease && (new Date(vehicle.lease_start_date) <= today) && (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today))
             .map(vehicle => ({
                 id: `lease-${vehicle.id}`,

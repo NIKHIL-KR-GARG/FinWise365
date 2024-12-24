@@ -213,7 +213,7 @@ const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
         }));
     };
 
-    const maxTotalValue = (Math.max(...chartData().map(data => parseFloat(data.total).toFixed(0))) + 1);
+    // const maxTotalValue = (Math.max(...chartData().map(data => parseFloat(data.total).toFixed(0))) + 1);
 
     const getYAxisDomain = (data) => {
         const values = data.flatMap(d => [

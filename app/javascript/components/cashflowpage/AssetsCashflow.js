@@ -15,37 +15,43 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
     };
 
     const chartData = () => {
-        const yearlyData = assetsCashflowData.filter(data => data.month === 12).reduce((acc, curr) => {
+        const yearlyData = assetsCashflowData.reduce((acc, curr) => {
             const year = curr.year;
             if (!acc[year]) {
                 acc[year] = { total: 0, property: 0, vehicle: 0, account: 0, deposit: 0, portfolio: 0, income: 0, otherAsset: 0, rentalIncome: 0, couponIncome: 0, dividendIncome: 0, payoutIncome: 0, leaseIncome: 0, disposableCash: 0, age: curr.age };
             }
-            acc[year].total += curr.asset_value;
-            if (curr.asset_type === 'Property') {
-                acc[year].property += curr.asset_value;
-            }
-            if (curr.asset_type === 'Vehicle') {
-                acc[year].vehicle += curr.asset_value;
-            }
-            if (curr.asset_type === 'Account') {
-                acc[year].account += curr.asset_value;
-            }
-            if (curr.asset_type === 'Deposit') {
-                acc[year].deposit += curr.asset_value;
-            }
-            if (curr.asset_type === 'Portfolio') {
-                acc[year].portfolio += curr.asset_value;
-            }
             if (curr.asset_type === 'Income' || curr.asset_type === 'Rental Income' || 
                 curr.asset_type === 'Coupon Income' || curr.asset_type === 'Dividend Income' || 
                 curr.asset_type === 'Payout Income' || curr.asset_type === 'Lease Income') {
-                acc[year].income += curr.asset_value;
+                acc[year].income += curr.original_asset_value;
+                if (curr.month === 12) {
+                    acc[year].total += curr.asset_value;
+                    acc[year].disposableCash += curr.asset_value;
+                }
             }
-            if (curr.asset_type === 'Other') {
-                acc[year].otherAsset += curr.asset_value;
-            }
-            if (curr.asset_type === 'Disposable Cash') {
-                acc[year].disposableCash += curr.asset_value;
+            else if (curr.month === 12) {
+                if (curr.asset_type === 'Property') {
+                    acc[year].property += curr.asset_value;
+                }
+                if (curr.asset_type === 'Vehicle') {
+                    acc[year].vehicle += curr.asset_value;
+                }
+                if (curr.asset_type === 'Account') {
+                    acc[year].account += curr.asset_value;
+                }
+                if (curr.asset_type === 'Deposit') {
+                    acc[year].deposit += curr.asset_value;
+                }
+                if (curr.asset_type === 'Portfolio') {
+                    acc[year].portfolio += curr.asset_value;
+                }
+                if (curr.asset_type === 'Other') {
+                    acc[year].otherAsset += curr.asset_value;
+                }
+                if (curr.asset_type === 'Disposable Cash') {
+                    acc[year].disposableCash += curr.asset_value;
+                }
+                acc[year].total += curr.asset_value;
             }
             return acc;
         }, {});
@@ -66,53 +72,63 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
         }));
     };
 
-    const maxTotalValue = (Math.max(...chartData().map(data => parseFloat(data.total).toFixed(0))) + 1);
+    // const maxTotalValue = (Math.max(...chartData().map(data => parseFloat(data.total).toFixed(0))) + 1);
 
     const tableData = () => {
-        const yearlyData = assetsCashflowData.filter(data => data.month === 12).reduce((acc, curr) => {
+        const yearlyData = assetsCashflowData.reduce((acc, curr) => {
             const year = curr.year;
             if (!acc[year]) {
                 acc[year] = { total: 0, property: 0, vehicle: 0, account: 0, deposit: 0, portfolio: 0, income: 0, otherAsset: 0, rentalIncome: 0, couponIncome: 0, dividendIncome: 0, payoutIncome: 0, leaseIncome: 0, disposableCash: 0, age: curr.age };
             }
-            acc[year].total += curr.asset_value;
-            if (curr.asset_type === 'Property') {
-                acc[year].property += curr.asset_value;
+            if (curr.asset_type === 'Income' || curr.asset_type === 'Rental Income' ||
+                curr.asset_type === 'Coupon Income' || curr.asset_type === 'Dividend Income' ||
+                curr.asset_type === 'Payout Income' || curr.asset_type === 'Lease Income') {
+                if (curr.asset_type === 'Income') {
+                    acc[year].income += curr.original_asset_value;
+                }
+                if (curr.asset_type === 'Rental Income') {
+                    acc[year].rentalIncome += curr.original_asset_value;
+                }
+                if (curr.asset_type === 'Coupon Income') {
+                    acc[year].couponIncome += curr.original_asset_value;
+                }
+                if (curr.asset_type === 'Dividend Income') {
+                    acc[year].dividendIncome += curr.original_asset_value;
+                }
+                if (curr.asset_type === 'Payout Income') {
+                    acc[year].payoutIncome += curr.original_asset_value;
+                }
+                if (curr.asset_type === 'Lease Income') {
+                    acc[year].leaseIncome += curr.original_asset_value;
+                }
+                if (curr.month === 12) {
+                    acc[year].total += curr.asset_value;
+                    acc[year].disposableCash += curr.asset_value;
+                }
             }
-            if (curr.asset_type === 'Vehicle') {
-                acc[year].vehicle += curr.asset_value;
-            }
-            if (curr.asset_type === 'Account') {
-                acc[year].account += curr.asset_value;
-            }
-            if (curr.asset_type === 'Deposit') {
-                acc[year].deposit += curr.asset_value;
-            }
-            if (curr.asset_type === 'Portfolio') {
-                acc[year].portfolio += curr.asset_value;
-            }
-            if (curr.asset_type === 'Income') {
-                acc[year].income += curr.asset_value;
-            }
-            if (curr.asset_type === 'Other') {
-                acc[year].otherAsset += curr.asset_value;
-            }
-            if (curr.asset_type === 'Rental Income') {
-                acc[year].rentalIncome += curr.asset_value;
-            }
-            if (curr.asset_type === 'Coupon Income') {
-                acc[year].couponIncome += curr.asset_value;
-            }
-            if (curr.asset_type === 'Dividend Income') {
-                acc[year].dividendIncome += curr.asset_value;
-            }
-            if (curr.asset_type === 'Payout Income') {
-                acc[year].payoutIncome += curr.asset_value;
-            }
-            if (curr.asset_type === 'Lease Income') {
-                acc[year].leaseIncome += curr.asset_value;
-            }
-            if (curr.asset_type === 'Disposable Cash') {
-                acc[year].disposableCash += curr.asset_value;
+            else if (curr.month === 12) {
+                if (curr.asset_type === 'Property') {
+                    acc[year].property += curr.asset_value;
+                }
+                if (curr.asset_type === 'Vehicle') {
+                    acc[year].vehicle += curr.asset_value;
+                }
+                if (curr.asset_type === 'Account') {
+                    acc[year].account += curr.asset_value;
+                }
+                if (curr.asset_type === 'Deposit') {
+                    acc[year].deposit += curr.asset_value;
+                }
+                if (curr.asset_type === 'Portfolio') {
+                    acc[year].portfolio += curr.asset_value;
+                }
+                if (curr.asset_type === 'Other') {
+                    acc[year].otherAsset += curr.asset_value;
+                }
+                if (curr.asset_type === 'Disposable Cash') {
+                    acc[year].disposableCash += curr.asset_value;
+                }
+                acc[year].total += curr.asset_value;
             }
             return acc;
         }, {});

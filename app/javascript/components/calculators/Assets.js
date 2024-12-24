@@ -182,7 +182,7 @@ export const otherAssetValue = (other, date, baseCurrency) => {
     let otherAssetValue = 0;
     if (other) {
         if (new Date(other.start_date) > date && !isSameMonthAndYear(new Date(other.start_date), date)) return 0;
-        if (other.payout_type === 'Fixed' && new Date(other.payout_date) < date && !isSameMonthAndYear(new Date(other.payout_date), date)) return 0;
+        if (other.payout_type === 'Lumpsum' && new Date(other.payout_date) < date && !isSameMonthAndYear(new Date(other.payout_date), date)) return 0;
         // check if payout is already completed based on other.start_date && payout_duration
         const payoutDate = new Date(other.payout_date);
         const payoutDuration = other.payout_duration ? parseInt(other.payout_duration) : 0;
@@ -195,7 +195,7 @@ export const otherAssetValue = (other, date, baseCurrency) => {
         let monthsFromPaymentEndToDate = 0;
         // let monthsFromPaymentEndToPayoutDate = 0;
         if (!other.is_recurring_payment || isSameMonthAndYear(new Date(other.start_date), date)) { // either there is no recurring payment or we are in the same month as start date
-            if (other.payout_type === 'Fixed' && new Date(other.payout_date) >= date)
+            if (other.payout_type === 'Lumpsum' && new Date(other.payout_date) >= date)
                 monthsFromStartTillDate = (date.getFullYear() - new Date(other.start_date).getFullYear()) * 12 + date.getMonth() - new Date(other.start_date).getMonth();
             else if (other.payout_type === 'Recurring' && new Date(other.payout_date) >= date)
                 monthsFromStartTillDate = (date.getFullYear() - new Date(other.start_date).getFullYear()) * 12 + date.getMonth() - new Date(other.start_date).getMonth();
@@ -204,9 +204,9 @@ export const otherAssetValue = (other, date, baseCurrency) => {
             // }
         }
         else {
-            if (other.payout_type === 'Fixed' && new Date(other.payment_end_date) >= date)
+            if (other.payout_type === 'Lumpsum' && new Date(other.payment_end_date) >= date)
                 monthsFromStartTillDate = (date.getFullYear() - new Date(other.start_date).getFullYear()) * 12 + date.getMonth() - new Date(other.start_date).getMonth();
-            else if (other.payout_type === 'Fixed' && new Date(other.payment_end_date) < date) {
+            else if (other.payout_type === 'Lumpsum' && new Date(other.payment_end_date) < date) {
                 monthsFromStartTillPaymentEnd = (new Date(other.start_date).getFullYear() - new Date(other.payment_end_date).getFullYear()) * 12 + new Date(other.start_date).getMonth() - new Date(other.payment_end_date).getMonth();
                 monthsFromPaymentEndToDate = (date.getFullYear() - new Date(other.payment_end_date).getFullYear()) * 12 + date.getMonth() - new Date(other.payment_end_date).getMonth();
             }
@@ -253,7 +253,7 @@ export const otherAssetValue = (other, date, baseCurrency) => {
             );
         }
 
-        if (other.payout_type === 'Fixed')
+        if (other.payout_type === 'Lumpsum')
             otherAssetValue = parseFloat(totalValue);
         else {
             if (new Date(other.payout_date) >= date)
@@ -316,7 +316,7 @@ export const incomePropertyRentalAssetValue = (property, date, baseCurrency) => 
     let incomePropertyRentalAssetValue = 0;
     if (property) {
         if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
-        else if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
+        if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
         if (property.is_on_rent && 
                 (new Date(property.rental_start_date).getMonth() <= date.getMonth() && new Date(property.rental_start_date).getFullYear() <= date.getFullYear()) && 
                 (!property.rental_end_date || (new Date(property.rental_end_date).getMonth() >= date.getMonth() && new Date(property.rental_end_date).getFullYear() >= date.getFullYear()))) {
@@ -404,7 +404,7 @@ export const incomePayoutAssetValue = (other, date, baseCurrency) => {
     let incomePayoutAssetValue = 0;
     if (other) {
         if (new Date(other.start_date) > date && !isSameMonthAndYear(new Date(other.start_date), date)) return 0;
-        if (other.payout_type === 'Fixed') return 0;
+        if (other.payout_type === 'Lumpsum') return 0;
         // check if payout is already completed based on other.start_date && payout_duration
         const payoutDate = new Date(other.payout_date);
         const payoutDuration = other.payout_duration ? parseInt(other.payout_duration) : 0;
