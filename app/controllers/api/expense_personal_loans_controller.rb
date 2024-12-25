@@ -62,6 +62,7 @@ class Api::ExpensePersonalLoansController < ApplicationController
             :interest_rate,
             :emi_amount,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

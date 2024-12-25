@@ -92,6 +92,7 @@ class Api::AssetPropertiesController < ApplicationController
             :launch_date,
             :possession_date,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

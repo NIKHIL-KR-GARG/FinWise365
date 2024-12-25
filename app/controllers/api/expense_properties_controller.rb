@@ -76,6 +76,7 @@ class Api::ExpensePropertiesController < ApplicationController
             :total_expense,
             :inflation_rate,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

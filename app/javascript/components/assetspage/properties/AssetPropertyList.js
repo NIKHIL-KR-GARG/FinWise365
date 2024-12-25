@@ -39,12 +39,14 @@ const AssetPropertyList = forwardRef((props, ref) => {
         let filteredProperties = [];
         const today = new Date();
         if (listAction === 'Asset' && !includePastProperties) {
-            filteredProperties = propertiesList.filter(property => new Date(property.purchase_date) <= today && (!property.is_plan_to_sell || new Date(property.sale_date) >= today));
+            filteredProperties = propertiesList.filter(property => !property.is_dream && (!property.is_plan_to_sell || new Date(property.sale_date) >= today));
         } else if (listAction === 'Asset' && includePastProperties) {
-            filteredProperties = propertiesList.filter(property => new Date(property.purchase_date) <= today);
-        } else if (listAction === 'Dream') {
-            filteredProperties = propertiesList.filter(property => new Date(property.purchase_date) > today);
-        } else
+            filteredProperties = propertiesList.filter(property => !property.is_dream);
+        } else if (listAction === 'Dream' && includePastProperties) {
+            filteredProperties = propertiesList.filter(property => property.is_dream);
+        } else if (listAction === 'Dream' && !includePastProperties) {
+            filteredProperties = propertiesList.filter(property => property.is_dream && (new Date(property.purchase_date) > today));
+        } else 
             filteredProperties = propertiesList;
 
         setProperties(filteredProperties);
@@ -77,6 +79,10 @@ const AssetPropertyList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/asset_properties/${propertyToDelete.id}`);
             setProperties(prevProperties => prevProperties.filter(p => p.id !== propertyToDelete.id));
+
+            // also update propertiesList to delete from property from the list
+            propertiesList.splice(propertiesList.findIndex(p => p.id === propertyToDelete.id), 1);
+
             onPropertiesFetched(properties.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Property deleted successfully');
@@ -91,7 +97,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedProperty(property);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -109,6 +115,15 @@ const AssetPropertyList = forwardRef((props, ref) => {
                     return [...prevProperties, updatedProperty];
                 }
             });
+
+            // also update propertiesList to add or update the property in the list
+            const propertyIndex = propertiesList.findIndex(p => p.id === updatedProperty.id);
+            if (propertyIndex > -1) {
+                propertiesList[propertyIndex] = updatedProperty;
+            } else {
+                propertiesList.push(updatedProperty);
+            }
+
             setSuccessMessage(successMsg);
         },
         getPropertyCount() {
@@ -130,6 +145,15 @@ const AssetPropertyList = forwardRef((props, ref) => {
                 return [...prevProperties, updatedProperty];
             }
         });
+
+         // also update propertiesList to add or update the property in the list
+         const propertyIndex = propertiesList.findIndex(p => p.id === updatedProperty.id);
+         if (propertyIndex > -1) {
+             propertiesList[propertyIndex] = updatedProperty;
+         } else {
+             propertiesList.push(updatedProperty);
+         }
+
         setSuccessMessage(successMsg);
     };
 
@@ -228,14 +252,12 @@ const AssetPropertyList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
-            {listAction === 'Asset' && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-                    <FormControlLabel
-                        control={<Switch checked={includePastProperties} onChange={() => setIncludePastProperties(!includePastProperties)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
-                        label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Properties</span>}
-                    />
-                </div>
-            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastProperties} onChange={() => setIncludePastProperties(!includePastProperties)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Properties</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"

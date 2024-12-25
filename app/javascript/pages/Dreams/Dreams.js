@@ -12,7 +12,14 @@ import SchoolIcon from '@mui/icons-material/School';
 import FlightIcon from '@mui/icons-material/Flight';
 import MovingIcon from '@mui/icons-material/Moving';
 import SellIcon from '@mui/icons-material/Sell';
-import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+// import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
+import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
+import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
+import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
+import ApartmentIcon from '@mui/icons-material/Apartment';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import PersonIcon from '@mui/icons-material/Person';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
@@ -22,6 +29,26 @@ import AssetPropertyList from '../../components/assetspage/properties/AssetPrope
 import AssetPropertyForm from '../../components/assetspage/properties/AssetPropertyForm';
 import AssetVehicleList from '../../components/assetspage/vehicles/AssetVehicleList';
 import AssetVehicleForm from '../../components/assetspage/vehicles/AssetVehicleForm';
+import AssetAccountForm from '../../components/assetspage/accounts/AssetAccountForm';
+import AssetAccountList from '../../components/assetspage/accounts/AssetAccountList';
+import AssetDepositList from '../../components/assetspage/deposits/AssetDepositList';
+import AssetDepositForm from '../../components/assetspage/deposits/AssetDepositForm';
+import AssetPortfolioList from '../../components/assetspage/portfolios/AssetPortfolioList';
+import AssetPortfolioForm from '../../components/assetspage/portfolios/AssetPortfolioForm';
+import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
+import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
+
+import ExpenseHomeList from '../../components/expensespage/homes/ExpenseHomeList';
+import ExpenseHomeForm from '../../components/expensespage/homes/ExpenseHomeForm';
+import ExpensePropertyList from '../../components/expensespage/properties/ExpensePropertyList';
+import ExpensePropertyForm from '../../components/expensespage/properties/ExpensePropertyForm';
+import ExpenseCreditCardDebtList from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtList';
+import ExpenseCreditCardDebtForm from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtForm';
+import ExpensePersonalLoanList from '../../components/expensespage/personalloans/ExpensePersonalLoanList';
+import ExpensePersonalLoanForm from '../../components/expensespage/personalloans/ExpensePersonalLoanForm';
+import ExpenseOtherList from '../../components/expensespage/others/ExpenseOtherList';
+import ExpenseOtherForm from '../../components/expensespage/others/ExpenseOtherForm';
+
 import DreamList from '../../components/dreamspage/DreamList';
 import DreamForm from '../../components/dreamspage/DreamForm';
 import DreamsGraph from '../../components/dreamspage/DreamsGraph';
@@ -39,44 +66,106 @@ const Dreams = () => {
     const [futureIncomeDialogOpen, setFutureIncomeDialogOpen] = useState(false); // State for Future Income Dialog
     const navigate = useNavigate();
 
-    const propertyListRef = useRef(null);
-    const [propertyCount, setPropertyCount] = useState(0); // State for property count
+    // for asset dreams
+    const assetPropertyListRef = useRef(null);
+    const assetVehicleListRef = useRef(null);
+    const assetAccountListRef = useRef(null);
+    const assetDepositListRef = useRef(null);
+    const assetPortfolioListRef = useRef(null);
+    const assetOtherListRef = useRef(null);
+    const [assetPropertyCount, setAssetPropertyCount] = useState(0); // State for property count
+    const [assetVehicleCount, setAssetVehicleCount] = useState(0); // State for vehicle count
+    const [assetAccountCount, setAssetAccountCount] = useState(0); // State for assetAccount count
+    const [assetDepositCount, setAssetDepositCount] = useState(0); // State for assetDeposit count
+    const [assetPortfolioCount, setAssetPortfolioCount] = useState(0); // State for assetPortfolio count
+    const [assetOtherCount, setAssetOtherCount] = useState(0); // State for other assetcount
+    const [assetProperties, setAssetProperties] = useState([]);
+    const [assetVehicles, setAssetVehicles] = useState([]);
+    const [assetAccounts, setAssetAccounts] = useState([]);
+    const [assetDeposits, setAssetDeposits] = useState([]);
+    const [assetPortfolios, setAssetPortfolios] = useState([]);
+    const [assetOthers, setAssetOthers] = useState([]);
 
-    const vehicleListRef = useRef(null);
-    const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
+    // for expenses dreams
+    const expenseHomeListRef = useRef(null);
+    const expensePropertyListRef = useRef(null);
+    const expenseCreditCardDebtListRef = useRef(null);
+    const expensePersonalLoanListRef = useRef(null);
+    const expenseOtherListRef = useRef(null);
+    const [expenseHomeCount, setExpenseHomeCount] = useState(0);
+    const [expensePropertyCount, setExpensePropertyCount] = useState(0);
+    const [expenseCreditCardDebtCount, setExpenseCreditCardDebtCount] = useState(0);
+    const [expensePersonalLoanCount, setExpensePersonalLoanCount] = useState(0);
+    const [expenseOtherCount, setExpenseOtherCount] = useState(0);
+    const [expenseHomes, setExpenseHomes] = useState([]);
+    const [expenseProperties, setExpenseProperties] = useState([]);
+    const [expenseCreditCardDebts, setExpenseCreditCardDebts] = useState([]);
+    const [expensePersonalLoans, setExpensePersonalLoans] = useState([]);
+    const [expenseOthers, setExpenseOthers] = useState([]);
 
+    // for dreams
     const [educationCount, setEducationCount] = useState(0); // State for education count
     const [travelCount, setTravelCount] = useState(0); // State for travel count
     const [relocationCount, setRelocationCount] = useState(0); // State for relocation count
     const [otherCount, setOtherCount] = useState(0); // State for other count
-
     const educationListRef = useRef(null);
     const travelListRef = useRef(null);
     const relocationListRef = useRef(null);
     const otherListRef = useRef(null);
-
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const [properties, setProperties] = useState([]);
-    const [vehicles, setVehicles] = useState([]);
     const [education, setEducation] = useState([]);
     const [travel, setTravel] = useState([]);
     const [relocation, setRelocation] = useState([]);
     const [other, setOther] = useState([]);
     const [dreamsList, setDreamsList] = useState([]);
 
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
     
+    const hasFetchedData = useRef(false);
+
     useEffect(() => {
-        if (propertyListRef.current) {
-            setPropertyCount(propertyListRef.current.getPropertyCount());
+        // for asset dreams
+        if (assetPropertyListRef.current) {
+            setAssetPropertyCount(assetPropertyListRef.current.getPropertyCount());
         }
-        if (vehicleListRef.current) {
-            setVehicleCount(vehicleListRef.current.getVehicleCount());
+        if (assetVehicleListRef.current) {
+            setAssetVehicleCount(assetVehicleListRef.current.getVehicleCount());
         }
+        if (assetAccountListRef.current) {
+            setAssetAccountCount(assetAccountListRef.current.getAccountCount());
+        }
+        if (assetDepositListRef.current) {
+            setAssetDepositCount(assetDepositListRef.current.getDepositCount());
+        }
+        if (assetPortfolioListRef.current) {
+            setAssetPortfolioCount(assetPortfolioListRef.current.getPortfolioCount());
+        }
+        if (assetOtherListRef.current) {
+            setAssetOtherCount(assetOtherListRef.current.getOtherCount());
+        }
+
+        // for expenses dreams
+        if (expenseHomeListRef.current) {
+            setExpenseHomeCount(expenseHomeListRef.current.getHomeCount());
+        }
+        if (expensePropertyListRef.current) {
+            setExpensePropertyCount(expensePropertyListRef.current.getPropertyCount());
+        }
+        if (expenseCreditCardDebtListRef.current) {
+            setExpenseCreditCardDebtCount(expenseCreditCardDebtListRef.current.getCreditCardDebtCount());
+        }
+        if (expensePersonalLoanListRef.current) {
+            setExpensePersonalLoanCount(expensePersonalLoanListRef.current.getPersonalLoanCount());
+        }
+        if (expenseOtherListRef.current) {
+            setExpenseOtherCount(expenseOtherListRef.current.getOtherCount());
+        }
+
+        // for dreams
         if (educationListRef.current) {
             setEducationCount(educationListRef.current.getDreamCount());
         }
@@ -92,161 +181,395 @@ const Dreams = () => {
     }, []);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [propertiesResponse, vehiclesResponse, dreamsResponse] = await Promise.all([
-                    axios.get(`/api/asset_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+        // for asset dreams
+        if (assetPropertyListRef.current) {
+            assetPropertyListRef.current.refreshPropertyList();
+            setAssetPropertyCount(assetPropertyListRef.current.getPropertyCount());
+        }
+        if (assetVehicleListRef.current) {
+            assetVehicleListRef.current.refreshVehicleList();
+            setAssetVehicleCount(assetVehicleListRef.current.getVehicleCount());
+        }
+        if (assetAccountListRef.current) {
+            assetAccountListRef.current.refreshAccountList();
+            setAssetAccountCount(assetAccountListRef.current.getAccountCount());
+        }
+        if (assetDepositListRef.current) {
+            assetDepositListRef.current.refreshDepositList();
+            setAssetDepositCount(assetDepositListRef.current.getDepositCount());
+        }
+        if (assetPortfolioListRef.current) {
+            assetPortfolioListRef.current.refreshPortfolioList();
+            setAssetPortfolioCount(assetPortfolioListRef.current.getPortfolioCount());
+        }
+        if (assetOtherListRef.current) {
+            assetOtherListRef.current.refreshOtherList();
+            setAssetOtherCount(assetOtherListRef.current.getOtherCount());
+        }
+
+        // for expenses dreams
+        if (expenseHomeListRef.current) {
+            expenseHomeListRef.current.refreshHomeList();
+            setExpenseHomeCount(expenseHomeListRef.current.getHomeCount());
+        }
+        if (expensePropertyListRef.current) {
+            expensePropertyListRef.current.refreshPropertyList();
+            setExpensePropertyCount(expensePropertyListRef.current.getPropertyCount());
+        }
+        if (expenseCreditCardDebtListRef.current) {
+            expenseCreditCardDebtListRef.current.refreshCreditCardDebtList();
+            setExpenseCreditCardDebtCount(expenseCreditCardDebtListRef.current.getCreditCardDebtCount());
+        }
+        if (expensePersonalLoanListRef.current) {
+            expensePersonalLoanListRef.current.refreshPersonalLoanList();
+            setExpensePersonalLoanCount(expensePersonalLoanListRef.current.getPersonalLoanCount());
+        }
+        if (expenseOtherListRef.current) {
+            expenseOtherListRef.current.refreshOtherList();
+            setExpenseOtherCount(expenseOtherListRef.current.getOtherCount());
+        }
+
+        // for dreams
+        if (educationListRef.current) {
+            educationListRef.current.refreshDreamList();
+            setEducationCount(educationListRef.current.getDreamCount());
+        }
+        if (travelListRef.current) {
+            travelListRef.current.refreshDreamList();
+            setTravelCount(travelListRef.current.getDreamCount());
+        }
+        if (relocationListRef.current) {
+            relocationListRef.current.refreshDreamList();
+            setRelocationCount(relocationListRef.current.getDreamCount());
+        }
+        if (otherListRef.current) {
+            otherListRef.current.refreshDreamList();
+            setOtherCount(otherListRef.current.getDreamCount());
+        }
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [assetPropertiesResponse, assetVehiclesResponse, assetAccountsResponse, assetDepositsResponse, assetPortfoliosResponse, assetOhersResponse,
+                expenseHomesResponse, expensePropertiesResponse, expenseCreditCardDebtsResponse, expensePersonalLoansResponse, expenseOthersResponse,
+                dreamsResponse] = await Promise.all([
+                    axios.get(`/api/asset_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/asset_accounts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/asset_deposits?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/asset_portfolios?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/asset_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/expense_homes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/expense_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/expense_personal_loans?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                 ]);
 
-                // filter properties where purchase_date is in the future
-                const propertiesList = propertiesResponse.data.filter(property => new Date(property.purchase_date) >= new Date());
-                // filter vehicles where purchase_date is in the future
-                const vehiclesList = vehiclesResponse.data.filter(vehicle => new Date(vehicle.purchase_date) >= new Date());
-                // filter dreams where dream_type = 'Education' or 'Travel' or 'Relocation' or 'Other'
-                const educationList = dreamsResponse.data.filter(dream => dream.dream_type === 'Education');
-                const travelList = dreamsResponse.data.filter(dream => dream.dream_type === 'Travel');
-                const relocationList = dreamsResponse.data.filter(dream => dream.dream_type === 'Relocation');
-                const otherList = dreamsResponse.data.filter(dream => dream.dream_type === 'Other');
+            // for asset dreams
+            const assetPropertiesList = assetPropertiesResponse.data.filter(property => property.is_dream);
+            const assetVehiclesList = assetVehiclesResponse.data.filter(vehicle => vehicle.is_dream);
+            const assetAccountsList = assetAccountsResponse.data.filter(account => account.is_dream);
+            const assetDepositsList = assetDepositsResponse.data.filter(deposit => deposit.is_dream);
+            const assetPortfoliosList = assetPortfoliosResponse.data.filter(portfolio => portfolio.is_dream);
+            const assetOthersList = assetOhersResponse.data.filter(other => other.is_dream);
 
-                // set state for all the lists
-                setProperties(propertiesResponse.data);
-                setVehicles(vehiclesResponse.data);
-                setEducation(educationList);
-                setTravel(travelList);
-                setRelocation(relocationList);
-                setOther(otherList);
+            // for expenses dreams
+            const expenseHomesList = expenseHomesResponse.data.filter(home => home.is_dream);
+            const expensePropertiesList = expensePropertiesResponse.data.filter(property => property.is_dream);
+            const expenseCreditCardDebtsList = expenseCreditCardDebtsResponse.data.filter(creditCardDebt => creditCardDebt.is_dream);
+            const expensePersonalLoansList = expensePersonalLoansResponse.data.filter(personalLoan => personalLoan.is_dream);
+            const expenseOthersList = expenseOthersResponse.data.filter(other => other.is_dream);
 
-                // starting the current year add rows to the dreamsList array for the next 50 years
-                const year = new Date().getFullYear();
-                const dreamsList = [];
-                for (let i = year; i <= (year + 50); i++) {
-                    dreamsList.push({
-                        year: i,
-                        Property: 0,
-                        Vehicle: 0,
-                        Education: 0,
-                        Travel: 0,
-                        Relocation: 0,
-                        Other: 0,
-                        total_value: 0
-                    });
-                }
+            // for dreams
+            // filter dreams where dream_type = 'Education' or 'Travel' or 'Relocation' or 'Other'
+            const educationList = dreamsResponse.data.filter(dream => dream.dream_type === 'Education');
+            const travelList = dreamsResponse.data.filter(dream => dream.dream_type === 'Travel');
+            const relocationList = dreamsResponse.data.filter(dream => dream.dream_type === 'Relocation');
+            const otherList = dreamsResponse.data.filter(dream => dream.dream_type === 'Other');
 
-                let maxYear = new Date().getFullYear();
+            // set state for all the lists
+            // for asset dreams
+            setAssetProperties(assetPropertiesList);
+            setAssetVehicles(assetVehiclesList);
+            setAssetAccounts(assetAccountsList);
+            setAssetDeposits(assetDepositsList);
+            setAssetPortfolios(assetPortfoliosList);
+            setAssetOthers(assetOthersList);
 
-                // loop though the properties and add the value to the corresponding year
-                propertiesList.forEach(property => {
-                    const purchaseYear = new Date(property.purchase_date).getFullYear();
-                    const purchaseValue = parseFloat(property.purchase_price);
-                    const stampDuty = parseFloat(property.stamp_duty);
-                    const otherFees = parseFloat(property.other_fees);
-                    const totalCost = purchaseValue + stampDuty + otherFees;
-                    const exchangeRate = ExchangeRate.find(rate => rate.from === property.currency && rate.to === currentUserBaseCurrency);
-                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                    const convertedValue = parseFloat(totalCost * conversionRate);
-                    // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the property column
-                    dreamsList.find(dream => dream.year === purchaseYear).Property += convertedValue;
-                    if (purchaseYear > maxYear) maxYear = purchaseYear;
+            // for expenses dreams
+            setExpenseHomes(expenseHomesList);
+            setExpenseProperties(expensePropertiesList);
+            setExpenseCreditCardDebts(expenseCreditCardDebtsList);
+            setExpensePersonalLoans(expensePersonalLoansList);
+            setExpenseOthers(expenseOthersList);
+
+            // for dreams
+            setEducation(educationList);
+            setTravel(travelList);
+            setRelocation(relocationList);
+            setOther(otherList);
+
+            // starting the current year add rows to the dreamsList array for the next 100 years
+            const year = new Date().getFullYear();
+            const dreamsList = [];
+            for (let i = year; i <= (year + 100); i++) {
+                dreamsList.push({
+                    year: i,
+                    AssetProperty: 0,
+                    AssetVehicle: 0,
+                    AssetAccount: 0,
+                    AssetDeposit: 0,
+                    AssetPortfolio: 0,
+                    AssetOther: 0,
+                    ExpenseHome: 0,
+                    ExpenseProperty: 0,
+                    ExpenseCreditCardDebt: 0,
+                    ExpensePersonalLoan: 0,
+                    ExpenseOther: 0,
+                    Education: 0,
+                    Travel: 0,
+                    Relocation: 0,
+                    Other: 0,
+                    total_value: 0
                 });
-
-                // loop though the vehicles and add the value to the corresponding year
-                vehiclesList.forEach(vehicle => {
-                    const purchaseYear = new Date(vehicle.purchase_date).getFullYear();
-                    const purchaseValue = parseFloat(vehicle.purchase_price);
-                    const exchangeRate = ExchangeRate.find(rate => rate.from === vehicle.currency && rate.to === currentUserBaseCurrency);
-                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                    const convertedValue = parseFloat(purchaseValue * conversionRate);
-                    // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the vehicle column
-                    dreamsList.find(dream => dream.year === purchaseYear).Vehicle += convertedValue;
-                    if (purchaseYear > maxYear) maxYear = purchaseYear;
-                });
-
-                // loop though the education and add the value to the corresponding year
-                educationList.forEach(education => {
-                    const educationYear = new Date(education.dream_date).getFullYear();
-                    const educationValue = parseFloat(education.amount);
-                    const exchangeRate = ExchangeRate.find(rate => rate.from === education.currency && rate.to === currentUserBaseCurrency);
-                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                    const convertedValue = parseFloat(educationValue) * parseFloat(conversionRate);
-                    if (education.end_date) {
-                        const educationEndYear = new Date(education.end_date).getFullYear();
-                        for (let i = educationYear; i <= educationEndYear; i++) {
-                            // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
-                            dreamsList.find(dream => dream.year === i).Education += convertedValue;
-                        }
-                        if (educationEndYear > maxYear) maxYear = educationEndYear;
-                    }
-                    else {
-                        // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
-                        dreamsList.find(dream => dream.year === educationYear).Education += convertedValue;
-                        if (educationYear > maxYear) maxYear = educationYear;
-                    }
-                });
-
-                // loop though the travel and add the value to the corresponding year
-                travelList.forEach(travel => {
-                    const travelYear = new Date(travel.dream_date).getFullYear();
-                    const travelValue = parseFloat(travel.amount);
-                    const exchangeRate = ExchangeRate.find(rate => rate.from === travel.currency && rate.to === currentUserBaseCurrency);
-                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                    const convertedValue = parseFloat(travelValue * conversionRate);
-                    // find the corresponding row in the dreamsList array where year = travelYear and add the value to the travel column
-                    dreamsList.find(dream => dream.year === travelYear).Travel += convertedValue;
-                    if (travelYear > maxYear) maxYear = travelYear;
-                });
-
-                // loop though the relocation and add the value to the corresponding year
-                relocationList.forEach(relocation => {
-                    const relocationYear = new Date(relocation.dream_date).getFullYear();
-                    const relocationValue = parseFloat(relocation.amount);
-                    const exchangeRate = ExchangeRate.find(rate => rate.from === relocation.currency && rate.to === currentUserBaseCurrency);
-                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                    const convertedValue = parseFloat(relocationValue * conversionRate);
-                    // find the corresponding row in the dreamsList array where year = relocationYear and add the value to the relocation column
-                    dreamsList.find(dream => dream.year === relocationYear).Relocation += convertedValue;
-                    if (relocationYear > maxYear) maxYear = relocationYear;
-                });
-                
-                // loop though the other dreams and add the value to the corresponding year
-                otherList.forEach(other => {
-                    const otherYear = new Date(other.dream_date).getFullYear();
-                    const otherValue = parseFloat(other.amount);
-                    const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
-                    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                    const convertedValue = parseFloat(otherValue * conversionRate);
-                    // find the corresponding row in the dreamsList array where year = otherYear and add the value to the other column
-                    dreamsList.find(dream => dream.year === otherYear).Other += convertedValue;
-                    if (otherYear > maxYear) maxYear = otherYear;
-                });    
-                
-                // loop through the dreamsList array from maxYear + 1 to end of array and delete all these rows as these are empty rows
-                for (let i = year; i <= (year + 50); i++) {                    
-                    dreamsList.find(dream => dream.year === i).total_value =   
-                        dreamsList.find(dream => dream.year === i).Property +
-                        dreamsList.find(dream => dream.year === i).Vehicle +
-                        dreamsList.find(dream => dream.year === i).Education +
-                        dreamsList.find(dream => dream.year === i).Travel +
-                        dreamsList.find(dream => dream.year === i).Relocation +
-                        dreamsList.find(dream => dream.year === i).Other;
-                    
-                    if (i > maxYear) {
-                        dreamsList.splice(dreamsList.findIndex(dream => dream.year === i), 1);
-                    }
-                }
-
-                // set state for dreamsList
-                setDreamsList(dreamsList);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setError('Error fetching data');
-                setLoading(false);
             }
-        };
 
-        fetchData();
+            let maxYear = new Date().getFullYear();
+
+            // loop though the assetProperties and add the value to the corresponding year
+            assetPropertiesList.forEach(property => {
+                const purchaseYear = new Date(property.purchase_date).getFullYear();
+                const purchaseValue = parseFloat(property.purchase_price);
+                const stampDuty = parseFloat(property.stamp_duty);
+                const otherFees = parseFloat(property.other_fees);
+                const totalCost = purchaseValue + stampDuty + otherFees;
+                const exchangeRate = ExchangeRate.find(rate => rate.from === property.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(totalCost * conversionRate);
+                // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the property column
+                dreamsList.find(dream => dream.year === purchaseYear).AssetProperty += convertedValue;
+                if (purchaseYear > maxYear) maxYear = purchaseYear;
+            });
+
+            // loop though the assetVehicles and add the value to the corresponding year
+            assetVehiclesList.forEach(vehicle => {
+                const purchaseYear = new Date(vehicle.purchase_date).getFullYear();
+                const purchaseValue = parseFloat(vehicle.purchase_price);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === vehicle.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(purchaseValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the vehicle column
+                dreamsList.find(dream => dream.year === purchaseYear).AssetVehicle += convertedValue;
+                if (purchaseYear > maxYear) maxYear = purchaseYear;
+            });
+
+            // loop though the assetAccounts and add the value to the corresponding year
+            assetAccountsList.forEach(account => {
+                const accountYear = new Date(account.opening_date).getFullYear();
+                const accountValue = parseFloat(account.account_balance);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === account.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(accountValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = accountYear and add the value to the account column
+                dreamsList.find(dream => dream.year === accountYear).AssetAccount += convertedValue;
+                if (accountYear > maxYear) maxYear = accountYear;
+            });
+
+            // loop though the assetDeposits and add the value to the corresponding year
+            assetDepositsList.forEach(deposit => {
+                const depositYear = new Date(deposit.opening_date).getFullYear();
+                const depositValue = parseFloat(deposit.amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === deposit.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(depositValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = depositYear and add the value to the deposit column
+                dreamsList.find(dream => dream.year === depositYear).AssetDeposit += convertedValue;
+                if (depositYear > maxYear) maxYear = depositYear;
+            });
+
+            // loop though the assetportfolios and add the value to the corresponding year
+            assetPortfoliosList.forEach(portfolio => {
+                const portfolioYear = new Date(portfolio.buying_date).getFullYear();
+                const portfolioValue = parseFloat(portfolio.buying_value);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === portfolio.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(portfolioValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = portfolioYear and add the value to the portfolio column
+                dreamsList.find(dream => dream.year === portfolioYear).AssetPortfolio += convertedValue;
+                if (portfolioYear > maxYear) maxYear = portfolioYear;
+            });
+
+            // loop though the assetOthers and add the value to the corresponding year
+            assetOthersList.forEach(other => {
+                const otherYear = new Date(other.start_date).getFullYear();
+                const otherValue = parseFloat(other.lumpsum_amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(otherValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = otherYear and add the value to the asset other column
+                dreamsList.find(dream => dream.year === otherYear).AssetOther += convertedValue;
+                if (otherYear > maxYear) maxYear = otherYear;
+            });
+
+            // loop though the expenseHomes and add the value to the corresponding year
+            expenseHomesList.forEach(home => {
+                const homeYear = new Date(home.start_date).getFullYear();
+                const homeValue = parseFloat(home.total_expense);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === home.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(homeValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = homeYear and add the value to the home column
+                dreamsList.find(dream => dream.year === homeYear).ExpenseHome += convertedValue;
+                if (homeYear > maxYear) maxYear = homeYear;
+            });
+
+            // loop though the expenseProperties and add the value to the corresponding year
+            expensePropertiesList.forEach(property => {
+                const propertyYear = new Date(property.start_date).getFullYear();
+                const propertyValue = parseFloat(property.total_expense);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === property.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(propertyValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = propertyYear and add the value to the property column
+                dreamsList.find(dream => dream.year === propertyYear).ExpenseProperty += convertedValue;
+                if (propertyYear > maxYear) maxYear = propertyYear;
+            });
+
+            // loop though the expenseCreditCardDebts and add the value to the corresponding year
+            expenseCreditCardDebtsList.forEach(creditCardDebt => {
+                const creditCardDebtYear = new Date(creditCardDebt.start_date).getFullYear();
+                const creditCardDebtValue = parseFloat(creditCardDebt.loan_amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === creditCardDebt.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(creditCardDebtValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = creditCardDebtYear and add the value to the credit card debt column
+                dreamsList.find(dream => dream.year === creditCardDebtYear).ExpenseCreditCardDebt += convertedValue;
+                if (creditCardDebtYear > maxYear) maxYear = creditCardDebtYear;
+            });
+
+            // loop though the expensePersonalLoans and add the value to the corresponding year
+            expensePersonalLoansList.forEach(personalLoan => {
+                const personalLoanYear = new Date(personalLoan.start_date).getFullYear();
+                const personalLoanValue = parseFloat(personalLoan.loan_amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === personalLoan.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(personalLoanValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = personalLoanYear and add the value to the personal loan column
+                dreamsList.find(dream => dream.year === personalLoanYear).ExpensePersonalLoan += convertedValue;
+                if (personalLoanYear > maxYear) maxYear = personalLoanYear;
+            });
+
+            // loop though the expenseOthers and add the value to the corresponding year
+            expenseOthersList.forEach(other => {
+                const otherYear = new Date(other.expense_date).getFullYear();
+                const otherValue = parseFloat(other.amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(otherValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = otherYear and add the value to the other column
+                dreamsList.find(dream => dream.year === otherYear).ExpenseOther += convertedValue;
+                if (otherYear > maxYear) maxYear = otherYear;
+            });
+
+            // loop though the education and add the value to the corresponding year
+            educationList.forEach(education => {
+                const educationYear = new Date(education.dream_date).getFullYear();
+                const educationValue = parseFloat(education.amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === education.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(educationValue) * parseFloat(conversionRate);
+                if (education.end_date) {
+                    const educationEndYear = new Date(education.end_date).getFullYear();
+                    for (let i = educationYear; i <= educationEndYear; i++) {
+                        // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
+                        dreamsList.find(dream => dream.year === i).Education += convertedValue;
+                    }
+                    if (educationEndYear > maxYear) maxYear = educationEndYear;
+                }
+                else {
+                    // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
+                    dreamsList.find(dream => dream.year === educationYear).Education += convertedValue;
+                    if (educationYear > maxYear) maxYear = educationYear;
+                }
+            });
+
+            // loop though the travel and add the value to the corresponding year
+            travelList.forEach(travel => {
+                const travelYear = new Date(travel.dream_date).getFullYear();
+                const travelValue = parseFloat(travel.amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === travel.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(travelValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = travelYear and add the value to the travel column
+                dreamsList.find(dream => dream.year === travelYear).Travel += convertedValue;
+                if (travelYear > maxYear) maxYear = travelYear;
+            });
+
+            // loop though the relocation and add the value to the corresponding year
+            relocationList.forEach(relocation => {
+                const relocationYear = new Date(relocation.dream_date).getFullYear();
+                const relocationValue = parseFloat(relocation.amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === relocation.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(relocationValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = relocationYear and add the value to the relocation column
+                dreamsList.find(dream => dream.year === relocationYear).Relocation += convertedValue;
+                if (relocationYear > maxYear) maxYear = relocationYear;
+            });
+            
+            // loop though the other dreams and add the value to the corresponding year
+            otherList.forEach(other => {
+                const otherYear = new Date(other.dream_date).getFullYear();
+                const otherValue = parseFloat(other.amount);
+                const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const convertedValue = parseFloat(otherValue * conversionRate);
+                // find the corresponding row in the dreamsList array where year = otherYear and add the value to the other column
+                dreamsList.find(dream => dream.year === otherYear).Other += convertedValue;
+                if (otherYear > maxYear) maxYear = otherYear;
+            });    
+            
+            // loop through the dreamsList array from maxYear + 1 to end of array and delete all these rows as these are empty rows
+            for (let i = year; i <= (year + 100); i++) {                    
+                dreamsList.find(dream => dream.year === i).total_value =   
+                    dreamsList.find(dream => dream.year === i).AssetProperty +
+                    dreamsList.find(dream => dream.year === i).AssetVehicle +
+                    dreamsList.find(dream => dream.year === i).AssetAccount +
+                    dreamsList.find(dream => dream.year === i).AssetDeposit +
+                    dreamsList.find(dream => dream.year === i).AssetPortfolio +
+                    dreamsList.find(dream => dream.year === i).AssetOther +
+                    dreamsList.find(dream => dream.year === i).ExpenseHome +
+                    dreamsList.find(dream => dream.year === i).ExpenseProperty +
+                    dreamsList.find(dream => dream.year === i).ExpenseCreditCardDebt +
+                    dreamsList.find(dream => dream.year === i).ExpensePersonalLoan +
+                    dreamsList.find(dream => dream.year === i).ExpenseOther +
+                    dreamsList.find(dream => dream.year === i).Education +
+                    dreamsList.find(dream => dream.year === i).Travel +
+                    dreamsList.find(dream => dream.year === i).Relocation +
+                    dreamsList.find(dream => dream.year === i).Other;
+                
+                if (i > maxYear) {
+                    dreamsList.splice(dreamsList.findIndex(dream => dream.year === i), 1);
+                }
+            }
+
+            // set state for dreamsList
+            setDreamsList(dreamsList);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setError('Error fetching data');
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!hasFetchedData.current) {
+            fetchData();
+            hasFetchedData.current = true;
+        }
     }, [currentUserId]);
 
     if (loading) {
@@ -282,18 +605,77 @@ const Dreams = () => {
         setAction('');
     };
 
-    const handlePropertyAdded = (updatedProperty, successMsg) => {
-        if (propertyListRef.current) {
-            propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
-            setPropertyCount(propertyCount + 1);
+    // for asset dreams
+    const handleAssetPropertyAdded = (updatedAssetProperty, successMsg) => {
+        if (assetPropertyListRef.current) {
+            assetPropertyListRef.current.refreshPropertyList(updatedAssetProperty, successMsg);
+            setAssetPropertyCount(assetPropertyCount + 1);
         }
     };
-    const handleVehicleAdded = (updatedVehicle, successMsg) => {
-        if (vehicleListRef.current) {
-            vehicleListRef.current.refreshVehicleList(updatedVehicle, successMsg);
-            setVehicleCount(vehicleCount + 1);
+    const handleAssetVehicleAdded = (updatedAssetVehicle, successMsg) => {
+        if (assetVehicleListRef.current) {
+            assetVehicleListRef.current.refreshVehicleList(updatedAssetVehicle, successMsg);
+            setAssetVehicleCount(assetVehicleCount + 1);
         }
     };
+    const handleAssetAccountAdded = (updatedAssetAccount, successMsg) => {
+        if (assetAccountListRef.current) {
+            assetAccountListRef.current.refreshAccountList(updatedAssetAccount, successMsg);
+            setAssetAccountCount(assetAccountCount + 1);
+        }
+    };
+    const handleAssetDepositAdded = (updatedAssetDeposit, successMsg) => {
+        if (assetDepositListRef.current) {
+            assetDepositListRef.current.refreshDepositList(updatedAssetDeposit, successMsg);
+            setAssetDepositCount(assetDepositCount + 1);
+        }
+    };
+    const handleAssetPortfolioAdded = (updatedAssetPortfolio, successMsg) => {
+        if (assetPortfolioListRef.current) {
+            assetPortfolioListRef.current.refreshPortfolioList(updatedAssetPortfolio, successMsg);
+            setAssetPortfolioCount(assetPortfolioCount + 1);
+        }
+    };
+    const handleAssetOtherAdded = (updatedAssetOther, successMsg) => {
+        if (assetOtherListRef.current) {
+            assetOtherListRef.current.refreshOtherList(updatedAssetOther, successMsg);
+            setAssetOtherCount(assetOtherCount + 1);
+        }
+    };
+
+    // for expenses dreams
+    const handleExpenseHomeAdded = (updatedExpenseHome, successMsg) => {
+        if (expenseHomeListRef.current) {
+            expenseHomeListRef.current.refreshHomeList(updatedExpenseHome, successMsg);
+            setExpenseHomeCount(expenseHomeCount + 1);
+        }
+    };
+    const handleExpensePropertyAdded = (updatedExpenseProperty, successMsg) => {
+        if (expensePropertyListRef.current) {
+            expensePropertyListRef.current.refreshPropertyList(updatedExpenseProperty, successMsg);
+            setExpensePropertyCount(expensePropertyCount + 1);
+        }
+    };
+    const handleExpenseCreditCardDebtAdded = (updatedExpenseCreditCardDebt, successMsg) => {
+        if (expenseCreditCardDebtListRef.current) {
+            expenseCreditCardDebtListRef.current.refreshCreditCardDebtList(updatedExpenseCreditCardDebt, successMsg);
+            setExpenseCreditCardDebtCount(expenseCreditCardDebtCount + 1);
+        }
+    };
+    const handleExpensePersonalLoanAdded = (updatedExpensePersonalLoan, successMsg) => {
+        if (expensePersonalLoanListRef.current) {
+            expensePersonalLoanListRef.current.refreshPersonalLoanList(updatedExpensePersonalLoan, successMsg);
+            setExpensePersonalLoanCount(expensePersonalLoanCount + 1);
+        }
+    };
+    const handleExpenseOtherAdded = (updatedExpenseOther, successMsg) => {
+        if (expenseOtherListRef.current) {
+            expenseOtherListRef.current.refreshOtherList(updatedExpenseOther, successMsg);
+            setExpenseOtherCount(expenseOtherCount + 1);
+        }
+    };
+
+    // for dreams
     const handleEducationAdded = (updatedEducation, successMsg) => {
         if (educationListRef.current) {
             educationListRef.current.refreshDreamList(updatedEducation, successMsg);
@@ -319,12 +701,44 @@ const Dreams = () => {
         }
     };
 
-    const handlePropertiesFetched = (count) => {
-        setPropertyCount(count);
+    // for asset dreams
+    const handleAssetPropertiesFetched = (count) => {
+        setAssetPropertyCount(count);
     };
-    const handleVehiclesFetched = (count) => {
-        setVehicleCount(count);
+    const handleAssetVehiclesFetched = (count) => {
+        setAssetVehicleCount(count);
     };
+    const handleAssetAccountsFetched = (count) => {
+        setAssetAccountCount(count);
+    };
+    const handleAssetDepositsFetched = (count) => {
+        setAssetDepositCount(count);
+    };
+    const handleAssetPortfoliosFetched = (count) => {
+        setAssetPortfolioCount(count);
+    };
+    const handleAssetOthersFetched = (count) => {
+        setAssetOtherCount(count);
+    };
+
+    // for expenses dreams
+    const handleExpenseHomesFetched = (count) => {
+        setExpenseHomeCount(count);
+    };
+    const handleExpensePropertiesFetched = (count) => {
+        setExpensePropertyCount(count);
+    };
+    const handleExpenseCreditCardDebtsFetched = (count) => {
+        setExpenseCreditCardDebtCount(count);
+    };
+    const handleExpensePersonalLoansFetched = (count) => {
+        setExpensePersonalLoanCount(count);
+    };
+    const handleExpenseOthersFetched = (count) => {
+        setExpenseOtherCount(count);
+    };
+
+    // for dreams
     const handleEducationFetched = (count) => {
         setEducationCount(count);
     };
@@ -341,11 +755,9 @@ const Dreams = () => {
     const handleSellPropertyClick = () => {
         setConfirmDialogOpen(true);
     };
-
     const handleSellVehicleClick = () => {
         setConfirmDialogOpen(true);
     };
-
     const handleConfirmDialogClose = (confirmed) => {
         setConfirmDialogOpen(false);
         if (confirmed) {
@@ -356,7 +768,6 @@ const Dreams = () => {
     const handleFutureIncomeClick = () => {
         setFutureIncomeDialogOpen(true);
     };
-
     const handleFutureIncomeDialogClose = (confirmed) => {
         setFutureIncomeDialogOpen(false);
         if (confirmed) {
@@ -405,6 +816,7 @@ const Dreams = () => {
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
+                            {/* Asset Dreams */}
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -413,11 +825,11 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <HomeIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Properties ({propertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Property, 0))}</strong>
+                                        Future Properties ({assetPropertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetProperty, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={'Dream'} propertiesList={properties}/>
+                                    <AssetPropertyList ref={assetPropertyListRef} onPropertiesFetched={handleAssetPropertiesFetched} listAction={'Dream'} propertiesList={assetProperties}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -428,13 +840,152 @@ const Dreams = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarIcon sx={{ mr: 1, color: 'red' }} />
-                                        Vehicles ({vehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Vehicle, 0))}</strong>
+                                        Future Vehicles ({assetVehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetVehicle, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={'Dream'} vehiclesList={vehicles}/>
+                                    <AssetVehicleList ref={assetVehicleListRef} onVehiclesFetched={handleAssetVehiclesFetched} listAction={'Dream'} vehiclesList={assetVehicles}/>
                                 </AccordionDetails>
                             </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <AccountBalanceOutlinedIcon sx={{ mr: 1, color: 'red' }} />
+                                        Savings/Current Accounts ({assetAccountCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetAccount, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <AssetAccountList ref={assetAccountListRef} onAccountsFetched={handleAssetAccountsFetched} listAction={'Dream'} accountsList={assetAccounts}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel3a-content"
+                                    id="panel3a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <SavingsOutlinedIcon sx={{ mr: 1, color: 'brown' }} /> 
+                                        Fixed/Recurring Deposits ({assetDepositCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetDeposit, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <AssetDepositList ref={assetDepositListRef} onDepositsFetched={handleAssetDepositsFetched} listAction={'Dream'} depositsList={assetDeposits}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel4a-content"
+                                    id="panel4a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <ShowChartOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                                        Investment Portfolio ({assetPortfolioCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetPortfolio, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <AssetPortfolioList ref={assetPortfolioListRef} onPortfoliosFetched={handleAssetPortfoliosFetched} listAction={'Dream'} portfoliosList={assetPortfolios}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel11a-content"
+                                    id="panel11a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <FolderSpecialOutlinedIcon sx={{ mr: 1, color: 'brown' }} />
+                                        Other Future Assets ({assetOtherCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetOther, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <AssetOtherList ref={assetOtherListRef} onOthersFetched={handleAssetOthersFetched} listAction={'Dream'} othersList={assetOthers}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            
+                            {/* Expense Dreams */}
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <HomeIcon sx={{ mr: 1, color: 'blue' }} />
+                                        Home Expenses ({expenseHomeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseHome, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <ExpenseHomeList ref={expenseHomeListRef} onHomesFetched={handleExpenseHomesFetched} listAction={'Dream'} homesList={expenseHomes}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <ApartmentIcon sx={{ mr: 1, color: 'red' }} />
+                                        Property Expenses ({expensePropertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseProperty, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <ExpensePropertyList ref={expensePropertyListRef} onPropertiesFetched={handleExpensePropertiesFetched} listAction={'Dream'} propertiesList={expenseProperties} assetPropertiesList={null}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <CreditCardIcon sx={{ mr: 1, color: 'yellow' }} />
+                                        Credit Card Debts ({expenseCreditCardDebtCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseCreditCardDebt, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <ExpenseCreditCardDebtList ref={expenseCreditCardDebtListRef} onCreditCardDebtsFetched={handleExpenseCreditCardDebtsFetched} listAction={'Dream'} creditcarddebtsList={expenseCreditCardDebts}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <PersonIcon sx={{ mr: 1, color: 'teal' }} />
+                                        Personal Loans ({expensePersonalLoanCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpensePersonalLoan, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <ExpensePersonalLoanList ref={expensePersonalLoanListRef} onPersonalLoansFetched={handleExpensePersonalLoansFetched} listAction={'Dream'} personalloansList={expensePersonalLoans}/>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
+                                        Other Future Expenses ({expenseOtherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseOther, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <ExpenseOtherList ref={expenseOtherListRef} onOthersFetched={handleExpenseOthersFetched} listAction={'Dream'} othersList={expenseOthers} vehiclesList={null}/>
+                                </AccordionDetails>
+                            </Accordion>
+
+                            {/* Other Dreams */}
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -518,10 +1069,15 @@ const Dreams = () => {
                     <Typography id="modal-title" variant="h6" component="h2" sx={{ color: 'white' }}>
                         Add New Dream
                     </Typography>
+                    <Divider sx={{ my: 2, borderColor: 'white' }} />
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 2 }}>
+                        {/* Asset Dreams */}
+                        <Box sx={{ width: '100%' }}>
+                            <Typography id="modal-title" variant="body1" component="h2" sx={{ color: 'white' }}>Future Assets</Typography>
+                        </Box>
                         <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
-                            onClick={() => handleFormModalOpen('Add Property')}
+                            onClick={() => handleFormModalOpen('Add Asset Property')}
                         >
                             <HomeIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Buy Property</Typography>
@@ -535,7 +1091,7 @@ const Dreams = () => {
                         </Box>
                         <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
-                            onClick={() => handleFormModalOpen('Add Vehicle')}
+                            onClick={() => handleFormModalOpen('Add Asset Vehicle')}
                         >
                             <DirectionsCarIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Buy Vehicle</Typography>
@@ -546,6 +1102,78 @@ const Dreams = () => {
                         >
                             <SellIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Sell Vehicle</Typography>
+                        </Box>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Asset Account')}
+                        >
+                            <AccountBalanceOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Account</Typography>
+                        </Box>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Asset Deposit')}
+                        >
+                            <SavingsOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Deposit</Typography>
+                        </Box>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Asset Portfolio')}
+                        >
+                            <ShowChartOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Portfolio</Typography>
+                        </Box>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Asset Other')}
+                        >
+                            <FolderSpecialOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Other Asset</Typography>
+                        </Box>
+                        {/* Expense Dreams */}
+                        <Box sx={{ width: '100%' }}>
+                            <Divider sx={{ my: 2, borderColor: 'white' }} />
+                            <Typography id="modal-title" variant="body1" component="h2" sx={{ color: 'white' }}>Future Expenses</Typography>
+                        </Box>
+                        <Box
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Home Expense')}
+                        >
+                            <HomeIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Home Expense</Typography>
+                        </Box>
+                        <Box
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Property Expense')}
+                        >
+                            <ApartmentIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Property Expense</Typography>
+                        </Box>
+                        <Box
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Credit Card Debt')}
+                        >
+                            <CreditCardIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Credit Card Debt</Typography>
+                        </Box>
+                        <Box
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Personal Loan')}
+                        >
+                            <PersonIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Personal Loan</Typography>
+                        </Box>
+                        <Box
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Other Expense')}
+                        >
+                            <MiscellaneousServicesIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Other Expense</Typography>
+                        </Box>
+                        <Box sx={{ width: '100%' }}>
+                            <Divider sx={{ my: 2, borderColor: 'white' }} />
+                            <Typography id="modal-title" variant="body1" component="h2" sx={{ color: 'white' }}>Other Dreams</Typography>
                         </Box>
                         <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
@@ -575,13 +1203,13 @@ const Dreams = () => {
                             <MiscellaneousServicesIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other Dream</Typography>
                         </Box>
-                        <Box
+                        {/* <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFutureIncomeClick()}
                         >
                             <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Future Income</Typography>
-                        </Box>
+                        </Box> */}
                     </Box>
                 </Box>
             </Modal>
@@ -618,12 +1246,42 @@ const Dreams = () => {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
                 <Box sx={{ width: '90%', maxWidth: 650, height: '90%', maxHeight: 600, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative', overflowY: 'auto' }}>
-                    {dreamAction === 'Add Property' && (
-                        <AssetPropertyForm property={null} action={'Dream'} onClose={handleFormModalClose} refreshPropertyList={handlePropertyAdded} />
+                    {/* for asset dreams */}
+                    {dreamAction === 'Add Asset Property' && (
+                        <AssetPropertyForm property={null} action={'Dream'} onClose={handleFormModalClose} refreshPropertyList={handleAssetPropertyAdded} />
                     )}
-                    {dreamAction === 'Add Vehicle' && (
-                        <AssetVehicleForm vehicle={null} action={'Dream'} onClose={handleFormModalClose} refreshVehicleList={handleVehicleAdded} />
+                    {dreamAction === 'Add Asset Vehicle' && (
+                        <AssetVehicleForm vehicle={null} action={'Dream'} onClose={handleFormModalClose} refreshVehicleList={handleAssetVehicleAdded} />
                     )}
+                    {dreamAction === 'Add Asset Account' && (
+                        <AssetAccountForm account={null} action={'Dream'} onClose={handleFormModalClose} refreshAccountList={handleAssetAccountAdded} />
+                    )}
+                    {dreamAction === 'Add Asset Deposit' && (
+                        <AssetDepositForm deposit={null} action={'Dream'} onClose={handleFormModalClose} refreshDepositList={handleAssetDepositAdded} />
+                    )}
+                    {dreamAction === 'Add Asset Portfolio' && (
+                        <AssetPortfolioForm portfolio={null} action={'Dream'} onClose={handleFormModalClose} refreshPortfolioList={handleAssetPortfolioAdded} />
+                    )}
+                    {dreamAction === 'Add Asset Other' && (
+                        <AssetOtherForm other={null} action={'Dream'} onClose={handleFormModalClose} refreshOtherList={handleAssetOtherAdded} />
+                    )}
+                    {/* for expense dreams */}
+                    {dreamAction === 'Add Home Expense' && (
+                        <ExpenseHomeForm home={null} action={'Dream'} onClose={handleFormModalClose} refreshHomeList={handleExpenseHomeAdded} />
+                    )}
+                    {dreamAction === 'Add Property Expense' && (
+                        <ExpensePropertyForm property={null} action={'Dream'} onClose={handleFormModalClose} refreshPropertyList={handleExpensePropertyAdded} />
+                    )}
+                    {dreamAction === 'Add Credit Card Debt' && (
+                        <ExpenseCreditCardDebtForm creditcarddebt={null} action={'Dream'} onClose={handleFormModalClose} refreshCreditCardDebtList={handleExpenseCreditCardDebtAdded} />
+                    )}
+                    {dreamAction === 'Add Personal Loan' && (
+                        <ExpensePersonalLoanForm personalloan={null} action={'Dream'} onClose={handleFormModalClose} refreshPersonalLoanList={handleExpensePersonalLoanAdded} />
+                    )}
+                    {dreamAction === 'Add Other Expense' && (
+                        <ExpenseOtherForm other={null} action={'Dream'} onClose={handleFormModalClose} refreshOtherList={handleExpenseOtherAdded} />
+                    )}
+                    {/* for dreams */}
                     {dreamAction === 'Add Education' && (
                         <DreamForm dream={null} action={action} onClose={handleFormModalClose} refreshDreamList={handleEducationAdded} dreamType={'Education'} />
                     )}

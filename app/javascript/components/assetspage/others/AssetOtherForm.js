@@ -45,7 +45,8 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         payout_value: 0.0,
         total_interest: 0.0,
         total_principal: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleChange = (e) => {
@@ -152,6 +153,15 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         if (new Date(other.payout_date) < new Date(other.start_date)) errors.payout_date = 'Payout Date should be after Start Date';
         if (other.is_recurring_payment && new Date(other.payment_end_date) < new Date(other.start_date)) errors.payment_end_date = 'Payment End Date should be after Start Date';
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the start_date is not in the future
+            if (new Date(other.start_date) > new Date()) errors.start_date = 'Start Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the start_date is not in the past
+            if (new Date(other.start_date) <= new Date()) errors.start_date = 'Start Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -161,20 +171,23 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         if (validate()) {
             try {
                 other.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') other.is_dream = true;
+                else other.is_dream = false;
+                
                 const response = initialOther
                     ? await axios.put(`/api/asset_others/${other.id}`, other)
                     : await axios.post('/api/asset_others', other);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Other added successfully';
-                else if (action === 'Edit') successMsg = 'Other updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Other asset added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Other asset updated successfully';
 
                 setErrorMessage('');
                 onClose(); // Close the Asset Other Form window
                 refreshOtherList(response.data, successMsg); // Pass the updated other and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add other');
-                else if (action === 'Edit') setErrorMessage('Failed to update other');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add other asset');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update other asset');
                 setSuccessMessage('');
             }
         } else {
@@ -302,12 +315,12 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <SavingsIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    {action === 'Add' && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add Other Asset
                         </>
                     )}
-                    {action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Other Asset Details
                         </>

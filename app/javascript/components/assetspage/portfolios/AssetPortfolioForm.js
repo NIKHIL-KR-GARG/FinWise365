@@ -57,7 +57,8 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         profit_percentage: 0.0,
         loss: 0.0,
         loss_percentage: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const [portfoliodetails, setPortfolioDetails] = useState([]);
@@ -218,6 +219,15 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         if (isNaN(portfolio.sip_amount)) errors.sip_amount = 'SIP Amount should be numeric';
         if (isNaN(portfolio.coupon_rate)) errors.coupon_rate = 'Coupon Rate should be numeric';
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the buying_date is not in the future
+            if (new Date(portfolio.buying_date) > new Date()) errors.buying_date = 'Buying Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the buying_date is not in the past
+            if (new Date(portfolio.buying_date) <= new Date()) errors.buying_date = 'Buying Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -227,20 +237,23 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         if (validate()) {
             try {
                 portfolio.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') portfolio.is_dream = true;
+                else portfolio.is_dream = false;
+                
                 const response = initialPortfolio
                     ? await axios.put(`/api/asset_portfolios/${portfolio.id}`, portfolio)
                     : await axios.post('/api/asset_portfolios', portfolio);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Portfolio added successfully';
-                else if (action === 'Edit') successMsg = 'Portfolio updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Portfolio added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Portfolio updated successfully';
                 else if (action === 'Sell') successMsg = 'Portfolio sale details updated successfully';
                 setErrorMessage('');
                 onClose(); // Close the Asset Portfolio Form window
                 refreshPortfolioList(response.data, successMsg); // Pass the updated portfolio and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add portfolio');
-                else if (action === 'Edit') setErrorMessage('Failed to update portfolio');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add portfolio');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update portfolio');
                 else if (action === 'Sell') setErrorMessage('Failed to update portfolio sale details');
                 setSuccessMessage('');
             }
@@ -436,12 +449,12 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <SavingsIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    {action === 'Add' && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add Portfolio
                         </>
                     )}
-                    {action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Portfolio Details
                         </>

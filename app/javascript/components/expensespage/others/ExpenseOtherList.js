@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpenseOtherList = forwardRef((props, ref) => {
-    const { onOthersFetched, othersList, vehiclesList } = props; // Destructure the new prop
+    const { onOthersFetched, listAction, othersList, vehiclesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [others, setOthers] = useState([]);
@@ -31,31 +31,52 @@ const ExpenseOtherList = forwardRef((props, ref) => {
 
     const filterOthers = (othersList, vehiclesList) => {
         let filteredOthers = [];
-        if (!includePastOthers)
-            // filter where end_date is null or greater than today
-            filteredOthers = othersList.filter(other => {
-                if (!other.is_recurring && new Date(other.expense_date) >= new Date()) return true;
-                else if (other.is_recurring && new Date(other.end_date) >= new Date()) return true;
-                else return false;
-            });
+        const today = new Date();
+        if (!includePastOthers) {
+            if (listAction === 'Expense') {
+                filteredOthers = othersList.filter(other => {
+                    if (other.is_dream) return false;
+                    if (!other.is_recurring && new Date(other.expense_date) >= new Date()) return true;
+                    else if (other.is_recurring && new Date(other.end_date) >= new Date()) return true;
+                    else return false;
+                });
+            }
+            else if (listAction === 'Dream') {
+                filteredOthers = othersList.filter(other => other.is_dream && (new Date(other.expense_date) > today));
+            }
+        }
+        else if (includePastOthers) {
+            if (listAction === 'Expense') {
+                filteredOthers = othersList.filter(other => !other.is_dream);
+            }
+            else if (listAction === 'Dream') {
+                filteredOthers = othersList.filter(other => other.is_dream);
+            }
+        }
         else
             filteredOthers = othersList;
 
-        // add vehicle maintenance for currently owned vehicles
-        const vehicleExpenses = vehiclesList
-            .filter(vehicle => new Date(vehicle.purchase_date) <= new Date() && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= new Date()))
-            .map(vehicle => ({
-                id: `vehicleexpense-${vehicle.id}`,
-                expense_name: `Vehicle Expenses - ${vehicle.vehicle_name}`,
-                location: vehicle.location,
-                currency: vehicle.currency,
-                expense_date: new Date().toISOString().split('T')[0],
-                amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
-                is_recurring: true,
-                recurring_amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
-                end_date: vehicle.is_plan_to_sell ? vehicle.sale_date : ''
-            }));
-
+        let vehicleExpenses = [];
+        if (vehiclesList && vehiclesList.length > 0) {
+            // add vehicle maintenance for currently owned vehicles
+            vehicleExpenses = vehiclesList
+                .filter(vehicle => new Date(vehicle.purchase_date) <= new Date() && 
+                (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= new Date()) && 
+                (vehicle.vehicle_maintanance > 0 || vehicle.monthly_expenses > 0) &&
+                vehicle.is_dream === false)
+                .map(vehicle => ({
+                    id: `vehicleexpense-${vehicle.id}`,
+                    expense_name: `Vehicle Expenses - ${vehicle.vehicle_name}`,
+                    location: vehicle.location,
+                    currency: vehicle.currency,
+                    expense_date: new Date().toISOString().split('T')[0],
+                    amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
+                    is_recurring: true,
+                    recurring_amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
+                    end_date: vehicle.is_plan_to_sell ? vehicle.sale_date : ''
+                }));
+        }
+        
         setOthers([...filteredOthers, ...vehicleExpenses]); // Set the filtered others
         setOthersFetched(true); // Set othersFetched to true after filtering
         if (onOthersFetched) {
@@ -86,6 +107,10 @@ const ExpenseOtherList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/expense_others/${otherToDelete.id}`);
             setOthers(prevOthers => prevOthers.filter(p => p.id !== otherToDelete.id));
+
+            // also delete from othersList
+            othersList.splice(othersList.findIndex(p => p.id === otherToDelete.id), 1);
+
             onOthersFetched(others.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Other expense deleted successfully');
@@ -100,7 +125,7 @@ const ExpenseOtherList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedOther(other);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -118,6 +143,15 @@ const ExpenseOtherList = forwardRef((props, ref) => {
                     return [...prevOthers, updatedOther];
                 }
             });
+
+            // also update othersList to add or update the other expense in the list
+            const otherIndex = othersList.findIndex(p => p.id === updatedOther.id);
+            if (otherIndex > -1) {
+                othersList[otherIndex] = updatedOther;
+            } else {
+                othersList.push(updatedOther);
+            }
+
             setSuccessMessage(successMsg);
         },
         getOtherCount() {
@@ -139,6 +173,15 @@ const ExpenseOtherList = forwardRef((props, ref) => {
                 return [...prevOthers, updatedOther];
             }
         });
+
+        // also update othersList to add or update the other expense in the list
+        const otherIndex = othersList.findIndex(p => p.id === updatedOther.id);
+        if (otherIndex > -1) {
+            othersList[otherIndex] = updatedOther;
+        } else {
+            othersList.push(updatedOther);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

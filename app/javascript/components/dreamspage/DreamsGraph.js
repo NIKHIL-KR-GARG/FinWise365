@@ -11,7 +11,7 @@ const DreamsGraph = ({dreamsList}) => {
     const renderLegend = (props) => {
         const { payload } = props;
         return (
-            <div style={{ fontSize: '16px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontSize: '16px', display: 'flex', justifyContent:'center' }}>
                 {payload.map((entry, index) => (
                     <span key={`item-${index}`} style={{ display: 'flex', alignItems: 'center', marginRight: 10 }}>
                         <span style={{ width: 10, height: 10, backgroundColor: entry.color, borderRadius: '50%', display: 'inline-block', marginRight: 5 }}></span>
@@ -38,12 +38,21 @@ const DreamsGraph = ({dreamsList}) => {
                             <YAxis />
                             <Tooltip />
                             <Legend content={renderLegend} />
-                            <Bar dataKey="Property" stackId="a" fill="#8884d8" />
-                            <Bar dataKey="Vehicle" stackId="a" fill="#82ca9d" />
-                            <Bar dataKey="Education" stackId="a" fill="#ffc658" />
-                            <Bar dataKey="Travel" stackId="a" fill="#ff7300" />
-                            <Bar dataKey="Relocation" stackId="a" fill="#ff0000" />
-                            <Bar dataKey="Other" stackId="a" fill="#00c49f" />
+                            <Bar dataKey="AssetProperty" stackId="a" fill="#8884d8" name="Property"/>
+                            <Bar dataKey="AssetVehicle" stackId="a" fill="#82ca9d" name="Vehicle"/>
+                            <Bar dataKey="AssetAccount" stackId="a" fill="#ffc658" name="Account"/>
+                            <Bar dataKey="AssetDeposit" stackId="a" fill="#ff7300" name="Deposit"/>
+                            <Bar dataKey="AssetPortfolio" stackId="a" fill="#ff0000" name="Portfolio"/>
+                            <Bar dataKey="AssetOther" stackId="a" fill="#0088FE" name="Other Asset"/>
+                            <Bar dataKey="ExpenseHome" stackId="a" fill="#00C49F" name="Home Expense"/>
+                            <Bar dataKey="ExpenseProperty" stackId="a" fill="#FFBB28" name="Property Expense"/>
+                            <Bar dataKey="ExpenseCreditCardDebt" stackId="a" fill="#FF8042" name="Credit Card Debt"/>
+                            <Bar dataKey="ExpensePersonalLoan" stackId="a" fill="#A4DE6C" name="Personal Loan"/>
+                            <Bar dataKey="ExpenseOther" stackId="a" fill="#D0ED57" name="Other Expense"/>
+                            <Bar dataKey="Education" stackId="a" fill="#8A2BE2" name="Education"/>
+                            <Bar dataKey="Travel" stackId="a" fill="#FF6347" name="Travel"/>
+                            <Bar dataKey="Relocation" stackId="a" fill="#4682B4" name="Relocation"/>
+                            <Bar dataKey="Other" stackId="a" fill="#6A5ACD" name="Other Dream"/>
                         </BarChart>
                     </ResponsiveContainer>
                 </Grid>

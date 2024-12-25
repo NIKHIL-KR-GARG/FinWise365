@@ -38,7 +38,8 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
         loan_amount: 0.0,
         interest_rate: 0.0,
         emi_amount: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const [calculatedValues, setCalculatedValues] = useState({
@@ -126,6 +127,15 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
             }
         }
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the start_date is not in the future
+            if (new Date(creditcarddebt.start_date) > new Date()) errors.start_date = 'Start Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the purchase_date is not in the past
+            if (new Date(creditcarddebt.start_date) <= new Date()) errors.start_date = 'Start Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -135,20 +145,23 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
         if (validate()) {
             try {
                 creditcarddebt.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') creditcarddebt.is_dream = true; 
+                else creditcarddebt.is_dream = false;
+                
                 const response = initialCreditCardDebt
                     ? await axios.put(`/api/expense_credit_card_debts/${creditcarddebt.id}`, creditcarddebt)
                     : await axios.post('/api/expense_credit_card_debts', creditcarddebt);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Credit Card Debt added successfully';
-                else if (action === 'Edit') successMsg = 'Credit Card Debt updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Credit Card Debt added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Credit Card Debt updated successfully';
 
                 setErrorMessage('');
                 onClose(); // Close the Expense Credit Card Debt Form window
                 refreshCreditCardDebtList(response.data, successMsg); // Pass the updated credit card debt and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add credit card debt');
-                else if (action === 'Edit') setErrorMessage('Failed to update credit card debt');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add credit card debt');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update credit card debt');
                 setSuccessMessage('');
             }
         } else {
@@ -229,12 +242,12 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <CreditCardIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    {action === 'Add' && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add Credit Card Debt
                         </>
                     )}
-                    {action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Credit Card Debt
                         </>

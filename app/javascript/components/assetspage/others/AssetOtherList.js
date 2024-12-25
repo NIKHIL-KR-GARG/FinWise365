@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetOtherList = forwardRef((props, ref) => {
-    const { onOthersFetched, othersList } = props; // Destructure the new prop
+    const { onOthersFetched, listAction, othersList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [others, setOthers] = useState([]);
@@ -33,13 +33,27 @@ const AssetOtherList = forwardRef((props, ref) => {
         let filteredOthers = [];
         // filter on others where payout_date + payout_duration (months) is greater than today
         const today = new Date();
-        if (!includePastOthers)
-            filteredOthers = othersList.filter(other => {
-                const payoutDate = new Date(other.payout_date);
-                const payoutDuration = parseInt(other.payout_duration);
-                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
-                return payoutEndDate > today;
-            });
+        if (!includePastOthers) {
+            if (listAction === 'Asset') {
+                filteredOthers = othersList.filter(other => {
+                    const payoutDate = new Date(other.payout_date);
+                    const payoutDuration = parseInt(other.payout_duration);
+                    const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
+                    return (payoutEndDate > today) && !other.is_dream;
+                });
+            }
+            else if (listAction === 'Dream') {
+                filteredOthers = othersList.filter(other => other.is_dream && (new Date(other.start_date) > today));
+            }
+        }
+        else if (includePastOthers) {
+            if (listAction === 'Asset') {
+                filteredOthers = othersList.filter(other => !other.is_dream);
+            }
+            else if (listAction === 'Dream') {
+                filteredOthers = othersList.filter(other => other.is_dream);
+            }
+        }
         else
             filteredOthers = othersList;
 
@@ -73,6 +87,10 @@ const AssetOtherList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/asset_others/${otherToDelete.id}`);
             setOthers(prevOthers => prevOthers.filter(p => p.id !== otherToDelete.id));
+
+            // also delete from othersList
+            othersList.splice(othersList.findIndex(p => p.id === otherToDelete.id), 1);
+
             onOthersFetched(others.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Other deleted successfully');
@@ -87,7 +105,7 @@ const AssetOtherList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedOther(other);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -105,6 +123,15 @@ const AssetOtherList = forwardRef((props, ref) => {
                     return [...prevOthers, updatedOther];
                 }
             });
+
+            // also update othersList to add or update the other in the list
+            const otherIndex = othersList.findIndex(p => p.id === updatedOther.id);
+            if (otherIndex > -1) {
+                othersList[otherIndex] = updatedOther;
+            } else {
+                othersList.push(updatedOther);
+            }
+
             setSuccessMessage(successMsg);
         },
         getOtherCount() {
@@ -126,6 +153,15 @@ const AssetOtherList = forwardRef((props, ref) => {
                 return [...prevOthers, updatedOther];
             }
         });
+
+        // also update othersList to add or update the other in the list
+        const otherIndex = othersList.findIndex(p => p.id === updatedOther.id);
+        if (otherIndex > -1) {
+            othersList[otherIndex] = updatedOther;
+        } else {
+            othersList.push(updatedOther);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

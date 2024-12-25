@@ -33,7 +33,8 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         loan_amount: 0.0,
         interest_rate: 0.0,
         emi_amount: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const [calculatedValues, setCalculatedValues] = useState({
@@ -74,7 +75,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         //calulate end date based on duration if start date is changed
         else if (name === 'start_date') {
             const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(personalloan.duration));
-            setCreditCardDebt((prevPersonalLoan) => ({
+            setPersonalLoan((prevPersonalLoan) => ({
                 ...prevPersonalLoan,
                 start_date: value,
                 end_date: new Date(endDate).toISOString().split('T')[0]
@@ -120,6 +121,15 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
             }
         }
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the start_date is not in the future
+            if (new Date(personalloan.start_date) > new Date()) errors.start_date = 'Start Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the start_date is not in the past
+            if (new Date(personalloan.start_date) <= new Date()) errors.start_date = 'Start Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -129,20 +139,23 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         if (validate()) {
             try {
                 personalloan.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') personalloan.is_dream = true; 
+                else personalloan.is_dream = false;
+                
                 const response = initialPersonalLoan
                     ? await axios.put(`/api/expense_personal_loans/${personalloan.id}`, personalloan)
                     : await axios.post('/api/expense_personal_loans', personalloan);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Personal Loan added successfully';
-                else if (action === 'Edit') successMsg = 'Personal Loan updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Personal Loan added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Personal Loan updated successfully';
 
                 setErrorMessage('');
                 onClose(); // Close the Expense Personal Loan Form window
                 refreshPersonalLoanList(response.data, successMsg); // Pass the updated Personal Loan and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add personal loan');
-                else if (action === 'Edit') setErrorMessage('Failed to update personal loan');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add personal loan');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update personal loan');
                 setSuccessMessage('');
             }
         } else {
@@ -223,12 +236,12 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <CreditCardIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    {action === 'Add' && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add Personal Loan
                         </>
                     )}
-                    {action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Personal Loan
                         </>

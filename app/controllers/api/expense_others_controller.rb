@@ -63,6 +63,7 @@ class Api::ExpenseOthersController < ApplicationController
             :inflation_rate,
             :recurring_frequency,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

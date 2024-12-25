@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
-    const { onCreditCardDebtsFetched, creditcarddebtsList } = props; // Destructure the new prop
+    const { onCreditCardDebtsFetched, listAction, creditcarddebtsList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [creditcarddebts, setCreditCardDebts] = useState([]);
@@ -31,16 +31,16 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
 
     const filterCreditCardDebts = (creditcarddebtsList) => {
         let filteredCreditCardDebts = [];
-        if (!includePastCreditCardDebts)
-            // filter where end_date is null or greater than today
-            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => {
-                if (creditcarddebt.end_date) {
-                    return new Date(creditcarddebt.end_date) >= new Date();
-                } else {
-                    return true;
-                }
-            });
-        else
+        const today = new Date();
+        if (listAction === 'Expense' && !includePastCreditCardDebts) {
+            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => !creditcarddebt.is_dream && (!creditcarddebt.end_date || new Date(creditcarddebt.end_date) >= today));
+        } else if (listAction === 'Expense' && includePastCreditCardDebts) {
+            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => !creditcarddebt.is_dream);
+        } else if (listAction === 'Dream' && includePastCreditCardDebts) {
+            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => creditcarddebt.is_dream);
+        } else if (listAction === 'Dream' && !includePastCreditCardDebts) {
+            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => creditcarddebt.is_dream && (new Date(creditcarddebt.start_date) > today));
+        } else
             filteredCreditCardDebts = creditcarddebtsList;
 
         setCreditCardDebts(filteredCreditCardDebts);
@@ -73,6 +73,10 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/expense_credit_card_debts/${creditCardDebtToDelete.id}`);
             setCreditCardDebts(prevCreditCardDebts => prevCreditCardDebts.filter(p => p.id !== creditCardDebtToDelete.id));
+
+            // also delete from creditcarddebtsList
+            creditcarddebtsList.splice(creditcarddebtsList.findIndex(p => p.id === creditCardDebtToDelete.id), 1);
+
             onCreditCardDebtsFetched(creditcarddebts.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Credit Card Debt deleted successfully');
@@ -87,7 +91,7 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedCreditCardDebt(creditcarddebt);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -105,6 +109,15 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
                     return [...prevCreditCardDebts, updatedCreditCardDebt];
                 }
             });
+
+            // also update creditcarddebtsList to add or update the creditcarddebt in the list
+            const creditcarddebtIndex = creditcarddebtsList.findIndex(p => p.id === updatedCreditCardDebt.id);
+            if (creditcarddebtIndex > -1) {
+                creditcarddebtsList[creditcarddebtIndex] = updatedCreditCardDebt;
+            } else {
+                creditcarddebtsList.push(updatedCreditCardDebt);
+            }
+
             setSuccessMessage(successMsg);
         },
         getCreditCardDebtCount() {
@@ -126,6 +139,15 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
                 return [...prevCreditCardDebts, updatedCreditCardDebt];
             }
         });
+
+        // also update creditcarddebtsList to add or update the creditcarddebt in the list
+        const creditcarddebtIndex = creditcarddebtsList.findIndex(p => p.id === updatedCreditCardDebt.id);
+        if (creditcarddebtIndex > -1) {
+            creditcarddebtsList[creditcarddebtIndex] = updatedCreditCardDebt;
+        } else {
+            creditcarddebtsList.push(updatedCreditCardDebt);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

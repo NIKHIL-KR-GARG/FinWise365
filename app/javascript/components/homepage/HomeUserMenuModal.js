@@ -87,6 +87,7 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
                     </Typography>
                     <Button
                         variant="contained"
+                        disabled
                         startIcon={<CelebrationIcon />}
                         sx={{ mt: 2, fontSize: '0.875rem', bgcolor: 'purple', '&:hover': { bgcolor: '#D1C4E9', color: 'black' } }} // Light purple hover color
                     >

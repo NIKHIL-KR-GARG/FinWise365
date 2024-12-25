@@ -62,6 +62,7 @@ class Api::AssetIncomesController < ApplicationController
             :income_frequency,
             :growth_rate,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

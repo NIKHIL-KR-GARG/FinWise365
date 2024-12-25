@@ -44,7 +44,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
     const [property, setProperty] = useState(initialProperty || {
         user_id: 0,
         property_name: "",
-        property_type: "HDB",
+        property_type: "Condominium",
         location: currentUserCountryOfResidence || "",
         property_number: 1,
         purchase_date: "",
@@ -83,7 +83,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         is_under_construction: false,
         launch_date: "",
         possession_date: "",
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleModalOpen = () => {
@@ -129,11 +130,11 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         // if location is changed then set selected location to the new location
         else if (name === 'location') {
             setselectedPropertyLocation(value);
-            // check if location has been changed from SG to something else and property type is HDB. If so, then clear the property type
+            // check if location has been changed from SG to something else and property type is HDB. If so, then default the property type
             if (value !== 'SG' && property.property_type === 'HDB') {
                 setProperty(prevProperty => ({
                     ...prevProperty,
-                    property_type: ''
+                    property_type: 'Condominium'
                 }));
             }
         }
@@ -219,13 +220,13 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (property.is_on_rent && new Date(property.rental_start_date) < new Date(property.possession_date)) errors.rental_start_date = 'Rental Start Date cannot be before Possession Date';
         }
 
-        if (action === 'Add') {
+        if (action === 'Add' || action === 'Edit') {
             // check that the purchase_date is not in the future
             if (new Date(property.purchase_date) > new Date()) errors.purchase_date = 'Purchase Date cannot be in the future';
         }
-        else if (action === 'Dream') {
+        else if (action === 'Dream' || action === 'EditDream') {
             // check that the purchase_date is not in the past
-            if (new Date(property.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
+            if (new Date(property.purchase_date) <= new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
         }
         else if (action === 'Sell') {
             // check that the sale_date is greater than purchase_date
@@ -256,13 +257,16 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (validate()) {
             try {
                 property.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') property.is_dream = true;
+                else property.is_dream = false;
+                
                 const response = initialProperty
                     ? await axios.put(`/api/asset_properties/${property.id}`, property)
                     : await axios.post('/api/asset_properties', property);
 
                 let successMsg = '';
                 if (action === 'Add' || action === 'Dream') successMsg = 'Property added successfully';
-                else if (action === 'Edit') successMsg = 'Property updated successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Property updated successfully';
                 else if (action === 'Sell') successMsg = 'Property sale details updated successfully';
 
                 setErrorMessage('');
@@ -270,7 +274,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 refreshPropertyList(response.data, successMsg); // Pass the updated property and success message
             } catch (error) {
                 if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add property');
-                else if (action === 'Edit') setErrorMessage('Failed to update property');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update property');
                 else if (action === 'Sell') setErrorMessage('Failed to update property sale details');
                 setSuccessMessage('');
             }
@@ -554,7 +558,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             Purchase Property
                         </>
                     )}
-                    {action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Property Details
                         </>

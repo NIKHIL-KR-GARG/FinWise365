@@ -83,6 +83,7 @@ class Api::AssetVehiclesController < ApplicationController
             :scrap_value,
             :depreciation_rate,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

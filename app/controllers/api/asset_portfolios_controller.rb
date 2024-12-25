@@ -79,6 +79,7 @@ class Api::AssetPortfoliosController < ApplicationController
             :loss,
             :loss_percentage,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

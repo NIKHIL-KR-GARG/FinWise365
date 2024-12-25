@@ -66,7 +66,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         sale_amount: 0.0,
         scrap_value: 0.0,
         depreciation_rate: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleModalOpen = () => {
@@ -176,13 +177,13 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (vehicle.is_plan_to_sell && new Date(vehicle.lease_end_date) > new Date(vehicle.sale_date)) errors.lease_end_date = 'Lease End Date cannot be after Sale Date';
         }
 
-        if (action === 'Add') {
+        if (action === 'Add' || action === 'Edit') {
             // check that the purchase_date is not in the future
             if (new Date(vehicle.purchase_date) > new Date()) errors.purchase_date = 'Purchase Date cannot be in the future';
         }
-        else if (action === 'Dream') {
+        else if (action === 'Dream' || action === 'EditDream') {
             // check that the purchase_date is not in the past
-            if (new Date(vehicle.purchase_date) < new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
+            if (new Date(vehicle.purchase_date) <= new Date()) errors.purchase_date = 'Purchase Date cannot be in the past';
         }
         else if (action === 'Sell') {
             // check that the sale_date is greater than purchase_date
@@ -198,13 +199,16 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         if (validate()) {
             try {
                 vehicle.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') vehicle.is_dream = true;
+                else vehicle.is_dream = false;
+                
                 const response = initialVehicle
                     ? await axios.put(`/api/asset_vehicles/${vehicle.id}`, vehicle)
                     : await axios.post('/api/asset_vehicles', vehicle);
 
                 let successMsg = '';
                 if (action === 'Add' || action === 'Dream') successMsg = 'Vehicle added successfully';
-                else if (action === 'Edit') successMsg = 'Vehicle updated successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Vehicle updated successfully';
                 else if (action === 'Sell') successMsg = 'Vehicle sale details updated successfully';
 
                 setErrorMessage('');
@@ -212,7 +216,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                 refreshVehicleList(response.data, successMsg); // Pass the updated vehicle and success message
             } catch (error) {
                 if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add vehicle');
-                else if (action === 'Edit') setErrorMessage('Failed to update vehicle');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update vehicle');
                 else if (action === 'Sell') setErrorMessage('Failed to update vehicle sale details');
                 setSuccessMessage('');
             }
@@ -382,7 +386,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                             Purchase Vehicle
                         </>
                     )}
-                    {action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Vehicle Details
                         </>

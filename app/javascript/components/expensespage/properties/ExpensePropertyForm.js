@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { InputAdornment, Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem, ToggleButton, ToggleButtonGroup, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Checkbox } from '@mui/material';
+import { InputAdornment, Alert, Snackbar, IconButton, TextField, Button, Typography, Box, MenuItem, ToggleButton, ToggleButtonGroup, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Checkbox, FormHelperText } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
@@ -27,10 +27,12 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
+    const [selectedPropertyLocation, setselectedPropertyLocation] = useState(localStorage.getItem('currentUserCountryOfResidence'));
+
     const [property, setProperty] = useState(initialProperty || {
         user_id: 0,
         property_name: "",
-        property_type: "",
+        property_type: "Condominium",
         start_date: "",
         end_date: "",
         location: currentUserCountryOfResidence || "",
@@ -53,7 +55,8 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         expense_value_8: 0.0,
         total_expense: 0.0,
         inflation_rate: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleChange = (e) => {
@@ -64,6 +67,18 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                 ...property,
                 [name]: newValue
             });
+        }
+        
+        // if location is changed then set selected location to the new location
+        if (name === 'location') {
+            setselectedPropertyLocation(value);
+            // check if location has been changed from SG to something else and property type is HDB. If so, then default the property type
+            if (value !== 'SG' && property.property_type === 'HDB') {
+                setProperty(prevProperty => ({
+                    ...prevProperty,
+                    property_type: 'Condominium'
+                }));
+            }
         }
     };
 
@@ -93,6 +108,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
     useEffect(() => {
         if (initialProperty) {
             setProperty(initialProperty);
+            setselectedPropertyLocation(initialProperty.location);
         }
     }, [initialProperty]);
 
@@ -125,6 +141,15 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
             }
         }
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the start_date is not in the future
+            if (new Date(property.start_date) > new Date()) errors.start_date = 'Start Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the purchase_date is not in the past
+            if (new Date(property.start_date) <= new Date()) errors.start_date = 'Start Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -134,7 +159,9 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         if (validate()) {
             try {
                 property.user_id = currentUserId;
-
+                if (action === 'Dream' || action === 'EditDream') property.is_dream = true;
+                else property.is_dream = false;
+                
                 if (period === 'yearly') {
                     const fieldsToUpdate = [
                         'expense_value_1', 'expense_value_2', 'expense_value_3', 'expense_value_4',
@@ -151,15 +178,15 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                     : await axios.post('/api/expense_properties', property);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Property added successfully';
-                else if (action === 'Edit') successMsg = 'Property updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Property expenses added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Property expenses updated successfully';
 
                 setErrorMessage('');
                 onClose(); // Close the Expense Property Form window
                 refreshPropertyList(response.data, successMsg); // Pass the updated property and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add property');
-                else if (action === 'Edit') setErrorMessage('Failed to update property');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add property expenses');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update property expenses');
                 setSuccessMessage('');
             }
         } else {
@@ -238,14 +265,26 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
                     <ApartmentIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    Property Expenses
+                    {(action === 'Add' || action === 'Dream') && (
+                        <>
+                            Add Property Expenses
+                        </>
+                    )}
+                    {(action === 'Edit' || action === 'EditDream') && (
+                        <>
+                            Update Property Expenses
+                        </>
+                    )}
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item size={12}>
-                        <FormControl component="fieldset" >
+                        <FormControl component="fieldset" 
+                            required
+                            error={!!errors.property_type}
+                        >
                             <FormLabel component="legend">Select Property Type:</FormLabel>
                             <RadioGroup sx={{ pb: 2 }} row aria-label="property_type" name="property_type" value={property.property_type} onChange={handleChange}>
-                                {currentUserCountryOfResidence === 'SG' && (
+                                {selectedPropertyLocation === 'SG' && (
                                     <FormControlLabel
                                         value="HDB"
                                         control={<Radio />}
@@ -308,6 +347,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                                     }
                                 />
                             </RadioGroup>
+                            <FormHelperText>{errors.property_type}</FormHelperText>
                         </FormControl>
                     </Grid>
                     <Grid item size={12}>

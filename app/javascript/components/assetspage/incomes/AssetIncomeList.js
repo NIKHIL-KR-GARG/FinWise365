@@ -14,7 +14,7 @@ import { FormatCurrency } from  '../../common/FormatCurrency';
 import { portfolioAssetValue } from '../../calculators/Assets';
 
 const AssetIncomeList = forwardRef((props, ref) => {
-    const { onIncomesFetched, incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList } = props; // Destructure the new prop
+    const { onIncomesFetched, listAction, incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [incomes, setIncomes] = useState([]);
@@ -32,14 +32,19 @@ const AssetIncomeList = forwardRef((props, ref) => {
 
     const filterIncomes = (incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList) => {
         let filteredIncomes = [];
-        if (!includePastIncomes)
-            // filter on income where end_date is greater than today
-            filteredIncomes = incomesList.filter(income => !income.end_date || new Date(income.end_date) >= new Date());
-        else
+        const today = new Date();
+        if (listAction === 'Asset' && !includePastIncomes) {
+            filteredIncomes = incomesList.filter(income => !income.is_dream && (!income.end_date || new Date(income.end_date) >= today));
+        } else if (listAction === 'Asset' && includePastIncomes) {
+            filteredIncomes = incomesList.filter(income => !income.is_dream);
+        } else if (listAction === 'Dream' && includePastIncomes) {
+            filteredIncomes = incomesList.filter(income => income.is_dream);
+        } else if (listAction === 'Dream' && !includePastIncomes) {
+            filteredIncomes = incomesList.filter(income => income.is_dream && (new Date(income.start_date) > today));
+        } else
             filteredIncomes = incomesList;
 
         // add rental as income as well
-        const today = new Date();
         const rentalIncomes = propertiesList
             .filter(property => !property.is_plan_to_sell || (new Date(property.sale_date) >= today))
             .filter(property => property.is_on_rent && (new Date(property.rental_start_date) <= today) && (!property.rental_end_date || new Date(property.rental_end_date) >= today))

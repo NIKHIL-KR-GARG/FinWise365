@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpensePersonalLoanList = forwardRef((props, ref) => {
-    const { onPersonalLoansFetched, personalloansList } = props; // Destructure the new prop
+    const { onPersonalLoansFetched, listAction, personalloansList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [personalloans, setPersonalLoans] = useState([]);
@@ -31,16 +31,16 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
 
     const filterPersonalLoans = (personalloansList) => {
         let filteredPersonalLoans = [];
-        if (!includePastPersonalLoans)
-            // filter where end_date is null or greater than today
-            filteredPersonalLoans = personalloansList.filter(personalloan => {
-                if (personalloan.end_date) {
-                    return new Date(personalloan.end_date) >= new Date();
-                } else {
-                    return true;
-                }
-            });
-        else
+        const today = new Date();
+        if (listAction === 'Expense' && !includePastPersonalLoans) {
+            filteredPersonalLoans = personalloansList.filter(personalloan => !personalloan.is_dream && (!personalloan.end_date || new Date(personalloan.end_date) >= today));
+        } else if (listAction === 'Expense' && includePastPersonalLoans) {
+            filteredPersonalLoans = personalloansList.filter(personalloan => !personalloan.is_dream);
+        } else if (listAction === 'Dream' && includePastPersonalLoans) {
+            filteredPersonalLoans = personalloansList.filter(personalloan => personalloan.is_dream);
+        } else if (listAction === 'Dream' && !includePastPersonalLoans) {
+            filteredPersonalLoans = personalloansList.filter(personalloan => personalloan.is_dream && (new Date(personalloan.start_date) > today));
+        } else
             filteredPersonalLoans = personalloansList;
 
         setPersonalLoans(filteredPersonalLoans);
@@ -74,6 +74,10 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/expense_personal_loans/${personalLoanToDelete.id}`);
             setPersonalLoans(prevPersonalLoans => prevPersonalLoans.filter(p => p.id !== personalLoanToDelete.id));
+
+            // also delete from personalloansList
+            personalloansList.splice(personalloansList.findIndex(p => p.id === personalLoanToDelete.id), 1);
+
             onPersonalLoansFetched(personalloans.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Personal Loan Debt deleted successfully');
@@ -88,7 +92,7 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedPersonalLoan(personalloan);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -106,6 +110,15 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
                     return [...prevPersonalLoans, updatedPersonalLoan];
                 }
             });
+
+            // also update personalloansList to add or update the personal loan in the list
+            const personalloanIndex = personalloansList.findIndex(p => p.id === updatedPersonalLoan.id);
+            if (personalloanIndex > -1) {
+                personalloansList[personalloanIndex] = updatedPersonalLoan;
+            } else {
+                personalloansList.push(updatedPersonalLoan);
+            }
+
             setSuccessMessage(successMsg);
         },
         getPersonalLoanCount() {
@@ -127,6 +140,15 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
                 return [...prevPersonalLoans, updatedPersonalLoan];
             }
         });
+
+        // also update personalloansList to add or update the personal loan in the list
+        const personalloanIndex = personalloansList.findIndex(p => p.id === updatedPersonalLoan.id);
+        if (personalloanIndex > -1) {
+            personalloansList[personalloanIndex] = updatedPersonalLoan;
+        } else {
+            personalloansList.push(updatedPersonalLoan);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

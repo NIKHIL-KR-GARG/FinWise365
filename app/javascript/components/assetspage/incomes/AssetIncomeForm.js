@@ -33,7 +33,8 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         is_recurring: true,
         income_frequency: "Monthly",
         growth_rate: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleChange = (e) => {
@@ -75,6 +76,15 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         // check that end date is after start date
         if (income.end_date && income.end_date < income.start_date) errors.end_date = 'End Date should be after Start Date';
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the start_date is not in the future
+            if (new Date(income.start_date) > new Date()) errors.start_date = 'Start Date cannot be in the future';
+        }
+        else if (action === 'Dream') {
+            // check that the start_date is not in the past
+            if (new Date(income.start_date) <= new Date()) errors.start_date = 'Start Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -84,6 +94,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         if (validate()) {
             try {
                 income.user_id = currentUserId;
+                if (action === 'Dream') income.is_dream = true;
                 const response = initialIncome
                     ? await axios.put(`/api/asset_incomes/${income.id}`, income)
                     : await axios.post('/api/asset_incomes', income);

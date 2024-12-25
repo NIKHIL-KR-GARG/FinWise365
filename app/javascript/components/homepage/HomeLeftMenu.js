@@ -19,6 +19,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import HomeIcon from '@mui/icons-material/Home';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
 import { useAuth0 } from "@auth0/auth0-react";
 
 const drawerWidth = 240;
@@ -97,11 +98,11 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                 </ListItem>
                 <Collapse in={portfolioOpen} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItem component={Link} to="/assets" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItem component={Link} to="/incomes" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
-                                <AccountBalanceIcon fontSize="small" />
+                                <AttachMoneyOutlinedIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Income</Typography>} />}
                         </ListItem>
                         <ListItem component={Link} to="/expenses" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
@@ -109,18 +110,24 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Expenses/Debt</Typography>} />}
                         </ListItem>
+                        <ListItem component={Link} to="/assets" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                            <ListItemIcon>
+                                <AccountBalanceIcon fontSize="small" />
+                            </ListItemIcon>
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets</Typography>} />}
+                        </ListItem>
                         <ListItem component={Link} to="/dreams" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <StarIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dreams</Typography>} />}
                         </ListItem>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <SecurityIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Insurance</Typography>} />}
-                        </ListItem>
+                        </ListItem> */}
                     </List>
                 </Collapse>
                 <ListItem button onClick={handleAnalyzeClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
@@ -138,15 +145,15 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow</Typography>} />}
                         </ListItem>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <TrendingUpIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulate</Typography>} />}
-                        </ListItem>
+                        </ListItem> */}
                     </List>
                 </Collapse>
-                <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                {/* <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
                     <ListItemIcon>
                         <TimelineIcon fontSize="small" />
                     </ListItemIcon>
@@ -168,7 +175,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Retirement Plan</Typography>} />}
                         </ListItem>
                     </List>
-                </Collapse>
+                </Collapse> */}
                 {open && (
                     <Box sx={{ m: 2, p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: `calc(${drawerWidth}px - 38px)` }}>
                         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Enjoying FinWise365?</Typography>
@@ -177,6 +184,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                         </Typography>
                         <Button
                             variant="contained"
+                            disabled
                             startIcon={<CelebrationIcon />}
                             sx={{ mt: 2, fontSize: '0.75rem', bgcolor: 'purple', '&:hover':{ bgcolor: '#D1C4E9', color: 'black' } }} 
                         >

@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpensePropertyList = forwardRef((props, ref) => {
-    const { onPropertiesFetched, propertiesList, assetPropertiesList } = props; // Destructure the new prop
+    const { onPropertiesFetched, listAction, propertiesList, assetPropertiesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [properties, setProperties] = useState([]);
@@ -31,41 +31,47 @@ const ExpensePropertyList = forwardRef((props, ref) => {
 
     const filterProperties = (propertiesList, assetPropertiesList) => {
         let filteredProperties = [];
-        if (!includePastProperties)
-            // filter where end_date is null or greater than today
-            filteredProperties = propertiesList.filter(property => {
-                if (property.end_date) {
-                    return new Date(property.end_date) >= new Date();
-                } else {
-                    return true;
-                }
-            });
-        else
+        const today = new Date();
+        if (listAction === 'Expense' && !includePastProperties) {
+            filteredProperties = propertiesList.filter(property => !property.is_dream && (!property.end_date || new Date(property.end_date) >= today));
+        } else if (listAction === 'Expense' && includePastProperties) {
+            filteredProperties = propertiesList.filter(property => !property.is_dream);
+        } else if (listAction === 'Dream' && includePastProperties) {
+            filteredProperties = propertiesList.filter(property => property.is_dream);
+        } else if (listAction === 'Dream' && !includePastProperties) {
+            filteredProperties = propertiesList.filter(property => property.is_dream && (new Date(property.start_date) > today));
+        } else
             filteredProperties = propertiesList;
 
-        // add asset properties to the filtered properties list
-        const propertyMaintenance = assetPropertiesList
-            .filter(assetProperty => {
-                if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
-                else if (new Date(assetProperty.purchase_date) <= new Date() &&
-                    (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()))
-                    return true;
-                else return false;
-            }) 
-            .map(assetProperty => ({
-                id: `propertymaintenance-${assetProperty.id}`,
-                property_name: `Maintenance - ${assetProperty.property_name}`,
-                property_type: assetProperty.property_type,
-                location: assetProperty.location,
-                currency: assetProperty.currency,
-                // if property is under construction, start_date is possession_date else start date is purchase_date
-                start_date: assetProperty.is_under_construction ? assetProperty.possession_date : assetProperty.purchase_date, 
-                // if is plan to sell, end_date is sale_date else end_date is null
-                end_date: assetProperty.is_plan_to_sell ? assetProperty.sale_date : "", 
-                total_expense: assetProperty.property_maintenance
-            }));
+        let propertyMaintenance = [];
+        if (assetPropertiesList && assetPropertiesList.length > 0) {
+            // add asset properties to the filtered properties list
+            propertyMaintenance = assetPropertiesList
+                .filter(assetProperty => {
+                    if (assetProperty.is_dream) return false;
+                    else if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
+                    else if (new Date(assetProperty.purchase_date) <= new Date() &&
+                        (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()) &&
+                        assetProperty.property_maintenance > 0)
+                        return true;
+                    else return false;
+                })
+                .map(assetProperty => ({
+                    id: `propertymaintenance-${assetProperty.id}`,
+                    property_name: `Maintenance - ${assetProperty.property_name}`,
+                    property_type: assetProperty.property_type,
+                    location: assetProperty.location,
+                    currency: assetProperty.currency,
+                    // if property is under construction, start_date is possession_date else start date is purchase_date
+                    start_date: assetProperty.is_under_construction ? assetProperty.possession_date : assetProperty.purchase_date,
+                    // if is plan to sell, end_date is sale_date else end_date is null
+                    end_date: assetProperty.is_plan_to_sell ? assetProperty.sale_date : "",
+                    total_expense: assetProperty.property_maintenance
+                }));
+        }
 
         setProperties([...filteredProperties, ...propertyMaintenance]);
+
         setPropertiesFetched(true); // Set propertiesFetched to true after filtering
         if (onPropertiesFetched) {
             onPropertiesFetched(filteredProperties.length + propertyMaintenance.length) // Notify parent component
@@ -95,6 +101,10 @@ const ExpensePropertyList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/expense_properties/${propertyToDelete.id}`);
             setProperties(prevProperties => prevProperties.filter(p => p.id !== propertyToDelete.id));
+
+            // also delete from propertiesList
+            propertiesList.splice(propertiesList.findIndex(p => p.id === propertyToDelete.id), 1);
+
             onPropertiesFetched(properties.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Property deleted successfully');
@@ -109,7 +119,7 @@ const ExpensePropertyList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedProperty(property);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -127,6 +137,15 @@ const ExpensePropertyList = forwardRef((props, ref) => {
                     return [...prevProperties, updatedProperty];
                 }
             });
+
+            // also update propertiesList to add or update the property in the list
+            const propertyIndex = propertiesList.findIndex(p => p.id === updatedProperty.id);
+            if (propertyIndex > -1) {
+                propertiesList[propertyIndex] = updatedProperty;
+            } else {
+                propertiesList.push(updatedProperty);
+            }
+
             setSuccessMessage(successMsg);
         },
         getPropertyCount() {
@@ -148,6 +167,15 @@ const ExpensePropertyList = forwardRef((props, ref) => {
                 return [...prevProperties, updatedProperty];
             }
         });
+
+        // also update propertiesList to add or update the property in the list
+        const propertyIndex = propertiesList.findIndex(p => p.id === updatedProperty.id);
+        if (propertyIndex > -1) {
+            propertiesList[propertyIndex] = updatedProperty;
+        } else {
+            propertiesList.push(updatedProperty);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

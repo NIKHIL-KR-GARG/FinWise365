@@ -4,7 +4,7 @@ import { Typography, Box, Tabs, Tab } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FormatCurrency } from '../common/FormatCurrency';
 
-const AssetsGraph = ({ assetsData, incomesData }) => {
+const AssetsGraph = ({ assetsData }) => {
     const [tabIndex, setTabIndex] = useState(0);
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
@@ -48,7 +48,7 @@ const AssetsGraph = ({ assetsData, incomesData }) => {
             >
                 <Tab label="Total Assets" />
                 <Tab label="Liquid Assets" />
-                <Tab label="Regular Income" />
+                {/* <Tab label="Regular Income" /> */}
             </Tabs>
             {tabIndex === 0 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
@@ -100,7 +100,7 @@ const AssetsGraph = ({ assetsData, incomesData }) => {
                     </Grid>
                 </Grid>
             )}
-            {tabIndex === 2 && (
+            {/* {tabIndex === 2 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
                     <Grid item size={12}>
                         <Typography variant="h6" align="center" pb={1} pt={1}>
@@ -110,7 +110,6 @@ const AssetsGraph = ({ assetsData, incomesData }) => {
                     <Grid item size={12} display="flex" justifyContent="center" style={{ height: '20vh' }}>
                         <ResponsiveContainer width="80%" height="100%">
                             <BarChart layout="vertical" data={incomesData}>
-                                {/* <CartesianGrid strokeDasharray="3 3" /> */}
                                 <XAxis type="number" />
                                 <YAxis type="category" dataKey="name" />
                                 <Tooltip />
@@ -125,7 +124,7 @@ const AssetsGraph = ({ assetsData, incomesData }) => {
                         </ResponsiveContainer>
                     </Grid>
                 </Grid>
-            )}
+            )} */}
         </Box>
     );
 };

@@ -42,7 +42,8 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         miscellaneous: 0.0,
         total_expense: 0.0,
         inflation_rate: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleChange = (e) => {
@@ -118,6 +119,15 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
             }
         }
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the start_date is not in the future
+            if (new Date(home.start_date) > new Date()) errors.start_date = 'Start Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the purchase_date is not in the past
+            if (new Date(home.start_date) <= new Date()) errors.start_date = 'Start Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -127,7 +137,9 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         if (validate()) {
             try {
                 home.user_id = currentUserId;
-
+                if (action === 'Dream' || action === 'EditDream') home.is_dream = true; 
+                else home.is_dream = false;
+                
                 if (period === 'yearly') {
                     const fieldsToUpdate = [
                         'groceries', 'clothes', 'utilities', 'furniture', 'health',
@@ -145,15 +157,15 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     : await axios.post('/api/expense_homes', home);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Home added successfully';
-                else if (action === 'Edit') successMsg = 'Home updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Home expense added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Home expense updated successfully';
 
                 setErrorMessage('');
                 onClose(); // Close the Expense Home Form window
                 refreshHomeList(response.data, successMsg); // Pass the updated home and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add home');
-                else if (action === 'Edit') setErrorMessage('Failed to update home');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add home expense');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update home expense');
                 setSuccessMessage('');
             }
         } else {
@@ -236,7 +248,16 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
                     <HomeIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    Household Living Expenses
+                    {(action === 'Add' || action === 'Dream') && (
+                        <>
+                            Add Household Living Expenses
+                        </>
+                    )}
+                    {(action === 'Edit' || action === 'EditDream') && (
+                        <>
+                            Update Household Living Expenses
+                        </>
+                    )}
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item size={12}>

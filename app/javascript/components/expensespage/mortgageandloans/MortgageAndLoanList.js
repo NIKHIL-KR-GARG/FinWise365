@@ -34,6 +34,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
             .filter(property => {
                 // derive end date based on purchase date and loan_duration
                 if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
+                else if (property.is_dream === true) return false;
                 else if (!property.is_funded_by_loan) return false;
                 else {
                     const startDate = new Date(property.purchase_date);
@@ -56,6 +57,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
             const vehicleMortgageAndLoans = vehiclesList
             .filter(vehicle => {
                 if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
+                else if (vehicle.is_dream === true) return false;
                 else if (!vehicle.is_funded_by_loan) return false;
                 else {
                     // derive end date based on purchase date and loan_duration

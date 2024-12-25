@@ -68,6 +68,7 @@ class Api::AssetDepositsController < ApplicationController
             :total_interest,
             :total_principal,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 

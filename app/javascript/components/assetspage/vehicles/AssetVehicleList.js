@@ -37,11 +37,13 @@ const AssetVehicleList = forwardRef((props, ref) => {
         let filteredVehicles = [];
         const today = new Date();
         if (listAction === 'Asset' && !includePastVehicles) {
-            filteredVehicles = vehiclesList.filter(vehicle => new Date(vehicle.purchase_date) <= today && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= today));
+            filteredVehicles = vehiclesList.filter(vehicle => !vehicle.is_dream && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= today));
         } else if (listAction === 'Asset' && includePastVehicles) {
-            filteredVehicles = vehiclesList.filter(vehicle => new Date(vehicle.purchase_date) <= today);
-        } else if (listAction === 'Dream') {
-            filteredVehicles = vehiclesList.filter(vehicle => new Date(vehicle.purchase_date) > today);
+            filteredVehicles = vehiclesList.filter(vehicle => !vehicle.is_dream);
+        } else if (listAction === 'Dream' && includePastVehicles) {
+            filteredVehicles = vehiclesList.filter(vehicle => vehicle.is_dream);
+        } else if (listAction === 'Dream' && !includePastVehicles) {
+            filteredVehicles = vehiclesList.filter(vehicle => vehicle.is_dream && (new Date(vehicle.purchase_date) > today));
         } else
             filteredVehicles = vehiclesList;
 
@@ -75,6 +77,10 @@ const AssetVehicleList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/asset_vehicles/${vehicleToDelete.id}`);
             setVehicles(prevVehicles => prevVehicles.filter(p => p.id !== vehicleToDelete.id));
+
+            // also update vehicleList to delete from vehicle from the list
+            vehiclesList.splice(vehiclesList.findIndex(p => p.id === vehicleToDelete.id), 1);
+
             onVehiclesFetched(vehicles.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Vehicle deleted successfully');
@@ -89,7 +95,7 @@ const AssetVehicleList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedVehicle(vehicle);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -107,6 +113,15 @@ const AssetVehicleList = forwardRef((props, ref) => {
                     return [...prevVehicles, updatedVehicle];
                 }
             });
+
+            // also update vehicleList to add or update the vehicle in the list
+            const vehicleIndex = vehiclesList.findIndex(p => p.id === updatedVehicle.id);
+            if (vehicleIndex > -1) {
+                vehiclesList[vehicleIndex] = updatedVehicle;
+            } else {
+                vehiclesList.push(updatedVehicle);
+            }
+
             setSuccessMessage(successMsg);
         },
         getVehicleCount() {
@@ -128,6 +143,15 @@ const AssetVehicleList = forwardRef((props, ref) => {
                 return [...prevVehicles, updatedVehicle];
             }
         });
+
+        // also update vehicleList to add or update the vehicle in the list
+        const vehicleIndex = vehiclesList.findIndex(p => p.id === updatedVehicle.id);
+        if (vehicleIndex > -1) {
+            vehiclesList[vehicleIndex] = updatedVehicle;
+        } else {
+            vehiclesList.push(updatedVehicle);
+        }
+
         setSuccessMessage(successMsg);
     };
 

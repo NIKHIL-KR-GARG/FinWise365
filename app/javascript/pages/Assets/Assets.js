@@ -25,14 +25,15 @@ import AssetAccountForm from '../../components/assetspage/accounts/AssetAccountF
 import AssetAccountList from '../../components/assetspage/accounts/AssetAccountList';
 import AssetDepositList from '../../components/assetspage/deposits/AssetDepositList';
 import AssetDepositForm from '../../components/assetspage/deposits/AssetDepositForm';
-import AssetIncomeList from '../../components/assetspage/incomes/AssetIncomeList';
-import AssetIncomeForm from '../../components/assetspage/incomes/AssetIncomeForm';
+// import AssetIncomeList from '../../components/assetspage/incomes/AssetIncomeList';
+// import AssetIncomeForm from '../../components/assetspage/incomes/AssetIncomeForm';
 import AssetPortfolioList from '../../components/assetspage/portfolios/AssetPortfolioList';
 import AssetPortfolioForm from '../../components/assetspage/portfolios/AssetPortfolioForm';
 import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
 import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
-import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
+import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue } from '../../components/calculators/Assets';
+    // incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue 
 import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
 
@@ -47,7 +48,7 @@ const Assets = () => {
     const vehicleListRef = useRef(null);
     const accountListRef = useRef(null);
     const depositListRef = useRef(null);
-    const incomeListRef = useRef(null);
+    // const incomeListRef = useRef(null);
     const portfolioListRef = useRef(null);
     const otherListRef = useRef(null);
 
@@ -55,7 +56,7 @@ const Assets = () => {
     const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
     const [accountCount, setAccountCount] = useState(0); // State for account count
     const [depositCount, setDepositCount] = useState(0); // State for deposit count
-    const [incomeCount, setIncomeCount] = useState(0); // State for income count
+    // const [incomeCount, setIncomeCount] = useState(0); // State for income count
     const [portfolioCount, setPortfolioCount] = useState(0); // State for portfolio count
     const [otherCount, setOtherCount] = useState(0); // State for other count
 
@@ -66,12 +67,12 @@ const Assets = () => {
     const [vehicles, setVehicles] = useState([]);
     const [accounts, setAccounts] = useState([]);
     const [deposits, setDeposits] = useState([]);
-    const [incomes, setIncomes] = useState([]);
+    // const [incomes, setIncomes] = useState([]);
     const [portfolios, setPortfolios] = useState([]);
     const [others, setOthers] = useState([]);
 
     const [assetsData, setAssetsData] = useState([]);
-    const [incomesData, setIncomesData] = useState([]);
+    // const [incomesData, setIncomesData] = useState([]);
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -90,9 +91,9 @@ const Assets = () => {
         if (depositListRef.current) {
             setDepositCount(depositListRef.current.getDepositCount());
         }
-        if (incomeListRef.current) {
-            setIncomeCount(incomeListRef.current.getIncomeCount());
-        }
+        // if (incomeListRef.current) {
+        //     setIncomeCount(incomeListRef.current.getIncomeCount());
+        // }
         if (portfolioListRef.current) {
             setPortfolioCount(portfolioListRef.current.getPortfolioCount());
         }
@@ -102,17 +103,44 @@ const Assets = () => {
     }, []);
 
     useEffect(() => {
+        if (propertyListRef.current) {
+            propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
+            setPropertyCount(propertyCount + 1);
+        }
+        if (vehicleListRef.current) {
+            vehicleListRef.current.refreshVehicleList(updatedVehicle, successMsg);
+            setVehicleCount(vehicleCount + 1);
+        }
+        if (accountListRef.current) {
+            accountListRef.current.refreshAccountList(updatedAccount, successMsg);
+            setAccountCount(accountCount + 1);
+        }
+        if (depositListRef.current) {
+            depositListRef.current.refreshDepositList(updatedDeposit, successMsg);
+            setDepositCount(depositCount + 1);
+        }
+        if (portfolioListRef.current) {
+            portfolioListRef.current.refreshPortfolioList(updatedPortfolio, successMsg);
+            setPortfolioCount(portfolioCount + 1);
+        }
+        if (otherListRef.current) {
+            otherListRef.current.refreshOtherList(updatedOther, successMsg);
+            setOtherCount(otherCount + 1);
+        }
+    }, []);
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 // fetch all the data
                 const [propertiesResponse, vehiclesResponse, accountsResponse, 
-                    depositsResponse, incomesResponse, portfoliosResponse, 
+                    depositsResponse, portfoliosResponse, 
                     othersResponse] = await Promise.all([
                     axios.get(`/api/asset_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_accounts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_deposits?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    axios.get(`/api/asset_incomes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
+                    // axios.get(`/api/asset_incomes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_portfolios?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                 ]);
@@ -122,7 +150,7 @@ const Assets = () => {
                 setVehicles(vehiclesResponse.data);
                 setAccounts(accountsResponse.data);
                 setDeposits(depositsResponse.data);
-                setIncomes(incomesResponse.data);
+                // setIncomes(incomesResponse.data);
                 setPortfolios(portfoliosResponse.data);
                 setOthers(othersResponse.data);
 
@@ -182,68 +210,68 @@ const Assets = () => {
                     }
                 ]);
 
-                // get value of all the incomes as of today/this month
-                let totalIncomeValue = 0.0;
-                let incomeAssetsValue = 0.0;
-                for (let i = 0; i < incomesResponse.data.length; i++) {
-                    const income = incomesResponse.data[i];
-                    incomeAssetsValue += parseFloat(incomeAssetValue(income, today, currentUserBaseCurrency));
-                }
-                totalIncomeValue += incomeAssetsValue;
+                // // get value of all the incomes as of today/this month
+                // let totalIncomeValue = 0.0;
+                // let incomeAssetsValue = 0.0;
+                // for (let i = 0; i < incomesResponse.data.length; i++) {
+                //     const income = incomesResponse.data[i];
+                //     incomeAssetsValue += parseFloat(incomeAssetValue(income, today, currentUserBaseCurrency));
+                // }
+                // totalIncomeValue += incomeAssetsValue;
 
-                // add rental as income as well
-                let incomePropertyRentalAssetsValue = 0.0;
-                for (let i = 0; i < propertiesResponse.data.length; i++) {
-                    const property = propertiesResponse.data[i];
-                    incomePropertyRentalAssetsValue += parseFloat(incomePropertyRentalAssetValue(property, today, currentUserBaseCurrency));
-                }
-                totalIncomeValue += incomePropertyRentalAssetsValue;
+                // // add rental as income as well
+                // let incomePropertyRentalAssetsValue = 0.0;
+                // for (let i = 0; i < propertiesResponse.data.length; i++) {
+                //     const property = propertiesResponse.data[i];
+                //     incomePropertyRentalAssetsValue += parseFloat(incomePropertyRentalAssetValue(property, today, currentUserBaseCurrency));
+                // }
+                // totalIncomeValue += incomePropertyRentalAssetsValue;
 
-                // add coupon as income as well
-                let incomeCouponAssetsValue = 0.0;
-                for (let i = 0; i < portfoliosResponse.data.length; i++) {
-                    const portfolio = portfoliosResponse.data[i];
-                    incomeCouponAssetsValue += parseFloat(incomeCouponAssetValue(portfolio, today, currentUserBaseCurrency));
-                }
-                totalIncomeValue += incomeCouponAssetsValue;
+                // // add coupon as income as well
+                // let incomeCouponAssetsValue = 0.0;
+                // for (let i = 0; i < portfoliosResponse.data.length; i++) {
+                //     const portfolio = portfoliosResponse.data[i];
+                //     incomeCouponAssetsValue += parseFloat(incomeCouponAssetValue(portfolio, today, currentUserBaseCurrency));
+                // }
+                // totalIncomeValue += incomeCouponAssetsValue;
 
-                // add dividend as income as well
-                let incomeDividendAssetsValue = 0.0;
-                for (let i = 0; i < portfoliosResponse.data.length; i++) {
-                    const portfolio = portfoliosResponse.data[i];
-                    incomeDividendAssetsValue += parseFloat(incomeDividendAssetValue(portfolio, today, currentUserBaseCurrency));
-                }
-                totalIncomeValue += incomeDividendAssetsValue;
+                // // add dividend as income as well
+                // let incomeDividendAssetsValue = 0.0;
+                // for (let i = 0; i < portfoliosResponse.data.length; i++) {
+                //     const portfolio = portfoliosResponse.data[i];
+                //     incomeDividendAssetsValue += parseFloat(incomeDividendAssetValue(portfolio, today, currentUserBaseCurrency));
+                // }
+                // totalIncomeValue += incomeDividendAssetsValue;
 
-                // add payout as income as well
-                let incomePayoutAssetsValue = 0.0;
-                for (let i = 0; i < othersResponse.data.length; i++) {
-                    const other = othersResponse.data[i];
-                    incomePayoutAssetsValue += parseFloat(incomePayoutAssetValue(other, today, currentUserBaseCurrency));
-                }
-                totalIncomeValue += incomePayoutAssetsValue;
+                // // add payout as income as well
+                // let incomePayoutAssetsValue = 0.0;
+                // for (let i = 0; i < othersResponse.data.length; i++) {
+                //     const other = othersResponse.data[i];
+                //     incomePayoutAssetsValue += parseFloat(incomePayoutAssetValue(other, today, currentUserBaseCurrency));
+                // }
+                // totalIncomeValue += incomePayoutAssetsValue;
 
-                // add vehicle lease as income as well
-                let incomeLeaseAssetsValue = 0.0;
-                for (let i = 0; i < vehiclesResponse.data.length; i++) {
-                    const vehicle = vehiclesResponse.data[i];
-                    incomeLeaseAssetsValue += parseFloat(incomeLeaseAssetValue(vehicle, today, currentUserBaseCurrency));
-                }
-                totalIncomeValue += incomeLeaseAssetsValue;
+                // // add vehicle lease as income as well
+                // let incomeLeaseAssetsValue = 0.0;
+                // for (let i = 0; i < vehiclesResponse.data.length; i++) {
+                //     const vehicle = vehiclesResponse.data[i];
+                //     incomeLeaseAssetsValue += parseFloat(incomeLeaseAssetValue(vehicle, today, currentUserBaseCurrency));
+                // }
+                // totalIncomeValue += incomeLeaseAssetsValue;
 
-                // set data for the incomes graph
-                setIncomesData([
-                    {
-                        name: 'Incomes',
-                        Income: parseFloat(incomeAssetsValue).toFixed(2),
-                        Rental: parseFloat(incomePropertyRentalAssetsValue).toFixed(2),
-                        Coupon: parseFloat(incomeCouponAssetsValue).toFixed(2),
-                        Dividend: parseFloat(incomeDividendAssetsValue).toFixed(2),
-                        Payout: parseFloat(incomePayoutAssetsValue).toFixed(2),
-                        Lease: parseFloat(incomeLeaseAssetsValue).toFixed(2),
-                        TotalIncome: parseFloat(totalIncomeValue).toFixed(2),
-                    }
-                ]);
+                // // set data for the incomes graph
+                // setIncomesData([
+                //     {
+                //         name: 'Incomes',
+                //         Income: parseFloat(incomeAssetsValue).toFixed(2),
+                //         Rental: parseFloat(incomePropertyRentalAssetsValue).toFixed(2),
+                //         Coupon: parseFloat(incomeCouponAssetsValue).toFixed(2),
+                //         Dividend: parseFloat(incomeDividendAssetsValue).toFixed(2),
+                //         Payout: parseFloat(incomePayoutAssetsValue).toFixed(2),
+                //         Lease: parseFloat(incomeLeaseAssetsValue).toFixed(2),
+                //         TotalIncome: parseFloat(totalIncomeValue).toFixed(2),
+                //     }
+                // ]);
 
                 setLoading(false);
 
@@ -314,12 +342,12 @@ const Assets = () => {
             setDepositCount(depositCount + 1);
         }
     };
-    const handleIncomeAdded = (updatedIncome, successMsg) => {
-        if (incomeListRef.current) {
-            incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
-            setIncomeCount(incomeCount + 1);
-        }
-    };
+    // const handleIncomeAdded = (updatedIncome, successMsg) => {
+    //     if (incomeListRef.current) {
+    //         incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
+    //         setIncomeCount(incomeCount + 1);
+    //     }
+    // };
     const handlePortfolioAdded = (updatedPortfolio, successMsg) => {
         if (portfolioListRef.current) {
             portfolioListRef.current.refreshPortfolioList(updatedPortfolio, successMsg);
@@ -345,9 +373,9 @@ const Assets = () => {
     const handleDepositsFetched = (count) => {
         setDepositCount(count);
     };
-    const handleIncomesFetched = (count) => {
-        setIncomeCount(count);
-    };
+    // const handleIncomesFetched = (count) => {
+    //     setIncomeCount(count);
+    // };
     const handlePortfoliosFetched = (count) => {
         setPortfolioCount(count);
     };
@@ -392,11 +420,12 @@ const Assets = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            <AssetsGraph assetsData={assetsData} incomesData={incomesData}/>
+                            {/* <AssetsGraph assetsData={assetsData} incomesData={incomesData}/> */}
+                            <AssetsGraph assetsData={assetsData}/>
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                            {/* <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1a-content"
@@ -410,7 +439,7 @@ const Assets = () => {
                                 <AccordionDetails>
                                     <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} incomesList={incomes} propertiesList={properties} vehiclesList={vehicles} portfoliosList={portfolios} otherAssetsList={others}/>
                                 </AccordionDetails>
-                            </Accordion>
+                            </Accordion> */}
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -423,7 +452,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={action} propertiesList={properties}/>
+                                    <AssetPropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={'Asset'} propertiesList={properties}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -438,7 +467,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={action} vehiclesList={vehicles}/>
+                                    <AssetVehicleList ref={vehicleListRef} onVehiclesFetched={handleVehiclesFetched} listAction={'Asset'} vehiclesList={vehicles}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -453,7 +482,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetAccountList ref={accountListRef} onAccountsFetched={handleAccountsFetched} accountsList={accounts}/>
+                                    <AssetAccountList ref={accountListRef} onAccountsFetched={handleAccountsFetched} listAction={'Asset'} accountsList={accounts}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -468,7 +497,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetDepositList ref={depositListRef} onDepositsFetched={handleDepositsFetched} depositsList={deposits}/>
+                                    <AssetDepositList ref={depositListRef} onDepositsFetched={handleDepositsFetched} listAction={'Asset'} depositsList={deposits}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -483,7 +512,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetPortfolioList ref={portfolioListRef} onPortfoliosFetched={handlePortfoliosFetched} portfoliosList={portfolios}/>
+                                    <AssetPortfolioList ref={portfolioListRef} onPortfoliosFetched={handlePortfoliosFetched} listAction={'Asset'} portfoliosList={portfolios}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -498,7 +527,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} othersList={others}/>
+                                    <AssetOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} listAction={'Asset'} othersList={others}/>
                                 </AccordionDetails>
                             </Accordion>
                             {/*
@@ -547,14 +576,14 @@ const Assets = () => {
                                     // Add Investment-PPF details component or content here //
                                 </AccordionDetails>
                             </Accordion> */}
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, bgcolor: 'lightgrey' }}>
+                            {/* <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, bgcolor: 'lightgrey' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel9a-content"
                                     id="panel9a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <DiamondOutlinedIcon sx={{ mr: 1, color: 'red' }} /> {/* Use the appropriate icon */}
+                                        <DiamondOutlinedIcon sx={{ mr: 1, color: 'red' }} />
                                         Precious Metals
                                     </Typography>
                                 </AccordionSummary>
@@ -597,7 +626,7 @@ const Assets = () => {
                                         Endowment Plan asset feature coming soon... 
                                     </Typography>
                                 </AccordionDetails>
-                            </Accordion>
+                            </Accordion> */}
                             {/* <Accordion sx={{ width: '100%' }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -637,13 +666,13 @@ const Assets = () => {
                         Add New Asset
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 2 }}>
-                        <Box 
+                        {/* <Box 
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Income')}
                         >
                             <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Income</Typography>
-                        </Box>
+                        </Box> */}
                         <Box 
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Property')}
@@ -698,8 +727,8 @@ const Assets = () => {
                             <FolderSpecialOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other Asset</Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
-                            <DiamondOutlinedIcon sx={{ color: 'white' }} /> {/* Use the appropriate icon */}
+                        {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
+                            <DiamondOutlinedIcon sx={{ color: 'white' }} /> 
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Precious Metals</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
@@ -710,7 +739,7 @@ const Assets = () => {
                             <AssignmentOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Endowment Plan</Typography>
                         </Box>
-                        {/* <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1 }}>
                             <AccountBoxOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>CPF</Typography>
                         </Box> */}
@@ -741,9 +770,9 @@ const Assets = () => {
                     {assetAction === 'Add Deposit' && (
                         <AssetDepositForm deposit={null} action={action} onClose={handleFormModalClose} refreshDepositList={handleDepositAdded} />
                     )}
-                    {assetAction === 'Add Income' && (
+                    {/* {assetAction === 'Add Income' && (
                         <AssetIncomeForm income={null} action={action} onClose={handleFormModalClose} refreshIncomeList={handleIncomeAdded} />
-                    )}
+                    )} */}
                     {assetAction === 'Add Portfolio' && (
                         <AssetPortfolioForm portfolio={null} action={action} onClose={handleFormModalClose} refreshPortfolioList={handlePortfolioAdded} />
                     )}

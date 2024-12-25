@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetAccountList = forwardRef((props, ref) => {
-    const { onAccountsFetched, accountsList } = props; // Destructure the new prop
+    const { onAccountsFetched, listAction, accountsList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [accounts, setAccounts] = useState([]);
@@ -31,9 +31,16 @@ const AssetAccountList = forwardRef((props, ref) => {
 
     const filterAccounts = (accountsList) => {
         let filteredAccounts = [];
-        if (!includePastAccounts)
-            filteredAccounts = accountsList.filter(account => (!account.is_plan_to_close || new Date(account.closing_date) > new Date()));
-        else
+        const today = new Date();
+        if (listAction === 'Asset' && !includePastAccounts) {
+            filteredAccounts = accountsList.filter(account => !account.is_dream && (!account.is_plan_to_close || new Date(account.closure_date) >= today));
+        } else if (listAction === 'Asset' && includePastAccounts) {
+            filteredAccounts = accountsList.filter(account => !account.is_dream);
+        } else if (listAction === 'Dream' && includePastAccounts) {
+            filteredAccounts = accountsList.filter(account => account.is_dream);
+        } else if (listAction === 'Dream' && !includePastAccounts) {
+            filteredAccounts = accountsList.filter(account => account.is_dream && (new Date(account.opening_date) > today));
+        } else
             filteredAccounts = accountsList;
 
         setAccounts(filteredAccounts);
@@ -66,6 +73,10 @@ const AssetAccountList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/asset_accounts/${accountToDelete.id}`);
             setAccounts(prevAccounts => prevAccounts.filter(p => p.id !== accountToDelete.id));
+
+            // also delete from accountsList
+            accountsList.splice(accountsList.findIndex(p => p.id === accountToDelete.id), 1);
+
             onAccountsFetched(accounts.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Account deleted successfully');
@@ -80,7 +91,7 @@ const AssetAccountList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedAccount(account);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -98,6 +109,15 @@ const AssetAccountList = forwardRef((props, ref) => {
                     return [...prevAccounts, updatedAccount];
                 }
             });
+
+            // also update accountsList to add or update the account in the list
+            const accountIndex = accountsList.findIndex(p => p.id === updatedAccount.id);
+            if (accountIndex > -1) {
+                accountsList[accountIndex] = updatedAccount;
+            } else {
+                accountsList.push(updatedAccount);
+            }
+
             setSuccessMessage(successMsg);
         },
         getAccountCount() {
@@ -119,6 +139,15 @@ const AssetAccountList = forwardRef((props, ref) => {
                 return [...prevAccounts, updatedAccount];
             }
         });
+
+        // also update accountsList to add or update the account in the list
+        const accountIndex = accountsList.findIndex(p => p.id === updatedAccount.id);
+        if (accountIndex > -1) {
+            accountsList[accountIndex] = updatedAccount;
+        } else {
+            accountsList.push(updatedAccount);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

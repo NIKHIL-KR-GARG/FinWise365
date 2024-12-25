@@ -33,6 +33,7 @@ const TaxList = forwardRef((props, ref) => {
             const propertyTax = assetPropertiesList
                 .filter(assetProperty => {
                     if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
+                    else if (assetProperty.is_dream === true) return false; 
                     else if (new Date(assetProperty.purchase_date) <= new Date() &&
                         (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()))
                         return true;

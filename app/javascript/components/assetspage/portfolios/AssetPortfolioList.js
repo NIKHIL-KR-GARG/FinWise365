@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetPortfolioList = forwardRef((props, ref) => {
-    const { onPortfoliosFetched, portfoliosList } = props; // Destructure the new prop
+    const { onPortfoliosFetched, listAction, portfoliosList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [portfolios, setPortfolios] = useState([]);
@@ -31,16 +31,17 @@ const AssetPortfolioList = forwardRef((props, ref) => {
 
     const filterPortfolios = (portfoliosList) => {
         let filteredPortfolios = [];
-        if (!includePastPortfolios)
-            filteredPortfolios = portfoliosList.filter(portfolio => {
-                if (portfolio.is_plan_to_sell) {
-                    const saleDate = new Date(portfolio.sale_date);
-                    return saleDate >= new Date();
-                }
-                return true;
-            });
-        else
-            filteredPortfolios = portfoliosList;
+        const today = new Date();
+        if (listAction === 'Asset' && !includePastPortfolios) {
+            filteredPortfolios = portfoliosList.filter(portfolio => !portfolio.is_dream && (!portfolio.is_plan_to_sell || new Date(portfolio.sale_date) >= today));
+        } else if (listAction === 'Asset' && includePastPortfolios) {
+            filteredPortfolios = portfoliosList.filter(portfolio => !portfolio.is_dream);
+        } else if (listAction === 'Dream' && includePastPortfolios) {
+            filteredPortfolios = portfoliosList.filter(portfolio => portfolio.is_dream);
+        } else if (listAction === 'Dream' && !includePastPortfolios) {
+            filteredPortfolios = portfoliosList.filter(portfolio => portfolio.is_dream && (new Date(portfolio.buying_date) > today));
+        } else 
+            filteredPortfolios = portfoliosList;            
 
         setPortfolios(filteredPortfolios);
         setPortfoliosFetched(true); // Set portfoliosFetched to true after filtering
@@ -77,6 +78,9 @@ const AssetPortfolioList = forwardRef((props, ref) => {
             //delete portfolio details as well
             await axios.delete(`/api/asset_portfolio_details/delete_by_portfolio_id/${portfolioToDelete.id}`);
 
+            // also delete from portfoliosList
+            portfoliosList.splice(portfoliosList.findIndex(p => p.id === portfolioToDelete.id), 1);
+
             onPortfoliosFetched(portfolios.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Portfolio deleted successfully');
@@ -91,7 +95,7 @@ const AssetPortfolioList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedPortfolio(portfolio);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -109,6 +113,15 @@ const AssetPortfolioList = forwardRef((props, ref) => {
                     return [...prevPortfolios, updatedPortfolio];
                 }
             });
+
+            // also update portfoliosList to add or update the portfolio in the list
+            const portfolioIndex = portfoliosList.findIndex(p => p.id === updatedPortfolio.id);
+            if (portfolioIndex > -1) {
+                portfoliosList[portfolioIndex] = updatedPortfolio;
+            } else {
+                portfoliosList.push(updatedPortfolio);
+            }
+
             setSuccessMessage(successMsg);
         },
         getPortfolioCount() {
@@ -130,6 +143,15 @@ const AssetPortfolioList = forwardRef((props, ref) => {
                 return [...prevPortfolios, updatedPortfolio];
             }
         });
+
+        // also update portfoliosList to add or update the portfolio in the list
+        const portfolioIndex = portfoliosList.findIndex(p => p.id === updatedPortfolio.id);
+        if (portfolioIndex > -1) {
+            portfoliosList[portfolioIndex] = updatedPortfolio;
+        } else {
+            portfoliosList.push(updatedPortfolio);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

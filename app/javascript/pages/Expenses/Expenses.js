@@ -40,7 +40,7 @@ const Expenses = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
-    const [action, setAction] = useState(''); // State for action
+    const [action, setAction] = useState('Expense'); // State for action
     const [expenseAction, setExpenseAction] = useState(''); // State for action
 
     const homeListRef = useRef(null);
@@ -112,6 +112,29 @@ const Expenses = () => {
         if (mortgageAndLoanListRef.current) {
             setMortgageAndLoanCount(mortgageAndLoanListRef.current.getMortgageAndLoanCount());
             setMortgageAndLoanAmount(mortgageAndLoanListRef.current.getMortgageAndLoanAmount());
+        }
+    }, []);
+
+    useEffect(() => {
+        if (homeListRef.current) {
+            homeListRef.current.refreshHomeList(updatedHome, successMsg);
+            setHomeCount(homeCount + 1);
+        }
+        if (propertyListRef.current) {
+            propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
+            setPropertyCount(propertyCount + 1);
+        }  
+        if (creditCardDebtListRef.current) {
+            creditCardDebtListRef.current.refreshCreditCardDebtList(updatedCreditCardDebt, successMsg);
+            setCreditCardDebtCount(creditCardDebtCount + 1);
+        }
+        if (personalLoanListRef.current) {
+            personalLoanListRef.current.refreshPersonalLoanList(updatedPersonalLoan, successMsg);
+            setPersonalLoanCount(personalLoanCount + 1);
+        }
+        if (otherListRef.current) {
+            otherListRef.current.refreshOtherList(updatedOther, successMsg);
+            setOtherCount(otherCount + 1);
         }
     }, []);
 
@@ -281,7 +304,7 @@ const Expenses = () => {
     const handleFormModalClose = () => {
         setFormModalOpen(false);
         setExpenseAction('');
-        setAction('');
+        setAction('Expense');
     };
 
     const handleHomeAdded = (updatedHome, successMsg) => {
@@ -397,7 +420,7 @@ const Expenses = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpenseHomeList ref={homeListRef} onHomesFetched={handleHomesFetched} homesList={homes}/>
+                                    <ExpenseHomeList ref={homeListRef} onHomesFetched={handleHomesFetched} listAction={'Expense'} homesList={homes}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -412,7 +435,7 @@ const Expenses = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpensePropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} propertiesList={properties} assetPropertiesList={assetProperties}/>
+                                    <ExpensePropertyList ref={propertyListRef} onPropertiesFetched={handlePropertiesFetched} listAction={'Expense'} propertiesList={properties} assetPropertiesList={assetProperties}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -427,7 +450,7 @@ const Expenses = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpenseCreditCardDebtList ref={creditCardDebtListRef} onCreditCardDebtsFetched={handleCreditCardDebtsFetched} creditcarddebtsList={creditCardDebts}/>
+                                    <ExpenseCreditCardDebtList ref={creditCardDebtListRef} onCreditCardDebtsFetched={handleCreditCardDebtsFetched} listAction={'Expense'} creditcarddebtsList={creditCardDebts}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -442,7 +465,7 @@ const Expenses = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpensePersonalLoanList ref={personalLoanListRef} onPersonalLoansFetched={handlePersonalLoansFetched} personalloansList={personalLoans}/>
+                                    <ExpensePersonalLoanList ref={personalLoanListRef} onPersonalLoansFetched={handlePersonalLoansFetched} listAction={'Expense'} personalloansList={personalLoans}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -457,7 +480,7 @@ const Expenses = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} othersList={otherExpenses} vehiclesList={assetVehicles}/>
+                                    <ExpenseOtherList ref={otherListRef} onOthersFetched={handleOthersFetched} othersList={otherExpenses} listAction={'Expense'} vehiclesList={assetVehicles}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>

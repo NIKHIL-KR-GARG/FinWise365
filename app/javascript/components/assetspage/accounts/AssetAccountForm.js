@@ -34,7 +34,8 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
         minimum_balance: 0.0,
         is_plan_to_close: action === 'Close' ? true : false,
         closure_date: "",
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleChange = (e) => {
@@ -92,6 +93,15 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
            else if (account.closure_date < account.opening_date) errors.closure_date = 'Closure Date cannot be before Opening Date';
         }
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the opening_date is not in the future
+            if (new Date(account.opening_date) > new Date()) errors.opening_date = 'Opening Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the opening_date is not in the past
+            if (new Date(account.opening_date) <= new Date()) errors.opening_date = 'Opening Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -101,21 +111,24 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
         if (validate()) {
             try {
                 account.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') account.is_dream = true;
+                else account.is_dream = false;
+                
                 const response = initialAccount
                     ? await axios.put(`/api/asset_accounts/${account.id}`, account)
                     : await axios.post('/api/asset_accounts', account);
                 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Account added successfully';
-                else if (action === 'Edit') successMsg = 'Account updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Account added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Account updated successfully';
                 else if (action === 'Close') successMsg = 'Account closure details updated successfully';
                 
                 setErrorMessage('');
                 onClose(); // Close the Asset Account Form window
                 refreshAccountList(response.data, successMsg); // Pass the updated account and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add account');
-                else if (action === 'Edit') setErrorMessage('Failed to update account');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add account');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update account');
                 else if (action === 'Close') setErrorMessage('Failed to update account closure details');
                 setSuccessMessage('');
             }
@@ -176,12 +189,12 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <SavingsIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    { action === 'Add' && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add Account
                         </>
                     )}
-                    { action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Account Details
                         </>

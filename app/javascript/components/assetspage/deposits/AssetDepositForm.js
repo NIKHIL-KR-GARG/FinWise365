@@ -42,7 +42,8 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         payment_amount: 0.0,
         total_interest: 0.0,
         total_principal: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleChange = (e) => {
@@ -138,6 +139,15 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
             }
         }
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the opening_date is not in the future
+            if (new Date(deposit.opening_date) > new Date()) errors.opening_date = 'Opening Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the opening_date is not in the past
+            if (new Date(deposit.opening_date) <= new Date()) errors.opening_date = 'Opening Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -147,20 +157,23 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         if (validate()) {
             try {
                 deposit.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') deposit.is_dream = true;
+                else deposit.is_dream = false;
+                
                 const response = initialDeposit
                     ? await axios.put(`/api/asset_deposits/${deposit.id}`, deposit)
                     : await axios.post('/api/asset_deposits', deposit);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Deposit added successfully';
-                else if (action === 'Edit') successMsg = 'Deposit updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Deposit added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Deposit updated successfully';
 
                 setErrorMessage('');
                 onClose(); // Close the Asset Deposit Form window
                 refreshDepositList(response.data, successMsg); // Pass the updated deposit and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add deposit');
-                else if (action === 'Edit') setErrorMessage('Failed to update deposit');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add deposit');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update deposit');
                 setSuccessMessage('');
             }
         } else {
@@ -250,12 +263,12 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <SavingsIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    {action === 'Add' && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add Deposit
                         </>
                     )}
-                    {action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Deposit Details
                         </>

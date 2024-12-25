@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const AssetDepositList = forwardRef((props, ref) => {
-    const { onDepositsFetched, depositsList } = props; // Destructure the new prop
+    const { onDepositsFetched, listAction, depositsList } = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [deposits, setDeposits] = useState([]);
@@ -31,9 +31,16 @@ const AssetDepositList = forwardRef((props, ref) => {
 
     const filterDeposits = (depositsList) => {
         let filteredDeposits = [];
-        if (!includePastDeposits)
-            filteredDeposits = depositsList.filter(deposit => (!deposit.maturity_date || new Date(deposit.maturity_date) > new Date()));
-        else
+        const today = new Date();
+        if (listAction === 'Asset' && !includePastDeposits) {
+            filteredDeposits = depositsList.filter(deposit => !deposit.is_dream && (!deposit.end_date || new Date(deposit.end_date) >= today));
+        } else if (listAction === 'Asset' && includePastDeposits) {
+            filteredDeposits = depositsList.filter(deposit => !deposit.is_dream);
+        } else if (listAction === 'Dream' && includePastDeposits) {
+            filteredDeposits = depositsList.filter(deposit => deposit.is_dream);
+        } else if (listAction === 'Dream' && !includePastDeposits) {
+            filteredDeposits = depositsList.filter(deposit => deposit.is_dream && (new Date(deposit.opening_date) > today));
+        } else
             filteredDeposits = depositsList;
 
         setDeposits(filteredDeposits);
@@ -66,6 +73,10 @@ const AssetDepositList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/asset_deposits/${depositToDelete.id}`);
             setDeposits(prevDeposits => prevDeposits.filter(p => p.id !== depositToDelete.id));
+
+            // also delete from depositsList
+            depositsList.splice(depositsList.findIndex(p => p.id === depositToDelete.id), 1);
+
             onDepositsFetched(deposits.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Deposit deleted successfully');
@@ -80,7 +91,7 @@ const AssetDepositList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedDeposit(deposit);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -98,6 +109,15 @@ const AssetDepositList = forwardRef((props, ref) => {
                     return [...prevDeposits, updatedDeposit];
                 }
             });
+
+            // also update depositsList to add or update the deposit in the list
+            const depositIndex = depositsList.findIndex(p => p.id === updatedDeposit.id);
+            if (depositIndex > -1) {
+                depositsList[depositIndex] = updatedDeposit;
+            } else {
+                depositsList.push(updatedDeposit);
+            }
+
             setSuccessMessage(successMsg);
         },
         getDepositCount() {
@@ -119,6 +139,15 @@ const AssetDepositList = forwardRef((props, ref) => {
                 return [...prevDeposits, updatedDeposit];
             }
         });
+
+        // also update depositsList to add or update the deposit in the list
+        const depositIndex = depositsList.findIndex(p => p.id === updatedDeposit.id);
+        if (depositIndex > -1) {
+            depositsList[depositIndex] = updatedDeposit;
+        } else {
+            depositsList.push(updatedDeposit);
+        }
+        
         setSuccessMessage(successMsg);
     };
 

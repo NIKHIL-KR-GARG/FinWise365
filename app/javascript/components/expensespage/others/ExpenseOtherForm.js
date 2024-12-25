@@ -36,7 +36,8 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         recurring_amount: 0.0,
         inflation_rate: 0.0,
         totalExpense: 0.0,
-        is_dummy_data: false
+        is_dummy_data: false,
+        is_dream: false
     });
 
     const handleChange = (e) => {
@@ -126,6 +127,15 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
             errors.end_date = 'End Date should be after Expense Date';
         }
 
+        if (action === 'Add' || action === 'Edit') {
+            // check that the expense_date is not in the future
+            if (new Date(other.expense_date) > new Date()) errors.expense_date = 'Expense Date cannot be in the future';
+        }
+        else if (action === 'Dream' || action === 'EditDream') {
+            // check that the expense_date is not in the past
+            if (new Date(other.expense_date) <= new Date()) errors.expense_date = 'Expense Date cannot be in the past';
+        }
+
         setErrors(errors);
 
         return Object.keys(errors).length === 0;
@@ -135,20 +145,23 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         if (validate()) {
             try {
                 other.user_id = currentUserId;
+                if (action === 'Dream' || action === 'EditDream') other.is_dream = true; 
+                else other.is_dream = false;
+                
                 const response = initialOther
                     ? await axios.put(`/api/expense_others/${other.id}`, other)
                     : await axios.post('/api/expense_others', other);
 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Other expense added successfully';
-                else if (action === 'Edit') successMsg = 'Other expense updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Other expense added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Other expense updated successfully';
 
                 setErrorMessage('');
                 onClose(); // Close the Expense Other Form window
                 refreshOtherList(response.data, successMsg); // Pass the updated other and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add other expense');
-                else if (action === 'Edit') setErrorMessage('Failed to update other expense');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add other expense');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update other expense');
                 setSuccessMessage('');
             }
         } else {
@@ -243,7 +256,16 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 1 }}>
                     <MiscellaneousServicesIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    Other Expense
+                    {(action === 'Add' || action === 'Dream') && (
+                        <>
+                            Add Other Expenses
+                        </>
+                    )}
+                    {(action === 'Edit' || action === 'EditDream') && (
+                        <>
+                            Update Other Expenses
+                        </>
+                    )}
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item size={6}>

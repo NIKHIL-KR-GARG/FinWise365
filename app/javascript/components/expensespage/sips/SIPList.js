@@ -31,6 +31,7 @@ const SIPList = forwardRef((props, ref) => {
             const depositSIPs = depositsList
             .filter(deposit => {
                 if (deposit.deposit_type !== 'Recurring') return false;
+                else if (deposit.is_dream === true) return false;
                 else return new Date(deposit.maturity_date) >= new Date();
                 })
             .map(deposit => ({
@@ -47,7 +48,8 @@ const SIPList = forwardRef((props, ref) => {
 
             const portfolioSIPs = portfoliosList
             .filter(portfolio => {
-                if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < new Date()) return false;
+                if (portfolio.is_dream === true) return false;
+                else if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < new Date()) return false;
                 else return portfolio.is_sip;
             })
             .map(portfolio => ({
@@ -64,7 +66,8 @@ const SIPList = forwardRef((props, ref) => {
 
             const otherAssetSIPs = otherAssetsList
             .filter(otherAsset => {
-                if (otherAsset.is_recurring_payment && new Date(otherAsset.payment_end_date) >= new Date()) return true;
+                if (otherAsset.is_dream === true) return false;
+                else if (otherAsset.is_recurring_payment && new Date(otherAsset.payment_end_date) >= new Date()) return true;
                 else return false;
             })
             .map(otherAsset => ({

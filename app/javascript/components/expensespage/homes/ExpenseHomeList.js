@@ -13,7 +13,7 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
 const ExpenseHomeList = forwardRef((props, ref) => {
-    const { onHomesFetched, homesList } = props; // Destructure the new prop
+    const { onHomesFetched, listAction, homesList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [homes, setHomes] = useState([]);
@@ -31,16 +31,16 @@ const ExpenseHomeList = forwardRef((props, ref) => {
     
     const filterHomes = (homesList) => {
         let filteredHomes = [];
-        if (!includePastHomes)
-            // filter where end_date is null or greater than today
-            filteredHomes = homesList.filter(home => {
-                if (home.end_date) {
-                    return new Date(home.end_date) >= new Date();
-                } else {
-                    return true;
-                }
-            });
-        else
+        const today = new Date();
+        if (listAction === 'Expense' && !includePastHomes) {
+            filteredHomes = homesList.filter(home => !home.is_dream && (!home.end_date || new Date(home.end_date) >= today));
+        } else if (listAction === 'Expense' && includePastHomes) {
+            filteredHomes = homesList.filter(home => !home.is_dream);
+        } else if (listAction === 'Dream' && includePastHomes) {
+            filteredHomes = homesList.filter(home => home.is_dream);
+        } else if (listAction === 'Dream' && !includePastHomes) {
+            filteredHomes = homesList.filter(home => home.is_dream && (new Date(home.start_date) > today));
+        } else
             filteredHomes = homesList;
 
         setHomes(filteredHomes);
@@ -73,9 +73,13 @@ const ExpenseHomeList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/expense_homes/${homeToDelete.id}`);
             setHomes(prevHomes => prevHomes.filter(p => p.id !== homeToDelete.id));
+
+            // also delete from homesList
+            homesList.splice(homesList.findIndex(p => p.id === homeToDelete.id), 1);
+
             onHomesFetched(homes.length - 1); // Notify parent component
             handleDeleteDialogClose();
-            setSuccessMessage('Home deleted successfully');
+            setSuccessMessage('Home expense deleted successfully');
         } catch (error) {
             console.error('Error deleting home:', error);
         }
@@ -87,7 +91,7 @@ const ExpenseHomeList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedHome(home);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -105,6 +109,15 @@ const ExpenseHomeList = forwardRef((props, ref) => {
                     return [...prevHomes, updatedHome];
                 }
             });
+
+            // also update homesList to add or update the home in the list
+            const homeIndex = homesList.findIndex(p => p.id === updatedHome.id);
+            if (homeIndex > -1) {
+                homesList[homeIndex] = updatedHome;
+            } else {
+                homesList.push(updatedHome);
+            }
+
             setSuccessMessage(successMsg);
         },
         getHomeCount() {
@@ -126,6 +139,15 @@ const ExpenseHomeList = forwardRef((props, ref) => {
                 return [...prevHomes, updatedHome];
             }
         });
+
+         // also update homesList to add or update the home in the list
+         const homeIndex = homesList.findIndex(p => p.id === updatedHome.id);
+         if (homeIndex > -1) {
+             homesList[homeIndex] = updatedHome;
+         } else {
+             homesList.push(updatedHome);
+         }
+
         setSuccessMessage(successMsg);
     };
 

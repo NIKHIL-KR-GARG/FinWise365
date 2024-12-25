@@ -63,6 +63,7 @@ class Api::AssetAccountsController < ApplicationController
             :is_plan_to_close,
             :closure_date,
             :is_dummy_data,
+            :is_dream,
             :created_at,
             :updated_at
         ) 
