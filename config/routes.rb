@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get 'expenses', to: 'site#index'
   get 'dreams', to: 'site#index'
   get 'cashflows', to: 'site#index'
+  get 'incomes', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do

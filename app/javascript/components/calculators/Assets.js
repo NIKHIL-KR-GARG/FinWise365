@@ -427,9 +427,10 @@ export const incomeLeaseAssetValue = (vehicle, date, baseCurrency) => {
     if (vehicle) {
         if (new Date(vehicle.purchase_date) > date && !isSameMonthAndYear(new Date(vehicle.purchase_date), date)) return 0;
         else if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date && !isSameMonthAndYear(new Date(vehicle.sale_date), date)) return 0;
-        if (vehicle.is_on_lease && 
-                (new Date(vehicle.lease_start_date).getMonth() <= date.getMonth() && new Date(vehicle.lease_start_date).getFullYear() <= date.getFullYear()) && 
-                (!vehicle.lease_end_date || (new Date(vehicle.lease_end_date).getMonth() >= date.getMonth() && new Date(vehicle.lease_end_date).getFullYear() >= date.getFullYear()))) {
+        else if (!vehicle.is_on_lease) return 0;
+        else if (new Date(vehicle.lease_start_date) > date && !isSameMonthAndYear(new Date(vehicle.lease_start_date), date)) return 0;
+        else if (vehicle.lease_end_date && new Date(vehicle.lease_end_date) < date && !isSameMonthAndYear(new Date(vehicle.lease_end_date), date)) return 0;
+        else {
             const months = (date.getFullYear() - new Date(vehicle.lease_start_date).getFullYear()) * 12 + date.getMonth() - new Date(vehicle.lease_start_date).getMonth();
             const increment = CalculateInterest(
                 "Fixed",

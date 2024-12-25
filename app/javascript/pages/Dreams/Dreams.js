@@ -12,7 +12,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import FlightIcon from '@mui/icons-material/Flight';
 import MovingIcon from '@mui/icons-material/Moving';
 import SellIcon from '@mui/icons-material/Sell';
-// import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
 import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
@@ -38,6 +38,9 @@ import AssetPortfolioForm from '../../components/assetspage/portfolios/AssetPort
 import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
 import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
+import AssetIncomeList from '../../components/incomespage/AssetIncomeList';
+import AssetIncomeForm from '../../components/incomespage/AssetIncomeForm';
+
 import ExpenseHomeList from '../../components/expensespage/homes/ExpenseHomeList';
 import ExpenseHomeForm from '../../components/expensespage/homes/ExpenseHomeForm';
 import ExpensePropertyList from '../../components/expensespage/properties/ExpensePropertyList';
@@ -55,6 +58,15 @@ import DreamsGraph from '../../components/dreamspage/DreamsGraph';
 import { ExchangeRate } from '../../components/common/DefaultValues';
 import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
+
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import SavingsIcon from '@mui/icons-material/Savings';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import FolderSpecialIcon from '@mui/icons-material/FolderSpecial';
+import HouseIcon from '@mui/icons-material/House';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 
 const Dreams = () => {
     const [open, setOpen] = useState(true);
@@ -85,6 +97,10 @@ const Dreams = () => {
     const [assetDeposits, setAssetDeposits] = useState([]);
     const [assetPortfolios, setAssetPortfolios] = useState([]);
     const [assetOthers, setAssetOthers] = useState([]);
+
+    const incomeListRef = useRef(null);
+    const [incomeCount, setIncomeCount] = useState(0); // State for income count
+    const [incomes, setIncomes] = useState([]);
 
     // for expenses dreams
     const expenseHomeListRef = useRef(null);
@@ -147,6 +163,9 @@ const Dreams = () => {
         if (assetOtherListRef.current) {
             setAssetOtherCount(assetOtherListRef.current.getOtherCount());
         }
+        if (incomeListRef.current) {
+            setIncomeCount(incomeListRef.current.getIncomeCount());
+        }
 
         // for expenses dreams
         if (expenseHomeListRef.current) {
@@ -206,6 +225,10 @@ const Dreams = () => {
             assetOtherListRef.current.refreshOtherList();
             setAssetOtherCount(assetOtherListRef.current.getOtherCount());
         }
+        if (incomeListRef.current) {
+            incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
+            setIncomeCount(incomeCount + 1);
+        }
 
         // for expenses dreams
         if (expenseHomeListRef.current) {
@@ -252,7 +275,7 @@ const Dreams = () => {
         try {
             const [assetPropertiesResponse, assetVehiclesResponse, assetAccountsResponse, assetDepositsResponse, assetPortfoliosResponse, assetOhersResponse,
                 expenseHomesResponse, expensePropertiesResponse, expenseCreditCardDebtsResponse, expensePersonalLoansResponse, expenseOthersResponse,
-                dreamsResponse] = await Promise.all([
+                dreamsResponse, incomesResponse] = await Promise.all([
                     axios.get(`/api/asset_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/asset_accounts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
@@ -265,6 +288,7 @@ const Dreams = () => {
                     axios.get(`/api/expense_personal_loans?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/asset_incomes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                 ]);
 
             // for asset dreams
@@ -274,6 +298,7 @@ const Dreams = () => {
             const assetDepositsList = assetDepositsResponse.data.filter(deposit => deposit.is_dream);
             const assetPortfoliosList = assetPortfoliosResponse.data.filter(portfolio => portfolio.is_dream);
             const assetOthersList = assetOhersResponse.data.filter(other => other.is_dream);
+            const incomesList = incomesResponse.data.filter(income => income.is_dream);
 
             // for expenses dreams
             const expenseHomesList = expenseHomesResponse.data.filter(home => home.is_dream);
@@ -297,6 +322,7 @@ const Dreams = () => {
             setAssetDeposits(assetDepositsList);
             setAssetPortfolios(assetPortfoliosList);
             setAssetOthers(assetOthersList);
+            setIncomes(incomesList);
 
             // for expenses dreams
             setExpenseHomes(expenseHomesList);
@@ -323,6 +349,7 @@ const Dreams = () => {
                     AssetDeposit: 0,
                     AssetPortfolio: 0,
                     AssetOther: 0,
+                    Income: 0,
                     ExpenseHome: 0,
                     ExpenseProperty: 0,
                     ExpenseCreditCardDebt: 0,
@@ -824,7 +851,7 @@ const Dreams = () => {
                                     id="panel1a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <HomeIcon sx={{ mr: 1, color: 'blue' }} />
+                                        <HomeWorkIcon sx={{ mr: 1, color: 'blue' }} />
                                         Future Properties ({assetPropertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetProperty, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -839,7 +866,7 @@ const Dreams = () => {
                                     id="panel1a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <DirectionsCarIcon sx={{ mr: 1, color: 'red' }} />
+                                        <DirectionsCarFilledIcon sx={{ mr: 1, color: 'red' }} />
                                         Future Vehicles ({assetVehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetVehicle, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -854,7 +881,7 @@ const Dreams = () => {
                                     id="panel1a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <AccountBalanceOutlinedIcon sx={{ mr: 1, color: 'red' }} />
+                                        <AccountBalanceWalletIcon sx={{ mr: 1, color: 'teal' }} />
                                         Savings/Current Accounts ({assetAccountCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetAccount, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -869,7 +896,7 @@ const Dreams = () => {
                                     id="panel3a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <SavingsOutlinedIcon sx={{ mr: 1, color: 'brown' }} /> 
+                                        <SavingsIcon sx={{ mr: 1, color: 'brown' }} /> 
                                         Fixed/Recurring Deposits ({assetDepositCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetDeposit, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -884,7 +911,7 @@ const Dreams = () => {
                                     id="panel4a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <ShowChartOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
+                                        <ShowChartIcon sx={{ mr: 1, color: 'purple' }} />
                                         Investment Portfolio ({assetPortfolioCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetPortfolio, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -899,7 +926,7 @@ const Dreams = () => {
                                     id="panel11a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <FolderSpecialOutlinedIcon sx={{ mr: 1, color: 'brown' }} />
+                                        <FolderSpecialIcon sx={{ mr: 1, color: 'brown' }} />
                                         Other Future Assets ({assetOtherCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetOther, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -916,7 +943,7 @@ const Dreams = () => {
                                     id="panel1a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <HomeIcon sx={{ mr: 1, color: 'blue' }} />
+                                        <HouseIcon sx={{ mr: 1, color: 'blue' }} />
                                         Home Expenses ({expenseHomeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseHome, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -1008,7 +1035,7 @@ const Dreams = () => {
                                     id="panel1a-header"
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <FlightIcon sx={{ mr: 1, color: 'teal' }} />
+                                        <FlightTakeoffIcon sx={{ mr: 1, color: 'teal' }} />
                                         Travel ({travelCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Travel, 0))}</strong>
                                     </Typography>
                                 </AccordionSummary>
@@ -1203,13 +1230,13 @@ const Dreams = () => {
                             <MiscellaneousServicesIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other Dream</Typography>
                         </Box>
-                        {/* <Box
+                        <Box
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
-                            onClick={() => handleFutureIncomeClick()}
+                            onClick={() => handleFormModalOpen('Add Income')}
                         >
                             <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Future Income</Typography>
-                        </Box> */}
+                        </Box>
                     </Box>
                 </Box>
             </Modal>

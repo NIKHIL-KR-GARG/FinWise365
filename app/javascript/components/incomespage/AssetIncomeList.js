@@ -7,14 +7,13 @@ import CloseIconFilled from '@mui/icons-material/Close'; // Import filled versio
 import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 
-import '../../common/GridHeader.css';
+import '../common/GridHeader.css';
 import AssetIncomeForm from './AssetIncomeForm';
-import CountryList from '../../common/CountryList';
-import { FormatCurrency } from  '../../common/FormatCurrency';
-import { portfolioAssetValue } from '../../calculators/Assets';
+import CountryList from '../common/CountryList';
+import { FormatCurrency } from  '../common/FormatCurrency';
 
 const AssetIncomeList = forwardRef((props, ref) => {
-    const { onIncomesFetched, listAction, incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList } = props; // Destructure the new prop
+    const { onIncomesFetched, listAction, incomesList} = props; // Destructure the new prop
 
     const [successMessage, setSuccessMessage] = useState('');
     const [incomes, setIncomes] = useState([]);
@@ -30,7 +29,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
 
     const [includePastIncomes, setIncludePastIncomes] = useState(false); // State for switch to include past incomes
 
-    const filterIncomes = (incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList) => {
+    const filterIncomes = (incomesList) => {
         let filteredIncomes = [];
         const today = new Date();
         if (listAction === 'Asset' && !includePastIncomes) {
@@ -44,140 +43,21 @@ const AssetIncomeList = forwardRef((props, ref) => {
         } else
             filteredIncomes = incomesList;
 
-        // add rental as income as well
-        const rentalIncomes = propertiesList
-            .filter(property => !property.is_plan_to_sell || (new Date(property.sale_date) >= today))
-            .filter(property => property.is_on_rent && (new Date(property.rental_start_date) <= today) && (!property.rental_end_date || new Date(property.rental_end_date) >= today))
-            .map(property => ({
-                id: `rental-${property.id}`,
-                income_name: `Rental Income - ${property.property_name}`,
-                income_type: 'Rental',
-                location: property.location,
-                currency: property.currency,
-                amount: property.rental_amount,
-                start_date: property.rental_start_date,
-                end_date: property.rental_end_date,
-                is_recurring: true,
-                income_frequency: 'Monthly'
-            }));
-
-        // add dividend as income as well
-        const dividends = portfoliosList
-            .filter(portfolio => portfolio.is_paying_dividend && (new Date(portfolio.buying_date) <= today) && (!portfolio.sale_date || new Date(portfolio.sale_date) >= today))
-            .map(portfolio => ({
-                id: `dividend-${portfolio.id}`,
-                income_name: `Dividend Income - ${portfolio.portfolio_name}`,
-                income_type: 'Dividend',
-                location: portfolio.location,
-                currency: portfolio.currency,
-                // amount: portfolio.dividend_amount,
-                amount: calculateDividendAmount(parseFloat(portfolioAssetValue(portfolio, new Date(), portfolio.currency)), portfolio.dividend_frequency, portfolio.dividend_rate),
-                start_date: portfolio.buying_date,
-                end_date: portfolio.sale_date,
-                is_recurring: true,
-                income_frequency: portfolio.dividend_frequency
-            }));
-
-        // add coupon as income as well
-        const coupons = portfoliosList
-            .filter(portfolio => portfolio.portfolio_type === 'Bonds' && (new Date(portfolio.buying_date) <= today) && (!portfolio.sale_date || new Date(portfolio.sale_date) >= today))
-            .map(portfolio => {
-                let amount;
-                switch (portfolio.coupon_frequency) {
-                    case 'Monthly':
-                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 12;
-                        break;
-                    case 'Quarterly':
-                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 4;
-                        break;
-                    case 'Semi-Annually':
-                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100 / 2;
-                        break;
-                    case 'Annually':
-                        amount = parseFloat(portfolio.buying_value) * parseFloat(portfolio.coupon_rate) / 100;
-                        break;
-                    default:
-                        amount = 0;
-                }
-                return {
-                    id: `coupon-${portfolio.id}`,
-                    income_name: `Coupon Income - ${portfolio.portfolio_name}`,
-                    income_type: 'Coupon',
-                    location: portfolio.location,
-                    currency: portfolio.currency,
-                    amount: amount,
-                    start_date: portfolio.buying_date,
-                    end_date: portfolio.sale_date,
-                    is_recurring: true,
-                    income_frequency: portfolio.coupon_frequency
-                };
-            });
-
-        // add payout as income as well
-        const payouts = otherAssetsList
-            .filter(otherAsset => {
-                const payoutDate = new Date(otherAsset.payout_date);
-                const payoutDuration = otherAsset.payout_duration ? parseInt(otherAsset.payout_duration) : 0;
-                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
-                return payoutEndDate > today;
-            })
-            .map(otherAsset => ({
-                id: `payout-${otherAsset.id}`,
-                income_name: `PayOut Income - ${otherAsset.asset_name}`,
-                income_type: 'PayOut',
-                location: otherAsset.location,
-                currency: otherAsset.currency,
-                amount: otherAsset.payout_value,
-                start_date: otherAsset.payout_date,
-                end_date: `${
-                    otherAsset.payout_type === 'Recurring' 
-                        ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + 1 + parseInt(otherAsset.payout_duration))).toISOString().split('T')[0] 
-                        : new Date(otherAsset.payout_date).toISOString().split('T')[0]
-                }`,
-                is_recurring: otherAsset.payout_type === 'Recurring',
-                income_frequency: otherAsset.payout_frequency
-            }));
-
-        // add lease as income as well
-        const leases = vehiclesList
-            .filter(vehicle => !vehicle.is_plan_to_sell || (new Date(vehicle.sale_date) >= today))
-            .filter(vehicle => vehicle.is_on_lease && (new Date(vehicle.lease_start_date) <= today) && (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today))
-            .map(vehicle => ({
-                id: `lease-${vehicle.id}`,
-                income_name: `Lease Income - ${vehicle.vehicle_name}`,
-                income_type: 'Lease',
-                location: vehicle.location,
-                currency: vehicle.currency,
-                amount: vehicle.lease_amount,
-                start_date: vehicle.lease_start_date,
-                end_date: vehicle.lease_end_date,
-                is_recurring: true,
-                income_frequency: 'Monthly'
-            }));
-
-        setIncomes([...filteredIncomes, ...rentalIncomes, ...leases ,...dividends, ...coupons, ...payouts]);
+        setIncomes(filteredIncomes);
         setIncomesFetched(true); // Set incomesFetched to true after fetching
 
         if (onIncomesFetched) {
-            onIncomesFetched(filteredIncomes.length + rentalIncomes.length + leases.length + dividends.length + coupons.length + payouts.length); // Notify parent component
+            onIncomesFetched(filteredIncomes.length); // Notify parent component
         }
     };
 
     useEffect(() => {
-        filterIncomes(incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList);
+        filterIncomes(incomesList);
     }, []);
 
     useEffect(() => {
-        filterIncomes(incomesList, propertiesList, vehiclesList, portfoliosList, otherAssetsList); // Filter incomes when includePastIncomes changes
+        filterIncomes(incomesList); // Filter incomes when includePastIncomes changes
     }, [includePastIncomes]); // Include Past Incomes to income/grid array
-
-    const calculateDividendAmount = (value, frequency, rate) => {
-        let dividendAmount = value * (rate / 100);
-        if (frequency === 'Monthly') dividendAmount = dividendAmount / 12;
-        else if (frequency === 'Quarterly') dividendAmount = dividendAmount / 4;
-        else if (frequency === 'Semi-Annually') dividendAmount = dividendAmount / 2;
-        return parseFloat(dividendAmount).toFixed(2);
-    };
 
     const handleFormModalClose = () => {
         setFormModalOpen(false);
@@ -194,6 +74,10 @@ const AssetIncomeList = forwardRef((props, ref) => {
         try {
             await axios.delete(`/api/asset_incomes/${incomeToDelete.id}`);
             setIncomes(prevIncomes => prevIncomes.filter(p => p.id !== incomeToDelete.id));
+
+            // delete from incomesList as well
+            incomesList.splice(incomesList.findIndex(p => p.id === incomeToDelete.id), 1);
+
             onIncomesFetched(incomes.length - 1); // Notify parent component
             handleDeleteDialogClose();
             setSuccessMessage('Income deleted successfully');
@@ -208,7 +92,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
             setDeleteDialogOpen(true);
         } else {
             setSelectedIncome(income);
-            setAction(actionType);
+            listAction === 'Dream' ? setAction('EditDream') : setAction(actionType);
             setFormModalOpen(true);
         }
     };
@@ -226,6 +110,15 @@ const AssetIncomeList = forwardRef((props, ref) => {
                     return [...prevIncomes, updatedIncome];
                 }
             });
+
+            // also update incomesList to add or update the income in the list
+            const incomeIndex = incomesList.findIndex(p => p.id === updatedIncome.id);
+            if (incomeIndex > -1) {
+                incomesList[incomeIndex] = updatedIncome;
+            } else {
+                incomesList.push(updatedIncome);
+            }
+
             setSuccessMessage(successMsg);
         },
         getIncomeCount() {
@@ -247,6 +140,15 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 return [...prevIncomes, updatedIncome];
             }
         });
+
+        // also update incomesList to add or update the income in the list
+        const incomeIndex = incomesList.findIndex(p => p.id === updatedIncome.id);
+        if (incomeIndex > -1) {
+            incomesList[incomeIndex] = updatedIncome;
+        } else {
+            incomesList.push(updatedIncome);
+        }
+
         setSuccessMessage(successMsg);
     };
 
@@ -257,17 +159,9 @@ const AssetIncomeList = forwardRef((props, ref) => {
             width: 150,
             headerClassName: 'header-theme',
             renderCell: (params) => (
-                params.row.income_type !== 'Rental'
-                    && params.row.income_type !== 'Dividend'
-                    && params.row.income_type !== 'Coupon' 
-                    && params.row.income_type !== 'PayOut' 
-                    && params.row.income_type !== 'Lease' ? (
-                    <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
-                        {params.value}
-                    </a>
-                ) : (
-                    <span>{params.value}</span>
-                )
+                <a onClick={() => handleAction(params.row, 'Edit')} style={{ textDecoration: 'underline', fontWeight: 'bold', color: theme.palette.primary.main, cursor: 'pointer' }}>
+                    {params.value}
+                </a>
             )
         },
         { field: 'income_type', headerName: 'Income Type', width: 100, headerClassName: 'header-theme' },
@@ -296,13 +190,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
             headerClassName: 'header-theme',
             renderCell: (params) => (
                 <div>
-                    {params.row.income_type !== 'Rental'
-                        && params.row.income_type !== 'Dividend'
-                        && params.row.income_type !== 'Coupon' 
-                        && params.row.income_type !== 'PayOut' 
-                        && params.row.income_type !== 'Lease' && (
-                            <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>
-                        )}
+                    <a onClick={() => handleAction(params.row, 'Delete')} style={{ textDecoration: 'underline', fontWeight: 'bold', cursor: 'pointer', color: theme.palette.primary.main }}>Delete</a>  
                 </div>
             ),
         },

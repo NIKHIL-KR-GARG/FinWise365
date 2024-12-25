@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DollarIcon from '@mui/icons-material/AttachMoney'; // Dollar sign icon
-// import CurrentIcon from '@mui/icons-material/BusinessCenter'; // Current income icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" income type
 import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 
-import CurrencyList from '../../common/CurrencyList';
-import CountryList from '../../common/CountryList';
+import CurrencyList from '../common/CurrencyList';
+import CountryList from '../common/CountryList';
 
 const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncomeList }) => {
 
@@ -70,8 +69,8 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         if (isNaN(income.amount)) errors.amount = 'Amount should be numeric';
         if (isNaN(income.growth_rate)) errors.growth_rate = 'Growth Rate should be numeric';
         
-        // check that start date is not in the past
-        if (income.start_date && new Date(income.start_date) < new Date()) errors.start_date = 'Start Date should not be in the past';
+        // // check that start date is not in the past
+        // if (income.start_date && new Date(income.start_date) < new Date()) errors.start_date = 'Start Date should not be in the past';
 
         // check that end date is after start date
         if (income.end_date && income.end_date < income.start_date) errors.end_date = 'End Date should be after Start Date';
@@ -80,7 +79,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
             // check that the start_date is not in the future
             if (new Date(income.start_date) > new Date()) errors.start_date = 'Start Date cannot be in the future';
         }
-        else if (action === 'Dream') {
+        else if (action === 'Dream' || action === 'EditDream') {
             // check that the start_date is not in the past
             if (new Date(income.start_date) <= new Date()) errors.start_date = 'Start Date cannot be in the past';
         }
@@ -94,21 +93,23 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         if (validate()) {
             try {
                 income.user_id = currentUserId;
-                if (action === 'Dream') income.is_dream = true;
+                if (action === 'Dream' || action === 'EditDream') income.is_dream = true;
+                else income.is_dream = false;
+
                 const response = initialIncome
                     ? await axios.put(`/api/asset_incomes/${income.id}`, income)
                     : await axios.post('/api/asset_incomes', income);
                 
                 let successMsg = '';
-                if (action === 'Add') successMsg = 'Income added successfully';
-                else if (action === 'Edit') successMsg = 'Income updated successfully';
+                if (action === 'Add' || action === 'Dream') successMsg = 'Income added successfully';
+                else if (action === 'Edit' || action === 'EditDream') successMsg = 'Income updated successfully';
                 
                 setErrorMessage('');
                 onClose(); // Close the Asset Income Form window
                 refreshIncomeList(response.data, successMsg); // Pass the updated income and success message
             } catch (error) {
-                if (action === 'Add') setErrorMessage('Failed to add income');
-                else if (action === 'Edit') setErrorMessage('Failed to update income');
+                if (action === 'Add' || action === 'Dream') setErrorMessage('Failed to add income');
+                else if (action === 'Edit' || action === 'EditDream') setErrorMessage('Failed to update income');
                 setSuccessMessage('');
             }
         } else {
@@ -168,12 +169,12 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
             <form>
                 <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
                     <DollarIcon style={{ color: 'purple', marginRight: '10px' }} />
-                    { action === 'Add' && (
+                    {(action === 'Add' || action === 'Dream') && (
                         <>
                             Add Income
                         </>
                     )}
-                    { action === 'Edit' && (
+                    {(action === 'Edit' || action === 'EditDream') && (
                         <>
                             Update Income Details
                         </>
@@ -189,6 +190,16 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                                 <Grid container direction="column" alignItems="center" spacing={0}>
                                     <Grid item><DollarIcon style={{ fontSize: 'normal' }} /></Grid>
                                     <Grid item><Typography variant="caption">Salary</Typography></Grid>
+                                </Grid>
+                            }
+                        />
+                        <FormControlLabel
+                            value="Bonus"
+                            control={<Radio />}
+                            label={
+                                <Grid container direction="column" alignItems="center" spacing={0}>
+                                    <Grid item><DollarIcon style={{ fontSize: 'normal' }} /></Grid>
+                                    <Grid item><Typography variant="caption">Bonus</Typography></Grid>
                                 </Grid>
                             }
                         />

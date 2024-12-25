@@ -11,6 +11,7 @@ import Assets from './pages/Assets/Assets';
 import Expenses from './pages/Expenses/Expenses';
 import Dreams from './pages/Dreams/Dreams';
 import Cashflows from './pages/Cashflows/Cashflows';
+import Incomes from './pages/Incomes/Incomes';
 
 const App = () => {
 
@@ -25,6 +26,7 @@ const App = () => {
         <Route path='/expenses' element={<AuthenticationGuard component={Expenses} />} />
         <Route path='/dreams' element={<AuthenticationGuard component={Dreams} />} />
         <Route path='/cashflows' element={<AuthenticationGuard component={Cashflows} />} />
+        <Route path='/incomes' element={<AuthenticationGuard component={Incomes} />} />
       </Routes>
     </>
   );
