@@ -212,7 +212,50 @@ const Assets = () => {
     }, [currentUserId]);
 
     if (loading) {
-        return <CircularProgress />;
+        return (
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                <HomeHeader open={true} />
+                <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}>
+                    <HomeLeftMenu open={true} />
+                    <Box
+                        component="main"
+                        sx={{
+                            flexGrow: 1,
+                            p: 3,
+                            transition: (theme) => theme.transitions.create('margin', {
+                                easing: theme.transitions.easing.sharp,
+                                duration: theme.transitions.duration.leavingScreen,
+                            }),
+                        }}
+                    >
+                        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
+                            <Link underline="hover" color="inherit" href="/home">
+                                Home
+                            </Link>
+                            <Link underline="hover" color="inherit" href="">
+                                Portfolio
+                            </Link>
+                            <Typography color="textPrimary">Assets</Typography>
+                        </Breadcrumbs>
+                        <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <AccountBalanceIcon sx={{ mr: 1 }} />
+                                    My Assets
+                                </Box>
+                                <Box sx={{ fontSize: '0.875rem' }}>
+                                    {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                </Box>
+                            </Typography>
+                            <Divider sx={{ my: 2 }} />
+                        </Box>
+                    </Box>
+                </Box>
+                <Box display="flex" justifyContent="center" alignItems="center" position="fixed" top={0} left={0} right={0} bottom={0} zIndex={9999} bgcolor="rgba(255, 255, 255, 0.8)" pointerEvents="none">
+                    <CircularProgress style={{ pointerEvents: 'auto' }} />
+                </Box>
+            </Box>
+        );
     }
 
     if (error) {
