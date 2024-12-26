@@ -55,6 +55,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         current_value: 0.0,
         is_primary_property: false,
         is_funded_by_loan: false,
+        loan_as_of_date: '',
         loan_amount: 0.0,
         loan_duration: 0,
         loan_type: "Fixed",
@@ -173,6 +174,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             if (!property.loan_amount) errors.loan_amount = 'Loan Amount is required';
             if (!property.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
             if (!property.loan_duration) errors.loan_duration = 'Loan Duration is required';
+            if (!property.loan_as_of_date) errors.loan_as_of_date = "Loan Details As Of Date is required";
 
             // check that the loan amount is less than the purchase price
             if (parseFloat(property.loan_amount) > parseFloat(property.purchase_price)) errors.loan_amount = 'Loan Amount cannot be greater than Purchase Price';
@@ -188,6 +190,8 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 // check that the loan locked till date is not less than purchase date
                 if (new Date(property.loan_locked_till) < new Date(property.purchase_date)) errors.loan_locked_till = 'Loan Locked Till Date cannot be before Purchase Date';
             }
+
+            if (new Date(property.loan_as_of_date) < new Date(property.purchase_date)) errors.loan_as_of_date = "Loan As of Date cannot be before Purchase Date";
         }
 
         if (property.is_on_rent) {
@@ -432,7 +436,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 DownPayment = property.purchase_price - loanAmountToUse;
 
                 // Calculate Interest Payments
-                //loop through the loan duration and calculate the interest payments using the pmt function
+                // Loop through the loan duration and calculate the interest payments using the pmt function
                 var outstandingBalance = loanAmountToUse;
                 emi = Math.abs(pmt(property.loan_interest_rate / 100 / 12, property.loan_duration, loanAmountToUse));
                 for (let month = 1; month <= property.loan_duration; month++) {
@@ -938,7 +942,22 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             </Grid>
                             {property.is_funded_by_loan && (
                                 <>
-                                    <Grid item size={6}>
+                                    <Grid item size={4}>
+                                        <TextField
+                                            label="Loan Details As Of?"
+                                            variant="standard"
+                                            name="loan_as_of_date"
+                                            type="date"
+                                            value={property.loan_as_of_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.loan_as_of_date}
+                                            helperText={errors.loan_as_of_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={4}>
                                         <TextField
                                             select
                                             variant="standard"
@@ -955,7 +974,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             <MenuItem value="Floating">Floating</MenuItem>
                                         </TextField>
                                     </Grid>
-                                    <Grid item size={6}>
+                                    <Grid item size={4}>
                                         <TextField
                                             variant="standard"
                                             label="Loan Amount"

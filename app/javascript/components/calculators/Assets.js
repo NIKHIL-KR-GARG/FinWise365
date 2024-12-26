@@ -42,7 +42,7 @@ export const calculateMortgageBalance = (property, date) => {
     var outstandingBalance = parseFloat(property.loan_amount);
     const monthlyRate = parseFloat(property.loan_interest_rate) / 100 / 12;
     const emi = Math.abs(pmt(monthlyRate, parseInt(property.loan_duration), parseFloat(property.loan_amount))); // Use absolute value
-    const months = (date.getFullYear() - new Date(property.purchase_date).getFullYear()) * 12 + (date.getMonth() - new Date(property.purchase_date).getMonth());
+    const months = (date.getFullYear() - new Date(property.loan_as_of_date).getFullYear()) * 12 + (date.getMonth() - new Date(property.loan_as_of_date).getMonth());
     for (let month = 1; month < months; month++) {
         const openingBalance = outstandingBalance;
         const interest = outstandingBalance * monthlyRate;
@@ -83,7 +83,7 @@ export const vehicleAssetValue = (vehicle, date, baseCurrency) => {
 
 export const calculateFlatRateLoanBalance = (vehicle, date) => {
     const totalMonths = parseInt(vehicle.loan_duration);
-    const monthsPaidSoFar = (date.getFullYear() - new Date(vehicle.purchase_date).getFullYear()) * 12 + (date.getMonth() - new Date(vehicle.purchase_date).getMonth());
+    const monthsPaidSoFar = (date.getFullYear() - new Date(vehicle.loan_as_of_date).getFullYear()) * 12 + (date.getMonth() - new Date(vehicle.loan_as_of_date).getMonth());
     const remainingLoanBalance = parseFloat(vehicle.loan_amount)/totalMonths * (totalMonths - monthsPaidSoFar);    
     return parseFloat(remainingLoanBalance);
 }

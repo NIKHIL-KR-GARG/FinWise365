@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_26_080618) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_26_082257) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -228,6 +228,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_26_080618) do
     t.date "possession_date"
     t.boolean "is_dummy_data", default: false
     t.boolean "is_dream", default: false
+    t.date "loan_as_of_date"
   end
 
   create_table "asset_vehicles", force: :cascade do |t|
@@ -267,6 +268,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_26_080618) do
     t.float "lease_growth_rate"
     t.boolean "is_dummy_data", default: false
     t.boolean "is_dream", default: false
+    t.date "loan_as_of_date"
   end
 
   create_table "dreams", force: :cascade do |t|

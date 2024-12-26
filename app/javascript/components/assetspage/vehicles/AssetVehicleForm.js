@@ -46,6 +46,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         vehicle_maintanance: 0.0,
         monthly_expenses: 0.0,
         is_funded_by_loan: false,
+        loan_as_of_date: '',
         loan_amount: 0.0,
         loan_duration: 0,
         loan_type: "Fixed",
@@ -148,6 +149,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (!vehicle.loan_amount) errors.loan_amount = 'Loan Amount is required';
             if (!vehicle.loan_interest_rate) errors.loan_interest_rate = 'Loan Interest Rate is required';
             if (!vehicle.loan_duration) errors.loan_duration = 'Loan Duration is required';
+            if (!vehicle.loan_as_of_date) errors.loan_as_of_date = "Loan Details As Of Date is required";
 
             // check that the loan amount is less than the purchase price
             if (parseFloat(vehicle.loan_amount) > parseFloat(vehicle.purchase_price)) errors.loan_amount = 'Loan Amount cannot be greater than Purchase Price';
@@ -155,6 +157,8 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
             if (parseFloat(vehicle.loan_duration) > 120) errors.loan_duration = 'Loan Duration cannot be more than 10 years';
             // check that the loan interest rate is not more than 20%
             if (parseFloat(vehicle.loan_interest_rate) > 20) errors.loan_interest_rate = 'Loan Interest Rate cannot be more than 20%';
+        
+            if (new Date(vehicle.loan_as_of_date) < new Date(vehicle.purchase_date)) errors.loan_as_of_date = "Loan As of Date cannot be before Purchase Date";
         }
 
         if (vehicle.is_plan_to_sell) {
@@ -623,7 +627,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                 >
                                     Open EMI Calculator
                                 </Typography>*/}
-                                <Modal
+                                {/* <Modal
                                     open={modalOpen}
                                     onClose={(event, reason) => {
                                         if (reason !== 'backdropClick') {
@@ -655,11 +659,26 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             <CloseIconFilled />
                                         </IconButton>
                                     </Box>
-                                </Modal>
+                                </Modal> */}
                             </Grid>
                             {vehicle.is_funded_by_loan && (
                                 <>
-                                    <Grid item size={6}>
+                                    <Grid item size={4}>
+                                        <TextField
+                                            label="Loan Details As Of?"
+                                            variant="standard"
+                                            name="loan_as_of_date"
+                                            type="date"
+                                            value={vehicle.loan_as_of_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.loan_as_of_date}
+                                            helperText={errors.loan_as_of_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={4}>
                                         <TextField
                                             select
                                             variant="standard"
@@ -675,7 +694,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             <MenuItem value="Floating">Floating</MenuItem>
                                         </TextField>
                                     </Grid>
-                                    <Grid item size={6}>
+                                    <Grid item size={4}>
                                         <TextField
                                             variant="standard"
                                             label="Loan Amount"

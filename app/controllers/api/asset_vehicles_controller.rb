@@ -62,6 +62,7 @@ class Api::AssetVehiclesController < ApplicationController
             :vehicle_maintanance,
             :monthly_expenses,
             :is_funded_by_loan,
+            :loan_as_of_date,
             :loan_amount,
             :loan_duration,
             :loan_type,

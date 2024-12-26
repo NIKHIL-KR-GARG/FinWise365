@@ -63,6 +63,7 @@ class Api::AssetPropertiesController < ApplicationController
             :current_value,
             :is_primary_property,
             :is_funded_by_loan,
+            :loan_as_of_date,
             :loan_amount,
             :loan_duration,
             :loan_type,
