@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_24_142649) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_26_080618) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -334,6 +334,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_24_142649) do
     t.float "inflation_rate"
     t.boolean "is_dummy_data", default: false
     t.boolean "is_dream", default: false
+    t.float "rental"
+    t.float "alcohol"
   end
 
   create_table "expense_others", force: :cascade do |t|

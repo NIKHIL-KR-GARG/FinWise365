@@ -75,7 +75,6 @@ const Dreams = () => {
     const [action, setAction] = useState('Dream'); // State for action
     const [dreamAction, setDreamAction] = useState(''); // State for action
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-    const [futureIncomeDialogOpen, setFutureIncomeDialogOpen] = useState(false); // State for Future Income Dialog
     const navigate = useNavigate();
 
     // for asset dreams
@@ -273,22 +272,22 @@ const Dreams = () => {
 
     const fetchData = async () => {
         try {
-            const [assetPropertiesResponse, assetVehiclesResponse, assetAccountsResponse, assetDepositsResponse, assetPortfoliosResponse, assetOhersResponse,
+            const [assetPropertiesResponse, assetVehiclesResponse, assetAccountsResponse, assetDepositsResponse, assetPortfoliosResponse, assetOhersResponse, incomesResponse,
                 expenseHomesResponse, expensePropertiesResponse, expenseCreditCardDebtsResponse, expensePersonalLoansResponse, expenseOthersResponse,
-                dreamsResponse, incomesResponse] = await Promise.all([
+                dreamsResponse] = await Promise.all([
                     axios.get(`/api/asset_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/asset_accounts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/asset_deposits?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/asset_portfolios?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/asset_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
+                    axios.get(`/api/asset_incomes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/expense_homes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/expense_properties?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/expense_credit_card_debts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/expense_personal_loans?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/expense_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
                     axios.get(`/api/dreams?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`),
-                    axios.get(`/api/asset_incomes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                 ]);
 
             // for asset dreams
@@ -669,6 +668,12 @@ const Dreams = () => {
             setAssetOtherCount(assetOtherCount + 1);
         }
     };
+    const handleIncomeAdded = (updatedIncome, successMsg) => {
+        if (incomeListRef.current) {
+            incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
+            setIncomeCount(incomeCount + 1);
+        }
+    };
 
     // for expenses dreams
     const handleExpenseHomeAdded = (updatedExpenseHome, successMsg) => {
@@ -747,6 +752,9 @@ const Dreams = () => {
     const handleAssetOthersFetched = (count) => {
         setAssetOtherCount(count);
     };
+    const handleIncomesFetched = (count) => {
+        setIncomeCount(count);
+    };
 
     // for expenses dreams
     const handleExpenseHomesFetched = (count) => {
@@ -787,16 +795,6 @@ const Dreams = () => {
     };
     const handleConfirmDialogClose = (confirmed) => {
         setConfirmDialogOpen(false);
-        if (confirmed) {
-            navigate('/assets');
-        }
-    };
-
-    const handleFutureIncomeClick = () => {
-        setFutureIncomeDialogOpen(true);
-    };
-    const handleFutureIncomeDialogClose = (confirmed) => {
-        setFutureIncomeDialogOpen(false);
         if (confirmed) {
             navigate('/assets');
         }
@@ -844,6 +842,21 @@ const Dreams = () => {
                         <Divider sx={{ my: 2 }} />
                         <Box>
                             {/* Asset Dreams */}
+                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                        <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
+                                        Future Income ({incomeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Income, 0))}</strong>
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} listAction={'Dream'} incomesList={incomes}/>
+                                </AccordionDetails>
+                            </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -1158,6 +1171,14 @@ const Dreams = () => {
                             <FolderSpecialOutlinedIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other Asset</Typography>
                         </Box>
+                        <Box 
+                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
+                            onClick={() => handleFormModalOpen('Add Income')}
+                        >
+                            <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
+                            <Typography sx={{ color: 'white', fontSize: 12 }}>Future Income</Typography>
+                        </Box>
+
                         {/* Expense Dreams */}
                         <Box sx={{ width: '100%' }}>
                             <Divider sx={{ my: 2, borderColor: 'white' }} />
@@ -1198,6 +1219,8 @@ const Dreams = () => {
                             <MiscellaneousServicesIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other Expense</Typography>
                         </Box>
+
+                        {/* Other Dreams */}
                         <Box sx={{ width: '100%' }}>
                             <Divider sx={{ my: 2, borderColor: 'white' }} />
                             <Typography id="modal-title" variant="body1" component="h2" sx={{ color: 'white' }}>Other Dreams</Typography>
@@ -1229,13 +1252,6 @@ const Dreams = () => {
                         >
                             <MiscellaneousServicesIcon sx={{ color: 'white' }} />
                             <Typography sx={{ color: 'white', fontSize: 12 }}>Other Dream</Typography>
-                        </Box>
-                        <Box
-                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
-                            onClick={() => handleFormModalOpen('Add Income')}
-                        >
-                            <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Future Income</Typography>
                         </Box>
                     </Box>
                 </Box>
@@ -1292,6 +1308,9 @@ const Dreams = () => {
                     {dreamAction === 'Add Asset Other' && (
                         <AssetOtherForm other={null} action={'Dream'} onClose={handleFormModalClose} refreshOtherList={handleAssetOtherAdded} />
                     )}
+                    {dreamAction === 'Add Income' && (
+                        <AssetIncomeForm income={null} action={'Dream'} onClose={handleFormModalClose} refreshIncomeList={handleIncomeAdded} />
+                    )}
                     {/* for expense dreams */}
                     {dreamAction === 'Add Home Expense' && (
                         <ExpenseHomeForm home={null} action={'Dream'} onClose={handleFormModalClose} refreshHomeList={handleExpenseHomeAdded} />
@@ -1335,27 +1354,6 @@ const Dreams = () => {
                     </IconButton>
                 </Box>
             </Modal>
-            <Dialog
-                open={futureIncomeDialogOpen}
-                onClose={() => handleFutureIncomeDialogClose(false)}
-                aria-labelledby="future-income-dialog-title"
-                aria-describedby="future-income-dialog-description"
-            >
-                <DialogTitle id="future-income-dialog-title">Future Income</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="future-income-dialog-description">
-                        Future income can be added from Assets (Income) section. Do you want to proceed?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => handleFutureIncomeDialogClose(false)} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={() => handleFutureIncomeDialogClose(true)} color="primary" autoFocus>
-                        Proceed
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     );
 };

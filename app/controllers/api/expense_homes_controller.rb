@@ -68,6 +68,8 @@ class Api::ExpenseHomesController < ApplicationController
             :dining,
             :holidays,
             :miscellaneous,
+            :rental,
+            :alcohol,
             :total_expense,
             :inflation_rate,
             :is_dummy_data,

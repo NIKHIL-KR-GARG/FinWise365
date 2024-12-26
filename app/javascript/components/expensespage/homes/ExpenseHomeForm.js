@@ -39,6 +39,8 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         education: 0.0,
         dining: 0.0,
         holidays: 0.0,
+        rental: 0.0,
+        alcohol: 0.0,
         miscellaneous: 0.0,
         total_expense: 0.0,
         inflation_rate: 0.0,
@@ -65,7 +67,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
             const fieldsToUpdate = [
                 'groceries', 'clothes', 'utilities', 'furniture', 'health',
                 'transport', 'communication', 'entertainment', 'education',
-                'dining', 'holidays', 'miscellaneous'
+                'dining', 'holidays', 'rental', 'alcohol', 'miscellaneous'
             ];
 
             fieldsToUpdate.forEach(field => {
@@ -108,6 +110,8 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         if (isNaN(home.education)) errors.education = 'Education should be numeric';
         if (isNaN(home.dining)) errors.dining = 'Dining should be numeric';
         if (isNaN(home.holidays)) errors.holidays = 'Holidays should be numeric';
+        if (isNaN(home.rental)) errors.rental = 'Rental should be numeric';
+        if (isNaN(home.alcohol)) errors.alcohol = 'Alcohol should be numeric';
         if (isNaN(home.miscellaneous)) errors.miscellaneous = 'Miscellaneous expenses should be numeric';
         if (isNaN(home.total_expense)) errors.total_expense = 'Total Expense should be numeric';
         if (isNaN(home.inflation_rate)) errors.inflation_rate = 'Inflation Rate should be numeric';
@@ -144,7 +148,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     const fieldsToUpdate = [
                         'groceries', 'clothes', 'utilities', 'furniture', 'health',
                         'transport', 'communication', 'entertainment', 'education',
-                        'dining', 'holidays', 'miscellaneous'
+                        'dining', 'holidays', 'rental', 'alcohol', 'miscellaneous'
                     ];
 
                     fieldsToUpdate.forEach(field => {
@@ -187,6 +191,8 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
             + parseFloat(home.education)
             + parseFloat(home.dining)
             + parseFloat(home.holidays)
+            + parseFloat(home.rental)
+            + parseFloat(home.alcohol)
             + parseFloat(home.miscellaneous);
 
         setHome({
@@ -398,6 +404,24 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     <Grid item size={4}>
                         <TextField
                             variant="standard"
+                            label="Rental"
+                            name="rental"
+                            value={home.rental}
+                            onChange={handleChange}
+                            fullWidth
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.rental}
+                            helperText={errors.rental}
+                            slotProps={{
+                                input: {
+                                    endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
+                                },
+                            }}
+                        />
+                    </Grid>
+                    <Grid item size={4}>
+                        <TextField
+                            variant="standard"
                             label="Groceries"
                             name="groceries"
                             value={home.groceries}
@@ -416,7 +440,25 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     <Grid item size={4}>
                         <TextField
                             variant="standard"
-                            label="Clothes"
+                            label="Alcohol/Tobacco"
+                            name="alcohol"
+                            value={home.alcohol}
+                            onChange={handleChange}
+                            fullWidth
+                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                            error={!!errors.alcohol}
+                            helperText={errors.alcohol}
+                            slotProps={{
+                                input: {
+                                    endAdornment: <InputAdornment position="end">{period === 'monthly' ? '/mth' : '/year'}</InputAdornment>,
+                                },
+                            }}
+                        />
+                    </Grid>
+                    <Grid item size={4}>
+                        <TextField
+                            variant="standard"
+                            label="Clothes/Footwear"
                             name="clothes"
                             value={home.clothes}
                             onChange={handleChange}
@@ -434,7 +476,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     <Grid item size={4}>
                         <TextField
                             variant="standard"
-                            label="Utilities"
+                            label="Housing Utilities"
                             name="utilities"
                             value={home.utilities}
                             onChange={handleChange}
@@ -452,7 +494,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     <Grid item size={4}>
                         <TextField
                             variant="standard"
-                            label="Furniture"
+                            label="Furniture/Equipment"
                             name="furniture"
                             value={home.furniture}
                             onChange={handleChange}

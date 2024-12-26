@@ -7,7 +7,8 @@ import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined
 import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
 import AddIcon from '@mui/icons-material/Add';
@@ -25,15 +26,12 @@ import AssetAccountForm from '../../components/assetspage/accounts/AssetAccountF
 import AssetAccountList from '../../components/assetspage/accounts/AssetAccountList';
 import AssetDepositList from '../../components/assetspage/deposits/AssetDepositList';
 import AssetDepositForm from '../../components/assetspage/deposits/AssetDepositForm';
-// import AssetIncomeList from '../../components/assetspage/incomes/AssetIncomeList';
-// import AssetIncomeForm from '../../components/assetspage/incomes/AssetIncomeForm';
 import AssetPortfolioList from '../../components/assetspage/portfolios/AssetPortfolioList';
 import AssetPortfolioForm from '../../components/assetspage/portfolios/AssetPortfolioForm';
 import AssetOtherList from '../../components/assetspage/others/AssetOtherList';
 import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue } from '../../components/calculators/Assets';
-    // incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue 
 import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
 
@@ -48,7 +46,6 @@ const Assets = () => {
     const vehicleListRef = useRef(null);
     const accountListRef = useRef(null);
     const depositListRef = useRef(null);
-    // const incomeListRef = useRef(null);
     const portfolioListRef = useRef(null);
     const otherListRef = useRef(null);
 
@@ -56,7 +53,6 @@ const Assets = () => {
     const [vehicleCount, setVehicleCount] = useState(0); // State for vehicle count
     const [accountCount, setAccountCount] = useState(0); // State for account count
     const [depositCount, setDepositCount] = useState(0); // State for deposit count
-    // const [incomeCount, setIncomeCount] = useState(0); // State for income count
     const [portfolioCount, setPortfolioCount] = useState(0); // State for portfolio count
     const [otherCount, setOtherCount] = useState(0); // State for other count
 
@@ -67,12 +63,10 @@ const Assets = () => {
     const [vehicles, setVehicles] = useState([]);
     const [accounts, setAccounts] = useState([]);
     const [deposits, setDeposits] = useState([]);
-    // const [incomes, setIncomes] = useState([]);
     const [portfolios, setPortfolios] = useState([]);
     const [others, setOthers] = useState([]);
 
     const [assetsData, setAssetsData] = useState([]);
-    // const [incomesData, setIncomesData] = useState([]);
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -91,9 +85,6 @@ const Assets = () => {
         if (depositListRef.current) {
             setDepositCount(depositListRef.current.getDepositCount());
         }
-        // if (incomeListRef.current) {
-        //     setIncomeCount(incomeListRef.current.getIncomeCount());
-        // }
         if (portfolioListRef.current) {
             setPortfolioCount(portfolioListRef.current.getPortfolioCount());
         }
@@ -140,7 +131,6 @@ const Assets = () => {
                     axios.get(`/api/asset_vehicles?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_accounts?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_deposits?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
-                    // axios.get(`/api/asset_incomes?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_portfolios?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                     axios.get(`/api/asset_others?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData==='true'}`),
                 ]);
@@ -150,7 +140,6 @@ const Assets = () => {
                 setVehicles(vehiclesResponse.data);
                 setAccounts(accountsResponse.data);
                 setDeposits(depositsResponse.data);
-                // setIncomes(incomesResponse.data);
                 setPortfolios(portfoliosResponse.data);
                 setOthers(othersResponse.data);
 
@@ -209,69 +198,6 @@ const Assets = () => {
                         Others: parseFloat(otherAssetsValue).toFixed(2)
                     }
                 ]);
-
-                // // get value of all the incomes as of today/this month
-                // let totalIncomeValue = 0.0;
-                // let incomeAssetsValue = 0.0;
-                // for (let i = 0; i < incomesResponse.data.length; i++) {
-                //     const income = incomesResponse.data[i];
-                //     incomeAssetsValue += parseFloat(incomeAssetValue(income, today, currentUserBaseCurrency));
-                // }
-                // totalIncomeValue += incomeAssetsValue;
-
-                // // add rental as income as well
-                // let incomePropertyRentalAssetsValue = 0.0;
-                // for (let i = 0; i < propertiesResponse.data.length; i++) {
-                //     const property = propertiesResponse.data[i];
-                //     incomePropertyRentalAssetsValue += parseFloat(incomePropertyRentalAssetValue(property, today, currentUserBaseCurrency));
-                // }
-                // totalIncomeValue += incomePropertyRentalAssetsValue;
-
-                // // add coupon as income as well
-                // let incomeCouponAssetsValue = 0.0;
-                // for (let i = 0; i < portfoliosResponse.data.length; i++) {
-                //     const portfolio = portfoliosResponse.data[i];
-                //     incomeCouponAssetsValue += parseFloat(incomeCouponAssetValue(portfolio, today, currentUserBaseCurrency));
-                // }
-                // totalIncomeValue += incomeCouponAssetsValue;
-
-                // // add dividend as income as well
-                // let incomeDividendAssetsValue = 0.0;
-                // for (let i = 0; i < portfoliosResponse.data.length; i++) {
-                //     const portfolio = portfoliosResponse.data[i];
-                //     incomeDividendAssetsValue += parseFloat(incomeDividendAssetValue(portfolio, today, currentUserBaseCurrency));
-                // }
-                // totalIncomeValue += incomeDividendAssetsValue;
-
-                // // add payout as income as well
-                // let incomePayoutAssetsValue = 0.0;
-                // for (let i = 0; i < othersResponse.data.length; i++) {
-                //     const other = othersResponse.data[i];
-                //     incomePayoutAssetsValue += parseFloat(incomePayoutAssetValue(other, today, currentUserBaseCurrency));
-                // }
-                // totalIncomeValue += incomePayoutAssetsValue;
-
-                // // add vehicle lease as income as well
-                // let incomeLeaseAssetsValue = 0.0;
-                // for (let i = 0; i < vehiclesResponse.data.length; i++) {
-                //     const vehicle = vehiclesResponse.data[i];
-                //     incomeLeaseAssetsValue += parseFloat(incomeLeaseAssetValue(vehicle, today, currentUserBaseCurrency));
-                // }
-                // totalIncomeValue += incomeLeaseAssetsValue;
-
-                // // set data for the incomes graph
-                // setIncomesData([
-                //     {
-                //         name: 'Incomes',
-                //         Income: parseFloat(incomeAssetsValue).toFixed(2),
-                //         Rental: parseFloat(incomePropertyRentalAssetsValue).toFixed(2),
-                //         Coupon: parseFloat(incomeCouponAssetsValue).toFixed(2),
-                //         Dividend: parseFloat(incomeDividendAssetsValue).toFixed(2),
-                //         Payout: parseFloat(incomePayoutAssetsValue).toFixed(2),
-                //         Lease: parseFloat(incomeLeaseAssetsValue).toFixed(2),
-                //         TotalIncome: parseFloat(totalIncomeValue).toFixed(2),
-                //     }
-                // ]);
 
                 setLoading(false);
 
@@ -342,12 +268,6 @@ const Assets = () => {
             setDepositCount(depositCount + 1);
         }
     };
-    // const handleIncomeAdded = (updatedIncome, successMsg) => {
-    //     if (incomeListRef.current) {
-    //         incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
-    //         setIncomeCount(incomeCount + 1);
-    //     }
-    // };
     const handlePortfolioAdded = (updatedPortfolio, successMsg) => {
         if (portfolioListRef.current) {
             portfolioListRef.current.refreshPortfolioList(updatedPortfolio, successMsg);
@@ -373,9 +293,6 @@ const Assets = () => {
     const handleDepositsFetched = (count) => {
         setDepositCount(count);
     };
-    // const handleIncomesFetched = (count) => {
-    //     setIncomeCount(count);
-    // };
     const handlePortfoliosFetched = (count) => {
         setPortfolioCount(count);
     };
@@ -420,26 +337,10 @@ const Assets = () => {
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            {/* <AssetsGraph assetsData={assetsData} incomesData={incomesData}/> */}
                             <AssetsGraph assetsData={assetsData}/>
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         <Box>
-                            {/* <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'purple' }} />
-                                        Income ({incomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].TotalIncome) : 0)}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} incomesList={incomes} propertiesList={properties} vehiclesList={vehicles} portfoliosList={portfolios} otherAssetsList={others}/>
-                                </AccordionDetails>
-                            </Accordion> */}
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -666,13 +567,6 @@ const Assets = () => {
                         Add New Asset
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 2 }}>
-                        {/* <Box 
-                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
-                            onClick={() => handleFormModalOpen('Add Income')}
-                        >
-                            <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Income</Typography>
-                        </Box> */}
                         <Box 
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
                             onClick={() => handleFormModalOpen('Add Property')}
@@ -770,9 +664,6 @@ const Assets = () => {
                     {assetAction === 'Add Deposit' && (
                         <AssetDepositForm deposit={null} action={action} onClose={handleFormModalClose} refreshDepositList={handleDepositAdded} />
                     )}
-                    {/* {assetAction === 'Add Income' && (
-                        <AssetIncomeForm income={null} action={action} onClose={handleFormModalClose} refreshIncomeList={handleIncomeAdded} />
-                    )} */}
                     {assetAction === 'Add Portfolio' && (
                         <AssetPortfolioForm portfolio={null} action={action} onClose={handleFormModalClose} refreshPortfolioList={handlePortfolioAdded} />
                     )}

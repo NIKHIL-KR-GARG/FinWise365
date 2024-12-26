@@ -2,17 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios'; 
 import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, CircularProgress } from '@mui/material'; // Added CircularProgress
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
-import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
-import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
-import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import FolderSpecialOutlinedIcon from '@mui/icons-material/FolderSpecialOutlined';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; 
-import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
@@ -34,7 +27,7 @@ import LeaseIncomeList from '../../components/incomespage/LeaseIncomeList';
 import RentalIncomeList from '../../components/incomespage/RentalIncomeList';
 import IncomesGraph from '../../components/incomespage/IncomesGraph';
 
-const Assets = () => {
+const Incomes = () => {
     const [open, setOpen] = useState(true);
     // const [modalOpen, setModalOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
@@ -262,7 +255,7 @@ const Assets = () => {
                         <Link underline="hover" color="inherit" href="">
                             Portfolio
                         </Link>
-                        <Typography color="textPrimary">Assets</Typography>
+                        <Typography color="textPrimary">Incomes</Typography>
                     </Breadcrumbs>
                     <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -292,7 +285,7 @@ const Assets = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} incomesList={incomes}/>
+                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} listAction={'Asset'} incomesList={incomes}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -435,4 +428,4 @@ const Assets = () => {
     );
 };
 
-export default Assets;
+export default Incomes;
