@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_26_082257) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_26_123031) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -269,6 +269,54 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_26_082257) do
     t.boolean "is_dummy_data", default: false
     t.boolean "is_dream", default: false
     t.date "loan_as_of_date"
+  end
+
+  create_table "cashflow_assets", force: :cascade do |t|
+    t.integer "user_id"
+    t.date "cashflow_date"
+    t.integer "month"
+    t.integer "year"
+    t.integer "age"
+    t.integer "asset_id"
+    t.string "asset_type"
+    t.string "asset_name"
+    t.float "original_asset_value"
+    t.float "asset_value"
+    t.boolean "is_locked"
+    t.boolean "is_cash"
+    t.float "growth_rate"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "cashflow_liabilities", force: :cascade do |t|
+    t.integer "user_id"
+    t.date "cashflow_date"
+    t.integer "month"
+    t.integer "year"
+    t.integer "age"
+    t.integer "liability_id"
+    t.string "liability_type"
+    t.string "liability_name"
+    t.float "liability_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "cashflow_net_positions", force: :cascade do |t|
+    t.integer "user_id"
+    t.date "cashflow_date"
+    t.integer "month"
+    t.integer "year"
+    t.integer "age"
+    t.float "income"
+    t.float "expense"
+    t.float "net_position"
+    t.float "liquid_assets"
+    t.float "locked_assets"
+    t.float "net_worth"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "dreams", force: :cascade do |t|

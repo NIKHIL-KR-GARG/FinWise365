@@ -1,0 +1,2 @@
+class CashflowLiability < ApplicationRecord
+end

@@ -1,0 +1,2 @@
+class CashflowAsset < ApplicationRecord
+end

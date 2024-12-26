@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Box, Snackbar, Alert, IconButton, CircularProgress, Typography } from '@mui/material';
-// import Grid from '@mui/material/Grid2';
+import { Box, Snackbar, Alert, IconButton, CircularProgress, Typography, Button, Tooltip } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
 import MoneyOffOutlinedIcon from '@mui/icons-material/MoneyOffOutlined';
+import LockIcon from '@mui/icons-material/Lock';
 
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue, incomeAssetValue, incomePropertyRentalAssetValue, incomeCouponAssetValue, incomeDividendAssetValue, incomePayoutAssetValue, incomeLeaseAssetValue } from '../../components/calculators/Assets';
 import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, emiExpenseDream, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
@@ -30,8 +30,10 @@ const GenerateCashflows = ({ hideAccordians }) => {
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserDateOfBirth = new Date(localStorage.getItem('currentUserDateOfBirth'));
 
+    const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [freezeLoading, setFreezeLoading] = useState(false);
 
     const [assetsCashflowData, setAssetsCashflowData] = useState([]);
     let assetsCashflow = [];
@@ -835,12 +837,93 @@ const GenerateCashflows = ({ hideAccordians }) => {
         }
     }, []); // Empty dependency array ensures this runs only once
 
-    if (loading) {
-        return <CircularProgress />;
-    }
+    const handleFreezeCashflow = async () => {
+        setFreezeLoading(true);
+        try {
+            const cashflowAssets = assetsCashflowData.map(asset => ({
+                user_id: currentUserId,
+                cashflow_date: new Date(),
+                month: asset.month,
+                year: asset.year,
+                age: asset.age,
+                asset_id: asset.asset_id,
+                asset_type: asset.asset_type,
+                asset_name: asset.asset_name,
+                original_asset_value: asset.original_asset_value,
+                asset_value: asset.asset_value,
+                is_locked: asset.is_locked,
+                is_cash: asset.is_cash,
+                growth_rate: asset.growth_rate
+            }));
+
+            const cashflowLiabilities = liabilitiesCashflowData.map(liability => ({
+                user_id: currentUserId,
+                cashflow_date: new Date(),
+                month: liability.month,
+                year: liability.year,
+                age: liability.age,
+                liability_id: liability.liability_id,
+                liability_type: liability.liability_type,
+                liability_name: liability.liability_name,
+                liability_value: liability.liability_value
+            }));
+
+            const cashflowNetPositions = netCashflowData.map(net => ({
+                user_id: currentUserId,
+                cashflow_date: new Date(),
+                month: net.month,
+                year: net.year,
+                age: net.age,
+                income: net.income,
+                expense: net.expense,
+                net_position: net.net_position,
+                liquid_assets: net.liquid_assets,
+                locked_assets: net.locked_assets,
+                net_worth: net.net_worth
+            }));
+
+            await axios.post('/api/cashflow_assets/bulk', { cashflowAssets });
+            await axios.post('/api/cashflow_liabilities/bulk', { cashflowLiabilities });
+            await axios.post('/api/cashflow_net_positions/bulk', { cashflowNetPositions });
+
+            setSuccessMessage('Cashflow frozen successfully');
+        } catch (error) {
+            setErrorMessage('Error freezing cashflow: ' + error.message);
+        } finally {
+            setFreezeLoading(false);
+        }
+    };
 
     return (
-        <Box>
+        <Box position="relative">
+            {(loading || freezeLoading) && (
+                <Box display="flex" justifyContent="center" alignItems="center" position="fixed" top={0} left={0} right={0} bottom={0} zIndex={9999} bgcolor="rgba(255, 255, 255, 0.8)" pointerEvents="none">
+                    <CircularProgress style={{ pointerEvents: 'auto' }} />
+                </Box>
+            )}
+            <Snackbar
+                open={!!successMessage}
+                autoHideDuration={6000}
+                onClose={() => setSuccessMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="filled"
+                    severity="success"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setSuccessMessage('')}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                >
+                    {successMessage}
+                </Alert>
+            </Snackbar>
             <Snackbar
                 open={!!errorMessage}
                 autoHideDuration={6000}
@@ -864,15 +947,36 @@ const GenerateCashflows = ({ hideAccordians }) => {
                     {errorMessage}
                 </Alert>
             </Snackbar>
+            <Box display="flex" justifyContent="flex-end" mb={2}>
+                <Tooltip title="Freeze the current cashflow" arrow>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleFreezeCashflow}
+                        startIcon={<LockIcon />}
+                        sx={{
+                            backgroundColor: 'purple',
+                            '&:hover': {
+                                backgroundColor: 'darkviolet',
+                            },
+                            minWidth: '150px'
+                        }}
+                    >
+                        Freeze Cashflow
+                    </Button>
+                </Tooltip>
+            </Box>
             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
                 <AccordionSummary
                     // expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <SavingsOutlinedIcon sx={{ mr: 1, color: 'green' }} />
-                        Net Worth
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <SavingsOutlinedIcon sx={{ mr: 1, color: 'green' }} />
+                            Net Worth
+                        </Box>
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -917,7 +1021,6 @@ const GenerateCashflows = ({ hideAccordians }) => {
                     </Accordion>
                 </>
             )}
-
         </Box>
     );
 };

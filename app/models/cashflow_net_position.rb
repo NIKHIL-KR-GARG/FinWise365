@@ -1,0 +1,2 @@
+class CashflowNetPosition < ApplicationRecord
+end
