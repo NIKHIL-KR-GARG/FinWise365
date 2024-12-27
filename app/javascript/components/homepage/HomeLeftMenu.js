@@ -145,6 +145,12 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow</Typography>} />}
                         </ListItem>
+                        <ListItem component={Link} to="/cashflowcomparison" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                            <ListItemIcon>
+                                <TrendingUpIcon fontSize="small" />
+                            </ListItemIcon>
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow Comparison</Typography>} />}
+                        </ListItem>
                         {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <TrendingUpIcon fontSize="small" />

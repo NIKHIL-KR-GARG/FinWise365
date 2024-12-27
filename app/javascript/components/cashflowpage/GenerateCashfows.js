@@ -847,7 +847,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
             const cashflowProjection = {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
-                cashflow_date: new Date()
+                cashflow_date: new Date(new Date().toLocaleString()) // Convert local date string back to Date object
             };
 
             const response = await axios.post('/api/cashflow_projections', cashflowProjection);
@@ -857,7 +857,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
-                cashflow_date: new Date(),
+                cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
                 month: asset.month,
                 year: asset.year,
                 age: asset.age,
@@ -875,7 +875,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
-                cashflow_date: new Date(),
+                cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
                 month: liability.month,
                 year: liability.year,
                 age: liability.age,
@@ -889,7 +889,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
-                cashflow_date: new Date(),
+                cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
                 month: net.month,
                 year: net.year,
                 age: net.age,

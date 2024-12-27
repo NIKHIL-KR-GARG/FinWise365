@@ -12,6 +12,7 @@ import Expenses from './pages/Expenses/Expenses';
 import Dreams from './pages/Dreams/Dreams';
 import Cashflows from './pages/Cashflows/Cashflows';
 import Incomes from './pages/Incomes/Incomes';
+import CashflowComparison from './pages/CashflowComparison/CashflowComparison';
 
 const App = () => {
 
@@ -22,11 +23,12 @@ const App = () => {
         <Route path='/home' element={<AuthenticationGuard component={Home} />} />
         <Route path='/logincallback' element={<AuthenticationGuard component={LoginCallback} />} />
         <Route path='/accountsettings' element={<AuthenticationGuard component={AccountSettings} />} />
+        <Route path='/incomes' element={<AuthenticationGuard component={Incomes} />} />
         <Route path='/assets' element={<AuthenticationGuard component={Assets} />} />
         <Route path='/expenses' element={<AuthenticationGuard component={Expenses} />} />
         <Route path='/dreams' element={<AuthenticationGuard component={Dreams} />} />
         <Route path='/cashflows' element={<AuthenticationGuard component={Cashflows} />} />
-        <Route path='/incomes' element={<AuthenticationGuard component={Incomes} />} />
+        <Route path='/cashflowcomparison' element={<AuthenticationGuard component={CashflowComparison} />} />
       </Routes>
     </>
   );

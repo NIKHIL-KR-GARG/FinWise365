@@ -5,11 +5,12 @@ Rails.application.routes.draw do
   get 'home', to: 'site#index'
   get 'logincallback', to: 'site#index'
   get 'accountsettings', to: 'site#index'
+  get 'incomes', to: 'site#index'
   get 'assets', to: 'site#index'
   get 'expenses', to: 'site#index'
   get 'dreams', to: 'site#index'
   get 'cashflows', to: 'site#index'
-  get 'incomes', to: 'site#index'
+  get 'cashflowcomparison', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do
