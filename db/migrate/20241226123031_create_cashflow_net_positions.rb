@@ -12,6 +12,8 @@ class CreateCashflowNetPositions < ActiveRecord::Migration[7.2]
       t.float :liquid_assets
       t.float :locked_assets
       t.float :net_worth
+      t.boolean :is_dummy_data
+      t.integer :cashflow_id
 
       t.timestamps
     end

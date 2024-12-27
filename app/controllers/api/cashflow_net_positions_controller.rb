@@ -3,8 +3,9 @@ class Api::CashflowNetPositionsController < ApplicationController
   
     # GET /api/cashflow_net_positions
     def index
-        if params[:user_id]
-            @cashflow_net_positions = CashflowNetPosition.where(user_id: params[:user_id])
+        cashflow_id = params[:cashflow_id]
+        if cashflow_id
+            @cashflow_net_positions = CashflowNetPosition.where(cashflow_id: cashflow_id)
         else
             @cashflow_net_positions = CashflowNetPosition.all
         end
@@ -69,6 +70,8 @@ class Api::CashflowNetPositionsController < ApplicationController
             :liquid_assets,
             :locked_assets,
             :net_worth,
+            :is_dummy_data,
+            :cashflow_id,
             :created_at,
             :updated_at
         ) 
@@ -86,7 +89,9 @@ class Api::CashflowNetPositionsController < ApplicationController
             :net_position,
             :liquid_assets,
             :locked_assets,
-            :net_worth
+            :net_worth,
+            :is_dummy_data,
+            :cashflow_id,
         ])
     end
 end

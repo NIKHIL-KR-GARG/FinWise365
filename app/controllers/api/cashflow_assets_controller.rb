@@ -4,7 +4,7 @@ class Api::CashflowAssetsController < ApplicationController
     # GET /api/cashflow_assets
     def index
         if params[:user_id]
-            @cashflow_assets = CashflowAsset.where(user_id: params[:user_id])
+            @cashflow_assets = CashflowAsset.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @cashflow_assets = CashflowAsset.all
         end
@@ -70,6 +70,8 @@ class Api::CashflowAssetsController < ApplicationController
             :is_locked,
             :is_cash,
             :growth_rate,
+            :is_dummy_data,
+            :cashflow_id,
             :created_at,
             :updated_at
         ) 
@@ -89,7 +91,9 @@ class Api::CashflowAssetsController < ApplicationController
             :asset_value,
             :is_locked,
             :is_cash,
-            :growth_rate
+            :growth_rate,
+            :is_dummy_data,
+            :cashflow_id,
         ])
     end
 end

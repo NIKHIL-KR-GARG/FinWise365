@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_26_123031) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_27_101927) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -287,6 +287,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_26_123031) do
     t.float "growth_rate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_dummy_data"
+    t.integer "cashflow_id"
   end
 
   create_table "cashflow_liabilities", force: :cascade do |t|
@@ -301,6 +303,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_26_123031) do
     t.float "liability_value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_dummy_data"
+    t.integer "cashflow_id"
   end
 
   create_table "cashflow_net_positions", force: :cascade do |t|
@@ -315,6 +319,19 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_26_123031) do
     t.float "liquid_assets"
     t.float "locked_assets"
     t.float "net_worth"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "is_dummy_data"
+    t.integer "cashflow_id"
+  end
+
+  create_table "cashflow_projections", force: :cascade do |t|
+    t.integer "user_id"
+    t.date "cashflow_date"
+    t.integer "month"
+    t.integer "year"
+    t.integer "age"
+    t.boolean "is_dummy_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

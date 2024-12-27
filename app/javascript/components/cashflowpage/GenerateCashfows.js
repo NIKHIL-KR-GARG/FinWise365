@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Box, Snackbar, Alert, IconButton, CircularProgress, Typography, Button, Tooltip } from '@mui/material';
+import { Box, Snackbar, Alert, IconButton, CircularProgress, Typography, Button, Tooltip, FormControlLabel, Checkbox } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
@@ -29,11 +29,13 @@ const GenerateCashflows = ({ hideAccordians }) => {
     const currentUserLifeExpectancy = parseInt(localStorage.getItem('currentUserLifeExpectancy'));
     const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
     const currentUserDateOfBirth = new Date(localStorage.getItem('currentUserDateOfBirth'));
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [freezeLoading, setFreezeLoading] = useState(false);
+    const [saveAsDummyData, setSaveAsDummyData] = useState(false);
 
     const [assetsCashflowData, setAssetsCashflowData] = useState([]);
     let assetsCashflow = [];
@@ -840,8 +842,21 @@ const GenerateCashflows = ({ hideAccordians }) => {
     const handleFreezeCashflow = async () => {
         setFreezeLoading(true);
         try {
+
+            // save a row in cashflow_projections first and retrieve the id
+            const cashflowProjection = {
+                user_id: currentUserId,
+                is_dummy_data: saveAsDummyData,
+                cashflow_date: new Date()
+            };
+
+            const response = await axios.post('/api/cashflow_projections', cashflowProjection);
+            const cashflowProjectionId = response.data.id;
+
             const cashflowAssets = assetsCashflowData.map(asset => ({
                 user_id: currentUserId,
+                is_dummy_data: saveAsDummyData,
+                cashflow_id: cashflowProjectionId,
                 cashflow_date: new Date(),
                 month: asset.month,
                 year: asset.year,
@@ -858,6 +873,8 @@ const GenerateCashflows = ({ hideAccordians }) => {
 
             const cashflowLiabilities = liabilitiesCashflowData.map(liability => ({
                 user_id: currentUserId,
+                is_dummy_data: saveAsDummyData,
+                cashflow_id: cashflowProjectionId,
                 cashflow_date: new Date(),
                 month: liability.month,
                 year: liability.year,
@@ -870,6 +887,8 @@ const GenerateCashflows = ({ hideAccordians }) => {
 
             const cashflowNetPositions = netCashflowData.map(net => ({
                 user_id: currentUserId,
+                is_dummy_data: saveAsDummyData,
+                cashflow_id: cashflowProjectionId,
                 cashflow_date: new Date(),
                 month: net.month,
                 year: net.year,
@@ -888,10 +907,15 @@ const GenerateCashflows = ({ hideAccordians }) => {
 
             setSuccessMessage('Cashflow frozen successfully');
         } catch (error) {
-            setErrorMessage('Error freezing cashflow: ' + error.message);
+            setErrorMessage('Error freezing cashflow');
         } finally {
             setFreezeLoading(false);
         }
+    };
+
+    const handleChange = (e) => {
+        const { checked } = e.target;
+        setSaveAsDummyData(checked);
     };
 
     return (
@@ -948,6 +972,17 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 </Alert>
             </Snackbar>
             <Box display="flex" justifyContent="flex-end" mb={2}>
+                {currentUserIsAdmin && (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                onChange={handleChange}
+                                name="is_dummy_data"
+                            />
+                        }
+                        label="Is Dummy Data?"
+                    />
+                )}
                 <Tooltip title="Freeze the current cashflow" arrow>
                     <Button
                         variant="contained"

@@ -1,0 +1,2 @@
+class CashflowProjection < ApplicationRecord
+end

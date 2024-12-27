@@ -39,6 +39,8 @@ Rails.application.routes.draw do
 
     resources :dreams, only: %i[index show create destroy update]
 
+    resources :cashflow_projections, only: %i[index show create destroy update]
+
     resources :cashflow_assets, only: %i[index show create destroy update] do
       collection do
         post 'bulk', to: 'cashflow_assets#bulk_create'
@@ -56,9 +58,6 @@ Rails.application.routes.draw do
         post 'bulk', to: 'cashflow_net_positions#bulk_create'
       end
     end
-
-    resources :cashflow_liabilities, only: %i[index show create destroy update]
-    resources :cashflow_net_positions, only: %i[index show create destroy update]
 
   end
 

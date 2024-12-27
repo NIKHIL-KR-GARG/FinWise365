@@ -4,7 +4,7 @@ class Api::CashflowLiabilitiesController < ApplicationController
     # GET /api/cashflow_liabilities
     def index
         if params[:user_id]
-            @cashflow_liabilities = CashflowLiability.where(user_id: params[:user_id])
+            @cashflow_liabilities = CashflowLiability.where("user_id = ? OR (user_id = 0 AND is_dummy_data = ?)", params[:user_id], params[:is_display_dummy_data])
         else
             @cashflow_liabilities = CashflowLiability.all
         end
@@ -67,6 +67,8 @@ class Api::CashflowLiabilitiesController < ApplicationController
             :liability_type,
             :liability_name,
             :liability_value,
+            :is_dummy_data,
+            :cashflow_id,
             :created_at,
             :updated_at
         ) 
@@ -82,7 +84,9 @@ class Api::CashflowLiabilitiesController < ApplicationController
             :liability_id,
             :liability_type,
             :liability_name,
-            :liability_value
+            :liability_value,
+            :is_dummy_data,
+            :cashflow_id,
         ])
     end
 end

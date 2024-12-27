@@ -14,6 +14,8 @@ class CreateCashflowAssets < ActiveRecord::Migration[7.2]
       t.boolean :is_locked
       t.boolean :is_cash
       t.float :growth_rate
+      t.boolean :is_dummy_data
+      t.integer :cashflow_id
 
       t.timestamps
     end
