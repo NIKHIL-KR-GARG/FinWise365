@@ -21,7 +21,8 @@ const UserProfile = () => {
         email: '',
         base_currency: '',
         gender: 'Prefer not to say',
-        nationality: ''
+        nationality: '',
+        is_admin: false
     });
 
     const [errors, setErrors] = useState({});
@@ -55,7 +56,8 @@ const UserProfile = () => {
                         email: appuser.email,
                         base_currency: appuser.base_currency,
                         gender: appuser.gender,
-                        nationality: appuser.nationality
+                        nationality: appuser.nationality,
+                        is_admin: appuser.is_admin
                     });
                     setIsFormChanged(false); // Reset form change state after fetching user data
 
@@ -70,6 +72,7 @@ const UserProfile = () => {
                     localStorage.setItem('currentUserCountryOfResidence', appuser.country_of_residence);
                     localStorage.setItem('currentUserIsPermanentResident', appuser.is_permanent_resident);
                     localStorage.setItem('currentUserIsAdmin', appuser.is_admin);
+                    localStorage.setItem('currentUserDisplayDummyData', appuser.is_display_dummy_data || true);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -125,6 +128,12 @@ const UserProfile = () => {
     const handleSave = async () => {
         if (validate()) {
             try {
+
+                // set nikhil's user id as admin
+                if (user.email === 'nikhil.kr.garg@gmmail.com') {
+                    user.is_admin = true;
+                }
+
                 await axios.put(`/api/users/${currentUserId}`, user);
                 setSuccessMessage('User information updated successfully');
                 setErrorMessage('');

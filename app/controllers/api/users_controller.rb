@@ -46,6 +46,11 @@ class Api::UsersController < ApplicationController
         # User does not exist, create a new user
         @user = User.new(user_params)
   
+        # Check if the email is "nikhil.kr.garg@gmail.com" and set is_admin to true
+        if user_email == "nikhil.kr.garg@gmail.com"
+          @user.is_admin = true
+        end
+  
         if @user.save
           render json: @user, status: :created
         else
