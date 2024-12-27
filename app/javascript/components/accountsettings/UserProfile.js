@@ -130,7 +130,7 @@ const UserProfile = () => {
             try {
 
                 // set nikhil's user id as admin
-                if (user.email === 'nikhil.kr.garg@gmmail.com') {
+                if (user.email === 'nikhil.kr.garg@gmail.com') {
                     user.is_admin = true;
                 }
 
@@ -149,6 +149,7 @@ const UserProfile = () => {
                 localStorage.setItem('currentUserNationality', user.nationality);
                 localStorage.setItem('currentUserCountryOfResidence', user.country_of_residence);
                 localStorage.setItem('currentUserIsPermanentResident', user.is_permanent_resident);
+                localStorage.setItem('currentUserIsAdmin', user.is_admin);
 
             } catch (error) {
                 console.error('Error updating user data:', error);
