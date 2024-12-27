@@ -13,6 +13,7 @@ const Home = () => {
     const [open, setOpen] = useState(true);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [hasSavedCashflow, setHasSavedCashflow] = useState(true);
     const hasFetchedData = useRef(false);
 
     const [cashflowDate, setCashflowDate] = useState('');
@@ -28,7 +29,15 @@ const Home = () => {
     const fetchData = async () => {
         try {
             const cashflowProjectionsResponse = await axios.get(`/api/cashflow_projections?user_id=${currentUserId}&is_display_dummy_data=${currentUserDisplayDummyData === 'true'}`);
-            const mostRecentCashflowProjection = cashflowProjectionsResponse.data.sort((a, b) => b.id - a.id)[0];
+            const projections = cashflowProjectionsResponse.data;
+
+            if (projections.length === 0) {
+                setHasSavedCashflow(false);
+                setLoading(false);
+                return;
+            }
+
+            const mostRecentCashflowProjection = projections.sort((a, b) => b.id - a.id)[0];
             const cashflowID = mostRecentCashflowProjection.id;
             const cashflowDate = mostRecentCashflowProjection.cashflow_date;
             setCashflowDate(cashflowDate);
@@ -39,7 +48,7 @@ const Home = () => {
             setLoading(false);
         } catch (error) {
             console.error('Error fetching data:', error);
-            setError('Error fetching data' + error.message);
+            setError('Error fetching data');
             setLoading(false);
         }
     };
@@ -140,7 +149,17 @@ const Home = () => {
                                 </Box>
                             </Typography>
                         </Box>
-                        <DisplayCashflow netCashflowData={netCashflow} />
+                        {!hasSavedCashflow && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 10 }}>
+                                <Typography variant="h5" sx={{ fontStyle: 'italic', textAlign: 'center', color: 'red' }}>
+                                    You have not saved any cashflow projections yet. 
+                                    Please create a new cashflow projection from Analyze (Cashflow) Menu option.
+                                </Typography>
+                            </Box>
+                        )}
+                        {hasSavedCashflow && (
+                            <DisplayCashflow netCashflowData={netCashflow} />
+                        )}
                     </Box>
                 </Box>
             </Box>

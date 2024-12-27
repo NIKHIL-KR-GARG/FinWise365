@@ -50,17 +50,17 @@ const LandingHeader = () => {
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', gap: 6 }}>
-        <Link href="/home" sx={{ textDecoration: 'none', color: 'white' }}>
+        {/* <Link href="/home" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             Home
           </Typography>
-        </Link>
-        <Link href="/about" sx={{ textDecoration: 'none', color: 'white' }}>
+        </Link> */}
+        <Link href="" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             About
           </Typography>
         </Link>
-        <Link href="/contact" sx={{ textDecoration: 'none', color: 'white' }}>
+        <Link href="" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             Contact Us
           </Typography>
