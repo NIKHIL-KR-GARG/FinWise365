@@ -1,15 +1,12 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-//import MenuButton from '../common/MenuButton';
-//import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
-//import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 
 import { useAuth0 } from "@auth0/auth0-react";
 
-const LandingHeader = () => {
+const LandingHeader = ({sourcePage}) => {
 
   const { loginWithRedirect } = useAuth0(); // useAuth0 hook destructured
   
@@ -51,20 +48,22 @@ const LandingHeader = () => {
       </Box>
       <Box sx={{ display: 'flex', gap: 6 }}>
         {/* <Link href="/home" sx={{ textDecoration: 'none', color: 'white' }}>
-          <Typography variant="body1" sx={{ color: 'white' }}>
-            Home
-          </Typography>
-        </Link> */}
+            <Typography variant="body1" sx={{ color: 'white' }}>
+              Home
+            </Typography>
+          </Link> */}
         <Link href="" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
             About
           </Typography>
         </Link>
-        <Link href="" sx={{ textDecoration: 'none', color: 'white' }}>
-          <Typography variant="body1" sx={{ color: 'white' }}>
-            Contact Us
-          </Typography>
-        </Link>
+        {sourcePage === 'Landing' && (
+          <Link href="/contactus" sx={{ textDecoration: 'none', color: 'white' }}>
+            <Typography variant="body1" sx={{ color: 'white' }}>
+              Contact Us
+            </Typography>
+          </Link>
+        )}
         <Link 
           component="button" // Change to button for onClick
           onClick={handleLogin} // Call loginWithRedirect on click

@@ -18,7 +18,7 @@ const Landing = () => {
                 px: 0, // Horizontal padding
             }}
         >
-            <LandingHeader />
+            <LandingHeader sourcePage={'Landing'}/>
             <Box sx={{ mt: 6 }}> {/* Margin top for spacing */}
                 <LandingSectionTagline />
             </Box>

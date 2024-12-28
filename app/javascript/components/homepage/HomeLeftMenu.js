@@ -205,7 +205,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     </ListItemIcon>
                     {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Help Centre</Typography>} />}
                 </ListItem>
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                <ListItem component={Link} to="/contactus" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                     <ListItemIcon>
                         <ContactMailIcon fontSize="small" />
                     </ListItemIcon>

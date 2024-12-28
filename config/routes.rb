@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get 'dreams', to: 'site#index'
   get 'cashflows', to: 'site#index'
   get 'cashflowcomparison', to: 'site#index'
+  get 'contactus', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do
@@ -59,6 +60,8 @@ Rails.application.routes.draw do
         post 'bulk', to: 'cashflow_net_positions#bulk_create'
       end
     end
+
+    resources :contact_admins, only: %i[index show create destroy update]
 
   end
 
