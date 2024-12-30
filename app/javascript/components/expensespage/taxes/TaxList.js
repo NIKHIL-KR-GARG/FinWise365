@@ -8,6 +8,40 @@ import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const fetchTaxes = (assetPropertiesList) => {
+    try {
+        // filter asset properties and add to taxes list
+        const propertyTax = assetPropertiesList
+            .filter(assetProperty => {
+                if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
+                else if (assetProperty.is_dream === true) return false; 
+                else if (new Date(assetProperty.purchase_date) <= new Date() &&
+                    (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()))
+                    return true;
+                else return false;
+            })
+            .map(assetProperty => ({
+                id: `propertytax-${assetProperty.id}`,
+                name: `Tax - ${assetProperty.property_name}`,
+                type: 'Property Tax',
+                location: assetProperty.location,
+                currency: assetProperty.currency,
+                tax_amount: assetProperty.property_tax,
+                frequency: 'Monthly',
+                // if property is under construction, start_date is possession_date else start date is purchase_date
+                start_date: assetProperty.is_under_construction ? assetProperty.possession_date : assetProperty.purchase_date,
+                // if is plan to sell, end_date is sale_date else end_date is null
+                end_date: assetProperty.is_plan_to_sell ? assetProperty.sale_date : ""
+            }));
+
+        return propertyTax;
+
+    } catch (error) {
+        console.error('Error fetching Taxes');
+    }
+};
+
+
 const TaxList = forwardRef((props, ref) => {
     const { onTaxesFetched, assetPropertiesList } = props; // Destructure the new prop
     
@@ -26,45 +60,16 @@ const TaxList = forwardRef((props, ref) => {
     const [taxesFetched, setTaxesFetched] = useState(false); // State to track if taxes are fetched
     const theme = useTheme();
     const [sortingModel, setSortingModel] = useState([{ field: 'tax_name', sort: 'asc' }]); // Initialize with default sorting
-    
-    const fetchTaxes = (assetPropertiesList) => {
-        try {
-            // filter asset properties and add to taxes list
-            const propertyTax = assetPropertiesList
-                .filter(assetProperty => {
-                    if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
-                    else if (assetProperty.is_dream === true) return false; 
-                    else if (new Date(assetProperty.purchase_date) <= new Date() &&
-                        (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()))
-                        return true;
-                    else return false;
-                })
-                .map(assetProperty => ({
-                    id: `propertytax-${assetProperty.id}`,
-                    name: `Tax - ${assetProperty.property_name}`,
-                    type: 'Property Tax',
-                    location: assetProperty.location,
-                    currency: assetProperty.currency,
-                    tax_amount: assetProperty.property_tax,
-                    frequency: 'Monthly',
-                    // if property is under construction, start_date is possession_date else start date is purchase_date
-                    start_date: assetProperty.is_under_construction ? assetProperty.possession_date : assetProperty.purchase_date,
-                    // if is plan to sell, end_date is sale_date else end_date is null
-                    end_date: assetProperty.is_plan_to_sell ? assetProperty.sale_date : ""
-                }));
-
-            setTaxes([...propertyTax]);
-            setTaxesFetched(true); // Set taxesFetched to true after fetching
-            if (onTaxesFetched) {
-                onTaxesFetched(propertyTax.length); // Notify parent component
-            }
-        } catch (error) {
-            console.error('Error fetching Taxes:', error);
-        }
-    };
 
     useEffect(() => {
-        fetchTaxes(assetPropertiesList);
+        const propertyTax = fetchTaxes(assetPropertiesList);
+
+        setTaxes([...propertyTax]);
+        setTaxesFetched(true); // Set taxesFetched to true after fetching
+        
+        if (onTaxesFetched) {
+            onTaxesFetched(propertyTax.length); // Notify parent component
+        }
     }, []);
 
     useImperativeHandle(ref, () => ({

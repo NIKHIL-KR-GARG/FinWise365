@@ -12,6 +12,55 @@ import ExpensePropertyForm from './ExpensePropertyForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterProperties = (listAction, propertiesList, includePastProperties) => {
+    let filteredProperties = [];
+    const today = new Date();
+    if (listAction === 'Expense' && !includePastProperties) {
+        filteredProperties = propertiesList.filter(property => !property.is_dream && (!property.end_date || new Date(property.end_date) >= today));
+    } else if (listAction === 'Expense' && includePastProperties) {
+        filteredProperties = propertiesList.filter(property => !property.is_dream);
+    } else if (listAction === 'Dream' && includePastProperties) {
+        filteredProperties = propertiesList.filter(property => property.is_dream);
+    } else if (listAction === 'Dream' && !includePastProperties) {
+        filteredProperties = propertiesList.filter(property => property.is_dream && (new Date(property.start_date) > today));
+    } else
+        filteredProperties = propertiesList;
+
+    return filteredProperties;
+};
+
+export const filterPropertiesMaintenance = (assetPropertiesList) => {
+
+    let propertyMaintenance = [];
+    if (assetPropertiesList && assetPropertiesList.length > 0) {
+        // add asset properties to the filtered properties list
+        propertyMaintenance = assetPropertiesList
+            .filter(assetProperty => {
+                if (assetProperty.is_dream) return false;
+                else if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
+                else if (new Date(assetProperty.purchase_date) <= new Date() &&
+                    (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()) &&
+                    assetProperty.property_maintenance > 0)
+                    return true;
+                else return false;
+            })
+            .map(assetProperty => ({
+                id: `propertymaintenance-${assetProperty.id}`,
+                property_name: `Maintenance - ${assetProperty.property_name}`,
+                property_type: assetProperty.property_type,
+                location: assetProperty.location,
+                currency: assetProperty.currency,
+                // if property is under construction, start_date is possession_date else start date is purchase_date
+                start_date: assetProperty.is_under_construction ? assetProperty.possession_date : assetProperty.purchase_date,
+                // if is plan to sell, end_date is sale_date else end_date is null
+                end_date: assetProperty.is_plan_to_sell ? assetProperty.sale_date : "",
+                total_expense: assetProperty.property_maintenance
+            }));
+    }
+
+    return propertyMaintenance;
+};
+
 const ExpensePropertyList = forwardRef((props, ref) => {
     const { onPropertiesFetched, listAction, propertiesList, assetPropertiesList } = props; // Destructure the new prop
     
@@ -29,46 +78,9 @@ const ExpensePropertyList = forwardRef((props, ref) => {
 
     const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch to include past properties
 
-    const filterProperties = (propertiesList, assetPropertiesList) => {
-        let filteredProperties = [];
-        const today = new Date();
-        if (listAction === 'Expense' && !includePastProperties) {
-            filteredProperties = propertiesList.filter(property => !property.is_dream && (!property.end_date || new Date(property.end_date) >= today));
-        } else if (listAction === 'Expense' && includePastProperties) {
-            filteredProperties = propertiesList.filter(property => !property.is_dream);
-        } else if (listAction === 'Dream' && includePastProperties) {
-            filteredProperties = propertiesList.filter(property => property.is_dream);
-        } else if (listAction === 'Dream' && !includePastProperties) {
-            filteredProperties = propertiesList.filter(property => property.is_dream && (new Date(property.start_date) > today));
-        } else
-            filteredProperties = propertiesList;
-
-        let propertyMaintenance = [];
-        if (assetPropertiesList && assetPropertiesList.length > 0) {
-            // add asset properties to the filtered properties list
-            propertyMaintenance = assetPropertiesList
-                .filter(assetProperty => {
-                    if (assetProperty.is_dream) return false;
-                    else if (assetProperty.is_under_construction && new Date(assetProperty.possession_date) > new Date()) return false;
-                    else if (new Date(assetProperty.purchase_date) <= new Date() &&
-                        (!assetProperty.is_plan_to_sell || new Date(assetProperty.sale_date) >= new Date()) &&
-                        assetProperty.property_maintenance > 0)
-                        return true;
-                    else return false;
-                })
-                .map(assetProperty => ({
-                    id: `propertymaintenance-${assetProperty.id}`,
-                    property_name: `Maintenance - ${assetProperty.property_name}`,
-                    property_type: assetProperty.property_type,
-                    location: assetProperty.location,
-                    currency: assetProperty.currency,
-                    // if property is under construction, start_date is possession_date else start date is purchase_date
-                    start_date: assetProperty.is_under_construction ? assetProperty.possession_date : assetProperty.purchase_date,
-                    // if is plan to sell, end_date is sale_date else end_date is null
-                    end_date: assetProperty.is_plan_to_sell ? assetProperty.sale_date : "",
-                    total_expense: assetProperty.property_maintenance
-                }));
-        }
+    useEffect(() => {
+        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
+        const propertyMaintenance = filterPropertiesMaintenance(assetPropertiesList);
 
         setProperties([...filteredProperties, ...propertyMaintenance]);
 
@@ -76,14 +88,20 @@ const ExpensePropertyList = forwardRef((props, ref) => {
         if (onPropertiesFetched) {
             onPropertiesFetched(filteredProperties.length + propertyMaintenance.length) // Notify parent component
         }
-    };
 
-    useEffect(() => {
-        filterProperties(propertiesList, assetPropertiesList);
     }, []);
 
     useEffect(() => {
-        filterProperties(propertiesList, assetPropertiesList); // Filter properties when includePastProperties changes
+        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
+        const propertyMaintenance = filterPropertiesMaintenance(assetPropertiesList);
+
+        setProperties([...filteredProperties, ...propertyMaintenance]);
+
+        setPropertiesFetched(true); // Set propertiesFetched to true after filtering
+        if (onPropertiesFetched) {
+            onPropertiesFetched(filteredProperties.length + propertyMaintenance.length) // Notify parent component
+        }
+
     }, [includePastProperties]); // Include Past Properties to property/grid array
 
     const handleFormModalClose = () => {

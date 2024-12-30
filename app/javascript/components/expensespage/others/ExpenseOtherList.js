@@ -12,6 +12,62 @@ import ExpenseOtherForm from './ExpenseOtherForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterOthers = (listAction, othersList, includePastOthers) => {
+    let filteredOthers = [];
+    const today = new Date();
+    if (!includePastOthers) {
+        if (listAction === 'Expense') {
+            filteredOthers = othersList.filter(other => {
+                if (other.is_dream) return false;
+                if (!other.is_recurring && new Date(other.expense_date) >= new Date()) return true;
+                else if (other.is_recurring && new Date(other.end_date) >= new Date()) return true;
+                else return false;
+            });
+        }
+        else if (listAction === 'Dream') {
+            filteredOthers = othersList.filter(other => other.is_dream && (new Date(other.expense_date) > today));
+        }
+    }
+    else if (includePastOthers) {
+        if (listAction === 'Expense') {
+            filteredOthers = othersList.filter(other => !other.is_dream);
+        }
+        else if (listAction === 'Dream') {
+            filteredOthers = othersList.filter(other => other.is_dream);
+        }
+    }
+    else
+        filteredOthers = othersList;
+
+    return filteredOthers;
+    
+};
+
+export const filterOthersVehicleExpense = (vehiclesList) => {
+    let vehicleExpenses = [];
+    if (vehiclesList && vehiclesList.length > 0) {
+        // add vehicle maintenance for currently owned vehicles
+        vehicleExpenses = vehiclesList
+            .filter(vehicle => new Date(vehicle.purchase_date) <= new Date() && 
+            (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= new Date()) && 
+            (vehicle.vehicle_maintanance > 0 || vehicle.monthly_expenses > 0) &&
+            vehicle.is_dream === false)
+            .map(vehicle => ({
+                id: `vehicleexpense-${vehicle.id}`,
+                expense_name: `Vehicle Expenses - ${vehicle.vehicle_name}`,
+                location: vehicle.location,
+                currency: vehicle.currency,
+                expense_date: new Date().toISOString().split('T')[0],
+                amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
+                is_recurring: true,
+                recurring_amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
+                end_date: vehicle.is_plan_to_sell ? vehicle.sale_date : ''
+            }));
+    }
+    
+    return vehicleExpenses;
+};
+
 const ExpenseOtherList = forwardRef((props, ref) => {
     const { onOthersFetched, listAction, othersList, vehiclesList } = props; // Destructure the new prop
     
@@ -29,67 +85,26 @@ const ExpenseOtherList = forwardRef((props, ref) => {
 
     const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch
 
-    const filterOthers = (othersList, vehiclesList) => {
-        let filteredOthers = [];
-        const today = new Date();
-        if (!includePastOthers) {
-            if (listAction === 'Expense') {
-                filteredOthers = othersList.filter(other => {
-                    if (other.is_dream) return false;
-                    if (!other.is_recurring && new Date(other.expense_date) >= new Date()) return true;
-                    else if (other.is_recurring && new Date(other.end_date) >= new Date()) return true;
-                    else return false;
-                });
-            }
-            else if (listAction === 'Dream') {
-                filteredOthers = othersList.filter(other => other.is_dream && (new Date(other.expense_date) > today));
-            }
-        }
-        else if (includePastOthers) {
-            if (listAction === 'Expense') {
-                filteredOthers = othersList.filter(other => !other.is_dream);
-            }
-            else if (listAction === 'Dream') {
-                filteredOthers = othersList.filter(other => other.is_dream);
-            }
-        }
-        else
-            filteredOthers = othersList;
+    useEffect(() => {
+        const filteredOthers = filterOthers(listAction, othersList, includePastOthers); // Filter others
+        const vehicleExpenses = filterOthersVehicleExpense(vehiclesList); // Filter vehicle expenses
 
-        let vehicleExpenses = [];
-        if (vehiclesList && vehiclesList.length > 0) {
-            // add vehicle maintenance for currently owned vehicles
-            vehicleExpenses = vehiclesList
-                .filter(vehicle => new Date(vehicle.purchase_date) <= new Date() && 
-                (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= new Date()) && 
-                (vehicle.vehicle_maintanance > 0 || vehicle.monthly_expenses > 0) &&
-                vehicle.is_dream === false)
-                .map(vehicle => ({
-                    id: `vehicleexpense-${vehicle.id}`,
-                    expense_name: `Vehicle Expenses - ${vehicle.vehicle_name}`,
-                    location: vehicle.location,
-                    currency: vehicle.currency,
-                    expense_date: new Date().toISOString().split('T')[0],
-                    amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
-                    is_recurring: true,
-                    recurring_amount: parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses),
-                    end_date: vehicle.is_plan_to_sell ? vehicle.sale_date : ''
-                }));
-        }
-        
         setOthers([...filteredOthers, ...vehicleExpenses]); // Set the filtered others
         setOthersFetched(true); // Set othersFetched to true after filtering
         if (onOthersFetched) {
             onOthersFetched(filteredOthers.length + vehicleExpenses.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterOthers(othersList, vehiclesList);
     }, []);
 
     useEffect(() => {
-        filterOthers(othersList, vehiclesList); // Filter others when includePastOthers changes
+        const filteredOthers = filterOthers(listAction, othersList, includePastOthers); // Filter others when includePastOthers changes
+        const vehicleExpenses = filterOthersVehicleExpense(vehiclesList); // Filter vehicle expenses
+        
+        setOthers([...filteredOthers, ...vehicleExpenses]); // Set the filtered others
+        setOthersFetched(true); // Set othersFetched to true after filtering
+        if (onOthersFetched) {
+            onOthersFetched(filteredOthers.length + vehicleExpenses.length); // Notify parent component
+     }
     }, [includePastOthers]); // Include Past Others to other/grid array
 
     const handleFormModalClose = () => {

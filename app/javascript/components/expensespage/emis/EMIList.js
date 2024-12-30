@@ -8,6 +8,70 @@ import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const fetchPropertyEMIs = (propertiesList) => {
+    try {
+        const propertyEMIs = propertiesList
+        .filter(property => {
+            // derive end date based on purchase date and loan_duration
+            if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
+            else if (property.is_dream === true) return false;
+            else if (!property.is_funded_by_loan) return false;
+            else {
+                const startDate = new Date(property.purchase_date);
+                const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
+                return endDate >= new Date();
+            }
+        })
+        .map(property => ({
+            id: `propertyemi-${property.id}`,
+            name: `EMI - ${property.property_name}`,
+            type: 'Property',
+            location: property.location,
+            currency: property.currency,
+            amount: property.emi_amount,
+            start_date: property.purchase_date,
+            end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
+        }));
+
+        return propertyEMIs;
+
+    } catch (error) {
+        console.error('Error fetching EMIs:', error);
+    }
+};
+
+export const fetchVehicleEMIs = (vehiclesList) => {
+    try {
+        const vehicleEMIs = vehiclesList
+        .filter(vehicle => {
+            if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
+            else if (vehicle.is_dream === true) return false;
+            else if (!vehicle.is_funded_by_loan) return false;
+            else {
+                // derive end date based on purchase date and loan_duration
+                const startDate = new Date(vehicle.purchase_date);
+                const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
+                return endDate >= new Date();
+            }
+        })
+        .map(vehicle => ({
+            id: `vehicleemi-${vehicle.id}`,
+            name: `EMI - ${vehicle.vehicle_name}`,
+            type: 'Vehicle',
+            location: vehicle.location,
+            currency: vehicle.currency,
+            amount: vehicle.emi_amount,
+            start_date: vehicle.purchase_date,
+            end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
+        }));
+
+        return vehicleEMIs;
+
+    } catch (error) {
+        console.error('Error fetching EMIs:', error);
+    }
+};
+
 const EMIList = forwardRef((props, ref) => {
     const { onEMIsFetched, propertiesList, vehiclesList } = props; // Destructure the new prop
     
@@ -26,66 +90,16 @@ const EMIList = forwardRef((props, ref) => {
     const theme = useTheme();
     const [sortingModel, setSortingModel] = useState([{ field: 'emi_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const fetchEMIs = (propertiesList, vehiclesList) => {
-        try {
-            const propertyEMIs = propertiesList
-            .filter(property => {
-                // derive end date based on purchase date and loan_duration
-                if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
-                else if (property.is_dream === true) return false;
-                else if (!property.is_funded_by_loan) return false;
-                else {
-                    const startDate = new Date(property.purchase_date);
-                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
-                    return endDate >= new Date();
-                }
-            })
-            .map(property => ({
-                id: `propertyemi-${property.id}`,
-                name: `EMI - ${property.property_name}`,
-                type: 'Property',
-                location: property.location,
-                currency: property.currency,
-                amount: property.emi_amount,
-                start_date: property.purchase_date,
-                end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
-            }));
-
-            const vehicleEMIs = vehiclesList
-            .filter(vehicle => {
-                if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
-                else if (vehicle.is_dream === true) return false;
-                else if (!vehicle.is_funded_by_loan) return false;
-                else {
-                    // derive end date based on purchase date and loan_duration
-                    const startDate = new Date(vehicle.purchase_date);
-                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
-                    return endDate >= new Date();
-                }
-            })
-            .map(vehicle => ({
-                id: `vehicleemi-${vehicle.id}`,
-                name: `EMI - ${vehicle.vehicle_name}`,
-                type: 'Vehicle',
-                location: vehicle.location,
-                currency: vehicle.currency,
-                amount: vehicle.emi_amount,
-                start_date: vehicle.purchase_date,
-                end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
-            }));
-
-            setEMIs([...propertyEMIs, ...vehicleEMIs]); // Set combined EMIs to state
-            setEMIsFetched(true); // Set emisFetched to true after fetching
-            if (onEMIsFetched) {
-                onEMIsFetched(propertyEMIs.length + vehicleEMIs.length); // Notify parent component
-            }
-        } catch (error) {
-            console.error('Error fetching EMIs:', error);
-        }
-    };
-
     useEffect(() => {
-        fetchEMIs(propertiesList, vehiclesList);
+        const propertyEMIs = fetchPropertyEMIs(propertiesList);
+        const vehicleEMIs = fetchVehicleEMIs(vehiclesList);
+
+        setEMIs([...propertyEMIs, ...vehicleEMIs]); // Set combined EMIs to state
+        setEMIsFetched(true); // Set emisFetched to true after fetching
+
+        if (onEMIsFetched) {
+            onEMIsFetched(propertyEMIs.length + vehicleEMIs.length); // Notify parent component
+        }
     }, []);
 
     useImperativeHandle(ref, () => ({

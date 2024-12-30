@@ -12,6 +12,23 @@ import ExpenseHomeForm from './ExpenseHomeForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterHomes = (listAction, homesList, includePastHomes) => {
+    let filteredHomes = [];
+    const today = new Date();
+    if (listAction === 'Expense' && !includePastHomes) {
+        filteredHomes = homesList.filter(home => !home.is_dream && (!home.end_date || new Date(home.end_date) >= today));
+    } else if (listAction === 'Expense' && includePastHomes) {
+        filteredHomes = homesList.filter(home => !home.is_dream);
+    } else if (listAction === 'Dream' && includePastHomes) {
+        filteredHomes = homesList.filter(home => home.is_dream);
+    } else if (listAction === 'Dream' && !includePastHomes) {
+        filteredHomes = homesList.filter(home => home.is_dream && (new Date(home.start_date) > today));
+    } else
+        filteredHomes = homesList;
+
+   return filteredHomes;
+};
+
 const ExpenseHomeList = forwardRef((props, ref) => {
     const { onHomesFetched, listAction, homesList } = props; // Destructure the new prop
     
@@ -29,33 +46,26 @@ const ExpenseHomeList = forwardRef((props, ref) => {
 
     const [includePastHomes, setIncludePastHomes] = useState(false); // State for switch
     
-    const filterHomes = (homesList) => {
-        let filteredHomes = [];
-        const today = new Date();
-        if (listAction === 'Expense' && !includePastHomes) {
-            filteredHomes = homesList.filter(home => !home.is_dream && (!home.end_date || new Date(home.end_date) >= today));
-        } else if (listAction === 'Expense' && includePastHomes) {
-            filteredHomes = homesList.filter(home => !home.is_dream);
-        } else if (listAction === 'Dream' && includePastHomes) {
-            filteredHomes = homesList.filter(home => home.is_dream);
-        } else if (listAction === 'Dream' && !includePastHomes) {
-            filteredHomes = homesList.filter(home => home.is_dream && (new Date(home.start_date) > today));
-        } else
-            filteredHomes = homesList;
+    useEffect(() => {
+        const filteredHomes = filterHomes(listAction, homesList, includePastHomes); // Filter homes based on the switch state
 
         setHomes(filteredHomes);
         setHomesFetched(true); // Set homesFetched to true after filtering
+
         if (onHomesFetched) {
             onHomesFetched(filteredHomes.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterHomes(homesList); // Filter homes based on the switch state
     }, []);
 
     useEffect(() => {
-        filterHomes(homesList); // Filter homes when includePastHomes changes
+        const filteredHomes = filterHomes(listAction, homesList, includePastHomes); // Filter homes when includePastHomes changes
+        
+        setHomes(filteredHomes);
+        setHomesFetched(true); // Set homesFetched to true after filtering
+
+        if (onHomesFetched) {
+            onHomesFetched(filteredHomes.length); // Notify parent component
+        }
     }, [includePastHomes]); // Include Past Homes in home/grid array
 
     const handleFormModalClose = () => {

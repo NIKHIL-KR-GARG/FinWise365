@@ -8,6 +8,87 @@ import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const fetchDepositSIPs = (depositsList) => {
+    try {
+        const depositSIPs = depositsList
+        .filter(deposit => {
+            if (deposit.deposit_type !== 'Recurring') return false;
+            else if (deposit.is_dream === true) return false;
+            else return new Date(deposit.maturity_date) >= new Date();
+            })
+        .map(deposit => ({
+            id: `depositsip-${deposit.id}`,
+            name: `SIP - ${deposit.deposit_name}`,
+            type: 'Deposit',
+            location: deposit.location,
+            currency: deposit.currency,
+            amount: deposit.payment_amount,
+            frequency: deposit.payment_frequency,
+            start_date: deposit.opening_date,
+            end_date: deposit.maturity_date
+        }));
+
+        return depositSIPs;
+        
+    } catch (error) {
+        console.error('Error fetching SIPs');
+    }
+};
+
+export const fetchPortfolioSIPs = (portfoliosList) => {
+    try {
+        const portfolioSIPs = portfoliosList
+        .filter(portfolio => {
+            if (portfolio.is_dream === true) return false;
+            else if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < new Date()) return false;
+            else return portfolio.is_sip;
+        })
+        .map(portfolio => ({
+            id: `portfoliosip-${portfolio.id}`,
+            name: `SIP - ${portfolio.portfolio_name}`,
+            type: 'Portfolio',
+            location: portfolio.location,
+            currency: portfolio.currency,
+            amount: portfolio.sip_amount,
+            frequency: portfolio.sip_frequency,
+            start_date: portfolio.buying_date,
+            end_date: portfolio.is_plan_to_sell ? portfolio.sale_date : ''
+        }));
+
+        return portfolioSIPs;
+        
+    } catch (error) {
+        console.error('Error fetching SIPs');
+    }
+};
+
+export const fetchOtherSIPs = (otherAssetsList) => {
+    try {
+        const otherAssetSIPs = otherAssetsList
+        .filter(otherAsset => {
+            if (otherAsset.is_dream === true) return false;
+            else if (otherAsset.is_recurring_payment && new Date(otherAsset.payment_end_date) >= new Date()) return true;
+            else return false;
+        })
+        .map(otherAsset => ({
+            id: `otherassetsip-${otherAsset.id}`,
+            name: `SIP - ${otherAsset.asset_name}`,
+            type: 'Other Asset',
+            location: otherAsset.location,
+            currency: otherAsset.currency,
+            amount: otherAsset.payment_amount,
+            frequency: otherAsset.payment_frequency,
+            start_date: otherAsset.start_date,
+            end_date: otherAsset.payment_end_date
+        }));
+
+        return otherAssetSIPs;
+        
+    } catch (error) {
+        console.error('Error fetching SIPs');
+    }
+};
+
 const SIPList = forwardRef((props, ref) => {
     const { onSIPsFetched, depositsList, portfoliosList, otherAssetsList } = props; // Destructure the new prop
     
@@ -25,75 +106,18 @@ const SIPList = forwardRef((props, ref) => {
     const [sipsFetched, setSIPsFetched] = useState(false); // State to track if sips are fetched
     const theme = useTheme();
     const [sortingModel, setSortingModel] = useState([{ field: 'sip_name', sort: 'asc' }]); // Initialize with default sorting
-    
-    const fetchSIPs = (depositsList, portfoliosList, otherAssetsList) => {
-        try {
-            const depositSIPs = depositsList
-            .filter(deposit => {
-                if (deposit.deposit_type !== 'Recurring') return false;
-                else if (deposit.is_dream === true) return false;
-                else return new Date(deposit.maturity_date) >= new Date();
-                })
-            .map(deposit => ({
-                id: `depositsip-${deposit.id}`,
-                name: `SIP - ${deposit.deposit_name}`,
-                type: 'Deposit',
-                location: deposit.location,
-                currency: deposit.currency,
-                amount: deposit.payment_amount,
-                frequency: deposit.payment_frequency,
-                start_date: deposit.opening_date,
-                end_date: deposit.maturity_date
-            }));
-
-            const portfolioSIPs = portfoliosList
-            .filter(portfolio => {
-                if (portfolio.is_dream === true) return false;
-                else if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < new Date()) return false;
-                else return portfolio.is_sip;
-            })
-            .map(portfolio => ({
-                id: `portfoliosip-${portfolio.id}`,
-                name: `SIP - ${portfolio.portfolio_name}`,
-                type: 'Portfolio',
-                location: portfolio.location,
-                currency: portfolio.currency,
-                amount: portfolio.sip_amount,
-                frequency: portfolio.sip_frequency,
-                start_date: portfolio.buying_date,
-                end_date: portfolio.is_plan_to_sell ? portfolio.sale_date : ''
-            }));
-
-            const otherAssetSIPs = otherAssetsList
-            .filter(otherAsset => {
-                if (otherAsset.is_dream === true) return false;
-                else if (otherAsset.is_recurring_payment && new Date(otherAsset.payment_end_date) >= new Date()) return true;
-                else return false;
-            })
-            .map(otherAsset => ({
-                id: `otherassetsip-${otherAsset.id}`,
-                name: `SIP - ${otherAsset.asset_name}`,
-                type: 'Other Asset',
-                location: otherAsset.location,
-                currency: otherAsset.currency,
-                amount: otherAsset.payment_amount,
-                frequency: otherAsset.payment_frequency,
-                start_date: otherAsset.start_date,
-                end_date: otherAsset.payment_end_date
-            }));
-
-            setSIPs([...depositSIPs, ...portfolioSIPs, ...otherAssetSIPs]); // Set combined SIPs to state
-            setSIPsFetched(true); // Set sipsFetched to true after fetching
-            if (onSIPsFetched) {
-                onSIPsFetched(depositSIPs.length + portfolioSIPs.length + otherAssetSIPs.length); // Notify parent component
-            }
-        } catch (error) {
-            console.error('Error fetching SIPs:', error);
-        }
-    };
 
     useEffect(() => {
-        fetchSIPs(depositsList, portfoliosList, otherAssetsList);
+        const depositSIPs = fetchDepositSIPs(depositsList);
+        const portfolioSIPs = fetchPortfolioSIPs(portfoliosList);
+        const otherAssetSIPs = fetchOtherSIPs(otherAssetsList);
+        
+        setSIPs([...depositSIPs, ...portfolioSIPs, ...otherAssetSIPs]); // Set combined SIPs to state
+        setSIPsFetched(true); // Set sipsFetched to true after fetching
+
+        if (onSIPsFetched) {
+            onSIPsFetched(depositSIPs.length + portfolioSIPs.length + otherAssetSIPs.length); // Notify parent component
+        }
     }, []);
 
     useImperativeHandle(ref, () => ({

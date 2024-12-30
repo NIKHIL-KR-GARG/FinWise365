@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link } from '@mui/material';
+import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, Button, Snackbar, Alert } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
@@ -37,12 +37,29 @@ import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
 import { today } from '../../components/common/DateFunctions';
 
+import * as XLSX from 'xlsx';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import CloseIcon from '@mui/icons-material/Close';
+
+import { filterCreditCardDebts } from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtList';
+import { filterPersonalLoans } from '../../components/expensespage/personalloans/ExpensePersonalLoanList';
+import { filterOthers, filterOthersVehicleExpense } from '../../components/expensespage/others/ExpenseOtherList';
+import { filterProperties } from '../../components/expensespage/properties/ExpensePropertyList';
+import { filterHomes } from '../../components/expensespage/homes/ExpenseHomeList';
+import { fetchPropertyEMIs, fetchVehicleEMIs } from '../../components/expensespage/emis/EMIList';
+import { fetchDepositSIPs, fetchPortfolioSIPs, fetchOtherSIPs } from '../../components/expensespage/sips/SIPList';
+import { fetchTaxes } from '../../components/expensespage/taxes/TaxList';
+import { fetchPropertyMortgageAndLoans, fetchVehicleMortgageAndLoans } from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
+
 const Expenses = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
     const [action, setAction] = useState('Expense'); // State for action
     const [expenseAction, setExpenseAction] = useState(''); // State for action
+
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const homeListRef = useRef(null);
     const propertyListRef = useRef(null);
@@ -307,8 +324,18 @@ const Expenses = () => {
                                     <MoneyOffIcon sx={{ mr: 1 }} />
                                     My Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
                                 </Box>
-                                <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}Today, {today} {')'}
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<InsertDriveFileIcon />}
+                                        sx={{ mr: 2 }}
+                                    >
+                                        Download Expense Data
+                                    </Button>
+                                    <Box sx={{ fontSize: '0.875rem' }}>
+                                        {'( '}Today, {today} {')'}
+                                    </Box>
                                 </Box>
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -411,8 +438,96 @@ const Expenses = () => {
         setMortgageAndLoanAmount(amount);
     };
 
+    const handleExportToExcel = () => {
+        try {
+            const workbook = XLSX.utils.book_new();
+
+            const addSheet = (data, sheetName) => {
+                const worksheet = XLSX.utils.json_to_sheet(data);
+                XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+            };
+
+            const creditCardDebtList = filterCreditCardDebts('Expense', creditCardDebts, false);
+            const personalLoanList = filterPersonalLoans('Expense', personalLoans, false);
+            const others = filterOthers('Expense', otherExpenses, false);
+            const propertiesList = filterProperties('Expense', properties, false);
+            const homesList = filterHomes('Expense', homes, false);
+            const emis = fetchPropertyEMIs(assetProperties, false).concat(fetchVehicleEMIs(assetVehicles, false));
+            const sips = fetchDepositSIPs(assetDeposits, false).concat(fetchPortfolioSIPs(assetPortfolios, false)).concat(fetchOtherSIPs(assetOthers, false));
+            const taxes = fetchTaxes(assetProperties, false);
+            const mortgageAndLoans = fetchPropertyMortgageAndLoans(assetProperties, false).concat(fetchVehicleMortgageAndLoans(assetVehicles, false));
+
+            addSheet(creditCardDebtList, 'Credit Card Debts');
+            addSheet(personalLoanList, 'Personal Loans');
+            addSheet(others, 'Other Expenses');
+            addSheet(propertiesList, 'Properties');
+            addSheet(homesList, 'Homes');
+            addSheet(emis, 'EMIs');
+            addSheet(sips, 'SIPs');
+            addSheet(taxes, 'Taxes');  
+            addSheet(mortgageAndLoans, 'Mortgage & Loans');
+
+            const date = new Date();
+            const timestamp = `${date.getDate()}${date.getMonth() + 1}${date.getFullYear()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
+            const fileName = `Expenses_${timestamp}.xlsx`;
+
+            XLSX.writeFile(workbook, fileName);
+
+            setSuccessMessage('Data exported successfully');
+        }
+        catch (error) {
+            setErrorMessage('Error exporting data: ' + error);
+        };
+    };
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Snackbar
+                open={!!successMessage}
+                autoHideDuration={6000}
+                onClose={() => setSuccessMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="filled"
+                    severity="success"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setSuccessMessage('')}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                >
+                    {successMessage}
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={!!errorMessage}
+                autoHideDuration={6000}
+                onClose={() => setErrorMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="filled"
+                    severity="error"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setErrorMessage('')}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                >
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
             <HomeHeader open={open} handleDrawerToggle={handleDrawerToggle} />
             <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}>
                 <HomeLeftMenu open={open} />
@@ -442,8 +557,19 @@ const Expenses = () => {
                                 <MoneyOffIcon sx={{ mr: 1 }} />
                                 My Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
                             </Box>
-                            <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}Today, {today} {')'}
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    startIcon={<InsertDriveFileIcon />}
+                                    onClick={handleExportToExcel}
+                                    sx={{ mr: 2 }}
+                                >
+                                    Download Expense Data
+                                </Button>
+                                <Box sx={{ fontSize: '0.875rem' }}>
+                                    {'( '}Today, {today} {')'}
+                                </Box>
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />

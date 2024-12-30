@@ -9,6 +9,72 @@ import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 import { calculateMortgageBalance, calculateFlatRateLoanBalance } from '../../calculators/Assets';
 
+export const fetchPropertyMortgageAndLoans = (propertiesList) => {
+    try {
+        const propertyMortgageAndLoans = propertiesList
+        .filter(property => {
+            // derive end date based on purchase date and loan_duration
+            if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
+            else if (property.is_dream === true) return false;
+            else if (!property.is_funded_by_loan) return false;
+            else {
+                const startDate = new Date(property.purchase_date);
+                const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
+                return endDate >= new Date();
+            }
+        })
+        .map(property => ({
+            id: `propertymortgageandloan-${property.id}`,
+            name: `Mortgage - ${property.property_name}`,
+            type: 'Property',
+            location: property.location,
+            currency: property.currency,
+            orginal_amount: property.loan_amount,
+            balance_amount: calculateMortgageBalance(property, new Date()),
+            start_date: property.purchase_date,
+            end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
+        }));
+
+        return propertyMortgageAndLoans;
+
+    } catch (error) {
+        console.error('Error fetching MortgageAndLoans:', error);
+    }
+};
+
+export const fetchVehicleMortgageAndLoans = (vehiclesList) => {
+    try {
+        const vehicleMortgageAndLoans = vehiclesList
+        .filter(vehicle => {
+            if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
+            else if (vehicle.is_dream === true) return false;
+            else if (!vehicle.is_funded_by_loan) return false;
+            else {
+                // derive end date based on purchase date and loan_duration
+                const startDate = new Date(vehicle.purchase_date);
+                const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
+                return endDate >= new Date();
+            }
+        })
+        .map(vehicle => ({
+            id: `vehiclemortgageandloan-${vehicle.id}`,
+            name: `Loan - ${vehicle.vehicle_name}`,
+            type: 'Vehicle',
+            location: vehicle.location,
+            currency: vehicle.currency,
+            orginal_amount: vehicle.loan_amount,
+            balance_amount: calculateFlatRateLoanBalance(vehicle, new Date()),
+            start_date: vehicle.purchase_date,
+            end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
+        }));
+
+        return vehicleMortgageAndLoans;
+
+    } catch (error) {
+        console.error('Error fetching MortgageAndLoans:', error);
+    }
+};
+
 const MortgageAndLoanList = forwardRef((props, ref) => {
     const { onMortgageAndLoansFetched, propertiesList, vehiclesList } = props; // Destructure the new prop
     
@@ -28,70 +94,18 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
     const theme = useTheme();
     const [sortingModel, setSortingModel] = useState([{ field: 'mortgageandloan_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const fetchMortgageAndLoans = (propertiesList, vehiclesList) => {
-        try {
-            const propertyMortgageAndLoans = propertiesList
-            .filter(property => {
-                // derive end date based on purchase date and loan_duration
-                if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
-                else if (property.is_dream === true) return false;
-                else if (!property.is_funded_by_loan) return false;
-                else {
-                    const startDate = new Date(property.purchase_date);
-                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
-                    return endDate >= new Date();
-                }
-            })
-            .map(property => ({
-                id: `propertymortgageandloan-${property.id}`,
-                name: `Mortgage - ${property.property_name}`,
-                type: 'Property',
-                location: property.location,
-                currency: property.currency,
-                orginal_amount: property.loan_amount,
-                balance_amount: calculateMortgageBalance(property, new Date()),
-                start_date: property.purchase_date,
-                end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
-            }));
-
-            const vehicleMortgageAndLoans = vehiclesList
-            .filter(vehicle => {
-                if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
-                else if (vehicle.is_dream === true) return false;
-                else if (!vehicle.is_funded_by_loan) return false;
-                else {
-                    // derive end date based on purchase date and loan_duration
-                    const startDate = new Date(vehicle.purchase_date);
-                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
-                    return endDate >= new Date();
-                }
-            })
-            .map(vehicle => ({
-                id: `vehiclemortgageandloan-${vehicle.id}`,
-                name: `Loan - ${vehicle.vehicle_name}`,
-                type: 'Vehicle',
-                location: vehicle.location,
-                currency: vehicle.currency,
-                orginal_amount: vehicle.loan_amount,
-                balance_amount: calculateFlatRateLoanBalance(vehicle, new Date()),
-                start_date: vehicle.purchase_date,
-                end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
-            }));
-
-            setMortgageAndLoans([...propertyMortgageAndLoans, ...vehicleMortgageAndLoans]); // Set combined MortgageAndLoans to state
-            setMortgageAndLoansFetched(true); // Set mortgageandloansFetched to true after fetching
-            if (onMortgageAndLoansFetched) {
-                const count = propertyMortgageAndLoans.length + vehicleMortgageAndLoans.length;
-                const amount = propertyMortgageAndLoans.reduce((acc, property) => acc + property.balance_amount, 0) + vehicleMortgageAndLoans.reduce((acc, vehicle) => acc + vehicle.balance_amount, 0);
-                onMortgageAndLoansFetched(count, amount); // Notify parent component
-            }
-        } catch (error) {
-            console.error('Error fetching MortgageAndLoans:', error);
-        }
-    };
-
     useEffect(() => {
-        fetchMortgageAndLoans(propertiesList, vehiclesList);
+        const propertyMortgageAndLoans = fetchPropertyMortgageAndLoans(propertiesList);
+        const vehicleMortgageAndLoans = fetchVehicleMortgageAndLoans(vehiclesList);
+
+        setMortgageAndLoans([...propertyMortgageAndLoans, ...vehicleMortgageAndLoans]); // Set combined MortgageAndLoans to state
+        setMortgageAndLoansFetched(true); // Set mortgageandloansFetched to true after fetching
+
+        if (onMortgageAndLoansFetched) {
+            const count = propertyMortgageAndLoans.length + vehicleMortgageAndLoans.length;
+            const amount = propertyMortgageAndLoans.reduce((acc, property) => acc + property.balance_amount, 0) + vehicleMortgageAndLoans.reduce((acc, vehicle) => acc + vehicle.balance_amount, 0);
+            onMortgageAndLoansFetched(count, amount); // Notify parent component
+        }
     }, []);
 
     useImperativeHandle(ref, () => ({

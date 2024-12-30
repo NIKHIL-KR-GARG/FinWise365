@@ -12,6 +12,23 @@ import ExpensePersonalLoanForm from './ExpensePersonalLoanForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterPersonalLoans = (listAction, personalloansList, includePastPersonalLoans) => {
+    let filteredPersonalLoans = [];
+    const today = new Date();
+    if (listAction === 'Expense' && !includePastPersonalLoans) {
+        filteredPersonalLoans = personalloansList.filter(personalloan => !personalloan.is_dream && (!personalloan.end_date || new Date(personalloan.end_date) >= today));
+    } else if (listAction === 'Expense' && includePastPersonalLoans) {
+        filteredPersonalLoans = personalloansList.filter(personalloan => !personalloan.is_dream);
+    } else if (listAction === 'Dream' && includePastPersonalLoans) {
+        filteredPersonalLoans = personalloansList.filter(personalloan => personalloan.is_dream);
+    } else if (listAction === 'Dream' && !includePastPersonalLoans) {
+        filteredPersonalLoans = personalloansList.filter(personalloan => personalloan.is_dream && (new Date(personalloan.start_date) > today));
+    } else
+        filteredPersonalLoans = personalloansList;
+
+    return filteredPersonalLoans;
+};
+
 const ExpensePersonalLoanList = forwardRef((props, ref) => {
     const { onPersonalLoansFetched, listAction, personalloansList } = props; // Destructure the new prop
     
@@ -29,33 +46,24 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
 
     const [includePastPersonalLoans, setIncludePastPersonalLoans] = useState(false); // State for switch
 
-    const filterPersonalLoans = (personalloansList) => {
-        let filteredPersonalLoans = [];
-        const today = new Date();
-        if (listAction === 'Expense' && !includePastPersonalLoans) {
-            filteredPersonalLoans = personalloansList.filter(personalloan => !personalloan.is_dream && (!personalloan.end_date || new Date(personalloan.end_date) >= today));
-        } else if (listAction === 'Expense' && includePastPersonalLoans) {
-            filteredPersonalLoans = personalloansList.filter(personalloan => !personalloan.is_dream);
-        } else if (listAction === 'Dream' && includePastPersonalLoans) {
-            filteredPersonalLoans = personalloansList.filter(personalloan => personalloan.is_dream);
-        } else if (listAction === 'Dream' && !includePastPersonalLoans) {
-            filteredPersonalLoans = personalloansList.filter(personalloan => personalloan.is_dream && (new Date(personalloan.start_date) > today));
-        } else
-            filteredPersonalLoans = personalloansList;
+    useEffect(() => {
+        const filteredPersonalLoans = filterPersonalLoans(listAction, personalloansList, includePastPersonalLoans); // Filter personalloans when includePastPersonalLoans changes
 
         setPersonalLoans(filteredPersonalLoans);
         setPersonalLoansFetched(true); // Set personalloansFetched to true after filtering
         if (onPersonalLoansFetched) {
             onPersonalLoansFetched(filteredPersonalLoans.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterPersonalLoans(personalloansList);
     }, []);
 
     useEffect(() => {
-        filterPersonalLoans(personalloansList); // Filter personalloans when includePastPersonalLoans changes
+        const filteredPersonalLoans = filterPersonalLoans(listAction, personalloansList, includePastPersonalLoans); // Filter personalloans when includePastPersonalLoans changes
+
+        setPersonalLoans(filteredPersonalLoans);
+        setPersonalLoansFetched(true); // Set personalloansFetched to true after filtering
+        if (onPersonalLoansFetched) {
+            onPersonalLoansFetched(filteredPersonalLoans.length); // Notify parent component
+        }
     }, [includePastPersonalLoans]); // Include Past PersonalLoans to personalloan/grid array
 
 

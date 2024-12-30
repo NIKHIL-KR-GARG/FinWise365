@@ -12,6 +12,23 @@ import ExpenseCreditCardDebtForm from './ExpenseCreditCardDebtForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterCreditCardDebts = (listAction, creditcarddebtsList, includePastCreditCardDebts) => {
+    let filteredCreditCardDebts = [];
+    const today = new Date();
+    if (listAction === 'Expense' && !includePastCreditCardDebts) {
+        filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => !creditcarddebt.is_dream && (!creditcarddebt.end_date || new Date(creditcarddebt.end_date) >= today));
+    } else if (listAction === 'Expense' && includePastCreditCardDebts) {
+        filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => !creditcarddebt.is_dream);
+    } else if (listAction === 'Dream' && includePastCreditCardDebts) {
+        filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => creditcarddebt.is_dream);
+    } else if (listAction === 'Dream' && !includePastCreditCardDebts) {
+        filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => creditcarddebt.is_dream && (new Date(creditcarddebt.start_date) > today));
+    } else
+        filteredCreditCardDebts = creditcarddebtsList;
+
+    return filteredCreditCardDebts;
+};
+
 const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
     const { onCreditCardDebtsFetched, listAction, creditcarddebtsList } = props; // Destructure the new prop
     
@@ -29,33 +46,27 @@ const ExpenseCreditCardDebtList = forwardRef((props, ref) => {
 
     const [includePastCreditCardDebts, setIncludePastCreditCardDebts] = useState(false); // State for switch
 
-    const filterCreditCardDebts = (creditcarddebtsList) => {
-        let filteredCreditCardDebts = [];
-        const today = new Date();
-        if (listAction === 'Expense' && !includePastCreditCardDebts) {
-            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => !creditcarddebt.is_dream && (!creditcarddebt.end_date || new Date(creditcarddebt.end_date) >= today));
-        } else if (listAction === 'Expense' && includePastCreditCardDebts) {
-            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => !creditcarddebt.is_dream);
-        } else if (listAction === 'Dream' && includePastCreditCardDebts) {
-            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => creditcarddebt.is_dream);
-        } else if (listAction === 'Dream' && !includePastCreditCardDebts) {
-            filteredCreditCardDebts = creditcarddebtsList.filter(creditcarddebt => creditcarddebt.is_dream && (new Date(creditcarddebt.start_date) > today));
-        } else
-            filteredCreditCardDebts = creditcarddebtsList;
+    useEffect(() => {
+        const filteredCreditCardDebts = filterCreditCardDebts(listAction, creditcarddebtsList, includePastCreditCardDebts);
 
         setCreditCardDebts(filteredCreditCardDebts);
         setCreditCardDebtsFetched(true); // Set creditcarddebtsFetched to true after filtering
+
         if (onCreditCardDebtsFetched) {
             onCreditCardDebtsFetched(filteredCreditCardDebts.length); // Notify parent component
         }
-    };
 
-    useEffect(() => {
-        filterCreditCardDebts(creditcarddebtsList);
     }, []);
 
     useEffect(() => {
-        filterCreditCardDebts(creditcarddebtsList); // Filter creditcarddebts when includePastCreditCardDebts changes
+        const filteredCreditCardDebts = filterCreditCardDebts(listAction, creditcarddebtsList, includePastCreditCardDebts); // Filter creditcarddebts when includePastCreditCardDebts changes
+
+        setCreditCardDebts(filteredCreditCardDebts);
+        setCreditCardDebtsFetched(true); // Set creditcarddebtsFetched to true after filtering
+        
+        if (onCreditCardDebtsFetched) {
+            onCreditCardDebtsFetched(filteredCreditCardDebts.length); // Notify parent component
+        }
     }, [includePastCreditCardDebts]); // Include Past CreditCardDebts to creditcarddebt/grid array
 
     const handleFormModalClose = () => {
