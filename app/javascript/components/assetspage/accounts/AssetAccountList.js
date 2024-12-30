@@ -12,6 +12,23 @@ import AssetAccountForm from './AssetAccountForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterAccounts = (listAction, accountsList, includePastAccounts) => {
+    let filteredAccounts = [];
+    const today = new Date();
+    if (listAction === 'Asset' && !includePastAccounts) {
+        filteredAccounts = accountsList.filter(account => !account.is_dream && (!account.is_plan_to_close || new Date(account.closure_date) >= today));
+    } else if (listAction === 'Asset' && includePastAccounts) {
+        filteredAccounts = accountsList.filter(account => !account.is_dream);
+    } else if (listAction === 'Dream' && includePastAccounts) {
+        filteredAccounts = accountsList.filter(account => account.is_dream);
+    } else if (listAction === 'Dream' && !includePastAccounts) {
+        filteredAccounts = accountsList.filter(account => account.is_dream && (new Date(account.opening_date) > today));
+    } else
+        filteredAccounts = accountsList;
+
+    return filteredAccounts;
+};
+
 const AssetAccountList = forwardRef((props, ref) => {
     const { onAccountsFetched, listAction, accountsList } = props; // Destructure the new prop
 
@@ -29,33 +46,26 @@ const AssetAccountList = forwardRef((props, ref) => {
 
     const [includePastAccounts, setIncludePastAccounts] = useState(false); // State for switch
 
-    const filterAccounts = (accountsList) => {
-        let filteredAccounts = [];
-        const today = new Date();
-        if (listAction === 'Asset' && !includePastAccounts) {
-            filteredAccounts = accountsList.filter(account => !account.is_dream && (!account.is_plan_to_close || new Date(account.closure_date) >= today));
-        } else if (listAction === 'Asset' && includePastAccounts) {
-            filteredAccounts = accountsList.filter(account => !account.is_dream);
-        } else if (listAction === 'Dream' && includePastAccounts) {
-            filteredAccounts = accountsList.filter(account => account.is_dream);
-        } else if (listAction === 'Dream' && !includePastAccounts) {
-            filteredAccounts = accountsList.filter(account => account.is_dream && (new Date(account.opening_date) > today));
-        } else
-            filteredAccounts = accountsList;
+    useEffect(() => {
+        const filteredAccounts = filterAccounts(listAction, accountsList, includePastAccounts);
 
         setAccounts(filteredAccounts);
         setAccountsFetched(true); // Set accountsFetched to true after filtering
         if (onAccountsFetched) {
             onAccountsFetched(filteredAccounts.length); // Notify parent component
         }
-    };
 
-    useEffect(() => {
-        filterAccounts(accountsList);
     }, []);
 
     useEffect(() => {
-        filterAccounts(accountsList); // Filter accounts when includePastAccounts changes
+        const filteredAccounts = filterAccounts(listAction, accountsList, includePastAccounts); // Filter accounts when includePastAccounts changes
+
+        setAccounts(filteredAccounts);
+        setAccountsFetched(true); // Set accountsFetched to true after filtering
+        if (onAccountsFetched) {
+            onAccountsFetched(filteredAccounts.length); // Notify parent component
+        }
+
     }, [includePastAccounts]); // Include Past Accounts to account/grid array
 
     const handleFormModalClose = () => {

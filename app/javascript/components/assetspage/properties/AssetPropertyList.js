@@ -19,6 +19,23 @@ import CountryList from '../../common/CountryList';
 import AssetPropertyForm from './AssetPropertyForm';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export  const filterProperties = (listAction, propertiesList, includePastProperties) => {
+    let filteredProperties = [];
+    const today = new Date();
+    if (listAction === 'Asset' && !includePastProperties) {
+        filteredProperties = propertiesList.filter(property => !property.is_dream && (!property.is_plan_to_sell || new Date(property.sale_date) >= today));
+    } else if (listAction === 'Asset' && includePastProperties) {
+        filteredProperties = propertiesList.filter(property => !property.is_dream);
+    } else if (listAction === 'Dream' && includePastProperties) {
+        filteredProperties = propertiesList.filter(property => property.is_dream);
+    } else if (listAction === 'Dream' && !includePastProperties) {
+        filteredProperties = propertiesList.filter(property => property.is_dream && (new Date(property.purchase_date) > today));
+    } else 
+        filteredProperties = propertiesList;
+
+    return filteredProperties;
+};
+
 const AssetPropertyList = forwardRef((props, ref) => {
     const { onPropertiesFetched, listAction, propertiesList } = props; // Destructure the new prop
 
@@ -35,33 +52,24 @@ const AssetPropertyList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'property_name', sort: 'asc' }]); // Initialize with default sorting
     const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch
 
-    const filterProperties = (propertiesList) => {
-        let filteredProperties = [];
-        const today = new Date();
-        if (listAction === 'Asset' && !includePastProperties) {
-            filteredProperties = propertiesList.filter(property => !property.is_dream && (!property.is_plan_to_sell || new Date(property.sale_date) >= today));
-        } else if (listAction === 'Asset' && includePastProperties) {
-            filteredProperties = propertiesList.filter(property => !property.is_dream);
-        } else if (listAction === 'Dream' && includePastProperties) {
-            filteredProperties = propertiesList.filter(property => property.is_dream);
-        } else if (listAction === 'Dream' && !includePastProperties) {
-            filteredProperties = propertiesList.filter(property => property.is_dream && (new Date(property.purchase_date) > today));
-        } else 
-            filteredProperties = propertiesList;
+    useEffect(() => {
+        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties
 
         setProperties(filteredProperties);
         setPropertiesFetched(true); // Set propertiesFetched to true after filtering
         if (onPropertiesFetched) {
             onPropertiesFetched(filteredProperties.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterProperties(propertiesList);
     }, [listAction]); // Fetch properties on component mount and when currentUserId or listAction changes
 
     useEffect(() => {
-        filterProperties(propertiesList); // Filter properties when includePastProperties changes
+        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
+
+        setProperties(filteredProperties);
+        setPropertiesFetched(true); // Set propertiesFetched to true after filtering
+        if (onPropertiesFetched) {
+            onPropertiesFetched(filteredProperties.length); // Notify parent component
+        }
     }, [includePastProperties]); // Include Past Properties to properties/grid array
 
     const handleFormModalClose = () => {

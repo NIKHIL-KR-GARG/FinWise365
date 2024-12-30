@@ -12,6 +12,23 @@ import AssetDepositForm from './AssetDepositForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export  const filterDeposits = (listAction, depositsList, includePastDeposits) => {
+    let filteredDeposits = [];
+    const today = new Date();
+    if (listAction === 'Asset' && !includePastDeposits) {
+        filteredDeposits = depositsList.filter(deposit => !deposit.is_dream && (!deposit.end_date || new Date(deposit.end_date) >= today));
+    } else if (listAction === 'Asset' && includePastDeposits) {
+        filteredDeposits = depositsList.filter(deposit => !deposit.is_dream);
+    } else if (listAction === 'Dream' && includePastDeposits) {
+        filteredDeposits = depositsList.filter(deposit => deposit.is_dream);
+    } else if (listAction === 'Dream' && !includePastDeposits) {
+        filteredDeposits = depositsList.filter(deposit => deposit.is_dream && (new Date(deposit.opening_date) > today));
+    } else
+        filteredDeposits = depositsList;
+
+    return filteredDeposits;
+};
+
 const AssetDepositList = forwardRef((props, ref) => {
     const { onDepositsFetched, listAction, depositsList } = props; // Destructure the new prop
 
@@ -29,33 +46,26 @@ const AssetDepositList = forwardRef((props, ref) => {
 
     const [includePastDeposits, setIncludePastDeposits] = useState(false); // State for switch
 
-    const filterDeposits = (depositsList) => {
-        let filteredDeposits = [];
-        const today = new Date();
-        if (listAction === 'Asset' && !includePastDeposits) {
-            filteredDeposits = depositsList.filter(deposit => !deposit.is_dream && (!deposit.end_date || new Date(deposit.end_date) >= today));
-        } else if (listAction === 'Asset' && includePastDeposits) {
-            filteredDeposits = depositsList.filter(deposit => !deposit.is_dream);
-        } else if (listAction === 'Dream' && includePastDeposits) {
-            filteredDeposits = depositsList.filter(deposit => deposit.is_dream);
-        } else if (listAction === 'Dream' && !includePastDeposits) {
-            filteredDeposits = depositsList.filter(deposit => deposit.is_dream && (new Date(deposit.opening_date) > today));
-        } else
-            filteredDeposits = depositsList;
+    useEffect(() => {
+        const filteredDeposits = filterDeposits(listAction, depositsList, includePastDeposits);
 
         setDeposits(filteredDeposits);
         setDepositsFetched(true); // Set depositsFetched to true after filtering
         if (onDepositsFetched) {
             onDepositsFetched(filteredDeposits.length); // Notify parent component
         }
-    };
 
-    useEffect(() => {
-        filterDeposits(depositsList);
     }, []);
 
     useEffect(() => {
-        filterDeposits(depositsList); // Filter deposits when includePastDeposits changes
+        const filteredDeposits = filterDeposits(listAction, depositsList, includePastDeposits); // Filter deposits when includePastDeposits changes
+
+        setDeposits(filteredDeposits);
+        setDepositsFetched(true); // Set depositsFetched to true after filtering
+        if (onDepositsFetched) {
+            onDepositsFetched(filteredDeposits.length); // Notify parent component
+        }
+
     }, [includePastDeposits]); // Include Past Deposits to deposit/grid array
 
     const handleFormModalClose = () => {

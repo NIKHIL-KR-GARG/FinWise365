@@ -16,6 +16,23 @@ import AssetVehicleForm from './AssetVehicleForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterVehicles = (listAction, vehiclesList, includePastVehicles) => {
+    let filteredVehicles = [];
+    const today = new Date();
+    if (listAction === 'Asset' && !includePastVehicles) {
+        filteredVehicles = vehiclesList.filter(vehicle => !vehicle.is_dream && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= today));
+    } else if (listAction === 'Asset' && includePastVehicles) {
+        filteredVehicles = vehiclesList.filter(vehicle => !vehicle.is_dream);
+    } else if (listAction === 'Dream' && includePastVehicles) {
+        filteredVehicles = vehiclesList.filter(vehicle => vehicle.is_dream);
+    } else if (listAction === 'Dream' && !includePastVehicles) {
+        filteredVehicles = vehiclesList.filter(vehicle => vehicle.is_dream && (new Date(vehicle.purchase_date) > today));
+    } else
+        filteredVehicles = vehiclesList;
+
+    return filteredVehicles;
+};
+
 const AssetVehicleList = forwardRef((props, ref) => {
     const { onVehiclesFetched, listAction, vehiclesList } = props; // Destructure the new prop
 
@@ -33,33 +50,24 @@ const AssetVehicleList = forwardRef((props, ref) => {
 
     const [includePastVehicles, setIncludePastVehicles] = useState(false); // State for switch
 
-    const filterVehicles = (vehiclesList) => {
-        let filteredVehicles = [];
-        const today = new Date();
-        if (listAction === 'Asset' && !includePastVehicles) {
-            filteredVehicles = vehiclesList.filter(vehicle => !vehicle.is_dream && (!vehicle.is_plan_to_sell || new Date(vehicle.sale_date) >= today));
-        } else if (listAction === 'Asset' && includePastVehicles) {
-            filteredVehicles = vehiclesList.filter(vehicle => !vehicle.is_dream);
-        } else if (listAction === 'Dream' && includePastVehicles) {
-            filteredVehicles = vehiclesList.filter(vehicle => vehicle.is_dream);
-        } else if (listAction === 'Dream' && !includePastVehicles) {
-            filteredVehicles = vehiclesList.filter(vehicle => vehicle.is_dream && (new Date(vehicle.purchase_date) > today));
-        } else
-            filteredVehicles = vehiclesList;
+    useEffect(() => {
+        const filteredVehicles = filterVehicles(listAction, vehiclesList, includePastVehicles);
 
         setVehicles(filteredVehicles);
         setVehiclesFetched(true); // Set vehiclesFetched to true after filtering
         if (onVehiclesFetched) {
             onVehiclesFetched(filteredVehicles.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterVehicles(vehiclesList);
     }, [listAction]);
 
     useEffect(() => {
-        filterVehicles(vehiclesList); // Filter vehicles when includePastVehicles changes
+        const filteredVehicles = filterVehicles(listAction, vehiclesList, includePastVehicles); // Filter vehicles when includePastVehicles changes
+
+        setVehicles(filteredVehicles);
+        setVehiclesFetched(true); // Set vehiclesFetched to true after filtering
+        if (onVehiclesFetched) {
+            onVehiclesFetched(filteredVehicles.length); // Notify parent component
+        }
     }, [includePastVehicles]); // Include Past Vehicles to vehicles/grid array
 
     const handleFormModalClose = () => {

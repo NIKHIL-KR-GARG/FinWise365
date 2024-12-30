@@ -12,6 +12,24 @@ import AssetPortfolioForm from './AssetPortfolioForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterPortfolios = (listAction, portfoliosList, includePastPortfolios) => {
+    let filteredPortfolios = [];
+    const today = new Date();
+    if (listAction === 'Asset' && !includePastPortfolios) {
+        filteredPortfolios = portfoliosList.filter(portfolio => !portfolio.is_dream && (!portfolio.is_plan_to_sell || new Date(portfolio.sale_date) >= today));
+    } else if (listAction === 'Asset' && includePastPortfolios) {
+        filteredPortfolios = portfoliosList.filter(portfolio => !portfolio.is_dream);
+    } else if (listAction === 'Dream' && includePastPortfolios) {
+        filteredPortfolios = portfoliosList.filter(portfolio => portfolio.is_dream);
+    } else if (listAction === 'Dream' && !includePastPortfolios) {
+        filteredPortfolios = portfoliosList.filter(portfolio => portfolio.is_dream && (new Date(portfolio.buying_date) > today));
+    } else 
+        filteredPortfolios = portfoliosList;            
+    
+    return filteredPortfolios;
+
+};
+
 const AssetPortfolioList = forwardRef((props, ref) => {
     const { onPortfoliosFetched, listAction, portfoliosList } = props; // Destructure the new prop
 
@@ -29,33 +47,24 @@ const AssetPortfolioList = forwardRef((props, ref) => {
 
     const [includePastPortfolios, setIncludePastPortfolios] = useState(false); // State for switch
 
-    const filterPortfolios = (portfoliosList) => {
-        let filteredPortfolios = [];
-        const today = new Date();
-        if (listAction === 'Asset' && !includePastPortfolios) {
-            filteredPortfolios = portfoliosList.filter(portfolio => !portfolio.is_dream && (!portfolio.is_plan_to_sell || new Date(portfolio.sale_date) >= today));
-        } else if (listAction === 'Asset' && includePastPortfolios) {
-            filteredPortfolios = portfoliosList.filter(portfolio => !portfolio.is_dream);
-        } else if (listAction === 'Dream' && includePastPortfolios) {
-            filteredPortfolios = portfoliosList.filter(portfolio => portfolio.is_dream);
-        } else if (listAction === 'Dream' && !includePastPortfolios) {
-            filteredPortfolios = portfoliosList.filter(portfolio => portfolio.is_dream && (new Date(portfolio.buying_date) > today));
-        } else 
-            filteredPortfolios = portfoliosList;            
+    useEffect(() => {
+        const filteredPortfolios = filterPortfolios(listAction, portfoliosList, includePastPortfolios); // Filter portfolios
 
         setPortfolios(filteredPortfolios);
         setPortfoliosFetched(true); // Set portfoliosFetched to true after filtering
         if (onPortfoliosFetched) {
             onPortfoliosFetched(filteredPortfolios.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterPortfolios(portfoliosList);
     }, []);
 
     useEffect(() => {
-        filterPortfolios(portfoliosList); // Filter portfolios when includePastPortfolios changes
+       const filteredPortfolios = filterPortfolios(listAction, portfoliosList, includePastPortfolios); // Filter portfolios when includePastPortfolios changes
+
+        setPortfolios(filteredPortfolios);
+        setPortfoliosFetched(true); // Set portfoliosFetched to true after filtering
+        if (onPortfoliosFetched) {
+            onPortfoliosFetched(filteredPortfolios.length); // Notify parent component
+        }
     }, [includePastPortfolios]); // include Past Portfolios to portfolio/grid array
 
     const handleFormModalClose = () => {

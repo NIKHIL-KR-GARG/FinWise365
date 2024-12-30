@@ -12,6 +12,37 @@ import AssetOtherForm from './AssetOtherForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
+export const filterOthers = (listAction, othersList, includePastOthers) => {
+    let filteredOthers = [];
+    // filter on others where payout_date + payout_duration (months) is greater than today
+    const today = new Date();
+    if (!includePastOthers) {
+        if (listAction === 'Asset') {
+            filteredOthers = othersList.filter(other => {
+                const payoutDate = new Date(other.payout_date);
+                const payoutDuration = parseInt(other.payout_duration);
+                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
+                return (payoutEndDate > today) && !other.is_dream;
+            });
+        }
+        else if (listAction === 'Dream') {
+            filteredOthers = othersList.filter(other => other.is_dream && (new Date(other.start_date) > today));
+        }
+    }
+    else if (includePastOthers) {
+        if (listAction === 'Asset') {
+            filteredOthers = othersList.filter(other => !other.is_dream);
+        }
+        else if (listAction === 'Dream') {
+            filteredOthers = othersList.filter(other => other.is_dream);
+        }
+    }
+    else
+        filteredOthers = othersList;
+
+    return filteredOthers;
+};
+
 const AssetOtherList = forwardRef((props, ref) => {
     const { onOthersFetched, listAction, othersList } = props; // Destructure the new prop
 
@@ -29,47 +60,24 @@ const AssetOtherList = forwardRef((props, ref) => {
 
     const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch to include past others
 
-    const filterOthers = (othersList) => {
-        let filteredOthers = [];
-        // filter on others where payout_date + payout_duration (months) is greater than today
-        const today = new Date();
-        if (!includePastOthers) {
-            if (listAction === 'Asset') {
-                filteredOthers = othersList.filter(other => {
-                    const payoutDate = new Date(other.payout_date);
-                    const payoutDuration = parseInt(other.payout_duration);
-                    const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
-                    return (payoutEndDate > today) && !other.is_dream;
-                });
-            }
-            else if (listAction === 'Dream') {
-                filteredOthers = othersList.filter(other => other.is_dream && (new Date(other.start_date) > today));
-            }
-        }
-        else if (includePastOthers) {
-            if (listAction === 'Asset') {
-                filteredOthers = othersList.filter(other => !other.is_dream);
-            }
-            else if (listAction === 'Dream') {
-                filteredOthers = othersList.filter(other => other.is_dream);
-            }
-        }
-        else
-            filteredOthers = othersList;
+    useEffect(() => {
+        const filteredOthers = filterOthers(listAction, othersList, includePastOthers); 
 
         setOthers(filteredOthers);
         setOthersFetched(true); // Set othersFetched to true after filtering
         if (onOthersFetched) {
             onOthersFetched(filteredOthers.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterOthers(othersList);
     }, []);
 
     useEffect(() => {
-        filterOthers(othersList); // Filter others when includePastOthers changes
+        const filteredOthers = filterOthers(listAction, othersList, includePastOthers);  // Filter others when includePastOthers changes
+
+        setOthers(filteredOthers);
+        setOthersFetched(true); // Set othersFetched to true after filtering
+        if (onOthersFetched) {
+            onOthersFetched(filteredOthers.length); // Notify parent component
+        }
     }, [includePastOthers]); // Include Past Others to other/grid array
 
     const handleFormModalClose = () => {

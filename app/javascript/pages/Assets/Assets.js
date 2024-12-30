@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios'; 
-import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, CircularProgress } from '@mui/material'; // Added CircularProgress
+import { Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, CircularProgress, Button, Snackbar, Alert } from '@mui/material'; // Added CircularProgress
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import DirectionsCarOutlinedIcon from '@mui/icons-material/DirectionsCarOutlined';
@@ -36,12 +36,25 @@ import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
 import { today } from '../../components/common/DateFunctions';
 
+import * as XLSX from 'xlsx';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import CloseIcon from '@mui/icons-material/Close';
+
+import { filterAccounts } from '../../components/assetspage/accounts/AssetAccountList';
+import { filterDeposits } from '../../components/assetspage/deposits/AssetDepositList';
+import { filterPortfolios } from '../../components/assetspage/portfolios/AssetPortfolioList';
+import { filterOthers } from '../../components/assetspage/others/AssetOtherList';
+import { filterProperties } from '../../components/assetspage/properties/AssetPropertyList';
+import { filterVehicles } from '../../components/assetspage/vehicles/AssetVehicleList';
+
 const Assets = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
     const [action, setAction] = useState('Asset'); // State for action
     const [assetAction, setAssetAction] = useState(''); // State for action
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const propertyListRef = useRef(null);
     const vehicleListRef = useRef(null);
@@ -244,8 +257,18 @@ const Assets = () => {
                                     <AccountBalanceIcon sx={{ mr: 1 }} />
                                     My Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
                                 </Box>
-                                <Box sx={{ fontSize: '0.875rem' }}>
-                                    {'( '}Today, {today} {')'}
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<InsertDriveFileIcon />}
+                                        sx={{ mr: 2 }}
+                                    >
+                                        Download Assets Data
+                                    </Button>
+                                    <Box sx={{ fontSize: '0.875rem' }}>
+                                        {'( '}Today, {today} {')'}
+                                    </Box>
                                 </Box>
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -344,8 +367,90 @@ const Assets = () => {
         setOtherCount(count);
     };
 
+    const handleExportToExcel = () => {
+        try {
+            const workbook = XLSX.utils.book_new();
+
+            const addSheet = (data, sheetName) => {
+                const worksheet = XLSX.utils.json_to_sheet(data);
+                XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+            };
+
+            const propertyList = filterProperties('Asset', properties, false);
+            const vehicleList = filterVehicles('Asset', vehicles, false);
+            const accountList = filterAccounts('Asset', accounts, false);
+            const depositList = filterDeposits('Asset', deposits, false);
+            const portfolioList = filterPortfolios('Asset', portfolios, false);
+            const otherList = filterOthers('Asset', others, false);
+
+            addSheet(propertyList, 'Properties');
+            addSheet(vehicleList, 'Vehicles');
+            addSheet(accountList, 'Accounts');
+            addSheet(depositList, 'Deposits');
+            addSheet(portfolioList, 'Portfolios');
+            addSheet(otherList, 'Others');
+
+            const date = new Date();
+            const timestamp = `${date.getDate()}${date.getMonth() + 1}${date.getFullYear()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
+            const fileName = `Assets_${timestamp}.xlsx`;
+
+            XLSX.writeFile(workbook, fileName);
+
+            setSuccessMessage('Data exported successfully');
+        }
+        catch (error) {
+            setErrorMessage('Error exporting data: ' + error);
+        };
+    };
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Snackbar
+                open={!!successMessage}
+                autoHideDuration={6000}
+                onClose={() => setSuccessMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="filled"
+                    severity="success"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setSuccessMessage('')}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                >
+                    {successMessage}
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={!!errorMessage}
+                autoHideDuration={6000}
+                onClose={() => setErrorMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="filled"
+                    severity="error"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setErrorMessage('')}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                >
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
             <HomeHeader open={open} handleDrawerToggle={handleDrawerToggle} />
             <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}>
                 <HomeLeftMenu open={open} />
@@ -375,8 +480,19 @@ const Assets = () => {
                                 <AccountBalanceIcon sx={{ mr: 1 }} />
                                 My Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
-                            <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}Today, {today} {')'}
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    startIcon={<InsertDriveFileIcon />}
+                                    onClick={handleExportToExcel}
+                                    sx={{ mr: 2 }}
+                                >
+                                    Download Assets Data
+                                </Button>
+                                <Box sx={{ fontSize: '0.875rem' }}>
+                                    {'( '}Today, {today} {')'}
+                                </Box>
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
