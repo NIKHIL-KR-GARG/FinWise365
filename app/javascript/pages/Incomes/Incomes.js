@@ -26,6 +26,7 @@ import PayoutIncomeList from '../../components/incomespage/PayoutIncomeList';
 import LeaseIncomeList from '../../components/incomespage/LeaseIncomeList';
 import RentalIncomeList from '../../components/incomespage/RentalIncomeList';
 import IncomesGraph from '../../components/incomespage/IncomesGraph';
+import { today } from '../../components/common/DateFunctions';
 
 const Incomes = () => {
     const [open, setOpen] = useState(true);
@@ -217,10 +218,10 @@ const Incomes = () => {
                             <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <AccountBalanceIcon sx={{ mr: 1 }} />
-                                    My Incomes
+                                    My Incomes {'( '}For, {formatMonthYear(new Date())} {')'}
                                 </Box>
                                 <Box sx={{ fontSize: '0.875rem' }}>
-                                    {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                    {'( '}Today, {today} {')'}
                                 </Box>
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -304,10 +305,10 @@ const Incomes = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <AccountBalanceIcon sx={{ mr: 1 }} />
-                                My Incomes
+                                My Incomes {'( '}For, {formatMonthYear(new Date())} {')'}
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                {'( '}Today, {today} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />

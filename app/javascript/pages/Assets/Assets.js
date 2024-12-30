@@ -34,6 +34,7 @@ import AssetOtherForm from '../../components/assetspage/others/AssetOtherForm';
 import { propertyAssetValue, vehicleAssetValue, accountAssetValue, depositAssetValue, portfolioAssetValue, otherAssetValue } from '../../components/calculators/Assets';
 import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
+import { today } from '../../components/common/DateFunctions';
 
 const Assets = () => {
     const [open, setOpen] = useState(true);
@@ -241,10 +242,10 @@ const Assets = () => {
                             <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <AccountBalanceIcon sx={{ mr: 1 }} />
-                                    My Assets
+                                    My Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
                                 </Box>
                                 <Box sx={{ fontSize: '0.875rem' }}>
-                                    {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                    {'( '}Today, {today} {')'}
                                 </Box>
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -372,10 +373,10 @@ const Assets = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <AccountBalanceIcon sx={{ mr: 1 }} />
-                                My Assets
+                                My Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                {'( '}Today, {today} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />

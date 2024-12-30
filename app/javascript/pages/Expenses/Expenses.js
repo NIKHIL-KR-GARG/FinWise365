@@ -35,6 +35,7 @@ import MortgageAndLoanList from '../../components/expensespage/mortgageandloans/
 import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpense, otherExpense, emiExpenseProperty, emiExpenseVehicle, sipExpenseDeposit, sipExpensePortfolio, sipExpenseOtherAsset, taxExpenseProperty, maintananeExpenseProperty, otherExpenseVehicle } from '../../components/calculators/Expenses';
 import { FormatCurrency } from  '../../components/common/FormatCurrency';
 import { formatMonthYear } from '../../components/common/DateFunctions';
+import { today } from '../../components/common/DateFunctions';
 
 const Expenses = () => {
     const [open, setOpen] = useState(true);
@@ -304,10 +305,10 @@ const Expenses = () => {
                             <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <MoneyOffIcon sx={{ mr: 1 }} />
-                                    My Expenses
+                                    My Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
                                 </Box>
                                 <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                {'( '}Today, {today} {')'}
                                 </Box>
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -439,10 +440,10 @@ const Expenses = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <MoneyOffIcon sx={{ mr: 1 }} />
-                                My Expenses
+                                My Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                {'( '}Today, {today} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />

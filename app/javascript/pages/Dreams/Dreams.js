@@ -67,6 +67,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import FolderSpecialIcon from '@mui/icons-material/FolderSpecial';
 import HouseIcon from '@mui/icons-material/House';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import { today } from '../../components/common/DateFunctions';
 
 const Dreams = () => {
     const [open, setOpen] = useState(true);
@@ -628,10 +629,10 @@ const Dreams = () => {
                             <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <StarIcon sx={{ mr: 1 }} />
-                                    My Dreams
+                                    My Dreams {'( '}As Of, {formatMonthYear(new Date())} {')'}
                                 </Box>
                                 <Box sx={{ fontSize: '0.875rem' }}>
-                                    {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                    {'( '}Today, {today} {')'}
                                 </Box>
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -872,10 +873,10 @@ const Dreams = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <StarIcon sx={{ mr: 1 }} />
-                                My Dreams
+                                My Dreams {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                {'( '}Today, {today} {')'}
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
