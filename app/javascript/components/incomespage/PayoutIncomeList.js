@@ -5,44 +5,45 @@ import '../common/GridHeader.css';
 import CountryList from '../common/CountryList';
 import { FormatCurrency } from  '../common/FormatCurrency';
 
+export const filterPayoutIncomes = (otherAssetsList) => {
+
+    const today = new Date();
+    const payouts = otherAssetsList
+        .filter(otherAsset => otherAsset.is_dream === false && otherAsset.payout_value > 0)
+        .filter(otherAsset => {
+            const payoutDate = new Date(otherAsset.payout_date);
+            const payoutDuration = otherAsset.payout_duration ? parseInt(otherAsset.payout_duration) : 0;
+            const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
+            return payoutEndDate > today;
+        })
+        .map(otherAsset => ({
+            id: `payout-${otherAsset.id}`,
+            income_name: `PayOut Income - ${otherAsset.asset_name}`,
+            income_type: 'PayOut',
+            location: otherAsset.location,
+            currency: otherAsset.currency,
+            amount: otherAsset.payout_value,
+            start_date: otherAsset.payout_date,
+            end_date: `${
+                otherAsset.payout_type === 'Recurring' 
+                    ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + 1 + parseInt(otherAsset.payout_duration))).toISOString().split('T')[0] 
+                    : new Date(otherAsset.payout_date).toISOString().split('T')[0]
+            }`,
+            is_recurring: otherAsset.payout_type === 'Recurring',
+            income_frequency: otherAsset.payout_frequency
+        }));
+
+    return payouts;
+};
+
 const PayoutIncomeList = ({ otherAssetsList }) => {
 
     const [incomes, setIncomes] = useState([]);
     const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const filterIncomes = (otherAssetsList) => {
-
-        const today = new Date();
-        const payouts = otherAssetsList
-            .filter(otherAsset => otherAsset.is_dream === false && otherAsset.payout_value > 0)
-            .filter(otherAsset => {
-                const payoutDate = new Date(otherAsset.payout_date);
-                const payoutDuration = otherAsset.payout_duration ? parseInt(otherAsset.payout_duration) : 0;
-                const payoutEndDate = new Date(payoutDate.setMonth(payoutDate.getMonth() + 1 + payoutDuration));
-                return payoutEndDate > today;
-            })
-            .map(otherAsset => ({
-                id: `payout-${otherAsset.id}`,
-                income_name: `PayOut Income - ${otherAsset.asset_name}`,
-                income_type: 'PayOut',
-                location: otherAsset.location,
-                currency: otherAsset.currency,
-                amount: otherAsset.payout_value,
-                start_date: otherAsset.payout_date,
-                end_date: `${
-                    otherAsset.payout_type === 'Recurring' 
-                        ? new Date(new Date(otherAsset.payout_date).setMonth(new Date(otherAsset.payout_date).getMonth() + 1 + parseInt(otherAsset.payout_duration))).toISOString().split('T')[0] 
-                        : new Date(otherAsset.payout_date).toISOString().split('T')[0]
-                }`,
-                is_recurring: otherAsset.payout_type === 'Recurring',
-                income_frequency: otherAsset.payout_frequency
-            }));
-
-        setIncomes(payouts);
-    };
-
     useEffect(() => {
-        filterIncomes(otherAssetsList);
+        const payouts = filterPayoutIncomes(otherAssetsList);
+        setIncomes(payouts);
     }, []);
 
     const columns = [

@@ -5,40 +5,41 @@ import '../common/GridHeader.css';
 import CountryList from '../common/CountryList';
 import { FormatCurrency } from  '../common/FormatCurrency';
 
+export const filterLeaseIncomes = (vehiclesList) => {
+
+    const today = new Date();
+    const leases = vehiclesList
+        .filter(vehicle => !vehicle.is_plan_to_sell || (new Date(vehicle.sale_date) >= today))
+        .filter(vehicle => vehicle.is_on_lease && 
+            (new Date(vehicle.lease_start_date) <= today) && 
+            (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today) &&
+            (vehicle.lease_amount > 0) &&
+            (vehicle.is_dream === false)
+        )
+        .map(vehicle => ({
+            id: `lease-${vehicle.id}`,
+            income_name: `Lease Income - ${vehicle.vehicle_name}`,
+            income_type: 'Lease',
+            location: vehicle.location,
+            currency: vehicle.currency,
+            amount: vehicle.lease_amount,
+            start_date: vehicle.lease_start_date,
+            end_date: vehicle.lease_end_date,
+            is_recurring: true,
+            income_frequency: 'Monthly'
+        }));
+
+    return leases;
+};
+
 const LeaseIncomeList = ({ vehiclesList }) => {
 
     const [incomes, setIncomes] = useState([]);
     const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const filterIncomes = (vehiclesList) => {
-
-        const today = new Date();
-        const leases = vehiclesList
-            .filter(vehicle => !vehicle.is_plan_to_sell || (new Date(vehicle.sale_date) >= today))
-            .filter(vehicle => vehicle.is_on_lease && 
-                (new Date(vehicle.lease_start_date) <= today) && 
-                (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today) &&
-                (vehicle.lease_amount > 0) &&
-                (vehicle.is_dream === false)
-            )
-            .map(vehicle => ({
-                id: `lease-${vehicle.id}`,
-                income_name: `Lease Income - ${vehicle.vehicle_name}`,
-                income_type: 'Lease',
-                location: vehicle.location,
-                currency: vehicle.currency,
-                amount: vehicle.lease_amount,
-                start_date: vehicle.lease_start_date,
-                end_date: vehicle.lease_end_date,
-                is_recurring: true,
-                income_frequency: 'Monthly'
-            }));
-
-        setIncomes(leases);
-    };
-
     useEffect(() => {
-        filterIncomes(vehiclesList);
+        const leases = filterLeaseIncomes(vehiclesList);
+        setIncomes(leases);
     }, []);
 
     const columns = [

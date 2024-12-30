@@ -5,40 +5,43 @@ import '../common/GridHeader.css';
 import CountryList from '../common/CountryList';
 import { FormatCurrency } from  '../common/FormatCurrency';
 
+export const filterRentalIncomes = (propertiesList) => {
+
+    const today = new Date();
+    const rentalIncomes = propertiesList
+        .filter(property => !property.is_plan_to_sell || (new Date(property.sale_date) >= today))
+        .filter(property => property.is_on_rent && 
+            (new Date(property.rental_start_date) <= today) && 
+            (!property.rental_end_date || new Date(property.rental_end_date) >= today) &&
+            (property.rental_amount > 0) &&
+            (property.is_dream === false)
+        )
+        .map(property => ({
+            id: `rental-${property.id}`,
+            income_name: `Rental Income - ${property.property_name}`,
+            income_type: 'Rental',
+            location: property.location,
+            currency: property.currency,
+            amount: property.rental_amount,
+            start_date: property.rental_start_date,
+            end_date: property.rental_end_date,
+            is_recurring: true,
+            income_frequency: 'Monthly'
+        }));
+
+    return rentalIncomes;
+};
+
 const RentalIncomeList = ({ propertiesList }) => {
 
     const [incomes, setIncomes] = useState([]);
     const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const filterIncomes = (propertiesList) => {
-
-        const today = new Date();
-        const rentalIncomes = propertiesList
-            .filter(property => !property.is_plan_to_sell || (new Date(property.sale_date) >= today))
-            .filter(property => property.is_on_rent && 
-                (new Date(property.rental_start_date) <= today) && 
-                (!property.rental_end_date || new Date(property.rental_end_date) >= today) &&
-                (property.rental_amount > 0) &&
-                (property.is_dream === false)
-            )
-            .map(property => ({
-                id: `rental-${property.id}`,
-                income_name: `Rental Income - ${property.property_name}`,
-                income_type: 'Rental',
-                location: property.location,
-                currency: property.currency,
-                amount: property.rental_amount,
-                start_date: property.rental_start_date,
-                end_date: property.rental_end_date,
-                is_recurring: true,
-                income_frequency: 'Monthly'
-            }));
-
-        setIncomes(rentalIncomes);
-    };
+    
 
     useEffect(() => {
-        filterIncomes(propertiesList);
+        const rentalIncomes = filterRentalIncomes(propertiesList);
+        setIncomes(rentalIncomes);
     }, []);
 
     const columns = [

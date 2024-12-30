@@ -6,48 +6,49 @@ import CountryList from '../common/CountryList';
 import { FormatCurrency } from  '../common/FormatCurrency';
 import { portfolioAssetValue } from '../calculators/Assets';
 
+export const filterDividendIncomes = (portfoliosList) => {
+
+    const today = new Date();
+    const dividends = portfoliosList
+        .filter(portfolio => portfolio.is_paying_dividend && 
+            (new Date(portfolio.buying_date) <= today) && 
+            (!portfolio.sale_date || new Date(portfolio.sale_date) >= today) &&
+            (portfolio.is_dream === false) &&
+            (portfolio.dividend_rate > 0)
+        )
+        .map(portfolio => ({
+            id: `dividend-${portfolio.id}`,
+            income_name: `Dividend Income - ${portfolio.portfolio_name}`,
+            income_type: 'Dividend',
+            location: portfolio.location,
+            currency: portfolio.currency,
+            amount: calculateDividendAmount(parseFloat(portfolioAssetValue(portfolio, new Date(), portfolio.currency)), portfolio.dividend_frequency, portfolio.dividend_rate),
+            start_date: portfolio.buying_date,
+            end_date: portfolio.sale_date,
+            is_recurring: true,
+            income_frequency: portfolio.dividend_frequency
+        }));
+
+    return dividends;
+};
+
+const calculateDividendAmount = (value, frequency, rate) => {
+    let dividendAmount = value * (rate / 100);
+    if (frequency === 'Monthly') dividendAmount = dividendAmount / 12;
+    else if (frequency === 'Quarterly') dividendAmount = dividendAmount / 4;
+    else if (frequency === 'Semi-Annually') dividendAmount = dividendAmount / 2;
+    return parseFloat(dividendAmount).toFixed(2);
+};
+
 const DividendIncomeList = ({ portfoliosList }) => {
 
     const [incomes, setIncomes] = useState([]);
     const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const filterIncomes = (portfoliosList) => {
-
-        const today = new Date();
-        const dividends = portfoliosList
-            .filter(portfolio => portfolio.is_paying_dividend && 
-                (new Date(portfolio.buying_date) <= today) && 
-                (!portfolio.sale_date || new Date(portfolio.sale_date) >= today) &&
-                (portfolio.is_dream === false) &&
-                (portfolio.dividend_rate > 0)
-            )
-            .map(portfolio => ({
-                id: `dividend-${portfolio.id}`,
-                income_name: `Dividend Income - ${portfolio.portfolio_name}`,
-                income_type: 'Dividend',
-                location: portfolio.location,
-                currency: portfolio.currency,
-                amount: calculateDividendAmount(parseFloat(portfolioAssetValue(portfolio, new Date(), portfolio.currency)), portfolio.dividend_frequency, portfolio.dividend_rate),
-                start_date: portfolio.buying_date,
-                end_date: portfolio.sale_date,
-                is_recurring: true,
-                income_frequency: portfolio.dividend_frequency
-            }));
-
-        setIncomes(dividends);
-    };
-
     useEffect(() => {
-        filterIncomes(portfoliosList);
+        const dividends = filterDividendIncomes(portfoliosList);
+        setIncomes(dividends);
     }, []);
-
-    const calculateDividendAmount = (value, frequency, rate) => {
-        let dividendAmount = value * (rate / 100);
-        if (frequency === 'Monthly') dividendAmount = dividendAmount / 12;
-        else if (frequency === 'Quarterly') dividendAmount = dividendAmount / 4;
-        else if (frequency === 'Semi-Annually') dividendAmount = dividendAmount / 2;
-        return parseFloat(dividendAmount).toFixed(2);
-    };
 
     const columns = [
         {

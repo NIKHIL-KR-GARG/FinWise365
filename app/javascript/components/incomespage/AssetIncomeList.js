@@ -12,6 +12,23 @@ import AssetIncomeForm from './AssetIncomeForm';
 import CountryList from '../common/CountryList';
 import { FormatCurrency } from  '../common/FormatCurrency';
 
+export const filterIncomes = (listAction, incomesList, includePastIncomes) => {
+    let filteredIncomes = [];
+    const today = new Date();
+    if (listAction === 'Asset' && !includePastIncomes) {
+        filteredIncomes = incomesList.filter(income => !income.is_dream && (!income.end_date || new Date(income.end_date) >= today));
+    } else if (listAction === 'Asset' && includePastIncomes) {
+        filteredIncomes = incomesList.filter(income => !income.is_dream);
+    } else if (listAction === 'Dream' && includePastIncomes) {
+        filteredIncomes = incomesList.filter(income => income.is_dream);
+    } else if (listAction === 'Dream' && !includePastIncomes) {
+        filteredIncomes = incomesList.filter(income => income.is_dream && (new Date(income.start_date) > today));
+    } else
+        filteredIncomes = incomesList;
+
+    return filteredIncomes;
+};
+
 const AssetIncomeList = forwardRef((props, ref) => {
     const { onIncomesFetched, listAction, incomesList} = props; // Destructure the new prop
 
@@ -29,34 +46,24 @@ const AssetIncomeList = forwardRef((props, ref) => {
 
     const [includePastIncomes, setIncludePastIncomes] = useState(false); // State for switch to include past incomes
 
-    const filterIncomes = (incomesList) => {
-        let filteredIncomes = [];
-        const today = new Date();
-        if (listAction === 'Asset' && !includePastIncomes) {
-            filteredIncomes = incomesList.filter(income => !income.is_dream && (!income.end_date || new Date(income.end_date) >= today));
-        } else if (listAction === 'Asset' && includePastIncomes) {
-            filteredIncomes = incomesList.filter(income => !income.is_dream);
-        } else if (listAction === 'Dream' && includePastIncomes) {
-            filteredIncomes = incomesList.filter(income => income.is_dream);
-        } else if (listAction === 'Dream' && !includePastIncomes) {
-            filteredIncomes = incomesList.filter(income => income.is_dream && (new Date(income.start_date) > today));
-        } else
-            filteredIncomes = incomesList;
-
+    useEffect(() => {
+        const filteredIncomes = filterIncomes(listAction, incomesList, includePastIncomes);
         setIncomes(filteredIncomes);
         setIncomesFetched(true); // Set incomesFetched to true after fetching
 
         if (onIncomesFetched) {
             onIncomesFetched(filteredIncomes.length); // Notify parent component
         }
-    };
-
-    useEffect(() => {
-        filterIncomes(incomesList);
     }, []);
 
     useEffect(() => {
-        filterIncomes(incomesList); // Filter incomes when includePastIncomes changes
+        const filteredIncomes = filterIncomes(listAction, incomesList, includePastIncomes); // Filter incomes when includePastIncomes changes
+        setIncomes(filteredIncomes);
+        setIncomesFetched(true); // Set incomesFetched to true after fetching
+
+        if (onIncomesFetched) {
+            onIncomesFetched(filteredIncomes.length); // Notify parent component
+        } 
     }, [includePastIncomes]); // Include Past Incomes to income/grid array
 
     const handleFormModalClose = () => {
