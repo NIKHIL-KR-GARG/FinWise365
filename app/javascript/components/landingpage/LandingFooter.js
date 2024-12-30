@@ -55,15 +55,18 @@ const LandingFooter = () => {
                     <Box sx={{ display: 'inline-block', width: 'auto', margin: '16px 0' }}> {/* Center the divider */}
                         <Divider sx={{ width: '75px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
                     </Box>
-                    <Typography variant="body1" component="p" sx={{ fontSize: '1.1rem', color: 'white', paddingBottom:2 }}>
+                    <Link href="/helpcentre" sx={{ fontSize: '1.1rem', color: 'white', paddingBottom: 2, display: 'block', textDecoration: 'none' }}>
+                        FAQs
+                    </Link>
+                    <Link href="/helpcentre" sx={{ fontSize: '1.1rem', color: 'white', paddingBottom: 2, display: 'block', textDecoration: 'none' }}>
                         Blogs/Articles
-                    </Typography>
-                    <Typography variant="body1" component="p" sx={{ fontSize: '1.1rem', color: 'white', paddingBottom:2 }}>
+                    </Link>
+                    <Link href="/helpcentre" sx={{ fontSize: '1.1rem', color: 'white', paddingBottom: 2, display: 'block', textDecoration: 'none' }}>
                         Product Videos
-                    </Typography>
-                    <Typography variant="body1" component="p" sx={{ fontSize: '1.1rem', color: 'white', paddingBottom:2 }}>
-                        Change Log
-                    </Typography>
+                    </Link>
+                    <Link href="/comingsoon" sx={{ fontSize: '1.1rem', color: 'white', paddingBottom: 2, display: 'block', textDecoration: 'none' }}>
+                        Coming Soon...
+                    </Link>
                 </Grid>
                 <Grid item xs={12} sm={3} sx={{ flexBasis: '25%', textAlign: 'left', padding: 2 }}> {/* Right Column (Contact Info) */}
                     <Typography variant="h5" component="h2" sx={{ color: 'white' }}>
@@ -97,14 +100,14 @@ const LandingFooter = () => {
                         </Link>
                     </Box>
                 </Grid>
-                <Grid item xs={12} sm={3} sx={{ flexBasis: '10%', textAlign: 'left', padding: 2 }}> {/* New Column (Social Media) */}
+                <Grid item xs={12} sm={3} sx={{ flexBasis: '10%', textAlign: 'center', padding: 2 }}> {/* New Column (Social Media) */}
                     <Typography variant="h6" component="h2" sx={{ color: 'white' }}>
                         Follow Us
                     </Typography>
                     <Box sx={{ display: 'inline-block', width: 'auto', margin: '16px 0' }}> {/* Center the divider */}
                         <Divider sx={{ width: '75px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
                     </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> {/* Align items to the center */}
                         <IconButton href="https://www.facebook.com" target="_blank" sx={{ color: 'white' }}>
                             <FacebookIcon />
                         </IconButton>

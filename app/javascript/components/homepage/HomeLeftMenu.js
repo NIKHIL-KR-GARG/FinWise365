@@ -199,7 +199,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     </Box>
                 )}
                 <Divider />
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                <ListItem component={Link} to="/helpcentre" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                     <ListItemIcon>
                         <HelpOutlineIcon fontSize="small" />
                     </ListItemIcon>
@@ -210,6 +210,12 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                         <ContactMailIcon fontSize="small" />
                     </ListItemIcon>
                     {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Contact Us</Typography>} />}
+                </ListItem>
+                <ListItem component={Link} to="/comingsoon" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                    <ListItemIcon>
+                        <ContactMailIcon fontSize="small" />
+                    </ListItemIcon>
+                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Coming Soon...</Typography>} />}
                 </ListItem>
                 <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }} onClick={() => logout()}>
                     <ListItemIcon>

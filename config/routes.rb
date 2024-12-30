@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   get 'cashflows', to: 'site#index'
   get 'cashflowcomparison', to: 'site#index'
   get 'contactus', to: 'site#index'
+  get 'helpcentre', to: 'site#index'
+  get 'comingsoon', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do
