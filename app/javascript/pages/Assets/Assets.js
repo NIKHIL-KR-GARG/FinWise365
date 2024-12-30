@@ -43,8 +43,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { filterAccounts } from '../../components/assetspage/accounts/AssetAccountList';
 import { filterDeposits } from '../../components/assetspage/deposits/AssetDepositList';
 import { filterPortfolios } from '../../components/assetspage/portfolios/AssetPortfolioList';
-import { filterOthers } from '../../components/assetspage/others/AssetOtherList';
-import { filterProperties } from '../../components/assetspage/properties/AssetPropertyList';
+import { filterAssetOthers } from '../../components/assetspage/others/AssetOtherList';
+import { filterAssetProperties } from '../../components/assetspage/properties/AssetPropertyList';
 import { filterVehicles } from '../../components/assetspage/vehicles/AssetVehicleList';
 
 const Assets = () => {
@@ -376,12 +376,12 @@ const Assets = () => {
                 XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
             };
 
-            const propertyList = filterProperties('Asset', properties, false);
+            const propertyList = filterAssetProperties('Asset', properties, false);
             const vehicleList = filterVehicles('Asset', vehicles, false);
             const accountList = filterAccounts('Asset', accounts, false);
             const depositList = filterDeposits('Asset', deposits, false);
             const portfolioList = filterPortfolios('Asset', portfolios, false);
-            const otherList = filterOthers('Asset', others, false);
+            const otherList = filterAssetOthers('Asset', others, false);
 
             addSheet(propertyList, 'Properties');
             addSheet(vehicleList, 'Vehicles');

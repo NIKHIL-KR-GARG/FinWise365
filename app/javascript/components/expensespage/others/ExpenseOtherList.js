@@ -12,7 +12,7 @@ import ExpenseOtherForm from './ExpenseOtherForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
-export const filterOthers = (listAction, othersList, includePastOthers) => {
+export const filterExpenseOthers = (listAction, othersList, includePastOthers) => {
     let filteredOthers = [];
     const today = new Date();
     if (!includePastOthers) {
@@ -86,7 +86,7 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch
 
     useEffect(() => {
-        const filteredOthers = filterOthers(listAction, othersList, includePastOthers); // Filter others
+        const filteredOthers = filterExpenseOthers(listAction, othersList, includePastOthers); // Filter others
         const vehicleExpenses = filterOthersVehicleExpense(vehiclesList); // Filter vehicle expenses
 
         setOthers([...filteredOthers, ...vehicleExpenses]); // Set the filtered others
@@ -97,7 +97,7 @@ const ExpenseOtherList = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
-        const filteredOthers = filterOthers(listAction, othersList, includePastOthers); // Filter others when includePastOthers changes
+        const filteredOthers = filterExpenseOthers(listAction, othersList, includePastOthers); // Filter others when includePastOthers changes
         const vehicleExpenses = filterOthersVehicleExpense(vehiclesList); // Filter vehicle expenses
         
         setOthers([...filteredOthers, ...vehicleExpenses]); // Set the filtered others

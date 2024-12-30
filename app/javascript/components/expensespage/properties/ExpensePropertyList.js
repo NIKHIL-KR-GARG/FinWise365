@@ -12,7 +12,7 @@ import ExpensePropertyForm from './ExpensePropertyForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
-export const filterProperties = (listAction, propertiesList, includePastProperties) => {
+export const filterExpenseProperties = (listAction, propertiesList, includePastProperties) => {
     let filteredProperties = [];
     const today = new Date();
     if (listAction === 'Expense' && !includePastProperties) {
@@ -79,7 +79,7 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch to include past properties
 
     useEffect(() => {
-        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
+        const filteredProperties = filterExpenseProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
         const propertyMaintenance = filterPropertiesMaintenance(assetPropertiesList);
 
         setProperties([...filteredProperties, ...propertyMaintenance]);
@@ -92,7 +92,7 @@ const ExpensePropertyList = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
-        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
+        const filteredProperties = filterExpenseProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
         const propertyMaintenance = filterPropertiesMaintenance(assetPropertiesList);
 
         setProperties([...filteredProperties, ...propertyMaintenance]);

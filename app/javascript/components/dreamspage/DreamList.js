@@ -12,6 +12,23 @@ import DreamForm from './DreamForm';
 import CountryList from '../common/CountryList';
 import { FormatCurrency } from '../common/FormatCurrency';
 
+export const fetchDreams = (dreamsList) => {
+    try {
+        // filter by either end date in the future or start date in the future
+        const today = new Date();
+        const filteredActiveDreams = dreamsList.filter(dream => {
+            if (!dream.end_date && new Date(dream.dream_date) >= today) return true;
+            else if (dream.end_date && new Date(dream.end_date) >= today) return true;
+            else return false;
+        });
+
+        return filteredActiveDreams;
+
+    } catch (error) {
+        console.error('Error fetching dreams');
+    }
+};
+
 const DreamList = forwardRef((props, ref) => {
     const { onDreamsFetched, dreamType, dreamsList } = props; // Destructure the new prop
     
@@ -28,28 +45,14 @@ const DreamList = forwardRef((props, ref) => {
     const [dreamToDelete, setDreamToDelete] = useState(null); // State for dream to delete
     const [sortingModel, setSortingModel] = useState([{ field: 'dream_name', sort: 'asc' }]); // Initialize with default sorting
 
-    const fetchDreams = async () => {
-        try {
-            // filter by either end date in the future or start date in the future
-            const today = new Date();
-            const filteredActiveDreams = dreamsList.filter(dream => {
-                if (!dream.end_date && new Date(dream.dream_date) >= today) return true;
-                else if (dream.end_date && new Date(dream.end_date) >= today) return true;
-                else return false;
-            });
-
-            setDreams(filteredActiveDreams);
-            setDreamsFetched(true);
-            if (onDreamsFetched) {
-                onDreamsFetched(filteredActiveDreams.length);
-            }
-        } catch (error) {
-            console.error('Error fetching dreams:', error);
-        }
-    };
-
     useEffect(() => {
-        fetchDreams();
+        const filteredActiveDreams = fetchDreams(dreamsList);
+
+        setDreams(filteredActiveDreams);
+        setDreamsFetched(true);
+        if (onDreamsFetched) {
+            onDreamsFetched(filteredActiveDreams.length);
+        }
         
     }, [currentUserId]);
 

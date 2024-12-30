@@ -12,7 +12,7 @@ import AssetOtherForm from './AssetOtherForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
-export const filterOthers = (listAction, othersList, includePastOthers) => {
+export const filterAssetOthers = (listAction, othersList, includePastOthers) => {
     let filteredOthers = [];
     // filter on others where payout_date + payout_duration (months) is greater than today
     const today = new Date();
@@ -61,7 +61,7 @@ const AssetOtherList = forwardRef((props, ref) => {
     const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch to include past others
 
     useEffect(() => {
-        const filteredOthers = filterOthers(listAction, othersList, includePastOthers); 
+        const filteredOthers = filterAssetOthers(listAction, othersList, includePastOthers); 
 
         setOthers(filteredOthers);
         setOthersFetched(true); // Set othersFetched to true after filtering
@@ -71,7 +71,7 @@ const AssetOtherList = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
-        const filteredOthers = filterOthers(listAction, othersList, includePastOthers);  // Filter others when includePastOthers changes
+        const filteredOthers = filterAssetOthers(listAction, othersList, includePastOthers);  // Filter others when includePastOthers changes
 
         setOthers(filteredOthers);
         setOthersFetched(true); // Set othersFetched to true after filtering

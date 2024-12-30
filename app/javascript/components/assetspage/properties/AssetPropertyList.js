@@ -19,7 +19,7 @@ import CountryList from '../../common/CountryList';
 import AssetPropertyForm from './AssetPropertyForm';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
-export  const filterProperties = (listAction, propertiesList, includePastProperties) => {
+export const filterAssetProperties = (listAction, propertiesList, includePastProperties) => {
     let filteredProperties = [];
     const today = new Date();
     if (listAction === 'Asset' && !includePastProperties) {
@@ -53,7 +53,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
     const [includePastProperties, setIncludePastProperties] = useState(false); // State for switch
 
     useEffect(() => {
-        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties
+        const filteredProperties = filterAssetProperties(listAction, propertiesList, includePastProperties); // Filter properties
 
         setProperties(filteredProperties);
         setPropertiesFetched(true); // Set propertiesFetched to true after filtering
@@ -63,7 +63,7 @@ const AssetPropertyList = forwardRef((props, ref) => {
     }, [listAction]); // Fetch properties on component mount and when currentUserId or listAction changes
 
     useEffect(() => {
-        const filteredProperties = filterProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
+        const filteredProperties = filterAssetProperties(listAction, propertiesList, includePastProperties); // Filter properties when includePastProperties changes
 
         setProperties(filteredProperties);
         setPropertiesFetched(true); // Set propertiesFetched to true after filtering

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
+import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Snackbar, Alert  } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
@@ -69,6 +69,32 @@ import HouseIcon from '@mui/icons-material/House';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import { today } from '../../components/common/DateFunctions';
 
+import * as XLSX from 'xlsx';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import CloseIcon from '@mui/icons-material/Close';
+import { fetchDreams } from '../../components/dreamspage/DreamList';
+import { filterAccounts } from '../../components/assetspage/accounts/AssetAccountList';
+import { filterDeposits } from '../../components/assetspage/deposits/AssetDepositList';
+import { filterPortfolios } from '../../components/assetspage/portfolios/AssetPortfolioList';
+import { filterAssetOthers } from '../../components/assetspage/others/AssetOtherList';
+import { filterAssetProperties } from '../../components/assetspage/properties/AssetPropertyList';
+import { filterVehicles } from '../../components/assetspage/vehicles/AssetVehicleList';
+import { filterCreditCardDebts } from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtList';
+import { filterPersonalLoans } from '../../components/expensespage/personalloans/ExpensePersonalLoanList';
+import { filterExpenseOthers, filterOthersVehicleExpense } from '../../components/expensespage/others/ExpenseOtherList';
+import { filterExpenseProperties } from '../../components/expensespage/properties/ExpensePropertyList';
+import { filterHomes } from '../../components/expensespage/homes/ExpenseHomeList';
+import { fetchPropertyEMIs, fetchVehicleEMIs } from '../../components/expensespage/emis/EMIList';
+import { fetchDepositSIPs, fetchPortfolioSIPs, fetchOtherSIPs } from '../../components/expensespage/sips/SIPList';
+import { fetchTaxes } from '../../components/expensespage/taxes/TaxList';
+import { fetchPropertyMortgageAndLoans, fetchVehicleMortgageAndLoans } from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
+import { filterIncomes } from '../../components/incomespage/AssetIncomeList';
+import { filterCouponIncomes } from '../../components/incomespage/CouponIncomeList';
+import { filterDividendIncomes } from '../../components/incomespage/DividendIncomeList';
+import { filterLeaseIncomes } from '../../components/incomespage/LeaseIncomeList';
+import { filterRentalIncomes } from '../../components/incomespage/RentalIncomeList';
+import { filterPayoutIncomes } from '../../components/incomespage/PayoutIncomeList';
+
 const Dreams = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
@@ -77,6 +103,8 @@ const Dreams = () => {
     const [dreamAction, setDreamAction] = useState(''); // State for action
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const navigate = useNavigate();
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     // for asset dreams
     const assetPropertyListRef = useRef(null);
@@ -631,8 +659,18 @@ const Dreams = () => {
                                     <StarIcon sx={{ mr: 1 }} />
                                     My Dreams {'( '}As Of, {formatMonthYear(new Date())} {')'}
                                 </Box>
-                                <Box sx={{ fontSize: '0.875rem' }}>
-                                    {'( '}Today, {today} {')'}
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<InsertDriveFileIcon />}
+                                        sx={{ mr: 2 }}
+                                    >
+                                        Download Dreams Data
+                                    </Button>
+                                    <Box sx={{ fontSize: '0.875rem' }}>
+                                        {'( '}Today, {today} {')'}
+                                    </Box>
                                 </Box>
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -844,8 +882,131 @@ const Dreams = () => {
         }
     };
 
+    const handleExportToExcel = () => {
+        try {
+            const workbook = XLSX.utils.book_new();
+
+            const addSheet = (data, sheetName) => {
+                const worksheet = XLSX.utils.json_to_sheet(data);
+                XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+            };
+
+            const assetPropertyList = filterAssetProperties('Dream', assetProperties, false);
+            const assetVehicleList = filterVehicles('Dream', assetVehicles, false);
+            const assetAccountList = filterAccounts('Dream', assetAccounts, false);
+            const assetDepositList = filterDeposits('Dream', assetDeposits, false);
+            const assetPortfolioList = filterPortfolios('Dream', assetPortfolios, false);
+            const assetOtherList = filterAssetOthers('Dream', assetOthers, false);
+
+            const incomeList = filterIncomes('Dream', incomes, false);
+            // const coupons = filterCouponIncomes(assetPortfolios);
+            // const dividends = filterDividendIncomes(assetPortfolios);
+            // const payouts = filterPayoutIncomes(assetOthers);
+            // const leases = filterLeaseIncomes(assetVehicles);
+            // const rentals = filterRentalIncomes(assetProperties);
+
+            const expenseHomeList = filterHomes('Dream', expenseHomes, false);
+            const expensePropertyList = filterExpenseProperties('Dream', expenseProperties, false);
+            const expenseCreditCardDebtList = filterCreditCardDebts('Dream', expenseCreditCardDebts, false);
+            const expensePersonalLoanList = filterPersonalLoans('Dream', expensePersonalLoans, false);
+            const expenseOtherList = filterExpenseOthers('Dream', expenseOthers, false);
+            // const emis = fetchPropertyEMIs(assetProperties, false).concat(fetchVehicleEMIs(assetVehicles, false));
+            // const sips = fetchDepositSIPs(assetDeposits, false).concat(fetchPortfolioSIPs(assetPortfolios, false)).concat(fetchOtherSIPs(assetOthers, false));
+            // const taxes = fetchTaxes(assetProperties, false);
+            // const mortgageAndLoans = fetchPropertyMortgageAndLoans(assetProperties, false).concat(fetchVehicleMortgageAndLoans(assetVehicles, false));
+
+            const educationList = fetchDreams(education);
+            const travelList = fetchDreams(travel);
+            const relocationList = fetchDreams(relocation);
+            const otherList = fetchDreams(other);
+
+            addSheet(assetPropertyList, 'Future Properties');
+            addSheet(assetVehicleList, 'Future Vehicles');
+            addSheet(assetAccountList, 'Accounts');
+            addSheet(assetDepositList, 'Deposits');
+            addSheet(assetPortfolioList, 'Portfolios');
+            addSheet(assetOtherList, 'Others Future Assets');
+            addSheet(incomeList, 'Future Incomes');
+            // addSheet(coupons, 'Coupons');
+            // addSheet(dividends, 'Dividends');
+            // addSheet(payouts, 'Payouts');
+            // addSheet(leases, 'Leases');
+            // addSheet(rentals, 'Rentals');
+            addSheet(expenseHomeList, 'Home Expenses');
+            addSheet(expensePropertyList, 'Property Expenses');
+            addSheet(expenseCreditCardDebtList, 'Credit Card Debts');
+            addSheet(expensePersonalLoanList, 'Personal Loans');
+            addSheet(expenseOtherList, 'Other Future Expenses');
+            // addSheet(emis, 'EMIs');
+            // addSheet(sips, 'SIPs');
+            // addSheet(taxes, 'Taxes');
+            // addSheet(mortgageAndLoans, 'Mortgage And Loans');
+            addSheet(educationList, 'Education');
+            addSheet(travelList, 'Travel');
+            addSheet(relocationList, 'Relocation');
+            addSheet(otherList, 'Other Dreams');
+
+            const date = new Date();
+            const timestamp = `${date.getDate()}${date.getMonth() + 1}${date.getFullYear()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
+            const fileName = `Dreams_${timestamp}.xlsx`;
+
+            XLSX.writeFile(workbook, fileName);
+
+            setSuccessMessage('Data exported successfully');
+        }
+        catch (error) {
+            setErrorMessage('Error exporting data: ' + error);
+        };
+    };
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Snackbar
+                open={!!successMessage}
+                autoHideDuration={6000}
+                onClose={() => setSuccessMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="filled"
+                    severity="success"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setSuccessMessage('')}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                >
+                    {successMessage}
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={!!errorMessage}
+                autoHideDuration={6000}
+                onClose={() => setErrorMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="filled"
+                    severity="error"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => setErrorMessage('')}
+                        >
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                >
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
             <HomeHeader open={open} handleDrawerToggle={handleDrawerToggle} />
             <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}>
                 <HomeLeftMenu open={open} />
@@ -875,8 +1036,19 @@ const Dreams = () => {
                                 <StarIcon sx={{ mr: 1 }} />
                                 My Dreams {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
-                            <Box sx={{ fontSize: '0.875rem' }}>
-                                {'( '}Today, {today} {')'}
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    startIcon={<InsertDriveFileIcon />}
+                                    onClick={handleExportToExcel}
+                                    sx={{ mr: 2 }}
+                                >
+                                    Download Dreams Data
+                                </Button>
+                                <Box sx={{ fontSize: '0.875rem' }}>
+                                    {'( '}Today, {today} {')'}
+                                </Box>
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />

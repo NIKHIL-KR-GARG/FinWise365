@@ -43,8 +43,8 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import { filterCreditCardDebts } from '../../components/expensespage/creditcarddebts/ExpenseCreditCardDebtList';
 import { filterPersonalLoans } from '../../components/expensespage/personalloans/ExpensePersonalLoanList';
-import { filterOthers, filterOthersVehicleExpense } from '../../components/expensespage/others/ExpenseOtherList';
-import { filterProperties } from '../../components/expensespage/properties/ExpensePropertyList';
+import { filterExpenseOthers, filterOthersVehicleExpense } from '../../components/expensespage/others/ExpenseOtherList';
+import { filterExpenseProperties, filterPropertiesMaintenance } from '../../components/expensespage/properties/ExpensePropertyList';
 import { filterHomes } from '../../components/expensespage/homes/ExpenseHomeList';
 import { fetchPropertyEMIs, fetchVehicleEMIs } from '../../components/expensespage/emis/EMIList';
 import { fetchDepositSIPs, fetchPortfolioSIPs, fetchOtherSIPs } from '../../components/expensespage/sips/SIPList';
@@ -449,8 +449,8 @@ const Expenses = () => {
 
             const creditCardDebtList = filterCreditCardDebts('Expense', creditCardDebts, false);
             const personalLoanList = filterPersonalLoans('Expense', personalLoans, false);
-            const others = filterOthers('Expense', otherExpenses, false);
-            const propertiesList = filterProperties('Expense', properties, false);
+            const others = filterExpenseOthers('Expense', otherExpenses, false).concat(filterOthersVehicleExpense(assetVehicles));
+            const propertiesList = filterExpenseProperties('Expense', properties, false).concat(filterPropertiesMaintenance(assetProperties));
             const homesList = filterHomes('Expense', homes, false);
             const emis = fetchPropertyEMIs(assetProperties, false).concat(fetchVehicleEMIs(assetVehicles, false));
             const sips = fetchDepositSIPs(assetDeposits, false).concat(fetchPortfolioSIPs(assetPortfolios, false)).concat(fetchOtherSIPs(assetOthers, false));
