@@ -390,7 +390,7 @@ const Incomes = () => {
             setSuccessMessage('Data exported successfully');
         }
         catch (error) {
-            setErrorMessage('Error exporting data:' + error.errorMessage);
+            setErrorMessage('Error exporting data');
         };
     };
 
