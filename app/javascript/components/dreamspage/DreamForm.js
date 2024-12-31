@@ -30,9 +30,13 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         currency: currentUserBaseCurrency || '',
         dream_date: '',
         amount: 0.0,
+        is_recurring: false,
+        recurring_amount: 0.0,
+        recurring_frequency: 'Annually',
         duration: 0,
         end_date: '',
         is_funded_by_loan: false,
+        loan_amount: 0.0,
         loan_start_date: '',
         loan_duration: 0,
         loan_end_date: '',
@@ -106,6 +110,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                 loan_end_date: endDate.toISOString().split('T')[0]
             }));
         }
+        calculateTotal();
     };
 
     useEffect(() => {
@@ -130,10 +135,14 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         // check that dream date is not in the past
         if (dream.dream_date && new Date(dream.dream_date) < new Date()) errors.dream_date = 'Date should be in the future';
 
-        if (dreamType === 'Education') {
+        if (dream.is_recurring) {
+            if (!dream.duration) errors.duration = 'Duration is required';
+            if (!dream.end_date) errors.end_date = 'End Date is required';
+            if (!dream.recurring_amount) errors.recurring_amount = 'Recurring Amount is required';
+            if (!dream.recurring_frequency) errors.recurring_frequency = 'Recurring Frequency is required';
             if (!dream.duration && !dream.end_date) {
                 errors.duration = 'Duration or End Date is required';
-                errors.end_date = 'EDuration or End Date is required';
+                errors.end_date = 'Duration or End Date is required';
             }
             // check that the end date is not before the dream date
             if (dream.end_date && new Date(dream.end_date) < new Date(dream.dream_date)) {
@@ -143,6 +152,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
 
         if (dream.is_funded_by_loan) {
             if (!dream.loan_start_date) errors.loan_start_date = 'Loan Start Date is required';
+            if (!dream.loan_amount) errors.loan_amount = 'Loan Amount is required';
             if (!dream.loan_duration && !dream.loan_end_date) {
                 errors.loan_duration = 'Loan End Date or Duration is required';
                 errors.loan_end_date = 'Loan End Date or Duration is required';
@@ -154,6 +164,11 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             if (dream.loan_end_date && new Date(dream.loan_end_date) < new Date(dream.loan_start_date)) {
                 errors.loan_end_date = 'Loan End Date should be after Loan Start Date';
             }
+
+            //check that the loan start date is not before the dream date
+            if (dream.loan_start_date && new Date(dream.loan_start_date) < new Date(dream.dream_date)) {
+                errors.loan_start_date = 'Loan Start Date should be after Dream Date';
+            }
         }
 
         // Restrict non-numeric input for numeric fields, allowing floats
@@ -162,6 +177,8 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         if (isNaN(dream.loan_duration)) errors.loan_duration = 'Loan Duration should be numeric';
         if (isNaN(dream.interest_rate)) errors.interest_rate = 'Interest Rate should be numeric';
         if (isNaN(dream.emi_amount)) errors.emi_amount = 'EMI Amount should be numeric';
+        if (isNaN(dream.loan_amount)) errors.loan_amount = 'Loan Amount should be numeric';
+        if (isNaN(dream.recurring_amount)) errors.recurring_amount = 'Recurring Amount should be numeric';
 
         setErrors(errors);
 
@@ -205,7 +222,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             let monthsForLoan = 0;
             if (dream.loan_duration) monthsForLoan = parseFloat(dream.loan_duration);
             else monthsForLoan = (new Date(dream.loan_end_date).getFullYear() - new Date(dream.loan_start_date).getFullYear()) * 12 + new Date(dream.loan_end_date).getMonth() - new Date(dream.loan_start_date).getMonth();
-            const emi = calculateFlatRateEMI(parseFloat(dream.amount), parseFloat(dream.interest_rate), monthsForLoan);
+            const emi = calculateFlatRateEMI(parseFloat(dream.loan_amount), parseFloat(dream.interest_rate), monthsForLoan);
             setDream((prevDream) => ({
                 ...prevDream,
                 emi_amount: parseFloat(emi)
@@ -360,42 +377,88 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                             helperText={errors.amount}
                         />
                     </Grid>
-                    {dreamType === 'Education' && (
-                        <>
-                            <Grid item size={6}>
-                                <TextField
-                                    variant="standard"
-                                    label="Duration (months)"
-                                    name="duration"
-                                    value={dream.duration}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                    slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*' } }}
-                                    error={!!errors.duration}
-                                    helperText={errors.duration}
-                                />
-                            </Grid>
-                            <Grid item size={6}>
-                                <TextField
-                                    type="date"
-                                    variant="standard"
-                                    label="End Date"
-                                    name="end_date"
-                                    value={dream.end_date}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                    InputLabelProps={{ shrink: true }}
-                                    error={!!errors.end_date}
-                                    helperText={errors.end_date}
-                                />
-                            </Grid>
-                        </>
-                    )}
                     <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
                         <Grid container spacing={2}>
-                            <Grid item size={6}>
+                            <Grid item size={12}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={dream.is_recurring}
+                                            onChange={handleChange}
+                                            name="is_recurring"
+                                        />}
+                                    label="Is Recurring?"
+                                />
+                            </Grid>
+                            {dream.is_recurring && (
+                                <>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Recurring Amount"
+                                            name="recurring_amount"
+                                            value={dream.recurring_amount}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.recurring_amount}
+                                            helperText={errors.recurring_amount}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            select
+                                            variant="standard"
+                                            label="Recurring Frequency"
+                                            name="recurring_frequency"
+                                            value={dream.recurring_frequency}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                        >
+                                            <MenuItem value="Monthly">Monthly</MenuItem>
+                                            <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                            <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                            <MenuItem value="Annually">Annually</MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Duration (months)"
+                                            name="duration"
+                                            value={dream.duration}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*' } }}
+                                            error={!!errors.duration}
+                                            helperText={errors.duration}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            type="date"
+                                            variant="standard"
+                                            label="End Date"
+                                            name="end_date"
+                                            value={dream.end_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errors.end_date}
+                                            helperText={errors.end_date}
+                                        />
+                                    </Grid>
+                                </>
+                            )}
+                        </Grid>
+                    </Box>
+                    <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
+                        <Grid container spacing={2}>
+                            <Grid item size={12}>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -408,6 +471,19 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                             </Grid>
                             {dream.is_funded_by_loan && (
                                 <>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Loan Amount"
+                                            name="loan_amount"
+                                            value={dream.loan_amount}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            error={!!errors.loan_amount}
+                                            helperText={errors.loan_amount}
+                                        />
+                                    </Grid>
                                     <Grid item size={6}>
                                         <TextField
                                             type="date"

@@ -1211,7 +1211,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
+                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream') || (action === 'EditDream')) && (
                                     <FormControlLabel
                                         control={
                                             <Checkbox

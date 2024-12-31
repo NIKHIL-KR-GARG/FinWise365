@@ -164,7 +164,7 @@ export const emiExpenseProperty = (property, date, baseCurrency) => {
         if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
         else if (!property.is_funded_by_loan) return 0;
         else {
-            const startDate = new Date(property.purchase_date);
+            const startDate = new Date(property.loan_as_of_date);
             const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
             if (endDate < date && !isSameMonthAndYear(endDate, date)) return 0;
             else {
@@ -184,7 +184,7 @@ export const emiExpenseVehicle = (vehicle, date, baseCurrency) => {
         if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date && !isSameMonthAndYear(new Date(vehicle.sale_date), date)) return 0;
         else if (!vehicle.is_funded_by_loan) return 0;
         else {
-            const startDate = new Date(vehicle.purchase_date);
+            const startDate = new Date(vehicle.loan_as_of_date);
             const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
             if (endDate < date && !isSameMonthAndYear(endDate, date)) return 0;
             else {

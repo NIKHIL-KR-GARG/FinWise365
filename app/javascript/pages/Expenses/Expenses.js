@@ -680,7 +680,7 @@ const Expenses = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <EMIList ref={emiListRef} onEMIsFetched={handleEMIsFetched} propertiesList={assetProperties} vehiclesList={assetVehicles}/>
+                                    <EMIList ref={emiListRef} onEMIsFetched={handleEMIsFetched} showDreams={false} propertiesList={assetProperties} vehiclesList={assetVehicles} dreamsList={null}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>

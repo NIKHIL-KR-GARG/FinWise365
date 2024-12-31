@@ -800,7 +800,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
+                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream') || (action === 'EditDream')) && (
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -876,7 +876,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                     <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
                             <Grid item size={12}>
-                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream')) && (
+                                {((action === 'Edit') || (action === 'Add') || (action === 'Dream') || (action === 'EditDream')) && (
                                     <FormControlLabel
                                         control={
                                             <Checkbox

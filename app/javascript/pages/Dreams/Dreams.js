@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Snackbar, Alert  } from '@mui/material';
+import { CircularProgress, Accordion, AccordionSummary, AccordionDetails, Box, Breadcrumbs, Typography, Divider, Fab, Modal, IconButton, Link, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Snackbar, Alert, Tabs, Tab } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
@@ -51,6 +51,7 @@ import ExpensePersonalLoanList from '../../components/expensespage/personalloans
 import ExpensePersonalLoanForm from '../../components/expensespage/personalloans/ExpensePersonalLoanForm';
 import ExpenseOtherList from '../../components/expensespage/others/ExpenseOtherList';
 import ExpenseOtherForm from '../../components/expensespage/others/ExpenseOtherForm';
+import EMIList from '../../components/expensespage/emis/EMIList';
 
 import DreamList from '../../components/dreamspage/DreamList';
 import DreamForm from '../../components/dreamspage/DreamForm';
@@ -69,6 +70,12 @@ import HouseIcon from '@mui/icons-material/House';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import { today } from '../../components/common/DateFunctions';
 
+import { propertyDreamYearlyExpense, vehicleDreamYearlyExpense, accountsDreamYearlyExpense, depositDreamYearlyExpense, portfolioDreamYearlyExpense, otherAssetDreamYearlyExpense } from '../../components/calculators/Dreams';
+import { otherExpenseDreamYearlyExpense } from '../../components/calculators/Dreams';
+import { dreamsYearlyExpense } from '../../components/calculators/Dreams';
+import { homeExpenseDreamRecurringExpense, propertyExpenseDreamRecurringExpense, creditCardExpenseDreamRecurringExpense, personalLoanExpenseDreamRecurringExpense, otherExpenseDreamRecurringExpense } from '../../components/calculators/Dreams';
+import { emiDreamProperty, emiDreamVehicle, emiDream } from '../../components/calculators/Dreams';
+
 import * as XLSX from 'xlsx';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloseIcon from '@mui/icons-material/Close';
@@ -85,7 +92,7 @@ import { filterExpenseOthers, filterOthersVehicleExpense } from '../../component
 import { filterExpenseProperties } from '../../components/expensespage/properties/ExpensePropertyList';
 import { filterHomes } from '../../components/expensespage/homes/ExpenseHomeList';
 import { fetchPropertyEMIs, fetchVehicleEMIs } from '../../components/expensespage/emis/EMIList';
-import { fetchDepositSIPs, fetchPortfolioSIPs, fetchOtherSIPs } from '../../components/expensespage/sips/SIPList';
+import SIPList, { fetchDepositSIPs, fetchPortfolioSIPs, fetchOtherSIPs } from '../../components/expensespage/sips/SIPList';
 import { fetchTaxes } from '../../components/expensespage/taxes/TaxList';
 import { fetchPropertyMortgageAndLoans, fetchVehicleMortgageAndLoans } from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
 import { filterIncomes } from '../../components/incomespage/AssetIncomeList';
@@ -106,6 +113,8 @@ const Dreams = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    const [tabIndex, setTabIndex] = useState(0);
+    
     // for asset dreams
     const assetPropertyListRef = useRef(null);
     const assetVehicleListRef = useRef(null);
@@ -136,11 +145,15 @@ const Dreams = () => {
     const expenseCreditCardDebtListRef = useRef(null);
     const expensePersonalLoanListRef = useRef(null);
     const expenseOtherListRef = useRef(null);
+    const emiListRef = useRef(null);
+    const sipListRef = useRef(null);
     const [expenseHomeCount, setExpenseHomeCount] = useState(0);
     const [expensePropertyCount, setExpensePropertyCount] = useState(0);
     const [expenseCreditCardDebtCount, setExpenseCreditCardDebtCount] = useState(0);
     const [expensePersonalLoanCount, setExpensePersonalLoanCount] = useState(0);
     const [expenseOtherCount, setExpenseOtherCount] = useState(0);
+    const [emiCount, setEMICount] = useState(0);
+    const [sipCount, setSIPCount] = useState(0);
     const [expenseHomes, setExpenseHomes] = useState([]);
     const [expenseProperties, setExpenseProperties] = useState([]);
     const [expenseCreditCardDebts, setExpenseCreditCardDebts] = useState([]);
@@ -160,7 +173,10 @@ const Dreams = () => {
     const [travel, setTravel] = useState([]);
     const [relocation, setRelocation] = useState([]);
     const [other, setOther] = useState([]);
-    const [dreamsList, setDreamsList] = useState([]);
+    const [dreams, setDreams] = useState([]);
+
+    const [dreamsListLumpsum, setDreamsListLumpsum] = useState([]);
+    const [dreamsListRecurring, setDreamsListRecurring] = useState([]);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -168,8 +184,14 @@ const Dreams = () => {
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserLifeExpectancy = localStorage.getItem('currentUserLifeExpectancy');
+    const currentUserDateOfBirth = localStorage.getItem('currentUserDateOfBirth');
     
     const hasFetchedData = useRef(false);
+
+    const handleTabChange = (event, newIndex) => {
+        setTabIndex(newIndex);
+    };
 
     useEffect(() => {
         // for asset dreams
@@ -210,6 +232,12 @@ const Dreams = () => {
         }
         if (expenseOtherListRef.current) {
             setExpenseOtherCount(expenseOtherListRef.current.getOtherCount());
+        }
+        if (emiListRef.current) {
+            setEMICount(emiListRef.current.getEMICount());
+        }
+        if (sipListRef.current) {
+            setSIPCount(sipListRef.current.getSIPCount());
         }
 
         // for dreams
@@ -341,6 +369,7 @@ const Dreams = () => {
             const travelList = dreamsResponse.data.filter(dream => dream.dream_type === 'Travel');
             const relocationList = dreamsResponse.data.filter(dream => dream.dream_type === 'Relocation');
             const otherList = dreamsResponse.data.filter(dream => dream.dream_type === 'Other');
+            const dreamsList = dreamsResponse.data;
 
             // set state for all the lists
             // for asset dreams
@@ -364,12 +393,13 @@ const Dreams = () => {
             setTravel(travelList);
             setRelocation(relocationList);
             setOther(otherList);
+            setDreams(dreamsList);
 
-            // starting the current year add rows to the dreamsList array for the next 100 years
+            // starting the current year add rows to the dreamsListLumpsum array for the next 100 years
             const year = new Date().getFullYear();
-            const dreamsList = [];
+            const dreamsListLumpsum = [];
             for (let i = year; i <= (year + 100); i++) {
-                dreamsList.push({
+                dreamsListLumpsum.push({
                     year: i,
                     AssetProperty: 0,
                     AssetVehicle: 0,
@@ -378,10 +408,6 @@ const Dreams = () => {
                     AssetPortfolio: 0,
                     AssetOther: 0,
                     Income: 0,
-                    ExpenseHome: 0,
-                    ExpenseProperty: 0,
-                    ExpenseCreditCardDebt: 0,
-                    ExpensePersonalLoan: 0,
                     ExpenseOther: 0,
                     Education: 0,
                     Travel: 0,
@@ -393,225 +419,319 @@ const Dreams = () => {
 
             let maxYear = new Date().getFullYear();
 
+            // LUMP SUM EXPENSES
+
             // loop though the assetProperties and add the value to the corresponding year
             assetPropertiesList.forEach(property => {
-                const purchaseYear = new Date(property.purchase_date).getFullYear();
-                const purchaseValue = parseFloat(property.purchase_price);
-                const stampDuty = parseFloat(property.stamp_duty);
-                const otherFees = parseFloat(property.other_fees);
-                const totalCost = purchaseValue + stampDuty + otherFees;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === property.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(totalCost * conversionRate);
-                // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the property column
-                dreamsList.find(dream => dream.year === purchaseYear).AssetProperty += convertedValue;
-                if (purchaseYear > maxYear) maxYear = purchaseYear;
+                const propertyDreamYearlyExpenseData = propertyDreamYearlyExpense(property, currentUserBaseCurrency);
+                if (propertyDreamYearlyExpenseData && propertyDreamYearlyExpenseData.length > 0) {
+                    const dreamYear = propertyDreamYearlyExpenseData[0].year;
+                    const dreamValue = propertyDreamYearlyExpenseData[0].amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = purchaseYear and add the value to the property column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).AssetProperty += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                }
             });
 
             // loop though the assetVehicles and add the value to the corresponding year
             assetVehiclesList.forEach(vehicle => {
-                const purchaseYear = new Date(vehicle.purchase_date).getFullYear();
-                const purchaseValue = parseFloat(vehicle.purchase_price);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === vehicle.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(purchaseValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = purchaseYear and add the value to the vehicle column
-                dreamsList.find(dream => dream.year === purchaseYear).AssetVehicle += convertedValue;
-                if (purchaseYear > maxYear) maxYear = purchaseYear;
+                const vehicleDreamYearlyExpenseData = vehicleDreamYearlyExpense(vehicle, currentUserBaseCurrency);
+                if (vehicleDreamYearlyExpenseData && vehicleDreamYearlyExpenseData.length > 0) {
+                    const dreamYear = vehicleDreamYearlyExpenseData[0].year;
+                    const dreamValue = vehicleDreamYearlyExpenseData[0].amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = purchaseYear and add the value to the vehicle column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).AssetVehicle += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                }
             });
 
             // loop though the assetAccounts and add the value to the corresponding year
             assetAccountsList.forEach(account => {
-                const accountYear = new Date(account.opening_date).getFullYear();
-                const accountValue = parseFloat(account.account_balance);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === account.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(accountValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = accountYear and add the value to the account column
-                dreamsList.find(dream => dream.year === accountYear).AssetAccount += convertedValue;
-                if (accountYear > maxYear) maxYear = accountYear;
+                const accountDreamYearlyExpenseData = accountsDreamYearlyExpense(account, currentUserBaseCurrency);
+                if (accountDreamYearlyExpenseData && accountDreamYearlyExpenseData.length > 0) {
+                    const dreamYear = accountDreamYearlyExpenseData[0].year;
+                    const dreamValue = accountDreamYearlyExpenseData[0].amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = purchaseYear and add the value to the account column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).AssetAccount += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                }
             });
 
             // loop though the assetDeposits and add the value to the corresponding year
             assetDepositsList.forEach(deposit => {
-                const depositYear = new Date(deposit.opening_date).getFullYear();
-                const depositValue = parseFloat(deposit.amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === deposit.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(depositValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = depositYear and add the value to the deposit column
-                dreamsList.find(dream => dream.year === depositYear).AssetDeposit += convertedValue;
-                if (depositYear > maxYear) maxYear = depositYear;
+                const depositDreamYearlyExpenseData = depositDreamYearlyExpense(deposit, currentUserBaseCurrency);
+                if (depositDreamYearlyExpenseData && depositDreamYearlyExpenseData.length > 0) {
+                    const dreamYear = depositDreamYearlyExpenseData[0].year;
+                    const dreamValue = depositDreamYearlyExpenseData[0].amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = purchaseYear and add the value to the deposit column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).AssetDeposit += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                }
             });
 
             // loop though the assetportfolios and add the value to the corresponding year
             assetPortfoliosList.forEach(portfolio => {
-                const portfolioYear = new Date(portfolio.buying_date).getFullYear();
-                const portfolioValue = parseFloat(portfolio.buying_value);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === portfolio.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(portfolioValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = portfolioYear and add the value to the portfolio column
-                dreamsList.find(dream => dream.year === portfolioYear).AssetPortfolio += convertedValue;
-                if (portfolioYear > maxYear) maxYear = portfolioYear;
+                const portfolioDreamYearlyExpenseData = portfolioDreamYearlyExpense(portfolio, currentUserBaseCurrency);
+                if (portfolioDreamYearlyExpenseData && portfolioDreamYearlyExpenseData.length > 0) {
+                    const dreamYear = portfolioDreamYearlyExpenseData[0].year;
+                    const dreamValue = portfolioDreamYearlyExpenseData[0].amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = purchaseYear and add the value to the portfolio column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).AssetPortfolio += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                }
             });
 
             // loop though the assetOthers and add the value to the corresponding year
             assetOthersList.forEach(other => {
-                const otherYear = new Date(other.start_date).getFullYear();
-                const otherValue = parseFloat(other.lumpsum_amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(otherValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = otherYear and add the value to the asset other column
-                dreamsList.find(dream => dream.year === otherYear).AssetOther += convertedValue;
-                if (otherYear > maxYear) maxYear = otherYear;
-            });
-
-            // loop though the expenseHomes and add the value to the corresponding year
-            expenseHomesList.forEach(home => {
-                const homeYear = new Date(home.start_date).getFullYear();
-                const homeValue = parseFloat(home.total_expense);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === home.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(homeValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = homeYear and add the value to the home column
-                dreamsList.find(dream => dream.year === homeYear).ExpenseHome += convertedValue;
-                if (homeYear > maxYear) maxYear = homeYear;
-            });
-
-            // loop though the expenseProperties and add the value to the corresponding year
-            expensePropertiesList.forEach(property => {
-                const propertyYear = new Date(property.start_date).getFullYear();
-                const propertyValue = parseFloat(property.total_expense);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === property.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(propertyValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = propertyYear and add the value to the property column
-                dreamsList.find(dream => dream.year === propertyYear).ExpenseProperty += convertedValue;
-                if (propertyYear > maxYear) maxYear = propertyYear;
-            });
-
-            // loop though the expenseCreditCardDebts and add the value to the corresponding year
-            expenseCreditCardDebtsList.forEach(creditCardDebt => {
-                const creditCardDebtYear = new Date(creditCardDebt.start_date).getFullYear();
-                const creditCardDebtValue = parseFloat(creditCardDebt.loan_amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === creditCardDebt.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(creditCardDebtValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = creditCardDebtYear and add the value to the credit card debt column
-                dreamsList.find(dream => dream.year === creditCardDebtYear).ExpenseCreditCardDebt += convertedValue;
-                if (creditCardDebtYear > maxYear) maxYear = creditCardDebtYear;
-            });
-
-            // loop though the expensePersonalLoans and add the value to the corresponding year
-            expensePersonalLoansList.forEach(personalLoan => {
-                const personalLoanYear = new Date(personalLoan.start_date).getFullYear();
-                const personalLoanValue = parseFloat(personalLoan.loan_amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === personalLoan.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(personalLoanValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = personalLoanYear and add the value to the personal loan column
-                dreamsList.find(dream => dream.year === personalLoanYear).ExpensePersonalLoan += convertedValue;
-                if (personalLoanYear > maxYear) maxYear = personalLoanYear;
+                const otherAssetDreamYearlyExpenseData = otherAssetDreamYearlyExpense(other, currentUserBaseCurrency);
+                if (otherAssetDreamYearlyExpenseData && otherAssetDreamYearlyExpenseData.length > 0) {
+                    const dreamYear = otherAssetDreamYearlyExpenseData[0].year;
+                    const dreamValue = otherAssetDreamYearlyExpenseData[0].amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = purchaseYear and add the value to the other column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).AssetOther += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                }
             });
 
             // loop though the expenseOthers and add the value to the corresponding year
             expenseOthersList.forEach(other => {
-                const otherYear = new Date(other.expense_date).getFullYear();
-                const otherValue = parseFloat(other.amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(otherValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = otherYear and add the value to the other column
-                dreamsList.find(dream => dream.year === otherYear).ExpenseOther += convertedValue;
-                if (otherYear > maxYear) maxYear = otherYear;
+                const otherExpenseDreamYearlyExpenseData = otherExpenseDreamYearlyExpense(other, currentUserBaseCurrency);
+                if (otherExpenseDreamYearlyExpenseData && otherExpenseDreamYearlyExpenseData.length > 0) {
+                    const dreamYear = otherExpenseDreamYearlyExpenseData[0].year;
+                    const dreamValue = otherExpenseDreamYearlyExpenseData[0].amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = otherYear and add the value to the other column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).ExpenseOther += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                }
             });
 
             // loop though the education and add the value to the corresponding year
             educationList.forEach(education => {
-                const educationYear = new Date(education.dream_date).getFullYear();
-                const educationValue = parseFloat(education.amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === education.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(educationValue) * parseFloat(conversionRate);
-                if (education.end_date) {
-                    const educationEndYear = new Date(education.end_date).getFullYear();
-                    for (let i = educationYear; i <= educationEndYear; i++) {
-                        // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
-                        dreamsList.find(dream => dream.year === i).Education += convertedValue;
-                    }
-                    if (educationEndYear > maxYear) maxYear = educationEndYear;
-                }
-                else {
-                    // find the corresponding row in the dreamsList array where year = educationYear and add the value to the education column
-                    dreamsList.find(dream => dream.year === educationYear).Education += convertedValue;
-                    if (educationYear > maxYear) maxYear = educationYear;
-                }
+                const educationDreamYearlyExpenseData = dreamsYearlyExpense(education, currentUserBaseCurrency);
+                // loop though each year in the educationDreamYearlyExpenseData and add the value to the corresponding year
+                educationDreamYearlyExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = educationYear and add the value to the education column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).Education += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
             });
 
             // loop though the travel and add the value to the corresponding year
             travelList.forEach(travel => {
-                const travelYear = new Date(travel.dream_date).getFullYear();
-                const travelValue = parseFloat(travel.amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === travel.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(travelValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = travelYear and add the value to the travel column
-                dreamsList.find(dream => dream.year === travelYear).Travel += convertedValue;
-                if (travelYear > maxYear) maxYear = travelYear;
+                const travelDreamYearlyExpenseData = dreamsYearlyExpense(travel, currentUserBaseCurrency);
+                // loop though each year in the travelDreamYearlyExpenseData and add the value to the corresponding year
+                travelDreamYearlyExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = travelYear and add the value to the travel column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).Travel += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
             });
 
             // loop though the relocation and add the value to the corresponding year
             relocationList.forEach(relocation => {
-                const relocationYear = new Date(relocation.dream_date).getFullYear();
-                const relocationValue = parseFloat(relocation.amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === relocation.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(relocationValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = relocationYear and add the value to the relocation column
-                dreamsList.find(dream => dream.year === relocationYear).Relocation += convertedValue;
-                if (relocationYear > maxYear) maxYear = relocationYear;
+                const relocationDreamYearlyExpenseData = dreamsYearlyExpense(relocation, currentUserBaseCurrency);
+                // loop though each year in the relocationDreamYearlyExpenseData and add the value to the corresponding year
+                relocationDreamYearlyExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = relocationYear and add the value to the relocation column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).Relocation += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
             });
-            
-            // loop though the other dreams and add the value to the corresponding year
+
+            // loop though the other and add the value to the corresponding year
             otherList.forEach(other => {
-                const otherYear = new Date(other.dream_date).getFullYear();
-                const otherValue = parseFloat(other.amount);
-                const exchangeRate = ExchangeRate.find(rate => rate.from === other.currency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                const convertedValue = parseFloat(otherValue * conversionRate);
-                // find the corresponding row in the dreamsList array where year = otherYear and add the value to the other column
-                dreamsList.find(dream => dream.year === otherYear).Other += convertedValue;
-                if (otherYear > maxYear) maxYear = otherYear;
-            });    
-            
-            // loop through the dreamsList array from maxYear + 1 to end of array and delete all these rows as these are empty rows
-            for (let i = year; i <= (year + 100); i++) {                    
-                dreamsList.find(dream => dream.year === i).total_value =   
-                    dreamsList.find(dream => dream.year === i).AssetProperty +
-                    dreamsList.find(dream => dream.year === i).AssetVehicle +
-                    dreamsList.find(dream => dream.year === i).AssetAccount +
-                    dreamsList.find(dream => dream.year === i).AssetDeposit +
-                    dreamsList.find(dream => dream.year === i).AssetPortfolio +
-                    dreamsList.find(dream => dream.year === i).AssetOther +
-                    dreamsList.find(dream => dream.year === i).ExpenseHome +
-                    dreamsList.find(dream => dream.year === i).ExpenseProperty +
-                    dreamsList.find(dream => dream.year === i).ExpenseCreditCardDebt +
-                    dreamsList.find(dream => dream.year === i).ExpensePersonalLoan +
-                    dreamsList.find(dream => dream.year === i).ExpenseOther +
-                    dreamsList.find(dream => dream.year === i).Education +
-                    dreamsList.find(dream => dream.year === i).Travel +
-                    dreamsList.find(dream => dream.year === i).Relocation +
-                    dreamsList.find(dream => dream.year === i).Other;
-                
+                const otherDreamYearlyExpenseData = dreamsYearlyExpense(other, currentUserBaseCurrency);
+                // loop though each year in the otherDreamYearlyExpenseData and add the value to the corresponding year
+                otherDreamYearlyExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListLumpsum array where year = otherYear and add the value to the other column
+                    dreamsListLumpsum.find(dream => dream.year === dreamYear).Other += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop through the dreamsListLumpsum array from maxYear + 1 to end of array and delete all these rows as these are empty rows
+            for (let i = year; i <= (year + 100); i++) {
+                dreamsListLumpsum.find(dream => dream.year === i).total_value =
+                    dreamsListLumpsum.find(dream => dream.year === i).AssetProperty +
+                    dreamsListLumpsum.find(dream => dream.year === i).AssetVehicle +
+                    dreamsListLumpsum.find(dream => dream.year === i).AssetAccount +
+                    dreamsListLumpsum.find(dream => dream.year === i).AssetDeposit +
+                    dreamsListLumpsum.find(dream => dream.year === i).AssetPortfolio +
+                    dreamsListLumpsum.find(dream => dream.year === i).AssetOther +
+                    dreamsListLumpsum.find(dream => dream.year === i).ExpenseOther +
+                    dreamsListLumpsum.find(dream => dream.year === i).Education +
+                    dreamsListLumpsum.find(dream => dream.year === i).Travel +
+                    dreamsListLumpsum.find(dream => dream.year === i).Relocation +
+                    dreamsListLumpsum.find(dream => dream.year === i).Other;
                 if (i > maxYear) {
-                    dreamsList.splice(dreamsList.findIndex(dream => dream.year === i), 1);
+                    dreamsListLumpsum.splice(dreamsListLumpsum.findIndex(dream => dream.year === i), 1);
                 }
             }
 
-            // set state for dreamsList
-            setDreamsList(dreamsList);
+            // set state for dreamsListLumpsum
+            setDreamsListLumpsum(dreamsListLumpsum);
+
+            // RECURRING EXPENSES
+
+            const dreamsListRecurring = [];
+            for (let i = year; i <= (year + 100); i++) {
+                dreamsListRecurring.push({
+                    year: i,
+                    ExpenseHome: 0,
+                    ExpenseProperty: 0,
+                    ExpenseCreditCardDebt: 0,
+                    ExpensePersonalLoan: 0,
+                    ExpenseOther: 0,
+                    EMI: 0,
+                    SIP: 0,
+                    total_value: 0
+                });
+            }
+
+            maxYear = new Date().getFullYear();
+            const today = new Date();
+            // derive current age
+            const dob = new Date(currentUserDateOfBirth);
+            const ageDifMs = today - dob;
+            let age = Math.abs(new Date(ageDifMs).getUTCFullYear() - 1970);
+            let month = today.getMonth() + 1; // Add 1 to get the correct month number
+            const projectionYears = currentUserLifeExpectancy - age;
+            // const projectionMonths = (projectionYears * 12) + (12 - month + 1);
+            const expenseEndDate = new Date(today.getFullYear() + projectionYears, month - 1, today.getDate());
+
+            // loop though the expenseHomes and add the value to the corresponding year
+            expenseHomesList.forEach(home => {
+                const homeDreamRecurringExpenseData = homeExpenseDreamRecurringExpense(home, currentUserBaseCurrency, expenseEndDate);
+                // loop though each year in the homeDreamRecurringExpenseData and add the value to the corresponding year
+                homeDreamRecurringExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = homeYear and add the value to the home column
+                    dreamsListRecurring.find(dream => dream.year === dreamYear).ExpenseHome += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop though the expenseProperties and add the value to the corresponding year
+            expensePropertiesList.forEach(property => {
+                const propertyDreamRecurringExpenseData = propertyExpenseDreamRecurringExpense(property, currentUserBaseCurrency, expenseEndDate);
+                // loop though each year in the propertyDreamRecurringExpenseData and add the value to the corresponding year
+                propertyDreamRecurringExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = propertyYear and add the value to the property column
+                    dreamsListRecurring.find(dream => dream.year === dreamYear).ExpenseProperty += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop though the expenseCreditCardDebts and add the value to the corresponding year
+            expenseCreditCardDebtsList.forEach(creditCardDebt => {
+                const creditCardDebtDreamRecurringExpenseData = creditCardExpenseDreamRecurringExpense(creditCardDebt, currentUserBaseCurrency);
+                // loop though each year in the creditCardDebtDreamRecurringExpenseData and add the value to the corresponding year
+                creditCardDebtDreamRecurringExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = creditCardDebtYear and add the value to the credit card debt column
+                    dreamsListRecurring.find(dream => dream.year === dreamYear).ExpenseCreditCardDebt += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop though the expensePersonalLoans and add the value to the corresponding year
+            expensePersonalLoansList.forEach(personalLoan => {
+                const personalLoanDreamRecurringExpenseData = personalLoanExpenseDreamRecurringExpense(personalLoan, currentUserBaseCurrency);
+                // loop though each year in the personalLoanDreamRecurringExpenseData and add the value to the corresponding year
+                personalLoanDreamRecurringExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = personalLoanYear and add the value to the personal loan column
+                    dreamsListRecurring.find(dream => dream.year === dreamYear).ExpensePersonalLoan += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop though the expenseOthers and add the value to the corresponding year
+            expenseOthersList.forEach(other => {
+                const otherDreamRecurringExpenseData = otherExpenseDreamRecurringExpense(other, currentUserBaseCurrency);
+                // loop though each year in the otherDreamRecurringExpenseData and add the value to the corresponding year
+                otherDreamRecurringExpenseData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = otherYear and add the value to the other column
+                    dreamsListRecurring.find(dream => dream.year === dreamYear).ExpenseOther += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop through all the properties and add the EMI value to the corresponding year
+            assetPropertiesList.forEach(property => {
+                const propertyEMIData = emiDreamProperty(property, currentUserBaseCurrency);
+                // loop though each year in the propertyEMIData and add the value to the corresponding year
+                propertyEMIData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = propertyYear and add the value to the EMI column
+                    const index = dreamsListRecurring.findIndex(item => item.year === dreamYear);
+                    if (index > -1) dreamsListRecurring[index].EMI += dreamValue;
+                    // dreamsListRecurring.find(dream => dream.year === dreamYear).EMI += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop through all the vehicles and add the EMI value to the corresponding year
+            assetVehiclesList.forEach(vehicle => {
+                const vehicleEMIData = emiDreamVehicle(vehicle, currentUserBaseCurrency);
+                // loop though each year in the vehicleEMIData and add the value to the corresponding year
+                vehicleEMIData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = vehicleYear and add the value to the EMI column
+                    dreamsListRecurring.find(dream => dream.year === dreamYear).EMI += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });
+
+            // loop through all the dreams and add the EMI value to the corresponding year
+            dreamsList.forEach(dream => {
+                const dreamEMIData = emiDream(dream, currentUserBaseCurrency);
+                // loop though each year in the dreamEMIData and add the value to the corresponding year
+                dreamEMIData.forEach(dream => {
+                    const dreamYear = dream.year;
+                    const dreamValue = dream.amount;
+                    // find the corresponding row in the dreamsListRecurring array where year = dreamYear and add the value to the EMI column
+                    dreamsListRecurring.find(dream => dream.year === dreamYear).EMI += dreamValue;
+                    if (dreamYear > maxYear) maxYear = dreamYear;
+                });
+            });           
+
+            // loop through the dreamsListLumpsum array from maxYear + 1 to end of array and delete all these rows as these are empty rows
+            for (let i = year; i <= (year + 100); i++) {
+                dreamsListRecurring.find(dream => dream.year === i).total_value =
+                    dreamsListRecurring.find(dream => dream.year === i).ExpenseHome +
+                    dreamsListRecurring.find(dream => dream.year === i).ExpenseProperty +
+                    dreamsListRecurring.find(dream => dream.year === i).ExpenseCreditCardDebt +
+                    dreamsListRecurring.find(dream => dream.year === i).ExpensePersonalLoan +
+                    dreamsListRecurring.find(dream => dream.year === i).ExpenseOther +
+                    dreamsListRecurring.find(dream => dream.year === i).EMI +
+                    dreamsListRecurring.find(dream => dream.year === i).SIP;
+
+                if (i > maxYear) {
+                    dreamsListRecurring.splice(dreamsListRecurring.findIndex(dream => dream.year === i), 1);
+                }
+            }
+
+            // set state for dreamsListLumpsum
+            setDreamsListRecurring(dreamsListRecurring);
+
             setLoading(false);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -854,7 +974,13 @@ const Dreams = () => {
     const handleExpenseOthersFetched = (count) => {
         setExpenseOtherCount(count);
     };
-
+    const handleEMIsFetched = (count) => {
+        setEMICount(count);
+    };
+    const handleSIPsFetched = (count) => {
+        setSIPCount(count);
+    };
+    
     // for dreams
     const handleEducationFetched = (count) => {
         setEducationCount(count);
@@ -1052,257 +1178,327 @@ const Dreams = () => {
                             </Box>
                         </Typography>
                         <Divider sx={{ my: 2 }} />
-                        <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
-                            <DreamsGraph dreamsList={dreamsList}/>
-                        </Box>
-                        <Divider sx={{ my: 2 }} />
-                        <Box>
-                            {/* Asset Dreams */}
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Future Income ({incomeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Income, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} listAction={'Dream'} incomesList={incomes}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <HomeWorkIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Future Properties ({assetPropertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetProperty, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetPropertyList ref={assetPropertyListRef} onPropertiesFetched={handleAssetPropertiesFetched} listAction={'Dream'} propertiesList={assetProperties}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <DirectionsCarFilledIcon sx={{ mr: 1, color: 'red' }} />
-                                        Future Vehicles ({assetVehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetVehicle, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetVehicleList ref={assetVehicleListRef} onVehiclesFetched={handleAssetVehiclesFetched} listAction={'Dream'} vehiclesList={assetVehicles}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <AccountBalanceWalletIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Savings/Current Accounts ({assetAccountCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetAccount, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetAccountList ref={assetAccountListRef} onAccountsFetched={handleAssetAccountsFetched} listAction={'Dream'} accountsList={assetAccounts}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel3a-content"
-                                    id="panel3a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <SavingsIcon sx={{ mr: 1, color: 'brown' }} /> 
-                                        Fixed/Recurring Deposits ({assetDepositCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetDeposit, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetDepositList ref={assetDepositListRef} onDepositsFetched={handleAssetDepositsFetched} listAction={'Dream'} depositsList={assetDeposits}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel4a-content"
-                                    id="panel4a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <ShowChartIcon sx={{ mr: 1, color: 'purple' }} />
-                                        Investment Portfolio ({assetPortfolioCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetPortfolio, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetPortfolioList ref={assetPortfolioListRef} onPortfoliosFetched={handleAssetPortfoliosFetched} listAction={'Dream'} portfoliosList={assetPortfolios}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel11a-content"
-                                    id="panel11a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <FolderSpecialIcon sx={{ mr: 1, color: 'brown' }} />
-                                        Other Future Assets ({assetOtherCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.AssetOther, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <AssetOtherList ref={assetOtherListRef} onOthersFetched={handleAssetOthersFetched} listAction={'Dream'} othersList={assetOthers}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            
-                            {/* Expense Dreams */}
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <HouseIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Home Expenses ({expenseHomeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseHome, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <ExpenseHomeList ref={expenseHomeListRef} onHomesFetched={handleExpenseHomesFetched} listAction={'Dream'} homesList={expenseHomes}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <ApartmentIcon sx={{ mr: 1, color: 'red' }} />
-                                        Property Expenses ({expensePropertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseProperty, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <ExpensePropertyList ref={expensePropertyListRef} onPropertiesFetched={handleExpensePropertiesFetched} listAction={'Dream'} propertiesList={expenseProperties} assetPropertiesList={null}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <CreditCardIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Credit Card Debts ({expenseCreditCardDebtCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseCreditCardDebt, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <ExpenseCreditCardDebtList ref={expenseCreditCardDebtListRef} onCreditCardDebtsFetched={handleExpenseCreditCardDebtsFetched} listAction={'Dream'} creditcarddebtsList={expenseCreditCardDebts}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <PersonIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Personal Loans ({expensePersonalLoanCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpensePersonalLoan, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <ExpensePersonalLoanList ref={expensePersonalLoanListRef} onPersonalLoansFetched={handleExpensePersonalLoansFetched} listAction={'Dream'} personalloansList={expensePersonalLoans}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
-                                        Other Future Expenses ({expenseOtherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.ExpenseOther, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <ExpenseOtherList ref={expenseOtherListRef} onOthersFetched={handleExpenseOthersFetched} listAction={'Dream'} othersList={expenseOthers} vehiclesList={null}/>
-                                </AccordionDetails>
-                            </Accordion>
+                        <Tabs 
+                            value={tabIndex} 
+                            onChange={handleTabChange} 
+                            centered
+                            TabIndicatorProps={{ style: { display: 'none' } }}
+                            sx={{
+                                '& .MuiTab-root': {
+                                    backgroundColor: '#e0e0e0',
+                                    borderRadius: 1,
+                                    margin: 1,
+                                    '&.Mui-selected': {
+                                        // backgroundColor: '#1976d2',
+                                        backgroundColor: 'purple',
+                                        color: '#fff',
+                                    },
+                                },
+                            }}
+                        >
+                            <Tab label="Future Lumpsum Expenses" />
+                            <Tab label="Future Regular Expenses" />
+                            <Tab label="Future Incomes" />
+                        </Tabs>
+                        {tabIndex === 0 && (
+                            <>
+                                <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
+                                    <DreamsGraph dreamsList={dreamsListLumpsum} />
+                                </Box>
+                                <Divider sx={{ my: 2 }} />
+                                <Box>
+                                    {/* Asset Dreams */}
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <HomeWorkIcon sx={{ mr: 1, color: 'blue' }} />
+                                                Future Properties ({assetPropertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.AssetProperty, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <AssetPropertyList ref={assetPropertyListRef} onPropertiesFetched={handleAssetPropertiesFetched} listAction={'Dream'} propertiesList={assetProperties} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <DirectionsCarFilledIcon sx={{ mr: 1, color: 'red' }} />
+                                                Future Vehicles ({assetVehicleCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.AssetVehicle, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <AssetVehicleList ref={assetVehicleListRef} onVehiclesFetched={handleAssetVehiclesFetched} listAction={'Dream'} vehiclesList={assetVehicles} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <AccountBalanceWalletIcon sx={{ mr: 1, color: 'teal' }} />
+                                                Savings/Current Accounts ({assetAccountCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.AssetAccount, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <AssetAccountList ref={assetAccountListRef} onAccountsFetched={handleAssetAccountsFetched} listAction={'Dream'} accountsList={assetAccounts} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel3a-content"
+                                            id="panel3a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <SavingsIcon sx={{ mr: 1, color: 'brown' }} />
+                                                Fixed/Recurring Deposits ({assetDepositCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.AssetDeposit, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <AssetDepositList ref={assetDepositListRef} onDepositsFetched={handleAssetDepositsFetched} listAction={'Dream'} depositsList={assetDeposits} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel4a-content"
+                                            id="panel4a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <ShowChartIcon sx={{ mr: 1, color: 'purple' }} />
+                                                Investment Portfolio ({assetPortfolioCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.AssetPortfolio, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <AssetPortfolioList ref={assetPortfolioListRef} onPortfoliosFetched={handleAssetPortfoliosFetched} listAction={'Dream'} portfoliosList={assetPortfolios} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel11a-content"
+                                            id="panel11a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <FolderSpecialIcon sx={{ mr: 1, color: 'brown' }} />
+                                                Other Future Assets ({assetOtherCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.AssetOther, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <AssetOtherList ref={assetOtherListRef} onOthersFetched={handleAssetOthersFetched} listAction={'Dream'} othersList={assetOthers} />
+                                        </AccordionDetails>
+                                    </Accordion>
 
-                            {/* Other Dreams */}
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <SchoolIcon sx={{ mr: 1, color: 'yellow' }} />
-                                        Education ({educationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Education, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <DreamList ref={educationListRef} onDreamsFetched={handleEducationFetched} dreamType={'Education'} dreamsList={education}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <FlightTakeoffIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Travel ({travelCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Travel, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <DreamList ref={travelListRef} onDreamsFetched={handleTravelFetched} dreamType={'Travel'} dreamsList={travel}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <MovingIcon sx={{ mr: 1, color: 'teal' }} />
-                                        Relocation ({relocationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Relocation, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <DreamList ref={relocationListRef} onDreamsFetched={handleRelocationFetched} dreamType={'Relocation'} dreamsList={relocation}/>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls="panel1a-content"
-                                    id="panel1a-header"
-                                >
-                                    <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                        <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
-                                        Other Dreams ({otherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Other, 0))}</strong>
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <DreamList ref={otherListRef} onDreamsFetched={handleOtherFetched} dreamType={'Other'} dreamsList={other}/>
-                                </AccordionDetails>
-                            </Accordion>
-                        </Box>
+                                    {/* Expense Dreams */}
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
+                                                Other Future Expenses ({expenseOtherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.ExpenseOther, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <ExpenseOtherList ref={expenseOtherListRef} onOthersFetched={handleExpenseOthersFetched} listAction={'Dream'} othersList={expenseOthers} vehiclesList={null} />
+                                        </AccordionDetails>
+                                    </Accordion>
+
+                                    {/* Other Dreams */}
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <SchoolIcon sx={{ mr: 1, color: 'yellow' }} />
+                                                Education ({educationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.Education, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <DreamList ref={educationListRef} onDreamsFetched={handleEducationFetched} dreamType={'Education'} dreamsList={education} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <FlightTakeoffIcon sx={{ mr: 1, color: 'teal' }} />
+                                                Travel ({travelCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.Travel, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <DreamList ref={travelListRef} onDreamsFetched={handleTravelFetched} dreamType={'Travel'} dreamsList={travel} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <MovingIcon sx={{ mr: 1, color: 'teal' }} />
+                                                Relocation ({relocationCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.Relocation, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <DreamList ref={relocationListRef} onDreamsFetched={handleRelocationFetched} dreamType={'Relocation'} dreamsList={relocation} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
+                                                Other Dreams ({otherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListLumpsum.reduce((acc, curr) => acc + curr.Other, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <DreamList ref={otherListRef} onDreamsFetched={handleOtherFetched} dreamType={'Other'} dreamsList={other} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                </Box>
+                            </>
+                        )}
+                        {tabIndex === 1 && (
+                            <>
+                                <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'center' }}>
+                                    <DreamsGraph dreamsList={dreamsListRecurring} />
+                                </Box>
+                                <Divider sx={{ my: 2 }} />
+                                <Box>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <HouseIcon sx={{ mr: 1, color: 'blue' }} />
+                                                Home Expenses ({expenseHomeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.ExpenseHome, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <ExpenseHomeList ref={expenseHomeListRef} onHomesFetched={handleExpenseHomesFetched} listAction={'Dream'} homesList={expenseHomes} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <ApartmentIcon sx={{ mr: 1, color: 'red' }} />
+                                                Property Expenses ({expensePropertyCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.ExpenseProperty, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <ExpensePropertyList ref={expensePropertyListRef} onPropertiesFetched={handleExpensePropertiesFetched} listAction={'Dream'} propertiesList={expenseProperties} assetPropertiesList={null} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <CreditCardIcon sx={{ mr: 1, color: 'yellow' }} />
+                                                Credit Card Debts ({expenseCreditCardDebtCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.ExpenseCreditCardDebt, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <ExpenseCreditCardDebtList ref={expenseCreditCardDebtListRef} onCreditCardDebtsFetched={handleExpenseCreditCardDebtsFetched} listAction={'Dream'} creditcarddebtsList={expenseCreditCardDebts} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <PersonIcon sx={{ mr: 1, color: 'teal' }} />
+                                                Personal Loans ({expensePersonalLoanCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.ExpensePersonalLoan, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <ExpensePersonalLoanList ref={expensePersonalLoanListRef} onPersonalLoansFetched={handleExpensePersonalLoansFetched} listAction={'Dream'} personalloansList={expensePersonalLoans} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <MiscellaneousServicesIcon sx={{ mr: 1, color: 'green' }} />
+                                                Other Future Expenses ({expenseOtherCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.ExpenseOther, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <ExpenseOtherList ref={expenseOtherListRef} onOthersFetched={handleExpenseOthersFetched} listAction={'Dream'} othersList={expenseOthers} vehiclesList={null} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel1a-content"
+                                            id="panel1a-header"
+                                        >
+                                            <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                                <DirectionsCarIcon sx={{ mr: 1, color: 'blue' }} /> {/* Updated color */}
+                                                Current EMI's - Property/Vehicle/Dreams ({emiCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.EMI, 0))}</strong>
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <EMIList ref={emiListRef} onEMIsFetched={handleEMIsFetched} showDreams={true} propertiesList={assetProperties} vehiclesList={assetVehicles} dreamsList={dreams} />
+                                        </AccordionDetails>
+                                    </Accordion>
+                                </Box>
+                            </>
+                        )}
+                        {tabIndex === 2 && (
+                            <Box>
+                                <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
+                                    <AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel1a-content"
+                                        id="panel1a-header"
+                                    >
+                                        {/* <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                                            <AttachMoneyOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
+                                            Future Income ({incomeCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsList.reduce((acc, curr) => acc + curr.Income, 0))}</strong>
+                                        </Typography> */}
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <AssetIncomeList ref={incomeListRef} onIncomesFetched={handleIncomesFetched} listAction={'Dream'} incomesList={incomes}/>
+                                    </AccordionDetails>
+                                </Accordion>
+                            </Box>
+                        )}
                     </Box>
                 </Box>
             </Box>

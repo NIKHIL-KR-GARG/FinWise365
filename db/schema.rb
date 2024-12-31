@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_28_071454) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_31_040857) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -363,6 +363,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_28_071454) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "is_dummy_data", default: false
+    t.boolean "is_recurring", default: false
+    t.float "loan_amount",
+    t.float "recurring_amount"
+    t.string "recurring_frequency"
   end
 
   create_table "expense_credit_card_debts", force: :cascade do |t|

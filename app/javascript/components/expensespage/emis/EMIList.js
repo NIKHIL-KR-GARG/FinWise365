@@ -8,31 +8,56 @@ import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 
-export const fetchPropertyEMIs = (propertiesList) => {
+export const fetchPropertyEMIs = (propertiesList, showDreams) => {
     try {
-        const propertyEMIs = propertiesList
-        .filter(property => {
-            // derive end date based on purchase date and loan_duration
-            if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
-            else if (property.is_dream === true) return false;
-            else if (!property.is_funded_by_loan) return false;
-            else {
-                const startDate = new Date(property.purchase_date);
-                const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
-                return endDate >= new Date();
-            }
-        })
-        .map(property => ({
-            id: `propertyemi-${property.id}`,
-            name: `EMI - ${property.property_name}`,
-            type: 'Property',
-            location: property.location,
-            currency: property.currency,
-            amount: property.emi_amount,
-            start_date: property.purchase_date,
-            end_date: `${new Date(new Date(property.purchase_date).setMonth(new Date(property.purchase_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
-        }));
-
+        let propertyEMIs = [];
+        
+        if (!showDreams) {
+            propertyEMIs = propertiesList
+            .filter(property => {
+                if (property.is_plan_to_sell && new Date(property.sale_date) < new Date()) return false;
+                else if (property.is_dream === true) return false;
+                else if (!property.is_funded_by_loan) return false;
+                else {
+                    const startDate = new Date(property.loan_as_of_date);
+                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
+                    return endDate >= new Date();
+                }
+            })
+            .map(property => ({
+                id: `propertyemi-${property.id}`,
+                name: `EMI - ${property.property_name}`,
+                type: 'Property',
+                location: property.location,
+                currency: property.currency,
+                amount: property.emi_amount,
+                start_date: property.loan_as_of_date,
+                end_date: `${new Date(new Date(property.loan_as_of_date).setMonth(new Date(property.loan_as_of_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
+            }));
+        }
+        else {
+            propertyEMIs = propertiesList
+            .filter(property => {
+                if (property.is_dream === false) return false;
+                else if (!property.is_funded_by_loan) return false;
+                else {
+                    const startDate = new Date(property.loan_as_of_date);
+                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
+                    return endDate >= new Date();
+                }
+            })
+            .map(property => ({
+                id: `propertyemi-${property.id}`,
+                name: `EMI - ${property.property_name}`,
+                type: 'Property',
+                location: property.location,
+                currency: property.currency,
+                amount: property.emi_amount,
+                start_date: property.loan_as_of_date,
+                end_date: `${new Date(new Date(property.loan_as_of_date).setMonth(new Date(property.loan_as_of_date).getMonth() + 1 + parseInt(property.loan_duration))).toISOString().split('T')[0]}`
+            }));
+        }
+        
         return propertyEMIs;
 
     } catch (error) {
@@ -40,31 +65,56 @@ export const fetchPropertyEMIs = (propertiesList) => {
     }
 };
 
-export const fetchVehicleEMIs = (vehiclesList) => {
+export const fetchVehicleEMIs = (propertiesList, showDreams) => {
     try {
-        const vehicleEMIs = vehiclesList
-        .filter(vehicle => {
-            if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
-            else if (vehicle.is_dream === true) return false;
-            else if (!vehicle.is_funded_by_loan) return false;
-            else {
-                // derive end date based on purchase date and loan_duration
-                const startDate = new Date(vehicle.purchase_date);
-                const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
-                return endDate >= new Date();
-            }
-        })
-        .map(vehicle => ({
-            id: `vehicleemi-${vehicle.id}`,
-            name: `EMI - ${vehicle.vehicle_name}`,
-            type: 'Vehicle',
-            location: vehicle.location,
-            currency: vehicle.currency,
-            amount: vehicle.emi_amount,
-            start_date: vehicle.purchase_date,
-            end_date: `${new Date(new Date(vehicle.purchase_date).setMonth(new Date(vehicle.purchase_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
-        }));
-
+        let vehicleEMIs = [];
+        
+        if (!showDreams) {
+            vehicleEMIs = propertiesList
+            .filter(vehicle => {
+                if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < new Date()) return false;
+                else if (vehicle.is_dream === true) return false;
+                else if (!vehicle.is_funded_by_loan) return false;
+                else {
+                    const startDate = new Date(vehicle.loan_as_of_date);
+                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
+                    return endDate >= new Date();
+                }
+            })
+            .map(vehicle => ({
+                id: `vehicleemi-${vehicle.id}`,
+                name: `EMI - ${vehicle.vehicle_name}`,
+                type: 'Vehicle',
+                location: vehicle.location,
+                currency: vehicle.currency,
+                amount: vehicle.emi_amount,
+                start_date: vehicle.loan_as_of_date,
+                end_date: `${new Date(new Date(vehicle.loan_as_of_date).setMonth(new Date(vehicle.loan_as_of_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
+            }));
+        }
+        else {
+            vehicleEMIs = propertiesList
+            .filter(vehicle => {
+                if (vehicle.is_dream === false) return false;
+                else if (!vehicle.is_funded_by_loan) return false;
+                else {
+                    const startDate = new Date(vehicle.loan_as_of_date);
+                    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
+                    return endDate >= new Date();
+                }
+            })
+            .map(vehicle => ({
+                id: `vehicleemi-${vehicle.id}`,
+                name: `EMI - ${vehicle.vehicle_name}`,
+                type: 'Vehicle',
+                location: vehicle.location,
+                currency: vehicle.currency,
+                amount: vehicle.emi_amount,
+                start_date: vehicle.loan_as_of_date,
+                end_date: `${new Date(new Date(vehicle.loan_as_of_date).setMonth(new Date(vehicle.loan_as_of_date).getMonth() + 1 + parseInt(vehicle.loan_duration))).toISOString().split('T')[0]}`
+            }));
+        }
+        
         return vehicleEMIs;
 
     } catch (error) {
@@ -72,8 +122,33 @@ export const fetchVehicleEMIs = (vehiclesList) => {
     }
 };
 
+export const fetchDreamEMIs = (dreamsList) => {
+    try {
+        const dreamEMIs = dreamsList
+        .filter(dream => {
+            if (!dream.is_funded_by_loan) return false;
+            else return true;
+        })
+        .map(dream => ({
+            id: `dreamemi-${dream.id}`,
+            name: `EMI - ${dream.dream_name}`,
+            type: 'Dream',
+            location: dream.location,
+            currency: dream.currency,
+            amount: dream.emi_amount,
+            start_date: dream.loan_start_date,
+            end_date: dream.loan_end_date
+        }));
+
+        return dreamEMIs;
+
+    } catch (error) {
+        console.error('Error fetching EMIs:', error);
+    }
+};
+
 const EMIList = forwardRef((props, ref) => {
-    const { onEMIsFetched, propertiesList, vehiclesList } = props; // Destructure the new prop
+    const { onEMIsFetched, showDreams, propertiesList, vehiclesList, dreamsList } = props; // Destructure the new prop
     
     const [successMessage, setSuccessMessage] = useState('');
     const [emis, setEMIs] = useState({
@@ -91,14 +166,22 @@ const EMIList = forwardRef((props, ref) => {
     const [sortingModel, setSortingModel] = useState([{ field: 'emi_name', sort: 'asc' }]); // Initialize with default sorting
 
     useEffect(() => {
-        const propertyEMIs = fetchPropertyEMIs(propertiesList);
-        const vehicleEMIs = fetchVehicleEMIs(vehiclesList);
-
-        setEMIs([...propertyEMIs, ...vehicleEMIs]); // Set combined EMIs to state
+        const propertyEMIs = fetchPropertyEMIs(propertiesList, showDreams);
+        const vehicleEMIs = fetchVehicleEMIs(vehiclesList, showDreams);
+        let dreamEMIs = [];
+        if (showDreams && dreamsList) {
+            dreamEMIs = fetchDreamEMIs(dreamsList);
+            setEMIs([...propertyEMIs, ...vehicleEMIs, ...dreamEMIs]); // Set combined EMIs to state
+        }
+        else {
+            setEMIs([...propertyEMIs, ...vehicleEMIs]); // Set combined EMIs to state
+        }
+        
         setEMIsFetched(true); // Set emisFetched to true after fetching
 
         if (onEMIsFetched) {
-            onEMIsFetched(propertyEMIs.length + vehicleEMIs.length); // Notify parent component
+            if (showDreams) onEMIsFetched(propertyEMIs.length + vehicleEMIs.length + dreamEMIs.length); // Notify parent component
+            else onEMIsFetched(propertyEMIs.length + vehicleEMIs.length); // Notify parent component
         }
     }, []);
 
