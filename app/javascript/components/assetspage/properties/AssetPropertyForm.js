@@ -197,7 +197,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (property.is_on_rent) {
             if (!property.rental_start_date) errors.rental_start_date = 'Rental Start Date is required';
             if (!property.rental_amount) errors.rental_amount = 'Rental Amount is required';
-            if (!property.rental_growth_rate) errors.rental_growth_rate = 'Rental Growth Rate is required';
+            // if (!property.rental_growth_rate) errors.rental_growth_rate = 'Rental Growth Rate is required';
             //chcek that the rental start dat is not before purchase date
             if (new Date(property.rental_start_date) < new Date(property.purchase_date)) errors.rental_start_date = 'Rental Start Date cannot be before Purchase Date';
             //check that the rental end date is not before rental start date
@@ -793,7 +793,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             value={property.growth_rate}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.growth_rate}
                             helperText={errors.growth_rate}
@@ -1199,7 +1198,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.rental_growth_rate}
                                             onChange={handleChange}
                                             fullWidth
-                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.rental_growth_rate}
                                             helperText={errors.rental_growth_rate}

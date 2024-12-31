@@ -121,7 +121,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         if (!other.currency) errors.currency = 'Currency is required';
         if (!other.start_date) errors.start_date = 'Start Date is required';
         if (!other.payout_type) errors.payout_type = 'Payout Type is required';
-        if (!other.growth_rate) errors.growth_rate = 'Growth Rate is required';
+        // if (!other.growth_rate) errors.growth_rate = 'Growth Rate is required';
         if (!other.payout_date && !other.payout_age) {
             errors.payout_date = 'Payout Date or Age is required';
             errors.payout_age = 'Payout Date or Age is required';
@@ -198,7 +198,8 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
 
     const calculateTotalInterest = () => {
 
-        if (!other.start_date || !other.growth_rate) return;
+        // if (!other.start_date || !other.growth_rate) return;
+        if (!other.start_date) return;
         if (!other.is_recurring_payment && (!other.lumpsum_amount || other.lumpsum_amount <= 0)) return;
         if (other.is_recurring_payment && (!other.payment_frequency || !other.payment_amount || !other.payment_end_date)) return;
         if (!other.payout_date && !other.payout_age) return;
@@ -253,7 +254,12 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
             else if (other.payout_frequency === 'Quarterly') n = other.payout_duration / 3;
             else if (other.payout_frequency === 'Semi-Annually') n = other.payout_duration / 6;
             else if (other.payout_frequency === 'Annually') n = other.payout_duration / 12;
-            payoutValue = CalculatePayoutValue(parseFloat(totalPrincipal) + parseFloat(totalInterest), n, parseFloat(other.growth_rate));
+            if (other.growth_rate && other.growth_rate > 0) {
+                payoutValue = CalculatePayoutValue(parseFloat(totalPrincipal) + parseFloat(totalInterest), n, parseFloat(other.growth_rate));
+            }
+            else {
+                payoutValue = (parseFloat(totalPrincipal) + parseFloat(totalInterest)) / n;
+            }
         }
 
         setOther((prevOther) => ({
@@ -429,7 +435,6 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                             value={other.growth_rate}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.growth_rate}
                             helperText={errors.growth_rate}

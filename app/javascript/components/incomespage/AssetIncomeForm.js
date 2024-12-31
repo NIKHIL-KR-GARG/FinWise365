@@ -62,7 +62,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         if (!income.currency) errors.currency = 'Currency is required';
         if (!income.start_date) errors.start_date = 'Start Date is required';
         if (!income.amount) errors.amount = 'Income Amount is required';
-        if (!income.growth_rate) errors.growth_rate = 'Growth Rate is required';
+        // if (!income.growth_rate) errors.growth_rate = 'Growth Rate is required';
         if (income.is_recurring && !income.income_frequency) errors.income_frequency = 'Income Frequency is required';
         
         // Restrict non-numeric input for numeric fields, allowing floats
@@ -348,7 +348,6 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                             value={income.growth_rate}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.growth_rate}
                             helperText={errors.growth_rate}

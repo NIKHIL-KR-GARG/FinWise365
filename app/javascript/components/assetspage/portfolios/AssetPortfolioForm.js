@@ -267,7 +267,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
 
         if (!portfolio.portfolio_type || !portfolio.buying_date || !portfolio.buying_value) return;
         if (portfolio.portfolio_type === 'Bonds' && (!portfolio.coupon_rate || !portfolio.maturity_date)) return;
-        if (portfolio.portfolio_type !== 'Bonds' && !portfolio.growth_rate) return;
+        // if (portfolio.portfolio_type !== 'Bonds' && !portfolio.growth_rate) return;
         if (portfolio.is_plan_to_sell && (!portfolio.sale_date || !portfolio.sale_value)) return;
 
         // if there is sale date then get no of months between buying and selling
@@ -624,7 +624,6 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                             value={portfolio.growth_rate}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.growth_rate}
                             helperText={errors.growth_rate}

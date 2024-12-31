@@ -21,8 +21,8 @@ const LoginCallback = () => {
                 try {
                     console.log('user:', user);
                     // Send a request to your Rails API to create or find the user
-                    // const response = await axios.post('http://localhost:3000/api/users/create_or_find_user', {
-                    const response = await axios.post('https://www.finwise365.com/api/users/create_or_find_user', {
+                    const response = await axios.post('http://localhost:3000/api/users/create_or_find_user', {
+                    // const response = await axios.post('https://www.finwise365.com/api/users/create_or_find_user', {
                         email: user.email,
                     }, {
                         headers: {
