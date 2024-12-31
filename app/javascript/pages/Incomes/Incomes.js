@@ -292,94 +292,18 @@ const Incomes = () => {
             };
 
             const incomesList = filterIncomes('Asset', incomes, false);
-            addSheet(incomesList.map(income => ({
-                // Map the income object properties to the desired columns
-                id: income.id,
-                income_name: income.income_name,
-                income_type: income.income_type,
-                location: income.location,
-                currency: income.currency,
-                amount: income.amount,
-                start_date: income.start_date,
-                end_date: income.end_date,
-                is_recurring: income.is_recurring,
-                income_frequency: income.income_frequency
-            })), 'Incomes');
-
             const coupons = filterCouponIncomes(portfolios);
-            addSheet(coupons.map(coupon => ({
-                // Map the coupon object properties to the desired columns
-                id: coupon.id,
-                income_name: coupon.income_name,
-                income_type: coupon.income_type,
-                location: coupon.location,
-                currency: coupon.currency,
-                amount: coupon.amount,
-                start_date: coupon.start_date,
-                end_date: coupon.end_date,
-                is_recurring: coupon.is_recurring,
-                income_frequency: coupon.income_frequency
-            })), 'Coupons');
-
             const dividends = filterDividendIncomes(portfolios);
-            addSheet(dividends.map(dividend => ({
-                // Map the dividend object properties to the desired columns
-                id: dividend.id,
-                income_name: dividend.income_name,
-                income_type: dividend.income_type,
-                location: dividend.location,
-                currency: dividend.currency,
-                amount: dividend.amount,
-                start_date: dividend.start_date,
-                end_date: dividend.end_date,
-                is_recurring: dividend.is_recurring,
-                income_frequency: dividend.income_frequency
-            })), 'Dividends');
-
             const payouts = filterPayoutIncomes(others);
-            addSheet(payouts.map(payout => ({
-                // Map the payout object properties to the desired columns
-                id: payout.id,
-                income_name: payout.income_name,
-                income_type: payout.income_type,
-                location: payout.location,
-                currency: payout.currency,
-                amount: payout.amount,
-                start_date: payout.start_date,
-                end_date: payout.end_date,
-                is_recurring: payout.is_recurring,
-                income_frequency: payout.income_frequency
-            })), 'Payouts');
-
             const leases = filterLeaseIncomes(vehicles);
-            addSheet(leases.map(lease => ({
-                // Map the lease object properties to the desired columns
-                id: lease.id,
-                income_name: lease.income_name,
-                income_type: lease.income_type,
-                location: lease.location,
-                currency: lease.currency,
-                amount: lease.amount,
-                start_date: lease.start_date,
-                end_date: lease.end_date,
-                is_recurring: lease.is_recurring,
-                income_frequency: lease.income_frequency
-            })), 'Leases');
-
             const rentals = filterRentalIncomes(properties);
-            addSheet(rentals.map(rental => ({
-                // Map the rental object properties to the desired columns
-                id: rental.id,
-                income_name: rental.income_name,
-                income_type: rental.income_type,
-                location: rental.location,
-                currency: rental.currency,
-                amount: rental.amount,
-                start_date: rental.start_date,
-                end_date: rental.end_date,
-                is_recurring: rental.is_recurring,
-                income_frequency: rental.income_frequency
-            })), 'Rentals');
+
+            addSheet(incomesList, 'Incomes');
+            addSheet(coupons, 'Coupons');
+            addSheet(dividends, 'Dividends');
+            addSheet(payouts, 'Payouts');
+            addSheet(leases, 'Leases');
+            addSheet(rentals, 'Rentals');
 
             const date = new Date();
             const timestamp = `${date.getDate()}${date.getMonth() + 1}${date.getFullYear()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
