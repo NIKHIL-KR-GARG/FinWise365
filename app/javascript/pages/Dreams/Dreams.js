@@ -101,10 +101,10 @@ import { filterPersonalLoans } from '../../components/expensespage/personalloans
 import { filterExpenseOthers, filterOthersVehicleExpense } from '../../components/expensespage/others/ExpenseOtherList';
 import { filterExpenseProperties } from '../../components/expensespage/properties/ExpensePropertyList';
 import { filterHomes } from '../../components/expensespage/homes/ExpenseHomeList';
-import { fetchPropertyEMIs, fetchVehicleEMIs } from '../../components/expensespage/emis/EMIList';
+import { fetchPropertyEMIs, fetchVehicleEMIs, fetchDreamEMIs } from '../../components/expensespage/emis/EMIList';
 import { fetchDepositSIPs, fetchPortfolioSIPs, fetchOtherSIPs } from '../../components/expensespage/sips/SIPList';
-import { fetchTaxes } from '../../components/expensespage/taxes/TaxList';
-import { fetchPropertyMortgageAndLoans, fetchVehicleMortgageAndLoans } from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
+// import { fetchTaxes } from '../../components/expensespage/taxes/TaxList';
+// import { fetchPropertyMortgageAndLoans, fetchVehicleMortgageAndLoans } from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
 import { filterIncomes } from '../../components/incomespage/AssetIncomeList';
 import { filterCouponIncomes } from '../../components/incomespage/CouponIncomeList';
 import { filterDividendIncomes } from '../../components/incomespage/DividendIncomeList';
@@ -1200,19 +1200,19 @@ const Dreams = () => {
             const assetOtherList = filterAssetOthers('Dream', assetOthers, false);
 
             const incomeList = filterIncomes('Dream', incomes, false);
-            // const coupons = filterCouponIncomes(assetPortfolios);
-            // const dividends = filterDividendIncomes(assetPortfolios);
-            // const payouts = filterPayoutIncomes(assetOthers);
-            // const leases = filterLeaseIncomes(assetVehicles);
-            // const rentals = filterRentalIncomes(assetProperties);
+            const coupons = filterCouponIncomes(assetPortfolios, true);
+            const dividends = filterDividendIncomes(assetPortfolios, true);
+            const payouts = filterPayoutIncomes(assetOthers, true);
+            const leases = filterLeaseIncomes(assetVehicles, true);
+            const rentals = filterRentalIncomes(assetProperties, true);
 
             const expenseHomeList = filterHomes('Dream', expenseHomes, false);
             const expensePropertyList = filterExpenseProperties('Dream', expenseProperties, false);
             const expenseCreditCardDebtList = filterCreditCardDebts('Dream', expenseCreditCardDebts, false);
             const expensePersonalLoanList = filterPersonalLoans('Dream', expensePersonalLoans, false);
             const expenseOtherList = filterExpenseOthers('Dream', expenseOthers, false);
-            // const emis = fetchPropertyEMIs(assetProperties, false).concat(fetchVehicleEMIs(assetVehicles, false));
-            // const sips = fetchDepositSIPs(assetDeposits, false).concat(fetchPortfolioSIPs(assetPortfolios, false)).concat(fetchOtherSIPs(assetOthers, false));
+            const emis = fetchPropertyEMIs(assetProperties, true).concat(fetchVehicleEMIs(assetVehicles, true)).concat(fetchDreamEMIs(dreams));
+            const sips = fetchDepositSIPs(assetDeposits, true).concat(fetchPortfolioSIPs(assetPortfolios, true)).concat(fetchOtherSIPs(assetOthers, true));
             // const taxes = fetchTaxes(assetProperties, false);
             // const mortgageAndLoans = fetchPropertyMortgageAndLoans(assetProperties, false).concat(fetchVehicleMortgageAndLoans(assetVehicles, false));
 
@@ -1228,18 +1228,18 @@ const Dreams = () => {
             addSheet(assetPortfolioList, 'Portfolios');
             addSheet(assetOtherList, 'Others Future Assets');
             addSheet(incomeList, 'Future Incomes');
-            // addSheet(coupons, 'Coupons');
-            // addSheet(dividends, 'Dividends');
-            // addSheet(payouts, 'Payouts');
-            // addSheet(leases, 'Leases');
-            // addSheet(rentals, 'Rentals');
+            addSheet(coupons, 'Coupons');
+            addSheet(dividends, 'Dividends');
+            addSheet(payouts, 'Payouts');
+            addSheet(leases, 'Leases');
+            addSheet(rentals, 'Rentals');
             addSheet(expenseHomeList, 'Home Expenses');
             addSheet(expensePropertyList, 'Property Expenses');
             addSheet(expenseCreditCardDebtList, 'Credit Card Debts');
             addSheet(expensePersonalLoanList, 'Personal Loans');
             addSheet(expenseOtherList, 'Other Future Expenses');
-            // addSheet(emis, 'EMIs');
-            // addSheet(sips, 'SIPs');
+            addSheet(emis, 'EMIs');
+            addSheet(sips, 'SIPs');
             // addSheet(taxes, 'Taxes');
             // addSheet(mortgageAndLoans, 'Mortgage And Loans');
             addSheet(educationList, 'Education');

@@ -4,6 +4,20 @@ import { Typography, Box } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FormatCurrency } from '../common/FormatCurrency';
 
+const roundOffValues = (data) => {
+    return data.map(item => {
+        let roundedItem = {};
+        for (let key in item) {
+            if (typeof item[key] === 'number') {
+                roundedItem[key] = parseFloat(item[key].toFixed(2));
+            } else {
+                roundedItem[key] = item[key];
+            }
+        }
+        return roundedItem;
+    });
+};
+
 const DreamsGraph = ({dreamsList, graphType}) => {
 
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -22,6 +36,8 @@ const DreamsGraph = ({dreamsList, graphType}) => {
         );
     };
 
+    const roundedDreamsList = roundOffValues(dreamsList);
+
     return (
         <Box display="flex" justifyContent="center" alignItems="center" p={1} width="100%">
             <Grid container spacing={2} justifyContent="center" width="80%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2}>
@@ -33,7 +49,7 @@ const DreamsGraph = ({dreamsList, graphType}) => {
                 <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
                     <ResponsiveContainer width="80%" height="100%">
                         { graphType === 'lumpsum' && (
-                            <BarChart layout="horizontal" data={dreamsList}>
+                            <BarChart layout="horizontal" data={roundedDreamsList}>
                                 {/* <CartesianGrid strokeDasharray="3 3" /> */}
                                 <XAxis dataKey="year" />
                                 <YAxis />
@@ -53,7 +69,7 @@ const DreamsGraph = ({dreamsList, graphType}) => {
                             </BarChart>
                         )}
                         { graphType === 'recurring' && (
-                            <BarChart layout="horizontal" data={dreamsList}>
+                            <BarChart layout="horizontal" data={roundedDreamsList}>
                                 {/* <CartesianGrid strokeDasharray="3 3" /> */}
                                 <XAxis dataKey="year" />
                                 <YAxis />
@@ -69,7 +85,7 @@ const DreamsGraph = ({dreamsList, graphType}) => {
                             </BarChart>
                         )}
                         { graphType === 'income' && (
-                            <BarChart layout="horizontal" data={dreamsList}>
+                            <BarChart layout="horizontal" data={roundedDreamsList}>
                                 {/* <CartesianGrid strokeDasharray="3 3" /> */}
                                 <XAxis dataKey="year" />
                                 <YAxis />

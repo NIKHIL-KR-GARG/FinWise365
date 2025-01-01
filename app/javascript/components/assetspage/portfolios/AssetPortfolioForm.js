@@ -99,6 +99,16 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                 }));
             }
         }
+        else if (name === 'buying_value') {
+            if (portfolio.portfolio_type !== 'Bonds') {
+                const dividendAmount = calculateDividendAmount(portfolio.dividend_frequency, value, portfolio.dividend_rate);
+                setPortfolio((prevPortfolio) => ({
+                    ...prevPortfolio,
+                    dividend_amount: dividendAmount
+                }));
+            }
+        }
+
         // if SIP is un-checked, then make sip amount 0 and frequency monthly
         if (name === 'is_sip' && !checked) {
             setPortfolio((prevPortfolio) => ({
@@ -125,14 +135,14 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
             }));
         }
         if (name === 'dividend_rate') {
-            const dividendAmount = calculateDividendAmount(portfolio.dividend_frequency, value);
+            const dividendAmount = calculateDividendAmount(portfolio.dividend_frequency, portfolio.buying_value, value);
             setPortfolio((prevPortfolio) => ({
                 ...prevPortfolio,
                 dividend_amount: dividendAmount
             }));
         }
         else if (name === 'dividend_frequency') {
-            const dividendAmount = calculateDividendAmount(value, portfolio.dividend_rate);
+            const dividendAmount = calculateDividendAmount(value, portfolio.buying_value, portfolio.dividend_rate);
             setPortfolio((prevPortfolio) => ({
                 ...prevPortfolio,
                 dividend_amount: dividendAmount
@@ -140,9 +150,9 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         }
     };
 
-    const calculateDividendAmount = (frequency, rate) => {
+    const calculateDividendAmount = (frequency, value, rate) => {
 
-        let dividendAmount = portfolio.buying_value * (rate / 100);
+        let dividendAmount = parseFloat(value) * (rate / 100);
         if (frequency === 'Monthly') dividendAmount = dividendAmount / 12;
         else if (frequency === 'Quarterly') dividendAmount = dividendAmount / 4;
         else if (frequency === 'Semi-Annually') dividendAmount = dividendAmount / 2;

@@ -193,7 +193,9 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
             + parseFloat(home.holidays)
             + parseFloat(home.rental)
             + parseFloat(home.alcohol)
-            + parseFloat(home.miscellaneous);
+            + parseFloat(home.miscellaneous)
+            + parseFloat(home.rental)
+            + parseFloat(home.alcohol);
 
         setHome({
             ...home,

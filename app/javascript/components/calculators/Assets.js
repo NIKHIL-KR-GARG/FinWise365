@@ -318,8 +318,8 @@ export const incomePropertyRentalAssetValue = (property, date, baseCurrency) => 
         if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
         if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
         if (property.is_on_rent && 
-                (new Date(property.rental_start_date).getMonth() <= date.getMonth() && new Date(property.rental_start_date).getFullYear() <= date.getFullYear()) && 
-                (!property.rental_end_date || (new Date(property.rental_end_date).getMonth() >= date.getMonth() && new Date(property.rental_end_date).getFullYear() >= date.getFullYear()))) {
+                (new Date(property.rental_start_date) <= date) && 
+                (!property.rental_end_date || (new Date(property.rental_end_date) >= date))) {
             const months = (date.getFullYear() - new Date(property.rental_start_date).getFullYear()) * 12 + date.getMonth() - new Date(property.rental_start_date).getMonth();
             const increment = CalculateInterest(
                 "Fixed",
