@@ -5,40 +5,60 @@ import '../common/GridHeader.css';
 import CountryList from '../common/CountryList';
 import { FormatCurrency } from  '../common/FormatCurrency';
 
-export const filterLeaseIncomes = (vehiclesList) => {
+export const filterLeaseIncomes = (vehiclesList, showDreams) => {
 
     const today = new Date();
-    const leases = vehiclesList
-        .filter(vehicle => !vehicle.is_plan_to_sell || (new Date(vehicle.sale_date) >= today))
-        .filter(vehicle => vehicle.is_on_lease && 
-            (new Date(vehicle.lease_start_date) <= today) && 
-            (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today) &&
-            (vehicle.lease_amount > 0) &&
-            (vehicle.is_dream === false)
-        )
-        .map(vehicle => ({
-            id: `lease-${vehicle.id}`,
-            income_name: `Lease Income - ${vehicle.vehicle_name}`,
-            income_type: 'Lease',
-            location: vehicle.location,
-            currency: vehicle.currency,
-            amount: vehicle.lease_amount,
-            start_date: vehicle.lease_start_date,
-            end_date: vehicle.lease_end_date,
-            is_recurring: true,
-            income_frequency: 'Monthly'
-        }));
+    let leases = [];
+
+    if (!showDreams) {
+        leases = vehiclesList
+            .filter(vehicle => !vehicle.is_plan_to_sell || (new Date(vehicle.sale_date) >= today))
+            .filter(vehicle => vehicle.is_on_lease &&
+                (new Date(vehicle.lease_start_date) <= today) &&
+                (!vehicle.lease_end_date || new Date(vehicle.lease_end_date) >= today) &&
+                (vehicle.lease_amount > 0) &&
+                (vehicle.is_dream === false)
+            )
+            .map(vehicle => ({
+                id: `lease-${vehicle.id}`,
+                income_name: `Lease Income - ${vehicle.vehicle_name}`,
+                income_type: 'Lease',
+                location: vehicle.location,
+                currency: vehicle.currency,
+                amount: vehicle.lease_amount,
+                start_date: vehicle.lease_start_date,
+                end_date: vehicle.lease_end_date,
+                is_recurring: true,
+                income_frequency: 'Monthly'
+            }));
+    }
+    else {
+        leases = vehiclesList
+            .filter(vehicle => vehicle.is_dream && vehicle.is_on_lease)
+            .map(vehicle => ({
+                id: `lease-${vehicle.id}`,
+                income_name: `Lease Income - ${vehicle.vehicle_name}`,
+                income_type: 'Lease',
+                location: vehicle.location,
+                currency: vehicle.currency,
+                amount: vehicle.lease_amount,
+                start_date: vehicle.lease_start_date,
+                end_date: vehicle.lease_end_date,
+                is_recurring: true,
+                income_frequency: 'Monthly'
+            }));
+    }
 
     return leases;
 };
 
-const LeaseIncomeList = ({ vehiclesList }) => {
+const LeaseIncomeList = ({ vehiclesList, showDreams }) => {
 
     const [incomes, setIncomes] = useState([]);
     const [sortingModel, setSortingModel] = useState([{ field: 'income_name', sort: 'asc' }]); // Initialize with default sorting
 
     useEffect(() => {
-        const leases = filterLeaseIncomes(vehiclesList);
+        const leases = filterLeaseIncomes(vehiclesList, showDreams);
         setIncomes(leases);
     }, []);
 

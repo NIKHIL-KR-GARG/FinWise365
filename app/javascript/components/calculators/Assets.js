@@ -391,8 +391,8 @@ export const incomeDividendAssetValue = (portfolio, date, baseCurrency) => {
     return incomeDividendAssetValue;
 }
 
-const isValueMonth = (startDate, currentDate, frequency) => {
-    const diffMonths = (currentDate.getFullYear() - startDate.getFullYear()) * 12 + (currentDate.getMonth() - startDate.getMonth());
+export const isValueMonth = (startDate, currentDate, frequency) => {
+    const diffMonths = (new Date(currentDate).getFullYear() - new Date(startDate).getFullYear()) * 12 + (new Date(currentDate).getMonth() - new Date(startDate).getMonth());
     if (frequency === 'Monthly') return true;
     else if (frequency === 'Quarterly' && diffMonths % 3 === 0) return true;
     else if (frequency === 'Semi-Annually' && diffMonths % 6 === 0) return true;

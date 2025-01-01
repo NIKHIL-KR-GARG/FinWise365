@@ -695,7 +695,7 @@ const Expenses = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <SIPList ref={sipListRef} onSIPsFetched={handleSIPsFetched} depositsList={assetDeposits} portfoliosList={assetPortfolios} otherAssetsList={assetOthers}/>
+                                    <SIPList ref={sipListRef} onSIPsFetched={handleSIPsFetched} showDreams={false} depositsList={assetDeposits} portfoliosList={assetPortfolios} otherAssetsList={assetOthers}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>

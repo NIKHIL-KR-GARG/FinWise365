@@ -254,14 +254,12 @@ const AssetVehicleList = forwardRef((props, ref) => {
                     {successMessage}
                 </Alert>
             </Snackbar>
-            {listAction === 'Asset' && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-                    <FormControlLabel
-                        control={<Switch checked={includePastVehicles} onChange={() => setIncludePastVehicles(!includePastVehicles)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
-                        label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Vehicles</span>}
-                    />
-                </div>
-            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <FormControlLabel
+                    control={<Switch checked={includePastVehicles} onChange={() => setIncludePastVehicles(!includePastVehicles)} sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: 'purple' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: 'purple' } }} />}
+                    label={<span style={{ fontWeight: 'bold', color: 'purple' }}>Include Past Vehicles</span>}
+                />
+            </div>
             <DataGrid
                 //key={gridKey} // Add the key prop to the DataGrid
                 width="100%"

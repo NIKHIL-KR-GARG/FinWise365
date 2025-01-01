@@ -1170,7 +1170,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.rental_end_date}
                                             onChange={handleChange}
                                             fullWidth
-                                            required
                                             InputLabelProps={{ shrink: true }}
                                             error={!!errors.rental_end_date}
                                             helperText={errors.rental_end_date}

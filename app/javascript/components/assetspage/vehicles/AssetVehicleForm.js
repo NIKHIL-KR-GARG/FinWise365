@@ -170,11 +170,11 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
 
         if (vehicle.is_on_lease) {
             if (!vehicle.lease_start_date) errors.lease_start_date = 'Lease Start Date is required';
-            if (!vehicle.lease_end_date) errors.lease_end_date = 'Lease End Date is required';
+            // if (!vehicle.lease_end_date) errors.lease_end_date = 'Lease End Date is required';
             if (!vehicle.lease_amount) errors.lease_amount = 'Lease Amount is required';
             // if (!vehicle.lease_growth_rate) errors.lease_growth_rate = 'Lease Growth Rate is required';
             // check that lease end date is greater than lease start date
-            if (new Date(vehicle.lease_end_date) < new Date(vehicle.lease_start_date)) errors.lease_end_date = 'Lease End Date cannot be before Lease Start Date';
+            if (vehicle.lease_end_date && new Date(vehicle.lease_end_date) < new Date(vehicle.lease_start_date)) errors.lease_end_date = 'Lease End Date cannot be before Lease Start Date';
             // check that the lease start date is not before purchase date
             if (new Date(vehicle.lease_start_date) < new Date(vehicle.purchase_date)) errors.lease_start_date = 'Lease Start Date cannot be before Purchase Date';
             // check that the lease end date is not after sale date

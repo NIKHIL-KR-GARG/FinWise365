@@ -443,7 +443,7 @@ const Incomes = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <RentalIncomeList propertiesList={properties}/>
+                                    <RentalIncomeList propertiesList={properties} showDreams={false}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -458,7 +458,7 @@ const Incomes = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <LeaseIncomeList vehiclesList={vehicles}/>
+                                    <LeaseIncomeList vehiclesList={vehicles} showDreams={false}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -473,7 +473,7 @@ const Incomes = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <DividendIncomeList portfoliosList={portfolios}/>
+                                    <DividendIncomeList portfoliosList={portfolios} showDreams={false}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -488,7 +488,7 @@ const Incomes = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <CouponIncomeList portfoliosList={portfolios}/>
+                                    <CouponIncomeList portfoliosList={portfolios} showDreams={false}/>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion sx={{ width: '100%', mb: 2, minHeight: 70 }}>
@@ -503,7 +503,7 @@ const Incomes = () => {
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <PayoutIncomeList otherAssetsList={others}/>
+                                    <PayoutIncomeList otherAssetsList={others} showDreams={false}/>
                                 </AccordionDetails>
                             </Accordion>
                         </Box>
@@ -518,28 +518,6 @@ const Incomes = () => {
             >
                 <AddIcon sx={{ fontSize: 40 }} />
             </Fab>
-            {/* <Modal
-                open={modalOpen}
-                onClose={handleModalClose}
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-                sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', mt: '350px', mr: '48px' }}
-            >
-                <Box sx={{ width: 400, bgcolor: 'purple', p: 2, boxShadow: 24, borderRadius: 4 }}>
-                    <Typography id="modal-title" variant="h6" component="h2" sx={{ color: 'white' }}>
-                        Add New Asset
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 2 }}>
-                        <Box 
-                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', m: 1, cursor: 'pointer' }}
-                            onClick={() => handleFormModalOpen('Add Income')}
-                        >
-                            <AttachMoneyOutlinedIcon sx={{ color: 'white' }} />
-                            <Typography sx={{ color: 'white', fontSize: 12 }}>Income</Typography>
-                        </Box>
-                    </Box>
-                </Box>
-            </Modal> */}
             <Modal
                 open={formModalOpen}
                 onClose={(event, reason) => {

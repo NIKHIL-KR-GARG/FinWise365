@@ -307,7 +307,6 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                             value={income.end_date}
                             onChange={handleChange}
                             fullWidth
-                            required
                             InputLabelProps={{ shrink: true }}
                             error={!!errors.end_date}
                             helperText={errors.end_date}
