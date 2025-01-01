@@ -296,7 +296,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 cashflow.asset_id === -1 &&
                 cashflow.asset_type === 'Disposable Cash'
         );
-        if (thisMonthDisposableCash) {
+        if (thisMonthDisposableCash && thisMonthDisposableCash.asset_value > 0) {
             if (thisMonthDisposableCash.asset_value > remainingExpense) {
                 thisMonthDisposableCash.asset_value -= remainingExpense;
                 remainingExpense = 0;
@@ -757,6 +757,16 @@ const GenerateCashflows = ({ hideAccordians }) => {
                         // and update the liquid asset lines
                         updateLiquidAssetsForExpenses(remainingExpense, month, year);
                     }
+                }
+
+                // find liquidAssetsForLastMonth from netCashflow and add to this month's if it was negative
+                const cashflowForLastMonth = netCashflow.find(
+                    (cashflow) =>
+                        cashflow.month === ((month === 1) ? 12 : month - 1) &&
+                        cashflow.year === ((month === 1) ? year - 1 : year)
+                );
+                if (cashflowForLastMonth && cashflowForLastMonth.liquid_assets < 0) {
+                    liquidAssetsForMonth += cashflowForLastMonth.liquid_assets;
                 }
 
                 // update asset classes whereever values has been changed/reduced
