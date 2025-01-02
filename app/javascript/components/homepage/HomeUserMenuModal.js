@@ -100,7 +100,13 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
                     color="secondary"
                     startIcon={<ExitToAppIcon />}
                     sx={{ mt: 1, width: '100%' }}
-                    onClick={() => logout()}
+                    onClick={() =>
+                        logout({
+                          logoutParams: {
+                            returnTo: window.location.origin
+                          }
+                        })
+                      }
                 >
                     Logout
                 </Button>

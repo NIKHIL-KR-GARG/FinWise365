@@ -217,7 +217,14 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     </ListItemIcon>
                     {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Coming Soon...</Typography>} />}
                 </ListItem>
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }} onClick={() => logout()}>
+                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}
+                    onClick={() =>
+                        logout({
+                            logoutParams: {
+                                returnTo: window.location.origin
+                            }
+                        })
+                    }>
                     <ListItemIcon>
                         <ExitToAppIcon fontSize="small" />
                     </ListItemIcon>
