@@ -7,7 +7,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
-import UserProfile from '../../components/accountsettings/UserProfile';
+import UserProfile from '../../components/accountsettingspage/userprofile/UserProfile';
 
 const AccountSettings = () => {
 

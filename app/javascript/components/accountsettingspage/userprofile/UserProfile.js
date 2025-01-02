@@ -4,8 +4,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import Grid from '@mui/material/Grid2';
 import axios from 'axios';
 
-import CurrencyList from '../common/CurrencyList';
-import CountryList from '../common/CountryList';
+import CurrencyList from '../../common/CurrencyList';
+import CountryList from '../../common/CountryList';
 
 const UserProfile = () => {
     const [user, setUser] = useState({
