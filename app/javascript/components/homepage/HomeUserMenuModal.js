@@ -16,6 +16,7 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
     const currentUserLastName = localStorage.getItem('currentUserLastName');
     const currentUserEmail = localStorage.getItem('currentUserEmail');
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const getGreeting = () => {
         const currentHour = new Date().getHours();
@@ -32,6 +33,11 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
         navigate('/accountsettings');
         handleClosePopover();
     };
+
+    const handleAdminFunctionsClick = () => {
+        navigate('/adminfunctions');
+        handleClosePopover();
+    }
 
     return (
         <Popover
@@ -72,12 +78,20 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
                         </ListItemIcon>
                         <ListItemText primary="My Profile" secondary="Account Settings" />
                     </ListItem>
-                    <ListItem button sx={{'&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' }}}>
+                    {/* <ListItem button sx={{'&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' }}}>
                         <ListItemIcon>
                             <InboxIcon />
                         </ListItemIcon>
                         <ListItemText primary="My Inbox" secondary="Messages & Emails"/>
+                    </ListItem> */}
+                    {currentUserIsAdmin && (
+                        <ListItem button onClick={handleAdminFunctionsClick} sx={{'&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' }}}>
+                        <ListItemIcon>
+                            <InboxIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Administrator" secondary="Admin Functions" />
                     </ListItem>
+                    )}
                 </List>
                 <Divider sx={{ my: 2 }} />
                 <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>

@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get 'contactus', to: 'site#index'
   get 'helpcentre', to: 'site#index'
   get 'comingsoon', to: 'site#index'
+  get 'adminfunctions', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do
@@ -63,7 +64,15 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :contact_admins, only: %i[index show create destroy update]
+    resources :contact_admins, only: %i[index show create destroy update] do
+      collection do
+        put 'mark_as_read'
+        put 'mark_as_unread'
+        put 'mark_as_replied'
+        put 'mark_as_notreplied'
+        delete 'bulk_destroy'
+      end
+    end
 
   end
 

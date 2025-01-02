@@ -16,6 +16,7 @@ import CashflowComparison from './pages/CashflowComparison/CashflowComparison';
 import ContactUs from './pages/ContactUs/ContactUs';
 import HelpCentre from './pages/HelpCentre/HelpCentre';
 import ComingSoon from './pages/ComingSoon/ComingSoon';
+import AdminFunctions from './pages/AdminFunctions/AdminFunctions';
 
 const App = () => {
 
@@ -35,6 +36,7 @@ const App = () => {
         <Route path='/contactus' element={<ContactUs />} />
         <Route path='/helpcentre' element={<HelpCentre />} />
         <Route path='/comingsoon' element={<ComingSoon />} />
+        <Route path='/adminfunctions' element={<AuthenticationGuard component={AdminFunctions} />} />
       </Routes>
     </>
   );

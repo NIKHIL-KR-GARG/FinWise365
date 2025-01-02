@@ -3,13 +3,12 @@ import { Box, Breadcrumbs, Typography, Divider, Tabs, Tab } from '@mui/material'
 import Link from '@mui/material/Link';
 import TabPanel from '../../components/common/TabPanel';
 import PersonIcon from '@mui/icons-material/Person';
-import ReceiptIcon from '@mui/icons-material/Receipt';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
-import UserProfile from '../../components/accountsettingspage/userprofile/UserProfile';
+import ContactUsMessageList from '../../components/adminfunctionspage/ContactUsMessageList';
 
-const AccountSettings = () => {
+const AdminFunctions = () => {
 
     const [open, setOpen] = useState(true);
     const handleDrawerToggle = () => {
@@ -42,11 +41,11 @@ const AccountSettings = () => {
                         <Link underline="hover" color="inherit" href="/home">
                             Home
                         </Link>
-                        <Typography color="textPrimary">Account Settings</Typography>
+                        <Typography color="textPrimary">Admin Functions</Typography>
                     </Breadcrumbs>
                     <Box sx={{ p: 3, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            Account Settings
+                            Admin Functions
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ display: 'flex' }}>
@@ -63,8 +62,8 @@ const AccountSettings = () => {
                                     iconPosition="start"
                                     label={
                                         <Box sx={{ textAlign: 'left', textTransform: 'none' }}>
-                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>My Profile</Typography>
-                                            <Typography variant="body2" color="textSecondary">Manage profile information</Typography>
+                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>User Messages</Typography>
+                                            <Typography variant="body2" color="textSecondary">Messages from Contact Us</Typography>
                                         </Box>
                                     }
                                     sx={{ 
@@ -74,30 +73,11 @@ const AccountSettings = () => {
                                         backgroundColor: tabValue === 0 ? '#e0f7fa' : 'inherit'
                                     }} 
                                 />
-                                {/* <Tab
-                                    icon={<ReceiptIcon />}
-                                    iconPosition="start"
-                                    label={
-                                        <Box sx={{ textAlign: 'left', textTransform: 'none' }}>
-                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Billing & Invoices</Typography>
-                                            <Typography variant="body2" color="textSecondary">View your billing history</Typography>
-                                        </Box>
-                                    }
-                                    sx={{ 
-                                        textTransform: 'none',
-                                        alignItems: 'flex-start',
-                                        justifyContent: 'flex-start',
-                                        backgroundColor: tabValue === 1 ? '#e0f7fa' : 'inherit'
-                                    }} 
-                                /> */}
                             </Tabs>
                             <Box sx={{ flexGrow: 1, p: 0 }}>
                                 <TabPanel value={tabValue} index={0}>
-                                    <UserProfile /> {/* Render the UserProfile component */}
+                                    <ContactUsMessageList />
                                 </TabPanel>
-                                {/* <TabPanel value={tabValue} index={1}>
-                                    <Typography variant="body1">"IN PROGRESS, COMING SOON"</Typography>
-                                </TabPanel> */}
                             </Box>
                         </Box>
                     </Box>
@@ -107,4 +87,4 @@ const AccountSettings = () => {
     );
 };
 
-export default AccountSettings;
+export default AdminFunctions;

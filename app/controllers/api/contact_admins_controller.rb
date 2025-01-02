@@ -30,6 +30,36 @@ class Api::ContactAdminsController < ApplicationController
           render json: @contact_admin.errors, status: :unprocessable_entity
         end
     end
+
+    # PUT /api/contact_admins/mark_as_read
+    def mark_as_read
+        ContactAdmin.where(id: params[:ids]).update_all(is_read: true)
+        head :no_content
+    end
+
+    # PUT /api/contact_admins/mark_as_unread
+    def mark_as_unread
+        ContactAdmin.where(id: params[:ids]).update_all(is_read: false)
+        head :no_content
+    end
+
+    # PUT /api/contact_admins/mark_as_replied
+    def mark_as_replied
+        ContactAdmin.where(id: params[:ids]).update_all(is_replied: true)
+        head :no_content
+    end
+
+     # PUT /api/contact_admins/mark_as_notreplied
+     def mark_as_notreplied
+        ContactAdmin.where(id: params[:ids]).update_all(is_replied: false)
+        head :no_content
+    end
+
+    # DELETE /api/contact_admins
+    def bulk_destroy
+        ContactAdmin.where(id: params[:ids]).destroy_all
+        head :no_content
+    end
   
     # DELETE /api/contact_admins/:id
     def destroy
