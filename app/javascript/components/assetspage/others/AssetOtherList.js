@@ -56,7 +56,7 @@ const AssetOtherList = forwardRef((props, ref) => {
     const [action, setAction] = useState(''); // State for action
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for Delete Dialog
     const [otherToDelete, setOtherToDelete] = useState(null); // State for other to delete
-    const [sortingModel, setSortingModel] = useState([{ field: 'other_name', sort: 'asc' }]); // Initialize with default sorting
+    const [sortingModel, setSortingModel] = useState([{ field: 'asset_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastOthers, setIncludePastOthers] = useState(false); // State for switch to include past others
 
@@ -247,7 +247,7 @@ const AssetOtherList = forwardRef((props, ref) => {
                 width="100%"
                 rows={others}
                 columns={columns}
-                sortingModel={sortingModel} // Add sorting model prop
+                sortModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {

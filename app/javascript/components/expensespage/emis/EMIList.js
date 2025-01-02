@@ -163,7 +163,7 @@ const EMIList = forwardRef((props, ref) => {
     });
     const [emisFetched, setEMIsFetched] = useState(false); // State to track if emis are fetched
     const theme = useTheme();
-    const [sortingModel, setSortingModel] = useState([{ field: 'emi_name', sort: 'asc' }]); // Initialize with default sorting
+    const [sortingModel, setSortingModel] = useState([{ field: 'name', sort: 'asc' }]); // Initialize with default sorting
 
     useEffect(() => {
         const propertyEMIs = fetchPropertyEMIs(propertiesList, showDreams);
@@ -238,7 +238,7 @@ const EMIList = forwardRef((props, ref) => {
                 width="100%"
                 rows={emis}
                 columns={columns}
-                sortingModel={sortingModel} // Add sorting model prop
+                sortModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {

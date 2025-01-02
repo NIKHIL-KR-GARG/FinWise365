@@ -93,7 +93,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
     });
     const [mortgageandloansFetched, setMortgageAndLoansFetched] = useState(false); // State to track if mortgageandloans are fetched
     const theme = useTheme();
-    const [sortingModel, setSortingModel] = useState([{ field: 'mortgageandloan_name', sort: 'asc' }]); // Initialize with default sorting
+    const [sortingModel, setSortingModel] = useState([{ field: 'name', sort: 'asc' }]); // Initialize with default sorting
 
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
@@ -195,7 +195,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
                 width="100%"
                 rows={mortgageandloans}
                 columns={columns}
-                sortingModel={sortingModel} // Add sorting model prop
+                sortModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {

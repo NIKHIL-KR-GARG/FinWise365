@@ -59,7 +59,7 @@ const TaxList = forwardRef((props, ref) => {
     });
     const [taxesFetched, setTaxesFetched] = useState(false); // State to track if taxes are fetched
     const theme = useTheme();
-    const [sortingModel, setSortingModel] = useState([{ field: 'tax_name', sort: 'asc' }]); // Initialize with default sorting
+    const [sortingModel, setSortingModel] = useState([{ field: 'name', sort: 'asc' }]); // Initialize with default sorting
 
     useEffect(() => {
         const propertyTax = fetchTaxes(assetPropertiesList);
@@ -126,7 +126,7 @@ const TaxList = forwardRef((props, ref) => {
                 width="100%"
                 rows={taxes}
                 columns={columns}
-                sortingModel={sortingModel} // Add sorting model prop
+                sortModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {

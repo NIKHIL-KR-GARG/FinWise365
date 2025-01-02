@@ -169,7 +169,7 @@ const SIPList = forwardRef((props, ref) => {
     });
     const [sipsFetched, setSIPsFetched] = useState(false); // State to track if sips are fetched
     const theme = useTheme();
-    const [sortingModel, setSortingModel] = useState([{ field: 'sip_name', sort: 'asc' }]); // Initialize with default sorting
+    const [sortingModel, setSortingModel] = useState([{ field: 'name', sort: 'asc' }]); // Initialize with default sorting
 
     useEffect(() => {
         const depositSIPs = fetchDepositSIPs(depositsList, showDreams);
@@ -238,7 +238,7 @@ const SIPList = forwardRef((props, ref) => {
                 width="100%"
                 rows={sips}
                 columns={columns}
-                sortingModel={sortingModel} // Add sorting model prop
+                sortModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {

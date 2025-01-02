@@ -42,7 +42,7 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
     const [action, setAction] = useState(''); // State for action
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State for Delete Dialog
     const [personalLoanToDelete, setPersonalLoanToDelete] = useState(null); // State for personalloan to delete
-    const [sortingModel, setSortingModel] = useState([{ field: 'card_name', sort: 'asc' }]); // Initialize with default sorting
+    const [sortingModel, setSortingModel] = useState([{ field: 'loan_name', sort: 'asc' }]); // Initialize with default sorting
 
     const [includePastPersonalLoans, setIncludePastPersonalLoans] = useState(false); // State for switch
 
@@ -231,7 +231,7 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
                 width="100%"
                 rows={personalloans}
                 columns={columns}
-                sortingModel={sortingModel} // Add sorting model prop
+                sortModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {

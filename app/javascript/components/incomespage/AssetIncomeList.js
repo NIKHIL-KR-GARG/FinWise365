@@ -239,7 +239,7 @@ const AssetIncomeList = forwardRef((props, ref) => {
                 width="100%"
                 rows={incomes}
                 columns={columns}
-                sortingModel={sortingModel} // Add sorting model prop
+                sortModel={sortingModel} // Add sorting model prop
                 onSortModelChange={(model) => setSortingModel(model)} // Update sorting model on change
                 initialState={{
                     pagination: {
