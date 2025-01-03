@@ -22,7 +22,8 @@ export const filterIncomes = (listAction, incomesList, includePastIncomes) => {
     } else if (listAction === 'Dream' && includePastIncomes) {
         filteredIncomes = incomesList.filter(income => income.is_dream);
     } else if (listAction === 'Dream' && !includePastIncomes) {
-        filteredIncomes = incomesList.filter(income => income.is_dream && (new Date(income.start_date) > today));
+        // filteredIncomes = incomesList.filter(income => income.is_dream && (new Date(income.start_date) > today));
+        filteredIncomes = incomesList.filter(income => income.is_dream);
     } else
         filteredIncomes = incomesList;
 

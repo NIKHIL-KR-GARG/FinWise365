@@ -287,7 +287,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                         <TextField
                             type="date"
                             variant="standard"
-                            label="Start Date"
+                            label="Income (Start) Date"
                             name="start_date"
                             value={income.start_date}
                             onChange={handleChange}
@@ -298,21 +298,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                             helperText={errors.start_date}
                         />
                     </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                            type="date"
-                            variant="standard"
-                            label="End Date"
-                            name="end_date"
-                            value={income.end_date}
-                            onChange={handleChange}
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                            error={!!errors.end_date}
-                            helperText={errors.end_date}
-                        />
-                    </Grid>
-                    <Grid item size={6}>
+                    <Grid item size={12}>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -321,6 +307,20 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                                     name="is_recurring"
                                 />}
                             label="Recurring Income?"
+                        />
+                    </Grid>
+                    <Grid item size={6}>
+                        <TextField
+                            type="date"
+                            variant="standard"
+                            label="Income End Date"
+                            name="end_date"
+                            value={income.end_date}
+                            onChange={handleChange}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            error={!!errors.end_date}
+                            helperText={errors.end_date}
                         />
                     </Grid>
                     <Grid item size={6}>
