@@ -17,6 +17,7 @@ import ContactUs from './pages/ContactUs/ContactUs';
 import HelpCentre from './pages/HelpCentre/HelpCentre';
 import ComingSoon from './pages/ComingSoon/ComingSoon';
 import AdminFunctions from './pages/AdminFunctions/AdminFunctions';
+import Simulations from './pages/Simulations/Simulations';
 
 const App = () => {
 
@@ -37,6 +38,7 @@ const App = () => {
         <Route path='/helpcentre' element={<HelpCentre />} />
         <Route path='/comingsoon' element={<ComingSoon />} />
         <Route path='/adminfunctions' element={<AuthenticationGuard component={AdminFunctions} />} />
+        <Route path='/simulations' element={<AuthenticationGuard component={Simulations} />} />
       </Routes>
     </>
   );

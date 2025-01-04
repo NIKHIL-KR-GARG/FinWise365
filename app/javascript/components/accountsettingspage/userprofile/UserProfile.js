@@ -73,6 +73,7 @@ const UserProfile = () => {
                     localStorage.setItem('currentUserIsPermanentResident', appuser.is_permanent_resident);
                     localStorage.setItem('currentUserIsAdmin', appuser.is_admin);
                     localStorage.setItem('currentUserDisplayDummyData', appuser.is_display_dummy_data || true);
+                    localStorage.setItem('currentUserRetirementAge', appuser.retirement_age);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -150,6 +151,7 @@ const UserProfile = () => {
                 localStorage.setItem('currentUserCountryOfResidence', user.country_of_residence);
                 localStorage.setItem('currentUserIsPermanentResident', user.is_permanent_resident);
                 localStorage.setItem('currentUserIsAdmin', user.is_admin);
+                localStorage.setItem('currentUserRetirementAge', user.retirement_age);
 
             } catch (error) {
                 console.error('Error updating user data:', error);

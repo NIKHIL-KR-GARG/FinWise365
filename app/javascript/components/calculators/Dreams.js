@@ -55,12 +55,21 @@ export const educationDreamExpense = (education, date, baseCurrency) => {
         if (education.end_date < date && !isSameMonthAndYear(new Date(education.end_date), date)) return 0;
         if (education.is_funded_by_loan) return 0;
         if ((education.dream_date > date && !isSameMonthAndYear(new Date(education.dream_date), date)) ||
-            (education.end_date < date && !isSameMonthAndYear(new Date(education.end_date), date))) return 0;
+            (education.is_recurring && education.end_date < date && !isSameMonthAndYear(new Date(education.end_date), date))) return 0;
 
-        educationDreamExpense = parseFloat(education.amount);
         const fromCurrency = education.currency;
         const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
         const conversionRate = exchangeRate ? exchangeRate.value : 1;
+
+        if (!education.is_recurring && isSameMonthAndYear(new Date(education.dream_date), date)) {
+            educationDreamExpense = parseFloat(education.amount);
+        }
+        else {
+            if (isSIPMonth(new Date(education.dream_date), new Date(date), education.recurring_frequency)) {
+                educationDreamExpense = parseFloat(education.recurring_amount);
+            }
+        }
+        
         educationDreamExpense = educationDreamExpense * conversionRate;
     }
     return educationDreamExpense;
@@ -72,14 +81,23 @@ export const travelDreamExpense = (travel, date, baseCurrency) => {
         // check that it is not in the past
         if (travel.dream_date < date && !isSameMonthAndYear(new Date(travel.dream_date), date)) return 0;
         if (travel.is_funded_by_loan) return 0;
-        // if (travel.dream_date > date && !isSameMonthAndYear(new Date(travel.dream_date), date)) return 0;
-        if (isSameMonthAndYear(new Date(travel.dream_date), date)) {
+        if ((travel.dream_date > date && !isSameMonthAndYear(new Date(travel.dream_date), date)) ||
+            (travel.is_recurring && travel.end_date < date && !isSameMonthAndYear(new Date(travel.end_date), date))) return 0;
+
+        const fromCurrency = travel.currency;
+        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
+        const conversionRate = exchangeRate ? exchangeRate.value : 1;
+
+        if (!travel.is_recurring && isSameMonthAndYear(new Date(travel.dream_date), date)) {
             travelDreamExpense = parseFloat(travel.amount);
-            const fromCurrency = travel.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            travelDreamExpense = travelDreamExpense * conversionRate;
         }
+        else {
+            if (isSIPMonth(new Date(travel.dream_date), new Date(date), travel.recurring_frequency)) {
+                travelDreamExpense = parseFloat(travel.recurring_amount);
+            }
+        }
+
+        travelDreamExpense = travelDreamExpense * conversionRate;
     }
     return travelDreamExpense;
 }
@@ -90,14 +108,23 @@ export const relocationDreamExpense = (relocation, date, baseCurrency) => {
         // check that it is not in the past
         if (relocation.dream_date < date && !isSameMonthAndYear(new Date(relocation.dream_date), date)) return 0;
         if (relocation.is_funded_by_loan) return 0;
-        // if (relocation.dream_date > date && !isSameMonthAndYear(new Date(relocation.dream_date), date)) return 0;
-        if (isSameMonthAndYear(new Date(relocation.dream_date), date)) {
+        if ((relocation.dream_date > date && !isSameMonthAndYear(new Date(relocation.dream_date), date)) ||
+            (relocation.is_recurring && relocation.end_date < date && !isSameMonthAndYear(new Date(relocation.end_date), date))) return 0;
+
+        const fromCurrency = relocation.currency;
+        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
+        const conversionRate = exchangeRate ? exchangeRate.value : 1;
+
+        if (!relocation.is_recurring && isSameMonthAndYear(new Date(relocation.dream_date), date)) {
             relocationDreamExpense = parseFloat(relocation.amount);
-            const fromCurrency = relocation.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            relocationDreamExpense = relocationDreamExpense * conversionRate;
         }
+        else {
+            if (isSIPMonth(new Date(relocation.dream_date), new Date(date), relocation.recurring_frequency)) {
+                relocationDreamExpense = parseFloat(relocation.recurring_amount);
+            }
+        }
+
+        relocationDreamExpense = relocationDreamExpense * conversionRate;
     }
     return relocationDreamExpense;
 }
@@ -108,14 +135,23 @@ export const otherDreamExpense = (other, date, baseCurrency) => {
         // check that it is not in the past
         if (other.dream_date < date && !isSameMonthAndYear(new Date(other.dream_date), date)) return 0;
         if (other.is_funded_by_loan) return 0;
-        // if (other.dream_date > date && !isSameMonthAndYear(new Date(other.dream_date), date)) return 0;
-        if (isSameMonthAndYear(new Date(other.dream_date), date)) {
+        if ((other.dream_date > date && !isSameMonthAndYear(new Date(other.dream_date), date)) ||
+            (other.is_recurring && other.end_date < date && !isSameMonthAndYear(new Date(other.end_date), date))) return 0;
+
+        const fromCurrency = other.currency;
+        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
+        const conversionRate = exchangeRate ? exchangeRate.value : 1;
+
+        if (!other.is_recurring && isSameMonthAndYear(new Date(other.dream_date), date)) {
             otherDreamExpense = parseFloat(other.amount);
-            const fromCurrency = other.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            otherDreamExpense = otherDreamExpense * conversionRate;
         }
+        else {
+            if (isSIPMonth(new Date(other.dream_date), new Date(date), other.recurring_frequency)) {
+                otherDreamExpense = parseFloat(other.recurring_amount);
+            }
+        }
+
+        otherDreamExpense = otherDreamExpense * conversionRate;
     }
     return otherDreamExpense;
 }

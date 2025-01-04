@@ -6,20 +6,22 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import StarIcon from '@mui/icons-material/Star';
-import SecurityIcon from '@mui/icons-material/Security';
+// import SecurityIcon from '@mui/icons-material/Security';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import EventIcon from '@mui/icons-material/Event';
+// import AssessmentIcon from '@mui/icons-material/Assessment';
+// import EventIcon from '@mui/icons-material/Event';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import BarChartIcon from '@mui/icons-material/BarChart';
-import TimelineIcon from '@mui/icons-material/Timeline';
+// import TimelineIcon from '@mui/icons-material/Timeline';
 import HomeIcon from '@mui/icons-material/Home';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import InsightsIcon from '@mui/icons-material/Insights';
+import SimulationIcon from '@mui/icons-material/Science';
 import { useAuth0 } from "@auth0/auth0-react";
 
 const drawerWidth = 240;
@@ -29,7 +31,8 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
     
     const [portfolioOpen, setPortfolioOpen] = useState(false);
     const [analyzeOpen, setAnalyzeOpen] = useState(false);
-    const [planOpen, setPlanOpen] = useState(false);
+    const [insightsOpen, setInsightsOpen] = useState(false);
+    // const [planOpen, setPlanOpen] = useState(false);
 
     const { logout } = useAuth0();
 
@@ -41,9 +44,13 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
         setAnalyzeOpen(!analyzeOpen);
     };
 
-    const handlePlanClick = () => {
-        setPlanOpen(!planOpen);
+   const handleInsightsClick = () => {
+        setInsightsOpen(!insightsOpen);
     };
+
+    // const handlePlanClick = () => {
+    //     setPlanOpen(!planOpen);
+    // };
 
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
     const currentUserLastName = localStorage.getItem('currentUserLastName');
@@ -157,6 +164,29 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulate</Typography>} />}
                         </ListItem> */}
+                    </List>
+                </Collapse>
+                <ListItem button onClick={handleInsightsClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                    <ListItemIcon>
+                        <InsightsIcon fontSize="small" />
+                    </ListItemIcon>
+                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Insights</Typography>} />}
+                    {insightsOpen ? <ExpandLess /> : <ExpandMore />}
+                </ListItem>
+                <Collapse in={insightsOpen} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        {/* <ListItem component={Link} to="/analysis" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                            <ListItemIcon>
+                                <InsightsIcon fontSize="small" />
+                            </ListItemIcon>
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Analysis</Typography>} />}
+                        </ListItem> */}
+                        <ListItem component={Link} to="/simulations" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                            <ListItemIcon>
+                                <SimulationIcon fontSize="small" />
+                            </ListItemIcon>
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulations</Typography>} />}
+                        </ListItem>
                     </List>
                 </Collapse>
                 {/* <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>

@@ -35,7 +35,7 @@ const LoginCallback = () => {
 
                     const { id, first_name, last_name, date_of_birth, base_currency, life_expectancy, 
                         nationality, country_of_residence, is_permanent_resident, 
-                        is_display_dummy_data, is_admin } = response.data;
+                        is_display_dummy_data, is_admin, retirement_age } = response.data;
                         
                     localStorage.setItem('currentUserId', id);
                     localStorage.setItem('currentUserFirstName', first_name || '');
@@ -49,6 +49,7 @@ const LoginCallback = () => {
                     localStorage.setItem('currentUserIsPermanentResident', is_permanent_resident);
                     localStorage.setItem('currentUserDisplayDummyData', is_display_dummy_data || true);
                     localStorage.setItem('currentUserIsAdmin', is_admin || false);
+                    localStorage.setItem('currentUserRetirementAge', retirement_age || 65);
  
                     // Redirect to the home page after successful login
                     navigate('/home');
