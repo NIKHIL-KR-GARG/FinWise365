@@ -4,6 +4,7 @@ import CelebrationIcon from '@mui/icons-material/Celebration';
 import StarIcon from '@mui/icons-material/Star';
 import { FormatCurrency } from '../common/FormatCurrency';
 import '../common/GridHeader.css';
+import { formatMonthYear } from '../common/DateFunctions';
 
 const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
 
@@ -120,19 +121,6 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                         net_worth_max_year = netCashflows[i].year;
                     }
 
-                    // liquid_asset_min = roundToTwo(Math.min(liquid_asset_min, netCashflows[i].liquid_assets));
-                    // liquid_asset_min_year = netCashflows[i].year;
-                    // liquid_asset_max = roundToTwo(Math.max(liquid_asset_max, netCashflows[i].liquid_assets));
-                    // liquid_asset_max_year = netCashflows[i].year;
-                    // fixed_asset_min = roundToTwo(Math.min(fixed_asset_min, netCashflows[i].locked_assets));
-                    // fixed_asset_min_year = netCashflows[i].year;
-                    // fixed_asset_max = roundToTwo(Math.max(fixed_asset_max, netCashflows[i].locked_assets));
-                    // fixed_asset_max_year = netCashflows[i].year;
-                    // net_worth_min = roundToTwo(Math.min(net_worth_min, netCashflows[i].net_worth));
-                    // net_worth_min_year = netCashflows[i].year;
-                    // net_worth_max = roundToTwo(Math.max(net_worth_max, netCashflows[i].net_worth));
-                    // net_worth_max_year = netCashflows[i].year;
-
                     const year = netCashflows[i].year;
                     const lastYearCashFlow = netCashflows.find(
                         (cashflow) =>
@@ -169,7 +157,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
             }
             acc[year].income += curr.income;
             acc[year].expense += curr.expense;
-            acc[year].net_position = curr.net_position;
+            acc[year].net_position += curr.net_position;
             return acc;
         }, {});
 
@@ -233,13 +221,13 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
 
         if (newDateIsHigher) {
             if (isSingleIncome)
-                key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of your income: ' + incomes[0].income_name + ' to a later date: ' + incomes[0].updated_end_date + '.';
+                key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of your income: "' + incomes[0].income_name + '" to a later date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
             else
                 key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of one or more incomes. See below table for the suggested changes.';
         }
         else {
             if (isSingleIncome)
-                key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: ' + incomes[0].income_name + ' to an earlier date: ' + incomes[0].updated_end_date + '.';
+                key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: "' + incomes[0].income_name + '" to an earlier date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
             else 
                 key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your incomes. See below table for the suggested changes.';
         }
@@ -285,15 +273,15 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
     }, []);
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left', mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'left', mb: 2, color: 'purple' }}>
-                <CelebrationIcon sx={{ mr: 1, color: 'purple' }} /> {/* Replace HomeIcon with CelebrationIcon */}
+                <CelebrationIcon sx={{ mr: 1, color: 'purple' }} />
                 We have run your simulation. Here are the results.
             </Typography>
             <Typography variant="h6" component="h2" gutterBottom>
                 Key Analysis and Insights
             </Typography>
-            <Typography variant="body1" gutterBottom sx={{ fontWeight: 'bold', color: 'blue' }}>
+            <Typography variant="body1" gutterBottom sx={{ fontWeight: 'bold', color: 'blue', textAlign: 'center' }}>
                 {commentary.key_message}
             </Typography>
             <List dense>
@@ -530,9 +518,9 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                                 <TableCell>{income.location}</TableCell>
                                 <TableCell>{income.currency}</TableCell>
                                 <TableCell>{FormatCurrency(currentUserBaseCurrency, income.amount)}</TableCell>
-                                <TableCell>{new Date(income.start_date).toLocaleDateString()}</TableCell>
-                                <TableCell>{new Date(income.end_date).toLocaleDateString()}</TableCell>
-                                <TableCell>{new Date(income.updated_end_date).toLocaleDateString()}</TableCell>
+                                <TableCell>{formatMonthYear(new Date(income.start_date))}</TableCell>
+                                <TableCell>{formatMonthYear(new Date(income.end_date))}</TableCell>
+                                <TableCell>{formatMonthYear(new Date(income.updated_end_date))}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
