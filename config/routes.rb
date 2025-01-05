@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   get 'dreams', to: 'site#index'
   get 'cashflows', to: 'site#index'
   get 'cashflowcomparison', to: 'site#index'
-   get 'simulations', to: 'site#index'
+  get 'simulations', to: 'site#index'
   get 'contactus', to: 'site#index'
   get 'helpcentre', to: 'site#index'
   get 'comingsoon', to: 'site#index'

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Typography, Tabs, Tab, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Accordion, AccordionSummary, AccordionDetails, Link } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LandingHeader from '../../components/landingpage/LandingHeader';
-import { Link } from 'react-router-dom';
 import LandingSectionVideos from '../../components/landingpage/LandingSectionVideos';
 
 const HelpCentre = () => {
@@ -43,7 +42,10 @@ const HelpCentre = () => {
                 Please browse our help centre for answers to common questions. 
                 </Typography>
                 <Typography variant="h6" component="div" align="center" sx={{ mt: 0, fontSize: '1rem', fontStyle: 'italic' }}>
-                If you can't find what you're looking for, please <Link to="/contactus">contact us</Link>.
+                    If you can't find what you're looking for, please&nbsp;
+                    <Link underline="hover" color="primary" href="/contactus" sx={{ fontStyle: 'italic', textDecoration: 'underline' }}>
+                        send us a message
+                    </Link> .
                 </Typography>
             </Box>
             <Tabs 

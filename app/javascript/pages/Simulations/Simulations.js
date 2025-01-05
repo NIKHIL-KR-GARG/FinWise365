@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import Grid from '@mui/material/Grid2';
-import { Box, Link, Typography, Breadcrumbs, Divider, CircularProgress, Accordion, AccordionSummary, AccordionDetails, Button } from '@mui/material';
+import { Box, Link, Typography, Breadcrumbs, Divider, Accordion, AccordionSummary, AccordionDetails, Button } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -10,23 +10,27 @@ import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
 
 import Simulate_WhenToRetire from '../../components/simulationspage/Simulate_WhenToRetire';
+import Simulate_ReduceIncome from '../../components/simulationspage/Simulate_ReduceIncome';
 
 const Simulations = () => {
 
     const [open, setOpen] = useState(true);
     const [expanded, setExpanded] = useState(false);
-    const [showSimulation, setShowSimulation] = useState(false);
+
+    const [showSimulate_WhenToRetire, setSimulate_WhenToRetire] = useState(false);
+    const [showSimulate_ReduceIncome, setSimulate_ReduceIncome] = useState(false);
 
     const handleAccordionChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
     };
 
-    const handleShowSimulation = () => {
-        setShowSimulation(true);
+    const handleSimulate_WhenToRetire = () => {
+        setSimulate_WhenToRetire(true);
     };
 
-    // const currentUserId = localStorage.getItem('currentUserId');
-    // const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    const handleSimulate_ReduceIncome = () => {
+        setSimulate_ReduceIncome(true);
+    };
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -71,7 +75,14 @@ const Simulations = () => {
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'left', pb: 2 }}>
                             <Typography variant="body1" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'left' }}>
-                                    What would you like to simulate today? Pick a simulation type below.
+                                    What Insights would you like today? Please pick a question below.
+                                </Box>
+                                <Box sx={{ display: 'flex', alignItems: 'left' }}>
+                                    &nbsp;(if you have any other question in mind, please&nbsp;
+                                    <Link underline="hover" color="primary" href="/contactus" sx={{ fontStyle: 'italic', textDecoration: 'underline' }}> 
+                                        send us a message
+                                    </Link> 
+                                    &nbsp;and we will try to add it here)
                                 </Box>
                             </Typography>
                         </Box>
@@ -85,10 +96,10 @@ const Simulations = () => {
                                                 <Button
                                                     variant="contained"
                                                     color="secondary"
-                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} // Adjust the font size here
-                                                    onClick={handleShowSimulation}
+                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} 
+                                                    onClick={handleSimulate_WhenToRetire}
                                                 >
-                                                    Show me the Simulation
+                                                    Show me the Insights
                                                 </Button>
                                             }
                                         </AccordionSummary>
@@ -108,9 +119,9 @@ const Simulations = () => {
                                                     disabled
                                                     variant="contained"
                                                     color="secondary"
-                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} // Adjust the font size here
+                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} 
                                                 >
-                                                    Show me the Simulation
+                                                    Show me the Insights
                                                 </Button>
                                             }
                                         </AccordionSummary>
@@ -127,18 +138,18 @@ const Simulations = () => {
                                             <Typography variant="body1" sx={{ fontStyle: 'italic' }}>Can I reduce my current income?</Typography>
                                             {expanded === 'panel3' &&
                                                 <Button
-                                                    disabled
                                                     variant="contained"
                                                     color="secondary"
-                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} // Adjust the font size here
+                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} 
+                                                    onClick={handleSimulate_ReduceIncome}
                                                 >
-                                                    Show me the Simulation
+                                                    Show me the Insights
                                                 </Button>
                                             }
                                         </AccordionSummary>
                                         <AccordionDetails>
                                             <Typography>
-                                                Can I reduce my current income and still achieve my financial goals? If yes, by how much can I reduce my income and from when?
+                                                Can I reduce my current income and still achieve my financial goals? If yes, by how much can I reduce my income or do i need to increase it?
                                             </Typography>
                                         </AccordionDetails>
                                     </Accordion>
@@ -152,9 +163,9 @@ const Simulations = () => {
                                                     disabled
                                                     variant="contained"
                                                     color="secondary"
-                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} // Adjust the font size here
+                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} 
                                                 >
-                                                    Show me the Simulation
+                                                    Show me the Insights
                                                 </Button>
                                             }
                                         </AccordionSummary>
@@ -174,7 +185,7 @@ const Simulations = () => {
                                                     disabled
                                                     variant="contained"
                                                     color="secondary"
-                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} // Adjust the font size here
+                                                    sx={{ ml: 'auto', fontSize: '0.75rem' }} 
                                                 >
                                                     Show me the Simulation
                                                 </Button>
@@ -190,7 +201,8 @@ const Simulations = () => {
                             </Grid>
                         </Box>
                         <Divider sx={{ my: 2 }} />
-                        {showSimulation && <Simulate_WhenToRetire />}
+                        {showSimulate_WhenToRetire && <Simulate_WhenToRetire />}
+                        {showSimulate_ReduceIncome && <Simulate_ReduceIncome />}
                     </Box>
                 </Box>
             </Box>

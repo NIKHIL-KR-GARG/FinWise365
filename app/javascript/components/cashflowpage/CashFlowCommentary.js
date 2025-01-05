@@ -209,27 +209,59 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
 
         // loop through the incomes and see if the new end dates are lower or higher than the original end dates
         let newDateIsHigher = false;
+        let newAmountIsHigher = false;
+        let newAmountIsLower = false;
         let isSingleIncome = incomes.length === 1? true: false;
-        if (!isSingleIncome) {
-            for (let i = 0; i < incomes.length; i++) {
-                if (new Date(incomes[i].updated_end_date) > new Date(incomes[i].end_date)) {
-                    newDateIsHigher = true;
-                    break;
+
+        if (sourcePage === "Simulate_WhenToRetire") {
+
+            if (!isSingleIncome) {
+                for (let i = 0; i < incomes.length; i++) {
+                    if (new Date(incomes[i].updated_end_date) > new Date(incomes[i].end_date)) {
+                        newDateIsHigher = true;
+                        break;
+                    }
                 }
             }
+            if (newDateIsHigher) {
+                if (isSingleIncome)
+                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of your income: "' + incomes[0].income_name + '" to a later date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
+                else
+                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of one or more incomes. See below table for the suggested changes.';
+            }
+            else {
+                if (isSingleIncome)
+                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: "' + incomes[0].income_name + '" to an earlier date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
+                else
+                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your incomes. See below table for the suggested changes.';
+            }
         }
+        else if (sourcePage === "Simulate_ReduceIncome") {
 
-        if (newDateIsHigher) {
-            if (isSingleIncome)
-                key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of your income: "' + incomes[0].income_name + '" to a later date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
-            else
-                key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of one or more incomes. See below table for the suggested changes.';
-        }
-        else {
-            if (isSingleIncome)
-                key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: "' + incomes[0].income_name + '" to an earlier date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
-            else 
-                key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your incomes. See below table for the suggested changes.';
+            for (let i = 0; i < incomes.length; i++) {
+                if (incomes[i].updated_amount > incomes[i].original_amount) {
+                    newAmountIsHigher = true;
+                }
+                else if (incomes[i].updated_amount < incomes[i].original_amount) {
+                    newAmountIsLower = true;
+                }
+            }
+
+            if (newAmountIsHigher && newAmountIsLower) {
+                key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase one or more incomes. But one or more of your future income can be reduced while still meeting your financial goals. See below table for the suggested changes.';
+            }
+            else if (newAmountIsHigher) {
+                if (isSingleIncome)
+                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase your income: "' + incomes[0].income_name + '" to a higher amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
+                else
+                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase one or more incomes. See below table for the suggested changes.';
+            }
+            else {
+                if (isSingleIncome)
+                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce your income: "' + incomes[0].income_name + '" to a lower amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
+                else
+                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce one or more incomes. See below table for the suggested changes.';
+            }
         }
 
         // update the state
@@ -496,36 +528,72 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
             <Typography variant="h6" component="h2" gutterBottom sx={{ mt: 2 }}>
                 Required changes in Income 
             </Typography>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow className="header-theme">
-                            <TableCell style={{ color: 'white' }}>Income Name</TableCell>
-                            <TableCell style={{ color: 'white' }}>Income Type</TableCell>
-                            <TableCell style={{ color: 'white' }}>Location</TableCell>
-                            <TableCell style={{ color: 'white' }}>Currency</TableCell>
-                            <TableCell style={{ color: 'white' }}>Amount</TableCell>
-                            <TableCell style={{ color: 'white' }}>Start Date</TableCell>
-                            <TableCell style={{ color: 'white' }}>Original End Date</TableCell>
-                            <TableCell style={{ color: 'white' }}>New End Date</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {incomes.map((income) => (
-                            <TableRow key={income.id}>
-                                <TableCell>{income.income_name}</TableCell>
-                                <TableCell>{income.income_type}</TableCell>
-                                <TableCell>{income.location}</TableCell>
-                                <TableCell>{income.currency}</TableCell>
-                                <TableCell>{FormatCurrency(currentUserBaseCurrency, income.amount)}</TableCell>
-                                <TableCell>{formatMonthYear(new Date(income.start_date))}</TableCell>
-                                <TableCell>{formatMonthYear(new Date(income.end_date))}</TableCell>
-                                <TableCell>{formatMonthYear(new Date(income.updated_end_date))}</TableCell>
+            {sourcePage === "Simulate_WhenToRetire" && (
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow className="header-theme">
+                                <TableCell style={{ color: 'white' }}>Income Name</TableCell>
+                                <TableCell style={{ color: 'white' }}>Income Type</TableCell>
+                                <TableCell style={{ color: 'white' }}>Location</TableCell>
+                                <TableCell style={{ color: 'white' }}>Currency</TableCell>
+                                <TableCell style={{ color: 'white' }}>Amount</TableCell>
+                                <TableCell style={{ color: 'white' }}>Start Date</TableCell>
+                                <TableCell style={{ color: 'white' }}>Original End Date</TableCell>
+                                <TableCell style={{ color: 'white' }}>New End Date</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {incomes.map((income) => (
+                                <TableRow key={income.id}>
+                                    <TableCell>{income.income_name}</TableCell>
+                                    <TableCell>{income.income_type}</TableCell>
+                                    <TableCell>{income.location}</TableCell>
+                                    <TableCell>{income.currency}</TableCell>
+                                    <TableCell>{FormatCurrency(currentUserBaseCurrency, income.amount)}</TableCell>
+                                    <TableCell>{formatMonthYear(new Date(income.start_date))}</TableCell>
+                                    <TableCell>{formatMonthYear(new Date(income.end_date))}</TableCell>
+                                    <TableCell>{formatMonthYear(new Date(income.updated_end_date))}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
+            {sourcePage === "Simulate_ReduceIncome" && (
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow className="header-theme">
+                                <TableCell style={{ color: 'white' }}>Income Name</TableCell>
+                                <TableCell style={{ color: 'white' }}>Income Type</TableCell>
+                                <TableCell style={{ color: 'white' }}>Location</TableCell>
+                                <TableCell style={{ color: 'white' }}>Currency</TableCell>
+                                <TableCell style={{ color: 'white' }}>Start Date</TableCell>
+                                <TableCell style={{ color: 'white' }}>End Date</TableCell>
+                                <TableCell style={{ color: 'white' }}>Original Amount</TableCell>
+                                <TableCell style={{ color: 'white' }}>New Amount</TableCell>
+                                <TableCell style={{ color: 'white' }}>% Change</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {incomes.map((income) => (
+                                <TableRow key={income.id}>
+                                    <TableCell>{income.income_name}</TableCell>
+                                    <TableCell>{income.income_type}</TableCell>
+                                    <TableCell>{income.location}</TableCell>
+                                    <TableCell>{income.currency}</TableCell>
+                                    <TableCell>{formatMonthYear(new Date(income.start_date))}</TableCell>
+                                    <TableCell>{formatMonthYear(new Date(income.end_date))}</TableCell>
+                                    <TableCell>{FormatCurrency(currentUserBaseCurrency, income.original_amount)}</TableCell>
+                                    <TableCell>{FormatCurrency(currentUserBaseCurrency, income.updated_amount)}</TableCell>
+                                    <TableCell>{roundToTwo(income.percentageToApply)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
         </Box>
     );
 };
