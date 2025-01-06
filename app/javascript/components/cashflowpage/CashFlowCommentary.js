@@ -39,7 +39,8 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
         positive_jump_expense_year: 0,
         negative_jump_expense: 0,
         negative_jump_expense_year: 0,
-        key_message: ''
+        key_message: '',
+        top_message: ''
     });
 
     const roundToTwo = (num) => {
@@ -76,6 +77,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
         let negative_jump_expense = 0;
         let negative_jump_expense_year = 0;
         let key_message = '';
+        let top_message = '';
 
         let firstRow = true;
         for (let i = 0; i < netCashflows.length; i++) {
@@ -215,6 +217,8 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
 
         if (sourcePage === "Simulate_WhenToRetire") {
 
+            top_message = 'We have found an answer to your question - When can you retire? Here are the results';
+
             if (!isSingleIncome) {
                 for (let i = 0; i < incomes.length; i++) {
                     if (new Date(incomes[i].updated_end_date) > new Date(incomes[i].end_date)) {
@@ -237,6 +241,8 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
             }
         }
         else if (sourcePage === "Simulate_ReduceIncome") {
+
+            top_message = 'We have found an answer to your question - How much can you reduce your income? Here are the results';
 
             for (let i = 0; i < incomes.length; i++) {
                 if (incomes[i].updated_amount > incomes[i].original_amount) {
@@ -293,7 +299,8 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
             positive_jump_expense_year,
             negative_jump_expense,
             negative_jump_expense_year,
-            key_message
+            key_message,
+            top_message
         });
     };
 
@@ -308,7 +315,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left', mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'left', mb: 2, color: 'purple' }}>
                 <CelebrationIcon sx={{ mr: 1, color: 'purple' }} />
-                We have run your simulation. Here are the results.
+                    {commentary.top_message}
             </Typography>
             <Typography variant="h6" component="h2" gutterBottom>
                 Key Analysis and Insights

@@ -99,7 +99,7 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
         let netWorthForMonth = 0.0;
 
         // loop from current month to end month of life expectancy
-        for (let i = 1; i <= projectionMonths; i++) {
+        for (let i = 0; i < projectionMonths; i++) {
             // derive the month end date for the month and year
             const monthEndDate = getMonthEndDate(month, year);
 
@@ -597,10 +597,13 @@ const insertAssetCashflow = (assetsCashflow, asset_type, object, month, year, ag
     );
 
     // check if this asset has been sold or closed in the last month
-    // if yes, then add the sale/closure value i.e. last month's cashflow value to disposable income line
+    // if yes, then add the sale/closure value i.e. last month's cashflow value to disposable cash line
     if (!assetValue || assetValue === 0) {
         if (lastMonthCashflow && parseFloat(lastMonthCashflow.asset_value) > 0) {
-            updateDisposableCashflow(assetsCashflow, month, year, age, parseFloat(lastMonthCashflow.asset_value));
+            if (!(asset_type === 'Income' || asset_type === 'Rental Income' || asset_type === 'Coupon Income' ||
+                asset_type === 'Dividend Income' || asset_type === 'Payout Income' || asset_type === 'Lease Income')) {
+                updateDisposableCashflow(assetsCashflow, month, year, age, parseFloat(lastMonthCashflow.asset_value));
+            }
         }
     }
     return assetValue;

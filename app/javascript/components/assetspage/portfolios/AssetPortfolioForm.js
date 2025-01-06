@@ -328,7 +328,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                 )
                 //calculate the dividend as per the dividend rate. Dividend should be on the increased value of the portfolio
                 let currentPriceforDividend = parseFloat(portfolio.buying_value);
-                for (let i = 1; i <= months; i++) {
+                for (let i = 0; i < months; i++) {
                     if (portfolio.sip_frequency === 'Monthly') {
                         buyPrice += parseFloat(portfolio.sip_amount);
                         currentPriceforDividend += parseFloat(portfolio.sip_amount);
