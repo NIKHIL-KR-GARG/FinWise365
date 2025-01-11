@@ -96,7 +96,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         if (!home.location) errors.location = 'Location is required';
         if (!home.currency) errors.currency = 'Currency is required';
         if (!home.start_date) errors.start_date = 'Start Date is required';
-        if (!home.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
+        // if (!home.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
 
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(home.groceries)) errors.groceries = 'Groceries should be numeric';
@@ -193,9 +193,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
             + parseFloat(home.holidays)
             + parseFloat(home.rental)
             + parseFloat(home.alcohol)
-            + parseFloat(home.miscellaneous)
-            + parseFloat(home.rental)
-            + parseFloat(home.alcohol);
+            + parseFloat(home.miscellaneous);
 
         setHome({
             ...home,
@@ -359,7 +357,6 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.inflation_rate}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.inflation_rate}
                             helperText={errors.inflation_rate}

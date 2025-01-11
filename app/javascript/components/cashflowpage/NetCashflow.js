@@ -128,8 +128,8 @@ const NetCashflow = ({ netCashflowData }) => {
                                 {/* <Line type="monotone" dataKey="income" stroke="#1f77b4" strokeWidth={1} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="expense" stroke="#ff7f0e" strokeWidth={1} activeDot={{ r: 8 }} /> */}
                                 <Line type="monotone" dataKey="net_position" stroke="#2ca02c" strokeWidth={3} activeDot={{ r: 8 }} name="Net Position" />
-                                {/* <Line type="monotone" dataKey="liquid_assets" stroke="#d62728" strokeWidth={1} activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="locked_assets" stroke="#9467bd" strokeWidth={1} activeDot={{ r: 8 }} /> */}
+                                <Line type="monotone" dataKey="liquid_assets" stroke="#d62728" strokeWidth={3} activeDot={{ r: 8 }} name="Liquid Assets"/>
+                                {/* <Line type="monotone" dataKey="locked_assets" stroke="#9467bd" strokeWidth={1} activeDot={{ r: 8 }} /> */}
                                 <Line type="monotone" dataKey="net_worth" stroke="#8c564b" strokeWidth={3} activeDot={{ r: 8 }} name="Net Worth" />
                             </LineChart>
                         </ResponsiveContainer>

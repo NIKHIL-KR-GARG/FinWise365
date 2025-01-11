@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, List, ListItem, ListItemIcon, ListItemText, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import CelebrationIcon from '@mui/icons-material/Celebration'; 
+import CelebrationIcon from '@mui/icons-material/Celebration';
 import StarIcon from '@mui/icons-material/Star';
 import { FormatCurrency } from '../common/FormatCurrency';
 import '../common/GridHeader.css';
@@ -10,6 +10,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
 
     const hasFetchedData = useRef(false);
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const [showKeyInsights, setShowKeyInsights] = useState(true);
 
     const [commentary, setCommentary] = useState({
         liquid_asset_min: 0,
@@ -80,132 +81,134 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
         let top_message = '';
 
         let firstRow = true;
-        for (let i = 0; i < netCashflows.length; i++) {
-            const netCashFlow = netCashflows[i];
-            if (netCashFlow.month === 12) {
-                if (firstRow) {
-                    liquid_asset_min = roundToTwo(netCashflows[i].liquid_assets);
-                    liquid_asset_min_year = netCashflows[i].year;
-                    liquid_asset_max = roundToTwo(netCashflows[i].liquid_assets);
-                    liquid_asset_max_year = netCashflows[i].year;
-                    fixed_asset_min = roundToTwo(netCashflows[i].locked_assets);
-                    fixed_asset_min_year = netCashflows[i].year;
-                    fixed_asset_max = roundToTwo(netCashflows[i].locked_assets);
-                    fixed_asset_max_year = netCashflows[i].year;
-                    net_worth_min = roundToTwo(netCashflows[i].net_worth);
-                    net_worth_min_year = netCashflows[i].year;
-                    net_worth_max = roundToTwo(netCashflows[i].net_worth);
-                    net_worth_max_year = netCashflows[i].year;
-                    firstRow = false;
-                } else {
-                    if (netCashflows[i].liquid_assets < liquid_asset_min) {
+        if (incomes) {
+            for (let i = 0; i < netCashflows.length; i++) {
+                const netCashFlow = netCashflows[i];
+                if (netCashFlow.month === 12) {
+                    if (firstRow) {
                         liquid_asset_min = roundToTwo(netCashflows[i].liquid_assets);
                         liquid_asset_min_year = netCashflows[i].year;
-                    }
-                    if (netCashflows[i].liquid_assets > liquid_asset_max) {
                         liquid_asset_max = roundToTwo(netCashflows[i].liquid_assets);
                         liquid_asset_max_year = netCashflows[i].year;
-                    }
-                    if (netCashflows[i].locked_assets < fixed_asset_min) {
                         fixed_asset_min = roundToTwo(netCashflows[i].locked_assets);
                         fixed_asset_min_year = netCashflows[i].year;
-                    }
-                    if (netCashflows[i].locked_assets > fixed_asset_max) {
                         fixed_asset_max = roundToTwo(netCashflows[i].locked_assets);
                         fixed_asset_max_year = netCashflows[i].year;
-                    }
-                    if (netCashflows[i].net_worth < net_worth_min) {
                         net_worth_min = roundToTwo(netCashflows[i].net_worth);
                         net_worth_min_year = netCashflows[i].year;
-                    }
-                    if (netCashflows[i].net_worth > net_worth_max) {
                         net_worth_max = roundToTwo(netCashflows[i].net_worth);
                         net_worth_max_year = netCashflows[i].year;
-                    }
+                        firstRow = false;
+                    } else {
+                        if (netCashflows[i].liquid_assets < liquid_asset_min) {
+                            liquid_asset_min = roundToTwo(netCashflows[i].liquid_assets);
+                            liquid_asset_min_year = netCashflows[i].year;
+                        }
+                        if (netCashflows[i].liquid_assets > liquid_asset_max) {
+                            liquid_asset_max = roundToTwo(netCashflows[i].liquid_assets);
+                            liquid_asset_max_year = netCashflows[i].year;
+                        }
+                        if (netCashflows[i].locked_assets < fixed_asset_min) {
+                            fixed_asset_min = roundToTwo(netCashflows[i].locked_assets);
+                            fixed_asset_min_year = netCashflows[i].year;
+                        }
+                        if (netCashflows[i].locked_assets > fixed_asset_max) {
+                            fixed_asset_max = roundToTwo(netCashflows[i].locked_assets);
+                            fixed_asset_max_year = netCashflows[i].year;
+                        }
+                        if (netCashflows[i].net_worth < net_worth_min) {
+                            net_worth_min = roundToTwo(netCashflows[i].net_worth);
+                            net_worth_min_year = netCashflows[i].year;
+                        }
+                        if (netCashflows[i].net_worth > net_worth_max) {
+                            net_worth_max = roundToTwo(netCashflows[i].net_worth);
+                            net_worth_max_year = netCashflows[i].year;
+                        }
 
-                    const year = netCashflows[i].year;
-                    const lastYearCashFlow = netCashflows.find(
-                        (cashflow) =>
-                            cashflow.month === 12 &&
-                            cashflow.year === year - 1
-                    );      
+                        const year = netCashflows[i].year;
+                        const lastYearCashFlow = netCashflows.find(
+                            (cashflow) =>
+                                cashflow.month === 12 &&
+                                cashflow.year === year - 1
+                        );
 
-                    if (lastYearCashFlow) {
-                        if (netCashflows[i].liquid_assets > lastYearCashFlow.liquid_assets) {
-                            const positiveJump = roundToTwo(netCashflows[i].liquid_assets - lastYearCashFlow.liquid_assets);
-                            if (positiveJump > positive_jump_liquid_asset) {
-                                positive_jump_liquid_asset = positiveJump;
-                                positive_jump_liquid_asset_year = netCashflows[i].year;
+                        if (lastYearCashFlow) {
+                            if (netCashflows[i].liquid_assets > lastYearCashFlow.liquid_assets) {
+                                const positiveJump = roundToTwo(netCashflows[i].liquid_assets - lastYearCashFlow.liquid_assets);
+                                if (positiveJump > positive_jump_liquid_asset) {
+                                    positive_jump_liquid_asset = positiveJump;
+                                    positive_jump_liquid_asset_year = netCashflows[i].year;
+                                }
+                            }
+                            else if (netCashflows[i].liquid_assets < lastYearCashFlow.liquid_assets) {
+                                const negativeJump = roundToTwo(netCashflows[i].liquid_assets - lastYearCashFlow.liquid_assets);
+                                if (negativeJump < negative_jump_liquid_asset) {
+                                    negative_jump_liquid_asset = negativeJump;
+                                    negative_jump_liquid_asset_year = netCashflows[i].year;
+                                }
                             }
                         }
-                        else if (netCashflows[i].liquid_assets < lastYearCashFlow.liquid_assets) {
-                            const negativeJump = roundToTwo(netCashflows[i].liquid_assets - lastYearCashFlow.liquid_assets);
-                            if (negativeJump < negative_jump_liquid_asset) {
-                                negative_jump_liquid_asset = negativeJump;
-                                negative_jump_liquid_asset_year = netCashflows[i].year;
-                            }
-                        }
+                    }
+                    final_leftover = roundToTwo(netCashflows[i].liquid_assets);
+                }
+            }
+
+            // generate the yearly data to calculate the jumps for income, expenses & net_position
+            const yearlyData = netCashflows.reduce((acc, curr) => {
+                const year = curr.year;
+                if (!acc[year]) {
+                    acc[year] = { income: 0, expense: 0, net_position: 0 };
+                }
+                acc[year].income += curr.income;
+                acc[year].expense += curr.expense;
+                acc[year].net_position += curr.net_position;
+                return acc;
+            }, {});
+
+            const yearlyDataArray = Object.keys(yearlyData).map(year => ({
+                year: parseInt(year),
+                income: parseFloat(yearlyData[year].income),
+                expense: parseFloat(yearlyData[year].expense),
+                net_position: parseFloat(yearlyData[year].net_position),
+            }));
+
+            for (let i = 1; i < yearlyDataArray.length; i++) {
+                if (yearlyDataArray[i].income > yearlyDataArray[i - 1].income) {
+                    const positiveJump = roundToTwo(yearlyDataArray[i].income - yearlyDataArray[i - 1].income);
+                    if (positiveJump > positive_jump_income) {
+                        positive_jump_income = positiveJump;
+                        positive_jump_income_year = yearlyDataArray[i].year;
                     }
                 }
-                final_leftover = roundToTwo(netCashflows[i].liquid_assets);
-            }
-        }
-
-        // generate the yearly data to calculate the jumps for income, expenses & net_position
-        const yearlyData = netCashflows.reduce((acc, curr) => {
-            const year = curr.year;
-            if (!acc[year]) {
-                acc[year] = { income: 0, expense: 0, net_position: 0 };
-            }
-            acc[year].income += curr.income;
-            acc[year].expense += curr.expense;
-            acc[year].net_position += curr.net_position;
-            return acc;
-        }, {});
-
-        const yearlyDataArray = Object.keys(yearlyData).map(year => ({
-            year: parseInt(year),
-            income: parseFloat(yearlyData[year].income),
-            expense: parseFloat(yearlyData[year].expense),
-            net_position: parseFloat(yearlyData[year].net_position),
-        }));
-
-        for (let i = 1; i < yearlyDataArray.length; i++) {
-            if (yearlyDataArray[i].income > yearlyDataArray[i - 1].income) {
-                const positiveJump = roundToTwo(yearlyDataArray[i].income - yearlyDataArray[i - 1].income);
-                if (positiveJump > positive_jump_income) {
-                    positive_jump_income = positiveJump;
-                    positive_jump_income_year = yearlyDataArray[i].year;
+                else if (yearlyDataArray[i].income < yearlyDataArray[i - 1].income) {
+                    const negativeJump = roundToTwo(yearlyDataArray[i].income - yearlyDataArray[i - 1].income);
+                    if (negativeJump < negative_jump_income) {
+                        negative_jump_income = negativeJump;
+                        negative_jump_income_year = yearlyDataArray[i].year;
+                    }
                 }
-            }
-            else if (yearlyDataArray[i].income < yearlyDataArray[i - 1].income) {
-                const negativeJump = roundToTwo(yearlyDataArray[i].income - yearlyDataArray[i - 1].income);
-                if (negativeJump < negative_jump_income) {
-                    negative_jump_income = negativeJump;
-                    negative_jump_income_year = yearlyDataArray[i].year;
+
+                if (yearlyDataArray[i].expense > yearlyDataArray[i - 1].expense) {
+                    const positiveJump = roundToTwo(yearlyDataArray[i].expense - yearlyDataArray[i - 1].expense);
+                    if (positiveJump > positive_jump_expense) {
+                        positive_jump_expense = positiveJump;
+                        positive_jump_expense_year = yearlyDataArray[i].year;
+                    }
+                }
+                else if (yearlyDataArray[i].expense < yearlyDataArray[i - 1].expense) {
+                    const negativeJump = roundToTwo(yearlyDataArray[i].expense - yearlyDataArray[i - 1].expense);
+                    if (negativeJump < negative_jump_expense) {
+                        negative_jump_expense = negativeJump;
+                        negative_jump_expense_year = yearlyDataArray[i].year;
+                    }
                 }
             }
 
-            if (yearlyDataArray[i].expense > yearlyDataArray[i - 1].expense) {
-                const positiveJump = roundToTwo(yearlyDataArray[i].expense - yearlyDataArray[i - 1].expense);
-                if (positiveJump > positive_jump_expense) {
-                    positive_jump_expense = positiveJump;
-                    positive_jump_expense_year = yearlyDataArray[i].year;
+            for (let i = 0; i < yearlyDataArray.length; i++) {
+                if (yearlyDataArray[i].net_position < 0 && yearlyDataArray[i].net_position < shortfall_max) {
+                    shortfall_max = roundToTwo(yearlyDataArray[i].net_position);
+                    shortfall_year = yearlyDataArray[i].year;
                 }
-            }
-            else if (yearlyDataArray[i].expense < yearlyDataArray[i - 1].expense) {
-                const negativeJump = roundToTwo(yearlyDataArray[i].expense - yearlyDataArray[i - 1].expense);
-                if (negativeJump < negative_jump_expense) {
-                    negative_jump_expense = negativeJump;
-                    negative_jump_expense_year = yearlyDataArray[i].year;
-                }
-            }
-        }
-
-        for (let i = 0; i < yearlyDataArray.length; i++) {
-            if (yearlyDataArray[i].net_position < 0 && yearlyDataArray[i].net_position < shortfall_max) {
-                shortfall_max = roundToTwo(yearlyDataArray[i].net_position);
-                shortfall_year = yearlyDataArray[i].year;
             }
         }
 
@@ -213,60 +216,79 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
         let newDateIsHigher = false;
         let newAmountIsHigher = false;
         let newAmountIsLower = false;
-        let isSingleIncome = incomes.length === 1? true: false;
+        let isSingleIncome = false; 
 
         if (sourcePage === "Simulate_WhenToRetire") {
 
             top_message = 'We have found an answer to your question - When can you retire? Here are the results';
 
-            if (!isSingleIncome) {
-                for (let i = 0; i < incomes.length; i++) {
-                    if (new Date(incomes[i].updated_end_date) > new Date(incomes[i].end_date)) {
-                        newDateIsHigher = true;
-                        break;
+            if (incomes && incomes.length > 0) {
+
+                isSingleIncome = incomes.length === 1;
+
+                if (!isSingleIncome) {
+                    for (let i = 0; i < incomes.length; i++) {
+                        if (new Date(incomes[i].updated_end_date) > new Date(incomes[i].end_date)) {
+                            newDateIsHigher = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if (newDateIsHigher) {
-                if (isSingleIncome)
-                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of your income: "' + incomes[0].income_name + '" to a later date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
-                else
-                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of one or more incomes. See below table for the suggested changes.';
+                if (newDateIsHigher) {
+                    if (isSingleIncome)
+                        key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of your income: "' + incomes[0].income_name + '" to a later date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
+                    else
+                        key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of one or more incomes. See below table for the suggested changes.';
+                }
+                else {
+                    if (isSingleIncome)
+                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: "' + incomes[0].income_name + '" to an earlier date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
+                    else
+                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your incomes. See below table for the suggested changes.';
+                }
+                setShowKeyInsights(true);
             }
             else {
-                if (isSingleIncome)
-                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: "' + incomes[0].income_name + '" to an earlier date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
-                else
-                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your incomes. See below table for the suggested changes.';
+                key_message = 'Your current income (and/or planned future income) itself is insufficient to meet your financial goals. Please use the other Insights - "Can I reduce my current income or need to increase it" to create an action plan.';
+                setShowKeyInsights(false);
             }
         }
         else if (sourcePage === "Simulate_ReduceIncome") {
 
             top_message = 'We have found an answer to your question - How much can you reduce your income? Here are the results';
 
-            for (let i = 0; i < incomes.length; i++) {
-                if (incomes[i].updated_amount > incomes[i].original_amount) {
-                    newAmountIsHigher = true;
-                }
-                else if (incomes[i].updated_amount < incomes[i].original_amount) {
-                    newAmountIsLower = true;
-                }
-            }
+            if (incomes && incomes.length > 0) {
+                isSingleIncome = incomes.length === 1;
 
-            if (newAmountIsHigher && newAmountIsLower) {
-                key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase one or more incomes. But one or more of your future income can be reduced while still meeting your financial goals. See below table for the suggested changes.';
-            }
-            else if (newAmountIsHigher) {
-                if (isSingleIncome)
-                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase your income: "' + incomes[0].income_name + '" to a higher amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
-                else
-                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase one or more incomes. See below table for the suggested changes.';
+                for (let i = 0; i < incomes.length; i++) {
+                    if (incomes[i].updated_amount > incomes[i].original_amount) {
+                        newAmountIsHigher = true;
+                    }
+                    else if (incomes[i].updated_amount < incomes[i].original_amount) {
+                        newAmountIsLower = true;
+                    }
+                }
+
+                if (newAmountIsHigher && newAmountIsLower) {
+                    key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase one or more incomes. But one or more of your future income can be reduced while still meeting your financial goals. See below table for the suggested changes.';
+                }
+                else if (newAmountIsHigher) {
+                    if (isSingleIncome)
+                        key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase your income: "' + incomes[0].income_name + '" to a higher amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
+                    else
+                        key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase one or more incomes. See below table for the suggested changes.';
+                }
+                else {
+                    if (isSingleIncome)
+                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce your income: "' + incomes[0].income_name + '" to a lower amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
+                    else
+                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce one or more incomes. See below table for the suggested changes.';
+                }
+                setShowKeyInsights(true);
             }
             else {
-                if (isSingleIncome)
-                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce your income: "' + incomes[0].income_name + '" to a lower amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
-                else
-                    key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce one or more incomes. See below table for the suggested changes.';
+                key_message = 'Unfortunately, your current plan is not able to meet you goals.';
+                setShowKeyInsights(false);
             }
         }
 
@@ -315,7 +337,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left', mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'left', mb: 2, color: 'purple' }}>
                 <CelebrationIcon sx={{ mr: 1, color: 'purple' }} />
-                    {commentary.top_message}
+                {commentary.top_message}
             </Typography>
             <Typography variant="h6" component="h2" gutterBottom>
                 Key Analysis and Insights
@@ -323,219 +345,223 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
             <Typography variant="body1" gutterBottom sx={{ fontWeight: 'bold', color: 'blue', textAlign: 'center' }}>
                 {commentary.key_message}
             </Typography>
-            <List dense>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The minimum Liquid Assets you had were&nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.liquid_asset_min)}
-                            </Typography> 
-                            &nbsp;in the year&nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.liquid_asset_min_year}
-                            </Typography> 
-                            &nbsp;and the maximum were&nbsp; 
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.liquid_asset_max)}
-                            </Typography>
-                            &nbsp;in the year&nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.liquid_asset_max_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The minimum Fixed Assets you had were&nbsp; 
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.fixed_asset_min)}
-                            </Typography>
-                            &nbsp;in the year&nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.fixed_asset_min_year}
-                            </Typography> 
-                            &nbsp;and the maximum were&nbsp; 
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.fixed_asset_max)}
-                            </Typography>
-                            &nbsp;in the year&nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.fixed_asset_max_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The minimum Net Worth you had was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.net_worth_min)}
-                            </Typography> 
-                            &nbsp;in the year&nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.net_worth_min_year}
-                            </Typography> 
-                            &nbsp;and the maximum was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.net_worth_max)}
-                            </Typography>
-                            &nbsp;in the year&nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.net_worth_max_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            Your final Leftover Liquid Assets were &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.final_leftover)}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            You had a Shortfall of &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.shortfall_max)}
-                            </Typography> 
-                            &nbsp;in the year &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.shortfall_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The largest positive jump in Liquid Assets was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_liquid_asset)}
-                            </Typography> 
-                            &nbsp;in the year &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.positive_jump_liquid_asset_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The largest negative jump in Liquid Assets was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_liquid_asset)}
-                            </Typography> 
-                            &nbsp;in the year &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.negative_jump_liquid_asset_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The largest positive jump in Income was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_income)}
-                            </Typography> 
-                            &nbsp;in the year &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.positive_jump_income_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The largest negative jump in Income was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_income)}
-                            </Typography> 
-                            &nbsp; in the year &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.negative_jump_income_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The largest positive jump in Expenses was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_expense)}
-                            </Typography> 
-                            &nbsp;in the year &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.positive_jump_expense_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-                <ListItem>
-                    <ListItemIcon>
-                        <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={
-                        <>
-                            The largest negative jump in Expenses was &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_expense)}
-                            </Typography> 
-                            &nbsp;in the year &nbsp;
-                            <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
-                                {commentary.negative_jump_expense_year}
-                            </Typography>.
-                        </>
-                    } />
-                </ListItem>
-            </List>
-            <Typography variant="h6" component="h2" gutterBottom sx={{ mt: 2 }}>
-                Required changes in Income 
-            </Typography>
-            {sourcePage === "Simulate_WhenToRetire" && (
+            {showKeyInsights && (
+                <List dense>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The minimum Liquid Assets you had were&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.liquid_asset_min)}
+                                </Typography>
+                                &nbsp;in the year&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.liquid_asset_min_year}
+                                </Typography>
+                                &nbsp;and the maximum were&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.liquid_asset_max)}
+                                </Typography>
+                                &nbsp;in the year&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.liquid_asset_max_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The minimum Fixed Assets you had were&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.fixed_asset_min)}
+                                </Typography>
+                                &nbsp;in the year&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.fixed_asset_min_year}
+                                </Typography>
+                                &nbsp;and the maximum were&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.fixed_asset_max)}
+                                </Typography>
+                                &nbsp;in the year&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.fixed_asset_max_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The minimum Net Worth you had was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.net_worth_min)}
+                                </Typography>
+                                &nbsp;in the year&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.net_worth_min_year}
+                                </Typography>
+                                &nbsp;and the maximum was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.net_worth_max)}
+                                </Typography>
+                                &nbsp;in the year&nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.net_worth_max_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                Your final Leftover Liquid Assets were &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.final_leftover)}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                You had a Shortfall of &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.shortfall_max)}
+                                </Typography>
+                                &nbsp;in the year &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.shortfall_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The largest positive jump in Liquid Assets was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_liquid_asset)}
+                                </Typography>
+                                &nbsp;in the year &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.positive_jump_liquid_asset_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The largest negative jump in Liquid Assets was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_liquid_asset)}
+                                </Typography>
+                                &nbsp;in the year &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.negative_jump_liquid_asset_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The largest positive jump in Income was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_income)}
+                                </Typography>
+                                &nbsp;in the year &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.positive_jump_income_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The largest negative jump in Income was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_income)}
+                                </Typography>
+                                &nbsp; in the year &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.negative_jump_income_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The largest positive jump in Expenses was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_expense)}
+                                </Typography>
+                                &nbsp;in the year &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.positive_jump_expense_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <StarIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={
+                            <>
+                                The largest negative jump in Expenses was &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_expense)}
+                                </Typography>
+                                &nbsp;in the year &nbsp;
+                                <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
+                                    {commentary.negative_jump_expense_year}
+                                </Typography>.
+                            </>
+                        } />
+                    </ListItem>
+                </List>
+            )}
+            {showKeyInsights && (
+                <Typography variant="h6" component="h2" gutterBottom sx={{ mt: 2 }}>
+                    Required changes in Income
+                </Typography>
+            )}
+            {sourcePage === "Simulate_WhenToRetire" && showKeyInsights && incomes && (
                 <TableContainer component={Paper}>
                     <Table>
                         <TableHead>
@@ -567,7 +593,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                     </Table>
                 </TableContainer>
             )}
-            {sourcePage === "Simulate_ReduceIncome" && (
+            {sourcePage === "Simulate_ReduceIncome" && showKeyInsights && incomes && (
                 <TableContainer component={Paper}>
                     <Table>
                         <TableHead>

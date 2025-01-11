@@ -18,6 +18,7 @@ import NetCashflow from '../cashflowpage/NetCashflow';
 import AssetsCashflow from '../cashflowpage/AssetsCashflow';
 import LiabilitiesCashflow from '../cashflowpage/LiabilitiesCashflow';
 import CashFlowCommentary from '../cashflowpage/CashFlowCommentary';
+import { isSameMonthAndYear,getMonthEndDate } from '../common/DateFunctions';
 
 const fetchData = async (currentUserId, currentUserDisplayDummyData, setLoading, setErrorMessage) => {
     try {
@@ -46,7 +47,7 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
         setErrorMessage
     );
 
-    let [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow] = [assetsCashflow, liabilitiesCashflow, netCashflow];
+    let [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow, updatedPrevIncomes] = [assetsCashflow, liabilitiesCashflow, netCashflow, updatedIncomes];
 
     const today = new Date();
     // derive current age
@@ -67,6 +68,44 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
     }
 
     if (isCurrentCashflowPositive) {
+
+        // check that cashflow is positive till there is regular income
+        let lastRecurringIncomeEndDateToCheck = today;
+
+        for (let i = 0; i < incomesData.length; i++) {
+            if (incomesData[i].is_recurring) {
+                if (incomesData[i].end_date) {
+                    // check that incomeEndDate should be greater than today and also greater than incomeStartDate
+                    if (new Date(incomesData[i].end_date) > today && new Date(incomesData[i].end_date) > lastRecurringIncomeEndDateToCheck) {
+                        lastRecurringIncomeEndDateToCheck = new Date(incomesData[i].end_date);
+                    }
+                }
+            }
+            else {
+                lastRecurringIncomeEndDateToCheck = retirementDate;
+            }
+        }
+
+        const monthToCheck = lastRecurringIncomeEndDateToCheck.getMonth() + 1;
+        const yearToCheck = lastRecurringIncomeEndDateToCheck.getFullYear();
+        let incomesCashFlowIsPositive = true;
+        // loop through netCashflow and see if each month liquid_assets till we have the income flowing in
+        for (let i = 0; i < netCashflow.length; i++) {
+            if (netCashflow[i] &&
+                (parseInt(netCashflow[i].year) < yearToCheck ||
+                    (parseInt(netCashflow[i].year) === yearToCheck && parseInt(netCashflow[i].month) <= monthToCheck)
+                ) && parseFloat(netCashflow[i].liquid_assets) < 0) {
+                incomesCashFlowIsPositive = false;
+                break;
+            }
+        }
+
+        // if the cashflow is negative even when we have the income flowing, then current income is insufficient, hence no point in incerasing or decreasing the end date
+        // ask the user to use the other simuation to see how much current income should be increased
+        if (!incomesCashFlowIsPositive) {
+            return [assetsCashflow, liabilitiesCashflow, netCashflow, null];
+        }
+
         while (true) {
 
             let liquidAssetIsPositive = true;
@@ -80,11 +119,11 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
 
             // if liquid_assets is negative ever, then the prev cash flow is the right answer
             if (!liquidAssetIsPositive) {
-                return [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow, updatedIncomes];
+                return [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow, updatedPrevIncomes];
             }
             else {
 
-                [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow] = [assetsCashflow, liabilitiesCashflow, netCashflow];
+                [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow, updatedPrevIncomes] = [assetsCashflow, liabilitiesCashflow, netCashflow, updatedIncomes];
 
                 // check all incomes which are recurring
                 // find out the last recurring income and what is the end_date
@@ -93,24 +132,26 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                 // reduce one month from the end_date of that income
                 // and generate the cashflow again
 
-                let lastRecurringIncomeEndDate = new Date();
-                // let lastRecurringIncomeAmount = 0;
+                let lastRecurringIncomeEndDate = today;// getMonthEndDate(today.getMonth() + 1, today.getFullYear());
                 let lastRecurringIncome = null;
                 let lastRecurringIncomeIndex = -1;
                 for (let i = 0; i < incomesData.length; i++) {
                     if (incomesData[i].is_recurring) {
                         if (incomesData[i].end_date) {
                             let incomeEndDate = new Date(incomesData[i].end_date);
-                            if (incomeEndDate > lastRecurringIncomeEndDate) {
-                                lastRecurringIncomeEndDate = incomeEndDate;
-                                // lastRecurringIncomeAmount = incomesData[i].amount;
-                                lastRecurringIncome = incomesData[i];
-                                lastRecurringIncomeIndex = i;
+                            let incomeStartDate = new Date(incomesData[i].start_date);
+                            // check that incomeEndDate should be greater than today and also greater than incomeStartDate
+                            if (incomeEndDate > today && !isSameMonthAndYear(incomeEndDate, today) &&
+                                incomeEndDate > incomeStartDate && !isSameMonthAndYear(incomeEndDate, incomeStartDate)) {
+                                if (incomeEndDate > lastRecurringIncomeEndDate) {
+                                    lastRecurringIncomeEndDate = incomeEndDate;
+                                    lastRecurringIncome = incomesData[i];
+                                    lastRecurringIncomeIndex = i;
+                                }
                             }
                         }
                         else {
                             lastRecurringIncomeEndDate = retirementDate;
-                            // lastRecurringIncomeAmount = incomesData[i].amount;
                             lastRecurringIncome = incomesData[i];
                             lastRecurringIncomeIndex = i;
                         }
@@ -118,7 +159,7 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                 }
 
                 // break, in case this becomes an infinite loop
-                if (!lastRecurringIncomeEndDate || lastRecurringIncomeEndDate <= today) {
+                if (!lastRecurringIncome) {
                     break;
                 }
 
@@ -128,9 +169,8 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                 else if (lastRecurringIncome.income_frequency === 'Semi-Annually') n = 6;
                 else if (lastRecurringIncome.income_frequency === 'Annually') n = 12;
 
-                lastRecurringIncomeEndDate.setMonth(lastRecurringIncomeEndDate.getMonth() - n);
+                lastRecurringIncomeEndDate = getMonthEndDate(lastRecurringIncomeEndDate.getMonth() - n + 1, lastRecurringIncomeEndDate.getFullYear());
                 incomesData[lastRecurringIncomeIndex].end_date = lastRecurringIncomeEndDate;
-                incomesCopy = JSON.parse(JSON.stringify(incomesData));
 
                 // check if this income already exists in updatedIncomes
                 // if yes, update the new_end_date
@@ -159,108 +199,7 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                     });
                 }
 
-                [assetsCashflow, liabilitiesCashflow, netCashflow] = generateCashflow(
-                    propertiesData, vehiclesData, accountsData, depositsData, incomesCopy, portfoliosData, otherAssetsData,
-                    homesData, expensePropertiesData, creditCardDebtsData, personalLoansData, expenseOthersData, dreamsData,
-                    currentUserBaseCurrency, currentUserLifeExpectancy, currentUserCountryOfResidence, currentUserDateOfBirth,
-                    setErrorMessage
-                );
-            }
-        }
-        return [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow, updatedIncomes];
-    }
-    else {
-        while (true) {
-
-            let liquidAssetIsPositive = true;
-            // loop through netCashflow and see if each month liquid_assets is positive
-            for (let i = 0; i < netCashflow.length; i++) {
-                if (netCashflow[i] && parseInt(netCashflow[i].month) === 12 && parseFloat(netCashflow[i].liquid_assets) < 0) {
-                    liquidAssetIsPositive = false;
-                    break;
-                }
-            }
-
-            // if liquid_assets is all positive, then this is the answer till when i need the income
-            if (liquidAssetIsPositive) {
-                return [assetsCashflow, liabilitiesCashflow, netCashflow, updatedIncomes];
-            }
-            else {
-
-                [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow] = [assetsCashflow, liabilitiesCashflow, netCashflow];
-
-                // check all incomes which are recurring
-                // find out the fiest recurring income that is stopping and what is the end_date
-                // if end_date is null, then it is recurring till the retirement age
-                // if end_date is not null, then it is recurring till the end_date
-                // add one month to the end_date of that income
-                // and generate the cashflow again
-
-                let lastRecurringIncomeEndDate = new Date(retirementDate);
-                // let lastRecurringIncomeAmount = 0;
-                let lastRecurringIncome = null;
-                let lastRecurringIncomeIndex = -1;
-                for (let i = 0; i < incomesData.length; i++) {
-                    if (incomesData[i].is_recurring) {
-                        if (incomesData[i].end_date) {
-                            let incomeEndDate = new Date(incomesData[i].end_date);
-                            if (incomeEndDate < lastRecurringIncomeEndDate) {
-                                lastRecurringIncomeEndDate = incomeEndDate;
-                                // lastRecurringIncomeAmount = incomesData[i].amount;
-                                lastRecurringIncome = incomesData[i];
-                                lastRecurringIncomeIndex = i;
-                            }
-                        }
-                        else {
-                            lastRecurringIncomeEndDate = retirementDate;
-                            // lastRecurringIncomeAmount = incomesData[i].amount;
-                            lastRecurringIncome = incomesData[i];
-                            lastRecurringIncomeIndex = i;
-                        }
-                    }
-                }
-
-                // break, in case this becomes an infinite loop
-                if (!lastRecurringIncomeEndDate || lastRecurringIncomeEndDate > retirementDate) {
-                    break;
-                }
-
-                let n = 0;
-                if (lastRecurringIncome.income_frequency === 'Monthly') n = 1;
-                else if (lastRecurringIncome.income_frequency === 'Quarterly') n = 3;
-                else if (lastRecurringIncome.income_frequency === 'Semi-Annually') n = 6;
-                else if (lastRecurringIncome.income_frequency === 'Annually') n = 12;
-
-                lastRecurringIncomeEndDate.setMonth(lastRecurringIncomeEndDate.getMonth() + n);
-                incomesData[lastRecurringIncomeIndex].end_date = lastRecurringIncomeEndDate;
                 incomesCopy = JSON.parse(JSON.stringify(incomesData));
-
-                // check if this income already exists in updatedIncomes
-                // if yes, update the new_end_date
-                // else add this income to updatedIncomes
-                let isIncomeUpdated = false;
-                for (let i = 0; i < updatedIncomes.length; i++) {
-                    if (updatedIncomes[i].id === lastRecurringIncome.id) {
-                        updatedIncomes[i].updated_end_date = lastRecurringIncomeEndDate;
-                        isIncomeUpdated = true;
-                        break;
-                    }
-                }
-                if (!isIncomeUpdated) {
-                    // find this income in incomesCopy and add end_date from there
-                    const lastRecurringIncomeCopy = incomesCopy.find(income => income.id === lastRecurringIncome.id);
-                    updatedIncomes.push({
-                        id: lastRecurringIncome.id,
-                        income_name: lastRecurringIncome.income_name,
-                        income_type: lastRecurringIncome.income_type,
-                        location: lastRecurringIncome.location,
-                        currency: lastRecurringIncome.currency,
-                        amount: lastRecurringIncome.amount,
-                        start_date: lastRecurringIncome.start_date,
-                        end_date: lastRecurringIncomeCopy.end_date, // take form incomesCopy as lastRecurringIncome keeps changing
-                        updated_end_date: lastRecurringIncomeEndDate
-                    });
-                }
 
                 [assetsCashflow, liabilitiesCashflow, netCashflow] = generateCashflow(
                     propertiesData, vehiclesData, accountsData, depositsData, incomesCopy, portfoliosData, otherAssetsData,
@@ -271,6 +210,11 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
             }
         }
         return [assetsCashflow, liabilitiesCashflow, netCashflow, updatedIncomes];
+    }
+    else {
+        // if current cashflow is negative, then current income is insufficient, hence no point in incerasing or decreasing the end date
+        // ask the user to use the other simuation to see how much current income should be increased
+        return [assetsCashflow, liabilitiesCashflow, netCashflow, null];
     }
 }
 
@@ -285,7 +229,6 @@ const Simulate_WhenToRetire = () => {
     const [cashflowAssetsData, setCashflowAssetsData] = useState([]);
     const [cashflowLiabilitiesData, setCashflowLiabilitiesData] = useState([]);
     const [cashflowNetData, setCashflowNetData] = useState([]);
-
     const [updatedIncomesData, setUpdatedIncomesData] = useState([]);
 
     const currentUserId = parseInt(localStorage.getItem('currentUserId'));

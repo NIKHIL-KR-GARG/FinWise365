@@ -400,25 +400,16 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
             // ----------------- end section for liabilities cashflow calculation -----------------
 
             // ----------------- start section for net cashflow calculation -----------------
-
+           
             // total expense, total income, Gap, liquid Assets, locked Assets, Net Worth
             netPositionForMonth = parseFloat(incomeForMonth) - parseFloat(expenseForMonth);
-            // if net position is positive, then add it to liquid assets
-            if (netPositionForMonth >= 0) {
-                // add the extra income to liquid assets
-                liquidAssetsForMonth += netPositionForMonth;
-                // reduce the expenses from the income lines
-                updateIncomeLinesForExpenses(assetsCashflow, expenseForMonth, month, year);
-            }
-            else {
-                // reduce the expenses from the income lines
-                const remainingExpense = updateIncomeLinesForExpenses(assetsCashflow, expenseForMonth, month, year);
-                // if there is still some expense left, then reduce it from the liquid assets
-                if (remainingExpense > 0) {
-                    liquidAssetsForMonth -= remainingExpense; // could be negative or positive
-                    // and update the liquid asset lines
-                    updateLiquidAssetsForExpenses(assetsCashflow, remainingExpense, month, year);
-                }
+            // update liquidAssetsForMonth (could be negative or positive)
+            liquidAssetsForMonth += netPositionForMonth;
+            // reduce the expenses from the income lines
+            const remainingExpense = updateIncomeLinesForExpenses(assetsCashflow, expenseForMonth, month, year);
+            if (remainingExpense > 0) {
+                // and update the liquid asset lines
+                updateLiquidAssetsForExpenses(assetsCashflow, remainingExpense, month, year);
             }
 
             // find liquidAssetsForLastMonth from netCashflow and add to this month's if it was negative

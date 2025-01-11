@@ -14,7 +14,7 @@ export const VehicleLoanRate = [
 ];
 
 export const ExchangeRate = [
-    { from: "SGD", to: "INR", value: "63.3" },
+    { from: "SGD", to: "INR", value: "60" },
     { from: "INR", to: "SGD", value: "0.0158" },
     { from: "USD", to: "SGD", value: "1.224" },
     { from: "SGD", to: "USD", value: "0.7499" },
@@ -23,8 +23,8 @@ export const ExchangeRate = [
 ];
 
 export const GrowthRate = [
-    { key: "SG", value: "0.5" },
-    { key: "IN", value: "3.5" }
+    { key: "SG", value: "0" },
+    { key: "IN", value: "0" }
 ];
 
 //export const CarLoanRate = [
