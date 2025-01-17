@@ -36,6 +36,9 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
 
     let updatedIncomes = [];
     let updatedPrevIncomes = [];
+    let assetsPrevCashflow = [];
+    let liabilitiesPrevCashflow = [];
+    let netPrevCashflow = [];
 
     // Create a deep copy of incomesData
     let incomesCopy = JSON.parse(JSON.stringify(incomesData));
@@ -46,8 +49,6 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
         currentUserBaseCurrency, currentUserLifeExpectancy, currentUserCountryOfResidence, currentUserDateOfBirth,
         setErrorMessage
     );
-
-    let [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow] = [assetsCashflow, liabilitiesCashflow, netCashflow];
 
     const today = new Date();
     // derive current age
@@ -111,12 +112,12 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
             // if income has been reduced fully, then return this or previous cashflow
             if (isIncomeReduced) {
                 if (liquidAssetIsPositive) {
-                    // remove all the rows from updatedIncomes where amount and updated_amount are same
+                    // remove all the rows from updatedIncomes where original_amount and updated_amount are same
                     updatedIncomes = updatedIncomes.filter(income => income.original_amount !== income.updated_amount);
                     return [assetsCashflow, liabilitiesCashflow, netCashflow, updatedIncomes];
                 }
                 else {
-                    // remove all the rows from updatedPrevIncomes where amount and updated_amount are same
+                    // remove all the rows from updatedPrevIncomes where original_amount and updated_amount are same
                     updatedPrevIncomes = updatedPrevIncomes.filter(income => income.original_amount !== income.updated_amount);
                     return [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow, updatedPrevIncomes];
                 }
@@ -126,9 +127,10 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                 if (liquidAssetIsPositive) {
                     // make a copy of updatedIncomes in updatedPrevIncomes
                     updatedPrevIncomes = JSON.parse(JSON.stringify(updatedIncomes));
+                    assetsPrevCashflow = JSON.parse(JSON.stringify(assetsCashflow));
+                    liabilitiesPrevCashflow = JSON.parse(JSON.stringify(liabilitiesCashflow));
+                    netPrevCashflow = JSON.parse(JSON.stringify(netCashflow));
                 }
-
-                [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow] = [assetsCashflow, liabilitiesCashflow, netCashflow];
 
                 // check all incomes which are recurring
                 // find out the recurring income which has the farthest end_date
@@ -138,7 +140,6 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                 // and generate the cashflow again
 
                 let lastRecurringIncomeEndDate = new Date();
-                // let lastRecurringIncomeAmount = 0;
                 let lastRecurringIncome = null;
                 let lastRecurringIncomeIndex = -1;
                 for (let i = 0; i < incomesData.length; i++) {
@@ -152,14 +153,12 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                                 let incomeEndDate = new Date(incomesData[i].end_date);
                                 if (incomeEndDate > lastRecurringIncomeEndDate) {
                                     lastRecurringIncomeEndDate = incomeEndDate;
-                                    // lastRecurringIncomeAmount = incomesData[i].amount;
                                     lastRecurringIncome = incomesData[i];
                                     lastRecurringIncomeIndex = i;
                                 }
                             }
                             else {
                                 lastRecurringIncomeEndDate = retirementDate;
-                                // lastRecurringIncomeAmount = incomesData[i].amount;
                                 lastRecurringIncome = incomesData[i];
                                 lastRecurringIncomeIndex = i;
                             }
@@ -231,12 +230,12 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                 // if income has been reduced fully, then return this or previous cashflow
                 if (isIncomeReduced) {
                     if (liquidAssetIsPositive) {
-                        // remove all the rows from updatedIncomes where amount and updated_amount are same
+                        // remove all the rows from updatedIncomes where original_amount and updated_amount are same
                         updatedIncomes = updatedIncomes.filter(income => income.original_amount !== income.updated_amount);
                         return [assetsCashflow, liabilitiesCashflow, netCashflow, updatedIncomes];
                     }
                     else {
-                        // remove all the rows from updatedPrevIncomes where amount and updated_amount are same
+                        // remove all the rows from updatedPrevIncomes where original_amount and updated_amount are same
                         updatedPrevIncomes = updatedPrevIncomes.filter(income => income.original_amount !== income.updated_amount);
                         return [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow, updatedPrevIncomes];
                     }
@@ -246,9 +245,10 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                     if (liquidAssetIsPositive) {
                         // make a copy of updatedIncomes in updatedPrevIncomes
                         updatedPrevIncomes = JSON.parse(JSON.stringify(updatedIncomes));
+                        assetsPrevCashflow = JSON.parse(JSON.stringify(assetsCashflow));
+                        liabilitiesPrevCashflow = JSON.parse(JSON.stringify(liabilitiesCashflow));
+                        netPrevCashflow = JSON.parse(JSON.stringify(netCashflow));
                     }
-
-                    [assetsPrevCashflow, liabilitiesPrevCashflow, netPrevCashflow] = [assetsCashflow, liabilitiesCashflow, netCashflow];
 
                     // check all incomes which are recurring
                     // find out the recurring income which has the farthest end_date
@@ -258,7 +258,6 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                     // and generate the cashflow again
 
                     let lastRecurringIncomeEndDate = new Date();
-                    // let lastRecurringIncomeAmount = 0;
                     let lastRecurringIncome = null;
                     let lastRecurringIncomeIndex = -1;
                     for (let i = 0; i < incomesData.length; i++) {
@@ -272,14 +271,12 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                                     let incomeEndDate = new Date(incomesData[i].end_date);
                                     if (incomeEndDate > lastRecurringIncomeEndDate) {
                                         lastRecurringIncomeEndDate = incomeEndDate;
-                                        // lastRecurringIncomeAmount = incomesData[i].amount;
                                         lastRecurringIncome = incomesData[i];
                                         lastRecurringIncomeIndex = i;
                                     }
                                 }
                                 else {
                                     lastRecurringIncomeEndDate = retirementDate;
-                                    // lastRecurringIncomeAmount = incomesData[i].amount;
                                     lastRecurringIncome = incomesData[i];
                                     lastRecurringIncomeIndex = i;
                                 }
@@ -327,7 +324,6 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
             else {
 
                 let firstRecurringIncomeStartDate = new Date(retirementDate);
-                // let lastRecurringIncomeAmount = 0;
                 let firstRecurringIncome = null;
                 let firstRecurringIncomeIndex = -1;
                 for (let i = 0; i < incomesData.length; i++) {
@@ -336,14 +332,12 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
                             let incomeStartDate = new Date(incomesData[i].start_date);
                             if (incomeStartDate < firstRecurringIncomeStartDate) {
                                 firstRecurringIncomeStartDate = incomeStartDate;
-                                // lastRecurringIncomeAmount = incomesData[i].amount;
                                 firstRecurringIncome = incomesData[i];
                                 firstRecurringIncomeIndex = i;
                             }
                         }
                         else {
                             firstRecurringIncomeStartDate = retirementDate;
-                            // lastRecurringIncomeAmount = incomesData[i].amount;
                             firstRecurringIncome = incomesData[i];
                             firstRecurringIncomeIndex = i;
                         }
@@ -515,7 +509,7 @@ const Simulate_ReduceIncome = () => {
             <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                 {!loading && (
                     <>
-                        <CashFlowCommentary netCashflows={cashflowNetData} incomes={updatedIncomesData} sourcePage={'Simulate_ReduceIncome'} />
+                        <CashFlowCommentary netCashflows={cashflowNetData} incomes={updatedIncomesData} isFixedRetirementDate={false} sourcePage={'Simulate_ReduceIncome'} />
                         <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
                             <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}

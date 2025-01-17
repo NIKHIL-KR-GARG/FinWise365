@@ -6,7 +6,7 @@ import { FormatCurrency } from '../common/FormatCurrency';
 import '../common/GridHeader.css';
 import { formatMonthYear } from '../common/DateFunctions';
 
-const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
+const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, sourcePage }) => {
 
     const hasFetchedData = useRef(false);
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -220,20 +220,26 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
 
         if (sourcePage === "Simulate_WhenToRetire") {
 
-            top_message = 'We have found an answer to your question - When can you retire? Here are the results';
-
+            if (isFixedRetirementDate)
+                top_message = 'We have found an answer to your question - If you can retire on the selected Month & Year? Here are the results:';
+            else
+                top_message = 'We have found an answer to your question - When can you retire? Here are the results:';
+        
             if (incomes && incomes.length > 0) {
 
                 isSingleIncome = incomes.length === 1;
 
-                if (!isSingleIncome) {
-                    for (let i = 0; i < incomes.length; i++) {
-                        if (new Date(incomes[i].updated_end_date) > new Date(incomes[i].end_date)) {
-                            newDateIsHigher = true;
-                            break;
+                if (!isFixedRetirementDate) {
+                    if (!isSingleIncome) {
+                        for (let i = 0; i < incomes.length; i++) {
+                            if (new Date(incomes[i].updated_end_date) > new Date(incomes[i].end_date)) {
+                                newDateIsHigher = true;
+                                break;
+                            }
                         }
                     }
                 }
+
                 if (newDateIsHigher) {
                     if (isSingleIncome)
                         key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of your income: "' + incomes[0].income_name + '" to a later date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
@@ -241,21 +247,33 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                         key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to move the end date of one or more incomes. See below table for the suggested changes.';
                 }
                 else {
-                    if (isSingleIncome)
-                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: "' + incomes[0].income_name + '" to an earlier date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
-                    else
-                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your incomes. See below table for the suggested changes.';
+                    if (isSingleIncome) {
+                        if (isFixedRetirementDate)
+                            key_message = 'Hurray, your current plan is able to meet you goals and you can retire on the selected Month & Year.';
+                        else
+                            key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your income: "' + incomes[0].income_name + '" to an earlier date: "' + formatMonthYear(new Date(incomes[0].updated_end_date)) + '".';
+                    }
+                    else {
+                        if (isFixedRetirementDate)
+                            key_message = 'Hurray, your current plan is able to meet you goals and you can retire on the selected Month & Year. See below table for the change in Income dates';
+                        else
+                            key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can bring forward the end date of your incomes. See below table for the suggested changes.';
+                    }
                 }
                 setShowKeyInsights(true);
             }
             else {
-                key_message = 'Your current income (and/or planned future income) itself is insufficient to meet your financial goals. Please use the other Insights - "Can I reduce my current income or need to increase it" to create an action plan.';
+                if (isFixedRetirementDate)
+                    key_message = 'Unfortunately, your current income (and/or planned future income) is not able to meet you goal of retiring on the selected Month & Year. Please use the other Insights on Recurring Income to create an action plan.';
+                else 
+                    key_message = 'Your current income (and/or planned future income) itself is insufficient to meet your financial goals. Please use the other Insights on Recurring Income to create an action plan.';
+                
                 setShowKeyInsights(false);
             }
         }
         else if (sourcePage === "Simulate_ReduceIncome") {
 
-            top_message = 'We have found an answer to your question - How much can you reduce your income? Here are the results';
+            top_message = 'We have found an answer to your question - How much can you reduce your income? Here are the results:';
 
             if (incomes && incomes.length > 0) {
                 isSingleIncome = incomes.length === 1;
@@ -274,13 +292,13 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                 }
                 else if (newAmountIsHigher) {
                     if (isSingleIncome)
-                        key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase your income: "' + incomes[0].income_name + '" to a higher amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
+                        key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase your income: "' + incomes[0].income_name + '" to a higher amount: "' + FormatCurrency(incomes[0].currency, incomes[0].updated_amount) + '".';
                     else
                         key_message = 'Unfortunately, your current plan is not able to meet you goals. You will have to increase one or more incomes. See below table for the suggested changes.';
                 }
                 else {
                     if (isSingleIncome)
-                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce your income: "' + incomes[0].income_name + '" to a lower amount: "' + FormatCurrency(currentUserBaseCurrency, incomes[0].updated_amount) + '".';
+                        key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce your income: "' + incomes[0].income_name + '" to a lower amount: "' + FormatCurrency(incomes[0].currency, incomes[0].updated_amount) + '".';
                     else
                         key_message = 'Hurray, your current plan is able to meet you goals. In fact, you can reduce one or more incomes. See below table for the suggested changes.';
                 }
@@ -290,6 +308,18 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                 key_message = 'Unfortunately, your current plan is not able to meet you goals.';
                 setShowKeyInsights(false);
             }
+        }
+        else if (sourcePage === "Simulate_Sabbatical") {
+
+            top_message = 'We have found an answer to your question - Can you take a Sabbatical? Here are the results:';
+
+            if (liquid_asset_min < 0) {
+                key_message = 'Unfortunately, as per current plan, you would not be able to afford a sabbatical. See below table for what all incomes are impacted during your sabbatical.';
+            }
+            else {
+                key_message = 'Hurray, as per current plan, you can afford a sabbatical. See below table for what all incomes are impacted during your sabbatical.';
+            }
+            setShowKeyInsights(true);
         }
 
         // update the state
@@ -558,7 +588,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
             )}
             {showKeyInsights && (
                 <Typography variant="h6" component="h2" gutterBottom sx={{ mt: 2 }}>
-                    Required changes in Income
+                    Changes in Income
                 </Typography>
             )}
             {sourcePage === "Simulate_WhenToRetire" && showKeyInsights && incomes && (
@@ -583,7 +613,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                                     <TableCell>{income.income_type}</TableCell>
                                     <TableCell>{income.location}</TableCell>
                                     <TableCell>{income.currency}</TableCell>
-                                    <TableCell>{FormatCurrency(currentUserBaseCurrency, income.amount)}</TableCell>
+                                    <TableCell>{FormatCurrency(income.currency, income.amount)}</TableCell>
                                     <TableCell>{formatMonthYear(new Date(income.start_date))}</TableCell>
                                     <TableCell>{formatMonthYear(new Date(income.end_date))}</TableCell>
                                     <TableCell>{formatMonthYear(new Date(income.updated_end_date))}</TableCell>
@@ -618,9 +648,39 @@ const CashFlowCommentary = ({ netCashflows, incomes, sourcePage }) => {
                                     <TableCell>{income.currency}</TableCell>
                                     <TableCell>{formatMonthYear(new Date(income.start_date))}</TableCell>
                                     <TableCell>{formatMonthYear(new Date(income.end_date))}</TableCell>
-                                    <TableCell>{FormatCurrency(currentUserBaseCurrency, income.original_amount)}</TableCell>
-                                    <TableCell>{FormatCurrency(currentUserBaseCurrency, income.updated_amount)}</TableCell>
-                                    <TableCell>{roundToTwo(income.percentageToApply)}</TableCell>
+                                    <TableCell>{FormatCurrency(income.currency, income.original_amount)}</TableCell>
+                                    <TableCell>{FormatCurrency(income.currency, income.updated_amount)}</TableCell>
+                                    <TableCell>{roundToTwo(100 - income.percentageToApply)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
+            {sourcePage === "Simulate_Sabbatical" && showKeyInsights && incomes && (
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow className="header-theme">
+                                <TableCell style={{ color: 'white' }}>Income Name</TableCell>
+                                <TableCell style={{ color: 'white' }}>Income Type</TableCell>
+                                <TableCell style={{ color: 'white' }}>Location</TableCell>
+                                <TableCell style={{ color: 'white' }}>Currency</TableCell>
+                                <TableCell style={{ color: 'white' }}>Start Date</TableCell>
+                                <TableCell style={{ color: 'white' }}>End Date</TableCell>
+                                <TableCell style={{ color: 'white' }}>Amount</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {incomes.map((income) => (
+                                <TableRow key={income.id}>
+                                    <TableCell>{income.income_name}</TableCell>
+                                    <TableCell>{income.income_type}</TableCell>
+                                    <TableCell>{income.location}</TableCell>
+                                    <TableCell>{income.currency}</TableCell>
+                                    <TableCell>{formatMonthYear(new Date(income.start_date))}</TableCell>
+                                    <TableCell>{formatMonthYear(new Date(income.end_date))}</TableCell>
+                                    <TableCell>{FormatCurrency(income.currency, income.amount)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
