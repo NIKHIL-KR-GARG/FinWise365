@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid2';
-import { Box, Link, Typography, Breadcrumbs, Divider, Accordion, AccordionSummary, AccordionDetails, Button, MenuItem, Select, FormControl, InputLabel, Alert } from '@mui/material';
+import { Box, Link, Typography, Breadcrumbs, Divider, Accordion, AccordionSummary, AccordionDetails, Button, MenuItem, Select, FormControl, InputLabel, Alert, OutlinedInput } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -11,6 +11,7 @@ import { today } from '../../components/common/DateFunctions';
 import Simulate_WhenToRetire from '../../components/simulationspage/Simulate_WhenToRetire';
 import Simulate_ReduceIncome from '../../components/simulationspage/Simulate_ReduceIncome';
 import Simulate_Sabbatical from '../../components/simulationspage/Simulate_Sabbatical';
+import Simulate_Corpus from '../../components/simulationspage/Simulate_Corpus';
 
 const Simulations = () => {
 
@@ -26,6 +27,8 @@ const Simulations = () => {
     const [alertMessage, setAlertMessage] = useState('');
     const [retirementMonth, setRetirementMonth] = useState('');
     const [retirementYear, setRetirementYear] = useState('');
+    const [corpusAmount, setCorpusAmount] = useState('');
+    const [showSimulate_Corpus, setSimulate_Corpus] = useState(false);
 
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
@@ -39,6 +42,7 @@ const Simulations = () => {
         setSimulate_WhenToRetire(false);
         setSimulate_ReduceIncome(false);
         setSimulate_Sabbatical(false);
+        setSimulate_Corpus(false);
         if (retirementMonth && retirementYear) {
             const currentDate = new Date();
             const selectedDate = new Date(retirementYear, retirementMonth - 1); // Month is 0-indexed
@@ -55,6 +59,7 @@ const Simulations = () => {
         setSimulate_WhenToRetire(false);
         setSimulate_ReduceIncome(false);
         setSimulate_Sabbatical(false);
+        setSimulate_Corpus(false);
         setTimeout(() => setSimulate_ReduceIncome(true), 0);
     };
 
@@ -63,6 +68,7 @@ const Simulations = () => {
         setSimulate_WhenToRetire(false);
         setSimulate_ReduceIncome(false);
         setSimulate_Sabbatical(false);
+        setSimulate_Corpus(false);
         const currentDate = new Date();
         const selectedDate = new Date(sabbaticalYear, sabbaticalMonth - 1); // Month is 0-indexed
         if (selectedDate <= currentDate) {
@@ -70,6 +76,19 @@ const Simulations = () => {
             return;
         }
         setTimeout(() => setSimulate_Sabbatical(true), 0);
+    };
+
+    const handleSimulate_Corpus = () => {
+        setAlertMessage('');
+        setSimulate_WhenToRetire(false);
+        setSimulate_ReduceIncome(false);
+        setSimulate_Sabbatical(false);
+        setSimulate_Corpus(false);
+        if (isNaN(corpusAmount) || corpusAmount <= 0) {
+            setAlertMessage("Please enter a valid numeric corpus amount.");
+            return;
+        }
+        setTimeout(() => setSimulate_Corpus(true), 0);
     };
 
     const handleDrawerToggle = () => {
@@ -309,10 +328,10 @@ const Simulations = () => {
                                             <Typography variant="body1" sx={{ fontStyle: 'italic' }}>When will I reach a particular corpus (cash assets)?</Typography>
                                             {expanded === 'panel4' &&
                                                 <Button
-                                                    disabled
                                                     variant="contained"
                                                     color="secondary"
                                                     sx={{ ml: 'auto', fontSize: '0.75rem' }} 
+                                                    onClick={handleSimulate_Corpus}
                                                 >
                                                     Show me the Insights
                                                 </Button>
@@ -322,6 +341,17 @@ const Simulations = () => {
                                             <Typography>
                                                 When will I reach a particular corpus (cash assets) as per my current savings and planned income? Would that be enough to retire?
                                             </Typography>
+                                            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                                                <FormControl fullWidth variant="outlined" size="small" sx={{ flex: 1 }}>
+                                                    <InputLabel htmlFor="corpus-amount">Corpus Amount</InputLabel>
+                                                    <OutlinedInput
+                                                        id="corpus-amount"
+                                                        value={corpusAmount}
+                                                        label="Corpus Amount"
+                                                        onChange={(e) => setCorpusAmount(e.target.value)}
+                                                    />
+                                                </FormControl>
+                                            </Box>
                                         </AccordionDetails>
                                     </Accordion>
                                 </Grid>
@@ -331,6 +361,7 @@ const Simulations = () => {
                         {showSimulate_WhenToRetire && <Simulate_WhenToRetire retirementMonth={retirementMonth} retirementYear={retirementYear}/>}
                         {showSimulate_ReduceIncome && <Simulate_ReduceIncome />}
                         {showSimulate_Sabbatical && <Simulate_Sabbatical sabbaticalMonth={sabbaticalMonth} sabbaticalYear={sabbaticalYear} sabbaticalDuration={sabbaticalDuration} />}
+                        {showSimulate_Corpus && <Simulate_Corpus corpusAmount={corpusAmount} />}
                     </Box>
                 </Box>
             </Box>

@@ -6,7 +6,7 @@ import { FormatCurrency } from '../common/FormatCurrency';
 import '../common/GridHeader.css';
 import { formatMonthYear } from '../common/DateFunctions';
 
-const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, sourcePage }) => {
+const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corpus, sourcePage }) => {
 
     const hasFetchedData = useRef(false);
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
@@ -79,12 +79,13 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, sour
         let negative_jump_expense_year = 0;
         let key_message = '';
         let top_message = '';
+        let corpusReached = false;
+        let corpusYear = 0;
 
         let firstRow = true;
-        if (incomes) {
+        if (incomes || sourcePage === "Simulate_Corpus") {
             for (let i = 0; i < netCashflows.length; i++) {
-                const netCashFlow = netCashflows[i];
-                if (netCashFlow.month === 12) {
+                if (netCashflows[i].month === 12) {
                     if (firstRow) {
                         liquid_asset_min = roundToTwo(netCashflows[i].liquid_assets);
                         liquid_asset_min_year = netCashflows[i].year;
@@ -150,6 +151,11 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, sour
                         }
                     }
                     final_leftover = roundToTwo(netCashflows[i].liquid_assets);
+
+                    if (sourcePage === "Simulate_Corpus" && !corpusReached && netCashflows[i].liquid_assets >= corpus) {
+                        corpusReached = true;
+                        corpusYear = netCashflows[i].year;
+                    }
                 }
             }
 
@@ -319,6 +325,22 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, sour
             else {
                 key_message = 'Hurray, as per current plan, you can afford a sabbatical. See below table for what all incomes are impacted during your sabbatical.';
             }
+            setShowKeyInsights(true);
+        }
+        else if (sourcePage === "Simulate_Corpus") {
+
+            top_message = 'We have found an answer to your question - When will I reach a particular corpus? Here are the results:';
+
+            if (corpusReached) {
+                if (liquid_asset_min >= 0) 
+                    key_message = 'Hurray, as per current plan, you will reach the corpus of ' + FormatCurrency(currentUserBaseCurrency, parseFloat(corpus)) + ' in the year ' + corpusYear + '. And it will be able to sustain you for the rest of your life.';
+                else
+                    key_message = 'Hurray, as per current plan, you will reach the corpus of ' + FormatCurrency(currentUserBaseCurrency, parseFloat(corpus)) + ' in the year ' + corpusYear + '. But you will "not be" able to sustain yourself for the rest of your life.';
+            }
+            else {
+                key_message = 'Unfortunately, as per current plan, you will not be able to reach the corpus of ' + FormatCurrency(currentUserBaseCurrency, parseFloat(corpus)) + '.';
+            }
+
             setShowKeyInsights(true);
         }
 

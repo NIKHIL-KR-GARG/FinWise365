@@ -405,7 +405,7 @@ const Simulate_WhenToRetire = ({ retirementMonth, retirementYear }) => {
             <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                 {!loading && (
                     <>
-                        <CashFlowCommentary netCashflows={cashflowNetData} incomes={updatedIncomesData} isFixedRetirementDate={isFixedRetirementDate} sourcePage={'Simulate_WhenToRetire'} />
+                        <CashFlowCommentary netCashflows={cashflowNetData} incomes={updatedIncomesData} isFixedRetirementDate={isFixedRetirementDate} corpus={0} sourcePage={'Simulate_WhenToRetire'} />
                         <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
                             <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}

@@ -509,7 +509,7 @@ const Simulate_ReduceIncome = () => {
             <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                 {!loading && (
                     <>
-                        <CashFlowCommentary netCashflows={cashflowNetData} incomes={updatedIncomesData} isFixedRetirementDate={false} sourcePage={'Simulate_ReduceIncome'} />
+                        <CashFlowCommentary netCashflows={cashflowNetData} incomes={updatedIncomesData} isFixedRetirementDate={false} corpus={0} sourcePage={'Simulate_ReduceIncome'} />
                         <Accordion sx={{ width: '100%', mb: 2, minHeight: 70, border: '1px solid', borderColor: 'divider' }} defaultExpanded>
                             <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}
