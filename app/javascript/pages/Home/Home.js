@@ -7,6 +7,7 @@ import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
 import DisplayCashflow from '../../components/cashflowpage/DisplayCashflow';
+import CashFlowCommentary from '../../components/cashflowpage/CashFlowCommentary';
 
 const Home = () => {
 
@@ -158,7 +159,11 @@ const Home = () => {
                             </Box>
                         )}
                         {hasSavedCashflow && (
-                            <DisplayCashflow netCashflowData={netCashflow} />
+                            <>
+                                <DisplayCashflow netCashflowData={netCashflow} />
+                                <Divider sx={{ my: 2 }} />
+                                <CashFlowCommentary netCashflows={netCashflow} incomes={null} isFixedRetirementDate={false} corpus={0} sourcePage={'HomePage'} />
+                            </>
                         )}
                     </Box>
                 </Box>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Box, Snackbar, Alert, IconButton, CircularProgress, Typography, Button, Tooltip, FormControlLabel, Checkbox } from '@mui/material';
+import { Box, Snackbar, Alert, IconButton, CircularProgress, Typography, Button, Tooltip, FormControlLabel, Checkbox, Divider } from '@mui/material';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
@@ -18,6 +18,7 @@ import { GrowthRate } from '../common/DefaultValues';
 import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
 import LiabilitiesCashflow from '../../components/cashflowpage/LiabilitiesCashflow';
 import NetCashflow from '../../components/cashflowpage/NetCashflow';
+import CashFlowCommentary from '../../components/cashflowpage/CashFlowCommentary';
 
 export const fetchAssetLiabilityIncomeData = async (currentUserId, currentUserDisplayDummyData, setLoading, setErrorMessage) => {
     setLoading(true);
@@ -1035,6 +1036,10 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <NetCashflow netCashflowData={netCashflowData} />
+                    <Divider sx={{ my: 2 }} />
+                    {netCashflowData.length > 0 && (
+                        <CashFlowCommentary netCashflows={netCashflowData} incomes={null} isFixedRetirementDate={false} corpus={0} sourcePage={'CashflowPage'} />
+                    )}
                 </AccordionDetails>
             </Accordion>
             {hideAccordians === false && (

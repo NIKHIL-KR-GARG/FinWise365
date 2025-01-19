@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid2';
 import { Box, Link, Typography, Breadcrumbs, Divider, Accordion, AccordionSummary, AccordionDetails, Button, MenuItem, Select, FormControl, InputLabel, Alert, OutlinedInput } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
+import SimulationIcon from '@mui/icons-material/Science';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
@@ -123,7 +123,7 @@ const Simulations = () => {
                     <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <HomeIcon sx={{ mr: 1 }} />
+                                <SimulationIcon sx={{ mr: 1 }} />
                                 My Simulations
                             </Box>
                             <Box sx={{ fontSize: '0.875rem' }}>

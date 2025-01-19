@@ -83,7 +83,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
         let corpusYear = 0;
 
         let firstRow = true;
-        if (incomes || sourcePage === "Simulate_Corpus") {
+        if (incomes || sourcePage === "Simulate_Corpus" || sourcePage === "HomePage" || sourcePage === "CashflowPage") {
             for (let i = 0; i < netCashflows.length; i++) {
                 if (netCashflows[i].month === 12) {
                     if (firstRow) {
@@ -387,16 +387,34 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left', mb: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'left', mb: 2, color: 'purple' }}>
-                <CelebrationIcon sx={{ mr: 1, color: 'purple' }} />
-                {commentary.top_message}
-            </Typography>
+            {commentary.top_message && (
+                <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'left', mb: 2, color: 'purple' }}>
+                    <CelebrationIcon sx={{ mr: 1, color: 'purple' }} />
+                    {commentary.top_message}
+                </Typography>
+            )}
             <Typography variant="h6" component="h2" gutterBottom>
                 Key Analysis and Insights
             </Typography>
-            <Typography variant="body1" gutterBottom sx={{ fontWeight: 'bold', color: 'blue', textAlign: 'center' }}>
-                {commentary.key_message}
-            </Typography>
+            {commentary.key_message && (
+                <Typography
+                    variant="body1"
+                    gutterBottom
+                    sx={{
+                        fontWeight: 'bold',
+                        color: 'white',
+                        textAlign: 'center',
+                        backgroundColor: '#9370DB', // lighter shade of purple
+                        padding: '10px',
+                        borderRadius: '5px',
+                        fontFamily: 'Arial, sans-serif',
+                        fontSize: '1.1rem',
+                        fontStyle: 'italic'
+                    }}
+                >
+                    {commentary.key_message}
+                </Typography>
+            )}
             {showKeyInsights && (
                 <List dense>
                     <ListItem>
@@ -405,7 +423,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                The minimum Liquid Assets you had were&nbsp;
+                                The <b>"Lowest Cash in hand"</b> you will have is:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.liquid_asset_min)}
                                 </Typography>
@@ -413,7 +431,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {commentary.liquid_asset_min_year}
                                 </Typography>
-                                &nbsp;and the maximum were&nbsp;
+                                &nbsp;and the <b>"Highest Cash in hand"</b> you will have is:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.liquid_asset_max)}
                                 </Typography>
@@ -430,7 +448,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                The minimum Fixed Assets you had were&nbsp;
+                                The <b>"Lowest Fixed Assets"</b> you will have is:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.fixed_asset_min)}
                                 </Typography>
@@ -438,7 +456,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {commentary.fixed_asset_min_year}
                                 </Typography>
-                                &nbsp;and the maximum were&nbsp;
+                                &nbsp;and the <b>"Highest Fixed Assets"</b> you will have is:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.fixed_asset_max)}
                                 </Typography>
@@ -455,7 +473,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                The minimum Net Worth you had was &nbsp;
+                                The <b>"Lowest Net Worth"</b> you will have is:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.net_worth_min)}
                                 </Typography>
@@ -463,7 +481,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {commentary.net_worth_min_year}
                                 </Typography>
-                                &nbsp;and the maximum was &nbsp;
+                                &nbsp;and the <b>"Highest Net Worth"</b> you will have is:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.net_worth_max)}
                                 </Typography>
@@ -480,14 +498,14 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                Your final Leftover Liquid Assets were &nbsp;
+                                At then end, your <b>"Final Leftover Cash"</b> wil be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.final_leftover)}
                                 </Typography>.
                             </>
                         } />
                     </ListItem>
-                    <ListItem>
+                    {/* <ListItem>
                         <ListItemIcon>
                             <StarIcon />
                         </ListItemIcon>
@@ -503,31 +521,22 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                                 </Typography>.
                             </>
                         } />
-                    </ListItem>
+                    </ListItem> */}
                     <ListItem>
                         <ListItemIcon>
                             <StarIcon />
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                The largest positive jump in Liquid Assets was &nbsp;
+                                Your largest <b>"Increase in Cash, Year-On-Year"</b> will be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_liquid_asset)}
                                 </Typography>
                                 &nbsp;in the year &nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {commentary.positive_jump_liquid_asset_year}
-                                </Typography>.
-                            </>
-                        } />
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
-                            <StarIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={
-                            <>
-                                The largest negative jump in Liquid Assets was &nbsp;
+                                </Typography>
+                                &nbsp;and the largest <b>"Reduction in Cash, Year-On-Year"</b> will be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_liquid_asset)}
                                 </Typography>
@@ -544,24 +553,15 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                The largest positive jump in Income was &nbsp;
+                                Your largest <b>"Increase in Income, Year-On-Year"</b> will be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_income)}
                                 </Typography>
                                 &nbsp;in the year &nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {commentary.positive_jump_income_year}
-                                </Typography>.
-                            </>
-                        } />
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
-                            <StarIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={
-                            <>
-                                The largest negative jump in Income was &nbsp;
+                                </Typography>
+                                &nbsp;and the largest <b>"Reduction in Income, Year-On-Year"</b> will be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_income)}
                                 </Typography>
@@ -578,24 +578,15 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                The largest positive jump in Expenses was &nbsp;
+                                Your largest <b>"Increase in Expenses, Year-On-Year"</b> will be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.positive_jump_expense)}
                                 </Typography>
                                 &nbsp;in the year &nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {commentary.positive_jump_expense_year}
-                                </Typography>.
-                            </>
-                        } />
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
-                            <StarIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={
-                            <>
-                                The largest negative jump in Expenses was &nbsp;
+                                </Typography>
+                                &nbsp;and the largest <b>"Reduction in Expenses, Year-On-Year"</b> will be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.negative_jump_expense)}
                                 </Typography>
@@ -608,7 +599,10 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                     </ListItem>
                 </List>
             )}
-            {showKeyInsights && (
+            {showKeyInsights && 
+                ((sourcePage === "Simulate_WhenToRetire") ||
+                (sourcePage === "Simulate_ReduceIncome") ||
+                (sourcePage === "Simulate_Sabbatical")) && (
                 <Typography variant="h6" component="h2" gutterBottom sx={{ mt: 2 }}>
                     Changes in Income
                 </Typography>
