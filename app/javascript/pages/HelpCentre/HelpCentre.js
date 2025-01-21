@@ -250,7 +250,7 @@ const HelpCentre = () => {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Typography variant="body1">
-                                        If you need assistance, you can contact our customer support team by clicking on the "Contact Us" link in the Help Centre.
+                                        If you need assistance, you can contact our customer support team by clicking on the "Contact Us" link.
                                     </Typography>
                                 </AccordionDetails>
                             </Accordion>
@@ -287,7 +287,7 @@ const HelpCentre = () => {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Typography variant="body1">
-                                        If you encounter a bug or issue, please report it to our support team through the "Contact Us" link in the Help Centre.
+                                        If you encounter a bug or issue, please report it to our support team through the "Contact Us" link.
                                     </Typography>
                                 </AccordionDetails>
                             </Accordion>
