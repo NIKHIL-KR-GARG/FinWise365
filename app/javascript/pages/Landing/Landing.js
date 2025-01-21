@@ -7,7 +7,6 @@ import LandingSectionFeatures from '../../components/landingpage/LandingSectionF
 import LandingSectionVideos from '../../components/landingpage/LandingSectionVideos';
 import LandingFooter from '../../components/landingpage/LandingFooter';
 
-
 const Landing = () => {
     return (
         <Box

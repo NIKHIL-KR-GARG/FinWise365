@@ -75,7 +75,7 @@ const LandingFooter = () => {
                     <Box sx={{ display: 'inline-block', width: 'auto', margin: '16px 0' }}> {/* Center the divider */}
                         <Divider sx={{ width: '200px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 1 }}>
+                    {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 1 }}>
                         <IconButton href="https://wa.me/1234567890" target="_blank" sx={{ color: 'white' }}>
                             <WhatsAppIcon />
                         </IconButton>
@@ -90,12 +90,12 @@ const LandingFooter = () => {
                         <Link href="tel:+1234567890" sx={{ fontSize: '1.1rem', color: 'white', marginLeft: 1, textDecoration: 'none' }}>
                             +1 234 567 890
                         </Link>
-                    </Box>
+                    </Box> */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconButton href="mailto:info@finwise365.com" sx={{ color: 'white' }}>
+                        <IconButton href="mailto:contactus@finwise365.com" sx={{ color: 'white' }}>
                             <EmailIcon />
                         </IconButton>
-                        <Link href="mailto:info@finwise365.com" sx={{ fontSize: '1.1rem', color: 'white', marginLeft: 1, textDecoration: 'none' }}>
+                        <Link href="mailto:contactus@finwise365.com" sx={{ fontSize: '1.1rem', color: 'white', marginLeft: 1, textDecoration: 'none' }}>
                             info@finwise365.com
                         </Link>
                     </Box>
@@ -108,13 +108,13 @@ const LandingFooter = () => {
                         <Divider sx={{ width: '75px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> {/* Align items to the center */}
-                        <IconButton href="https://www.facebook.com" target="_blank" sx={{ color: 'white' }}>
+                        <IconButton href="https://www.facebook.com/profile.php?id=61572269735204" target="_blank" sx={{ color: 'white' }}>
                             <FacebookIcon />
                         </IconButton>
-                        <IconButton href="https://www.instagram.com" target="_blank" sx={{ color: 'white' }}>
+                        <IconButton href="https://www.instagram.com/finwise365/" target="_blank" sx={{ color: 'white' }}>
                             <InstagramIcon />
                         </IconButton>
-                        <IconButton href="https://www.youtube.com" target="_blank" sx={{ color: 'white' }}>
+                        <IconButton href="https://www.youtube.com/@FinWise365" target="_blank" sx={{ color: 'white' }}>
                             <YouTubeIcon />
                         </IconButton>
                         {/*
@@ -135,7 +135,7 @@ const LandingFooter = () => {
                             fontStyle: 'italic', // Make the text italic
                         }}
                     >
-                        @ Copyright nikhil.garg@finwise365.com. All Rights Reserved.
+                        @ Copyright FinWise365.com. All Rights Reserved.
                 </Typography>
             </Box>
         </Box>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Box, TextField, Button, Snackbar, Alert, Typography, Checkbox, FormControlLabel, IconButton } from '@mui/material';
+import { Box, TextField, Button, Snackbar, Alert, Typography, Checkbox, FormControlLabel, IconButton, Link, Modal } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import LandingHeader from '../../components/landingpage/LandingHeader';
+import CookiesPolicy from '../../components/miscelleanous/CookiesPolicy';
+import PrivacyPolicy from '../../components/miscelleanous/PrivacyPolicy';
 
 const ContactUs = () => {
     const [name, setName] = useState('');
@@ -12,6 +14,8 @@ const ContactUs = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [agree, setAgree] = useState(false);
+    const [openPrivacyPolicy, setOpenPrivacyPolicy] = useState(false);
+    const [openCookiesPolicy, setOpenCookiesPolicy] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -130,7 +134,14 @@ const ContactUs = () => {
                 />
                 <FormControlLabel
                     control={<Checkbox checked={agree} onChange={(e) => setAgree(e.target.checked)} />}
-                    label="By submitting this, you agree to the Privacy Policy and Cookie Policy"
+                    label={
+                        <Typography>
+                            By submitting this, you agree to the 
+                            <Link href="#" onClick={() => setOpenPrivacyPolicy(true)}> Privacy Policy </Link> 
+                            and 
+                            <Link href="#" onClick={() => setOpenCookiesPolicy(true)}> Cookie Policy</Link>
+                        </Typography>
+                    }
                 />
                 <Box sx={{ mt: 2 }}>
                     <Button type="submit" variant="contained" color="primary" fullWidth>
@@ -184,6 +195,72 @@ const ContactUs = () => {
                 </Alert>
             </Snackbar>
             </Box>
+            <Modal open={openPrivacyPolicy} onClose={() => setOpenPrivacyPolicy(false)}>
+                <Box sx={{ 
+                    p: 2, 
+                    bgcolor: 'background.paper', 
+                    boxShadow: 24, 
+                    borderRadius: 2, 
+                    width: '90%', 
+                    maxWidth: 800, 
+                    maxHeight: '80vh', 
+                    overflowY: 'auto', 
+                    mx: 'auto', 
+                    my: 'auto', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    position: 'absolute', 
+                    top: '50%', 
+                    left: '50%', 
+                    transform: 'translate(-50%, -50%)' 
+                }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <IconButton
+                            aria-label="close"
+                            onClick={() => setOpenPrivacyPolicy(false)}
+                            sx={{ color: 'grey.500' }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                    <Box>
+                        <PrivacyPolicy />
+                    </Box>
+                </Box>
+            </Modal>
+            <Modal open={openCookiesPolicy} onClose={() => setOpenCookiesPolicy(false)}>
+                <Box sx={{ 
+                    p: 2, 
+                    bgcolor: 'background.paper', 
+                    boxShadow: 24, 
+                    borderRadius: 2, 
+                    width: '90%', 
+                    maxWidth: 800, 
+                    maxHeight: '80vh', 
+                    overflowY: 'auto', 
+                    mx: 'auto', 
+                    my: 'auto', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    position: 'absolute', 
+                    top: '50%', 
+                    left: '50%', 
+                    transform: 'translate(-50%, -50%)' 
+                }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <IconButton
+                            aria-label="close"
+                            onClick={() => setOpenCookiesPolicy(false)}
+                            sx={{ color: 'grey.500' }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                    <Box>
+                        <CookiesPolicy />
+                    </Box>
+                </Box>
+            </Modal>
         </Box>
     );
 };

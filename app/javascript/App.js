@@ -14,6 +14,7 @@ import Cashflows from './pages/Cashflows/Cashflows';
 import Incomes from './pages/Incomes/Incomes';
 import CashflowComparison from './pages/CashflowComparison/CashflowComparison';
 import ContactUs from './pages/ContactUs/ContactUs';
+import AboutUs from './pages/AboutUs/AboutUs';
 import HelpCentre from './pages/HelpCentre/HelpCentre';
 import ComingSoon from './pages/ComingSoon/ComingSoon';
 import AdminFunctions from './pages/AdminFunctions/AdminFunctions';
@@ -35,6 +36,7 @@ const App = () => {
         <Route path='/cashflows' element={<AuthenticationGuard component={Cashflows} />} />
         <Route path='/cashflowcomparison' element={<AuthenticationGuard component={CashflowComparison} />} />
         <Route path='/contactus' element={<ContactUs />} />
+        <Route path='/aboutus' element={<AboutUs />} />
         <Route path='/helpcentre' element={<HelpCentre />} />
         <Route path='/comingsoon' element={<ComingSoon />} />
         <Route path='/adminfunctions' element={<AuthenticationGuard component={AdminFunctions} />} />

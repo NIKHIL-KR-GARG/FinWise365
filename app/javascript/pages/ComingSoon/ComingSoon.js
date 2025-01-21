@@ -41,15 +41,18 @@ const ComingSoon = () => {
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
-                            image="/newfeature1.jpg"
+                            image="/assetclasses.jpeg"
                             title="new feature 1"
                         />
-                        <CardContent>
+                        <CardContent sx={{ pb: 1 }}>
                             <Typography variant="h5" component="div">
-                                Feature 1
+                                New Asset Classes 
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Description of feature 1.
+                                <ul>
+                                    <li>Able to add Commodities (Gold/Silver) to Assets and Dreams.</li>
+                                    <li>Calculators for Retirement funds like PPF & CPF</li>
+                                </ul>
                             </Typography>
                         </CardContent>
                     </Card>
@@ -58,15 +61,19 @@ const ComingSoon = () => {
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
-                            image="/newfeature2.jpg"
+                            image="/insurance.jpeg"
                             title="new feature 2"
                         />
-                        <CardContent>
+                        <CardContent sx={{ pb: 1 }}>
                             <Typography variant="h5" component="div">
-                                Feature 2
+                                Insurance
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Description of feature 2.
+                                <ul>
+                                    <li>Add Life, Health and Others insurance coverage</li>
+                                    <li>Check appropriate coverage based on liabilities.</li>
+                                    <li>Gain insights on the right coverage for you and in case of emergencies.</li>
+                                </ul>
                             </Typography>
                         </CardContent>
                     </Card>
@@ -75,15 +82,19 @@ const ComingSoon = () => {
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
-                            image="/newfeature3.png"
+                            image="/notifications.jpeg"
                             title="new feature 3"
                         />
-                        <CardContent>
+                        <CardContent sx={{ pb: 1 }}>
                             <Typography variant="h5" component="div">
-                                Feature 3
+                                Portfolio Management & Notifications
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Description of feature 3.
+                                <ul>
+                                    <li>Mark-To-Market for Investment Portfolios</li>
+                                    <li>Notifications for upcoming payments, maturity of investments, etc.</li>
+                                    <li>Insights on the performance of your investments.</li>
+                                </ul>
                             </Typography>
                         </CardContent>
                     </Card>
@@ -92,15 +103,18 @@ const ComingSoon = () => {
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
-                            image="/newfeature2.jpg"
+                            image="/insightsanalytics.jpeg"
                             title="new feature 4"
                         />
-                        <CardContent>
+                        <CardContent sx={{ pb: 1 }}>
                             <Typography variant="h5" component="div">
-                                Feature 4
+                                Further Insights & Analytics
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Description of feature 4.
+                                <ul>
+                                    <li>Insights on your expenses vs income</li>
+                                    <li>Insights on loans and liabilities</li>
+                                </ul>
                             </Typography>
                         </CardContent>
                     </Card>
@@ -109,15 +123,20 @@ const ComingSoon = () => {
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
-                            image="/newfeature3.png"
+                            image="/onlinecalculators.jpeg"
                             title="new feature 5"
                         />
-                        <CardContent>
+                        <CardContent sx={{ pb: 1 }}>
                             <Typography variant="h5" component="div">
-                                Feature 5
+                                Easy to use Calculators
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Description of feature 5.
+                                <ul>
+                                    <li>Calculators for Retirement funds like PPF & CPF</li>
+                                    <li>Calculators for loans and EMI payments</li>
+                                    <li>Time Value of Money Calculators</li>
+                                    <li>Investment Calculators</li>
+                                </ul>
                             </Typography>
                         </CardContent>
                     </Card>
@@ -126,15 +145,19 @@ const ComingSoon = () => {
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
-                            image="/newfeature1.jpg"
+                            image="/retirementplans.jpeg"
                             title="new feature 6"
                         />
-                        <CardContent>
+                        <CardContent sx={{ pb: 1 }}>
                             <Typography variant="h5" component="div">
-                                Feature 6
+                                Retirement Plans
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Description of feature 6.
+                                <ul>
+                                    <li>Derive your risk profile</li>
+                                    <li>Plan your retirement corpus</li>
+                                    <li>Create Retirement Plans using various methodologies</li>
+                                </ul>
                             </Typography>
                         </CardContent>
                     </Card>

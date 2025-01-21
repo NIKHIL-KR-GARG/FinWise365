@@ -39,12 +39,14 @@ const LandingHeader = ({sourcePage}) => {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <IconButton edge="end" color="inherit" aria-label="menu">
-          <img src="/SmartOwlLogo.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
-        </IconButton>
-        <Typography variant="h6" component="span" sx={{ color: 'white' }}>
-          FinWise365
-        </Typography>
+        <Link href="/" sx={{ textDecoration: 'none', color: 'white' }}>
+          <IconButton edge="end" color="inherit" aria-label="menu">
+            <img src="/SmartOwlLogo.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
+          </IconButton>
+          <Typography variant="h6" component="span" sx={{ color: 'white' }}>
+            &nbsp;&nbsp;FinWise365
+          </Typography>
+        </Link>
       </Box>
       <Box sx={{ display: 'flex', gap: 6 }}>
         {/* <Link href="/home" sx={{ textDecoration: 'none', color: 'white' }}>
@@ -52,12 +54,17 @@ const LandingHeader = ({sourcePage}) => {
               Home
             </Typography>
           </Link> */}
-        <Link href="" sx={{ textDecoration: 'none', color: 'white' }}>
+        {(sourcePage !== 'AboutUs') && (
+          <Link href="/aboutus" sx={{ textDecoration: 'none', color: 'white' }}>
           <Typography variant="body1" sx={{ color: 'white' }}>
-            About
+            About Us
           </Typography>
         </Link>
-        {(sourcePage === 'Landing' || sourcePage === 'HelpCentre' || sourcePage === 'ComingSoon') && (
+        )}
+        {(sourcePage === 'Landing' || 
+          sourcePage === 'HelpCentre' || 
+          sourcePage === 'ComingSoon' ||
+          sourcePage === 'AboutUs') && (
           <Link href="/contactus" sx={{ textDecoration: 'none', color: 'white' }}>
             <Typography variant="body1" sx={{ color: 'white' }}>
               Contact Us
