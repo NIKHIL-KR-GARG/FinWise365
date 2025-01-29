@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Typography, Breadcrumbs, Divider, CircularProgress } from '@mui/material';
+import { Box, Typography, Breadcrumbs, Divider, CircularProgress, Link } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
@@ -152,9 +152,12 @@ const Home = () => {
                         </Box>
                         {!hasSavedCashflow && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 10 }}>
-                                <Typography variant="h5" sx={{ fontStyle: 'italic', textAlign: 'center', color: 'red' }}>
+                                <Typography variant="h5" sx={{ fontStyle: 'italic', textAlign: 'center', color: 'red', bgcolor: '#ffe6e6' }}>
                                     You have not saved any cashflow projections yet. 
-                                    Please create a new cashflow projection from Analyze (Cashflow) Menu option.
+                                    Please create a new cashflow projection from 
+                                    <Link underline="hover" color="primary" href="/cashflows" sx={{ fontStyle: 'italic', textDecoration: 'underline', ml: 1 }}> 
+                                        Analyze (Cashflow)
+                                    </Link>  Menu option.
                                 </Typography>
                             </Box>
                         )}

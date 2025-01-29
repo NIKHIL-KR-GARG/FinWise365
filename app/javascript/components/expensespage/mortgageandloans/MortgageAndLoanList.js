@@ -155,14 +155,14 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
             else return params.value
         }},
         { field: 'currency', headerName: 'Currency', width: 100, headerClassName: 'header-theme' },
-        { field: 'original_amount', headerName: 'Original Amount', width: 150, headerClassName: 'header-theme' , renderCell: (params) => {
+        { field: 'original_amount', headerName: 'Original Amount', width: 125, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.orginal_amount);
          }},
-         { field: 'balance_amount', headerName: 'Balance Amount', width: 150, headerClassName: 'header-theme' , renderCell: (params) => {
+         { field: 'balance_amount', headerName: 'Balance Amount', width: 125, headerClassName: 'header-theme' , renderCell: (params) => {
             return FormatCurrency(params.row.currency, params.row.balance_amount);
          }},
-        { field: 'start_date', headerName: 'Start Date', width: 150, headerClassName: 'header-theme' },
-        { field: 'end_date', headerName: 'End Date', width: 150, headerClassName: 'header-theme' },
+        { field: 'start_date', headerName: 'Start Date', width: 125, headerClassName: 'header-theme' },
+        { field: 'end_date', headerName: 'End Date', width: 125, headerClassName: 'header-theme' },
     ];
 
     return (

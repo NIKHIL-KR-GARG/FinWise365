@@ -134,15 +134,12 @@ const Simulations = () => {
                         {alertMessage && <Alert severity="warning">{alertMessage}</Alert>}
                         <Box sx={{ width: '100%', p: 0, display: 'flex', justifyContent: 'left', pb: 2 }}>
                             <Typography variant="body1" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
-                                <Box sx={{ display: 'flex', alignItems: 'left' }}>
-                                    What Insights would you like today? Please pick a question below.
-                                </Box>
-                                <Box sx={{ display: 'flex', alignItems: 'left' }}>
-                                    &nbsp;(if you have any other question in mind, please&nbsp;
-                                    <Link underline="hover" color="primary" href="/contactus" sx={{ fontStyle: 'italic', textDecoration: 'underline' }}> 
+                                <Box sx={{ alignItems: 'left' }}>
+                                    What Insights would you like today? Please pick a question below. (if you have any other question in mind, please
+                                    <Link underline="hover" color="primary" href="/contactus" sx={{ fontStyle: 'italic', textDecoration: 'underline', ml: 1 }}> 
                                         send us a message
                                     </Link> 
-                                    &nbsp;and we will try to add it here)
+                                    &nbsp; and we will try to add it here)
                                 </Box>
                             </Typography>
                         </Box>

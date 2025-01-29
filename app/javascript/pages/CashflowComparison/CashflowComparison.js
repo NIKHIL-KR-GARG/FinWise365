@@ -229,9 +229,13 @@ const CashflowComparison = () => {
                         <Divider sx={{ my: 2 }} />
                         {!hasSavedCashflow && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 10 }}>
-                                <Typography variant="h5" sx={{ fontStyle: 'italic', textAlign: 'center', color: 'red' }}>
-                                    You have not saved two or more cashflow projections to use for comparison yet. 
-                                    Please create new cashflow projections from Analyze (Cashflow) Menu option.
+                                <Typography variant="h5" sx={{ fontStyle: 'italic', textAlign: 'center', color: 'red', bgcolor: '#ffe6e6' }}>
+                                    You have not saved two or more cashflow projections to use for comparison yet.
+                                    Please create new cashflow projections from
+                                    <Link underline="hover" color="primary" href="/cashflows" sx={{ fontStyle: 'italic', textDecoration: 'underline', ml: 1 }}>
+                                        Analyze (Cashflow)
+                                    </Link>
+                                    Menu option and save them for comparisons.
                                 </Typography>
                             </Box>
                         )}
@@ -284,7 +288,7 @@ const CashflowComparison = () => {
                                             height: '40px'
                                         }}
                                     >
-                                        Compare Cashflow Projections
+                                        Compare Cashflows
                                     </Button>
                                 </Box>
                                 <Divider sx={{ my: 2 }} />

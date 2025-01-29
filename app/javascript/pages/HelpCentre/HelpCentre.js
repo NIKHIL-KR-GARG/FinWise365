@@ -25,7 +25,7 @@ const HelpCentre = () => {
             <Box
                 sx={{
                     width: '100%',
-                    height: '30vh',
+                    height: '40vh',
                     bgcolor: '#e0f7fa',
                     position: 'relative',
                     mt: 2,

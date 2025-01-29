@@ -54,6 +54,7 @@ import { fetchPropertyMortgageAndLoans, fetchVehicleMortgageAndLoans } from '../
 const Expenses = () => {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalHeight, setModalHeight] = useState(0);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal
     const [action, setAction] = useState('Expense'); // State for action
     const [expenseAction, setExpenseAction] = useState(''); // State for action
@@ -101,7 +102,7 @@ const Expenses = () => {
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
-    
+
     useEffect(() => {
         if (homeListRef.current) {
             setHomeCount(homeListRef.current.getHomeCount());
@@ -480,6 +481,13 @@ const Expenses = () => {
         };
     };
 
+    const modalRefCallback = (node) => {
+        if (node !== null) {
+            const { height } = node.getBoundingClientRect();
+            setModalHeight(height);
+        }
+    };
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Snackbar
@@ -730,9 +738,9 @@ const Expenses = () => {
                 onClose={handleModalClose}
                 aria-labelledby="modal-title"
                 aria-describedby="modal-description"
-                sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', mt: '350px', mr: '48px' }}
+                sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', mt: `calc(100vh - ${modalHeight + 70}px)`, mr: '70px' }}
             >
-                <Box sx={{ width: 325, bgcolor: 'purple', p: 2, boxShadow: 24, borderRadius: 4 }}>
+                <Box ref={modalRefCallback} sx={{ width: 325, bgcolor: 'purple', p: 2, boxShadow: 24, borderRadius: 4 }}>
                     <Typography id="modal-title" variant="h6" component="h2" sx={{ color: 'white' }}>
                         Add New Expense
                     </Typography>
