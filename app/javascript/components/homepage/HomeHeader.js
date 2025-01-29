@@ -15,12 +15,12 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
     
     const [anchorEl, setAnchorEl] = useState(null);
     const [isDemoData, setIsDemoData] = useState(currentUserDisplayDummyData === 'true');
+    const [currentUserBaseCurrency, setCurrentUserBaseCurrency] = useState(localStorage.getItem('currentUserBaseCurrency'));
+    const [currentUserCountryOfResidence, setCurrentUserCountryOfResidence] = useState(localStorage.getItem('currentUserCountryOfResidence'));
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -37,6 +37,19 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
     useEffect(() => {
         setIsDemoData(currentUserDisplayDummyData === 'true');
     }, [currentUserDisplayDummyData]);
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setCurrentUserBaseCurrency(localStorage.getItem('currentUserBaseCurrency'));
+            setCurrentUserCountryOfResidence(localStorage.getItem('currentUserCountryOfResidence'));
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     const handleDemoDataToggle = async () => {
         try {

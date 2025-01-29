@@ -153,6 +153,9 @@ const UserProfile = () => {
                 localStorage.setItem('currentUserIsAdmin', user.is_admin);
                 localStorage.setItem('currentUserRetirementAge', user.retirement_age);
 
+                // Trigger storage event
+                window.dispatchEvent(new Event('storage'));
+
             } catch (error) {
                 console.error('Error updating user data:', error);
                 setErrorMessage('Failed to update user information');
