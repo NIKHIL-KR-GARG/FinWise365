@@ -103,6 +103,89 @@ const Expenses = () => {
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
 
+    const updateHomeExpenses = () => {
+        const today = new Date();
+        let homeExpenses = 0.0;
+        for (let i = 0; i < homes.length; i++) {
+            let home = homes[i];
+            homeExpenses += parseFloat(homeExpense(home, today, currentUserBaseCurrency));
+        }
+        setExpensesData(prevData => {
+            const newData = prevData.map(expense => 
+                expense.name === 'Home Expenses' ? { ...expense, value: parseFloat(homeExpenses.toFixed(2)) } : expense
+            );
+            return newData;
+        });
+    };
+
+    const updatePropertyExpenses = () => {
+        const today = new Date();
+        let propertyExpenses = 0.0;
+        for (let i = 0; i < properties.length; i++) {
+            let property = properties[i];
+            propertyExpenses += parseFloat(propertyExpense(property, today, currentUserBaseCurrency));
+        }
+        for (let i = 0; i < assetProperties.length; i++) {
+            let property = assetProperties[i];
+            propertyExpenses += parseFloat(maintananeExpenseProperty(property, today, currentUserBaseCurrency));
+        }
+        setExpensesData(prevData => {
+            const newData = prevData.map(expense => 
+                expense.name === 'Property Expenses' ? { ...expense, value: parseFloat(propertyExpenses.toFixed(2)) } : expense
+            );
+            return newData;
+        });
+    };
+
+    const updateCreditCardDebtExpenses = () => {
+        const today = new Date();
+        let creditCardDebtExpenses = 0.0;
+        for (let i = 0; i < creditCardDebts.length; i++) {
+            let creditCardDebt = creditCardDebts[i];
+            creditCardDebtExpenses += parseFloat(creditCardDebtExpense(creditCardDebt, today, currentUserBaseCurrency));
+        }
+        setExpensesData(prevData => {
+            const newData = prevData.map(expense => 
+                expense.name === 'Credit Card Debt Expenses' ? { ...expense, value: parseFloat(creditCardDebtExpenses.toFixed(2)) } : expense
+            );
+            return newData;
+        });
+    };
+
+    const updatePersonalLoanExpenses = () => {
+        const today = new Date();
+        let personalLoanExpenses = 0.0;
+        for (let i = 0; i < personalLoans.length; i++) {
+            let personalLoan = personalLoans[i];
+            personalLoanExpenses += parseFloat(personalLoanExpense(personalLoan, today, currentUserBaseCurrency));
+        }
+        setExpensesData(prevData => {
+            const newData = prevData.map(expense => 
+                expense.name === 'Personal Loan Expenses' ? { ...expense, value: parseFloat(personalLoanExpenses.toFixed(2)) } : expense
+            );
+            return newData;
+        });
+    };
+
+    const updateOtherExpenses = () => {
+        const today = new Date();
+        let otherExpensesValue = 0.0;
+        for (let i = 0; i < otherExpenses.length; i++) {
+            let other = otherExpenses[i];
+            otherExpensesValue += parseFloat(otherExpense(other, today, currentUserBaseCurrency));
+        }
+        for (let i = 0; i < assetVehicles.length; i++) {
+            let vehicle = assetVehicles[i];
+            otherExpensesValue += parseFloat(otherExpenseVehicle(vehicle, today, currentUserBaseCurrency));
+        }
+        setExpensesData(prevData => {
+            const newData = prevData.map(expense => 
+                expense.name === 'Other Expenses' ? { ...expense, value: parseFloat(otherExpensesValue.toFixed(2)) } : expense
+            );
+            return newData;
+        });
+    };
+
     useEffect(() => {
         if (homeListRef.current) {
             setHomeCount(homeListRef.current.getHomeCount());
@@ -383,47 +466,57 @@ const Expenses = () => {
         if (homeListRef.current) {
             homeListRef.current.refreshHomeList(updatedHome, successMsg);
             setHomeCount(homeCount + 1);
+            updateHomeExpenses();
         }
     };
     const handlePropertyAdded = (updatedProperty, successMsg) => {
         if (propertyListRef.current) {
             propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
             setPropertyCount(propertyCount + 1);
+            updatePropertyExpenses();
         }
     };
     const handleCreditCardDebtAdded = (updatedCreditCardDebt, successMsg) => {
         if (creditCardDebtListRef.current) {
             creditCardDebtListRef.current.refreshCreditCardDebtList(updatedCreditCardDebt, successMsg);
             setCreditCardDebtCount(creditCardDebtCount + 1);
+            updateCreditCardDebtExpenses();
         }
     };
     const handlePersonalLoanAdded = (updatedPersonalLoan, successMsg) => {
         if (personalLoanListRef.current) {
             personalLoanListRef.current.refreshPersonalLoanList(updatedPersonalLoan, successMsg);
             setPersonalLoanCount(personalLoanCount + 1);
+            updatePersonalLoanExpenses();
         }
     };
     const handleOtherAdded = (updatedOther, successMsg) => {
         if (otherListRef.current) {
             otherListRef.current.refreshOtherList(updatedOther, successMsg);
             setOtherCount(otherCount + 1);
+            updateOtherExpenses();
         }
     };
 
     const handleHomesFetched = (count) => {
         setHomeCount(count);
+        updateHomeExpenses();
     };
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
+        updatePropertyExpenses();
     };
     const handleCreditCardDebtsFetched = (count) => {
         setCreditCardDebtCount(count);
+        updateCreditCardDebtExpenses();
     };
     const handlePersonalLoansFetched = (count) => {
         setPersonalLoanCount(count);
+        updatePersonalLoanExpenses();
     };
     const handleOthersFetched = (count) => {
         setOtherCount(count);
+        updateOtherExpenses();
     };
     const handleEMIsFetched = (count) => {
         setEMICount(count);
@@ -487,6 +580,31 @@ const Expenses = () => {
             setModalHeight(height);
         }
     };
+
+    // const handleHomeListUpdated = (updatedHomes) => {
+    //     setHomes(updatedHomes);
+    //     updateHomeExpenses();
+    // };
+
+    // const handlePropertyListUpdated = (updatedProperties) => {
+    //     setProperties(updatedProperties);
+    //     updatePropertyExpenses();
+    // };
+
+    // const handleCreditCardDebtListUpdated = (updatedCreditCardDebts) => {
+    //     setCreditCardDebts(updatedCreditCardDebts);
+    //     updateCreditCardDebtExpenses();
+    // };
+
+    // const handlePersonalLoanListUpdated = (updatedPersonalLoans) => {
+    //     setPersonalLoans(updatedPersonalLoans);
+    //     updatePersonalLoanExpenses();
+    // };
+
+    // const handleOtherListUpdated = (updatedOthers) => {
+    //     setOtherExpenses(updatedOthers);
+    //     updateOtherExpenses();
+    // };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

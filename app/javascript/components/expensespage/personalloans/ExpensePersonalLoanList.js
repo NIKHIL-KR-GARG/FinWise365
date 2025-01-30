@@ -284,7 +284,7 @@ const ExpensePersonalLoanList = forwardRef((props, ref) => {
                 <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        Are you sure you want to delete the personal loan debt: "{personalLoanToDelete?.card_name}"?
+                        Are you sure you want to delete the personal loan debt: "{personalLoanToDelete?.loan_name}"?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

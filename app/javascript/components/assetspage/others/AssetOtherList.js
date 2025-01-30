@@ -300,7 +300,7 @@ const AssetOtherList = forwardRef((props, ref) => {
                 <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        Are you sure you want to delete the other "{otherToDelete?.other_name}"?
+                        Are you sure you want to delete the other "{otherToDelete?.asset_name}"?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

@@ -87,6 +87,132 @@ const Assets = () => {
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
 
+    const updatePropertyAsset = () => {
+        const today = new Date();
+        let propertyAssetsValue = 0.0;
+        for (let i = 0; i < properties.length; i++) {
+            const property = properties[i];
+            propertyAssetsValue += parseFloat(propertyAssetValue(property, today, currentUserBaseCurrency));
+        }
+        // set value for Properties in the assetsData
+        setAssetsData([
+            {
+                name: 'Assets',
+                Properties: parseFloat(propertyAssetsValue).toFixed(2),
+                Vehicles: assetsData[0].Vehicles,
+                Accounts: assetsData[0].Accounts,
+                Deposits: assetsData[0].Deposits,
+                Portfolios: assetsData[0].Portfolios,
+                Others: assetsData[0].Others
+            }
+        ]);
+    };
+
+    const updateVehicleAsset = () => {
+        const today = new Date();
+        let vehicleAssetsValue = 0.0;
+        for (let i = 0; i < vehicles.length; i++) {
+            const vehicle = vehicles[i];
+            vehicleAssetsValue += parseFloat(vehicleAssetValue(vehicle, today, currentUserBaseCurrency));
+        }
+        // set value for Vehicles in the assetsData
+        setAssetsData([
+            {
+                name: 'Assets',
+                Properties: assetsData[0].Properties,
+                Vehicles: parseFloat(vehicleAssetsValue).toFixed(2),
+                Accounts: assetsData[0].Accounts,
+                Deposits: assetsData[0].Deposits,
+                Portfolios: assetsData[0].Portfolios,
+                Others: assetsData[0].Others
+            }
+        ]);
+    };
+
+    const updateAccountAsset = () => {
+        const today = new Date();
+        let accountAssetsValue = 0.0;
+        for (let i = 0; i < accounts.length; i++) {
+            const account = accounts[i];
+            accountAssetsValue += parseFloat(accountAssetValue(account, today, currentUserBaseCurrency));
+        }
+        // set value for Accounts in the assetsData
+        setAssetsData([
+            {
+                name: 'Assets',
+                Properties: assetsData[0].Properties,
+                Vehicles: assetsData[0].Vehicles,
+                Accounts: parseFloat(accountAssetsValue).toFixed(2),
+                Deposits: assetsData[0].Deposits,
+                Portfolios: assetsData[0].Portfolios,
+                Others: assetsData[0].Others
+            }
+        ]);
+    };
+
+    const updateDepositAsset = () => {
+        const today = new Date();
+        let depositAssetsValue = 0.0;
+        for (let i = 0; i < deposits.length; i++) {
+            const deposit = deposits[i];
+            depositAssetsValue += parseFloat(depositAssetValue(deposit, today, currentUserBaseCurrency));
+        }
+        // set value for Deposits in the assetsData
+        setAssetsData([
+            {
+                name: 'Assets',
+                Properties: assetsData[0].Properties,
+                Vehicles: assetsData[0].Vehicles,
+                Accounts: assetsData[0].Accounts,
+                Deposits: parseFloat(depositAssetsValue).toFixed(2),
+                Portfolios: assetsData[0].Portfolios,
+                Others: assetsData[0].Others
+            }
+        ]);
+    };
+
+    const updatePortfolioAsset = () => {
+        const today = new Date();
+        let portfolioAssetsValue = 0.0;
+        for (let i = 0; i < portfolios.length; i++) {
+            const portfolio = portfolios[i];
+            portfolioAssetsValue += parseFloat(portfolioAssetValue(portfolio, today, currentUserBaseCurrency));
+        }
+        // set value for Portfolios in the assetsData
+        setAssetsData([
+            {
+                name: 'Assets',
+                Properties: assetsData[0].Properties,
+                Vehicles: assetsData[0].Vehicles,
+                Accounts: assetsData[0].Accounts,
+                Deposits: assetsData[0].Deposits,
+                Portfolios: parseFloat(portfolioAssetsValue).toFixed(2),
+                Others: assetsData[0].Others
+            }
+        ]);
+    };
+
+    const updateOtherAsset = () => {
+        const today = new Date();
+        let otherAssetsValue = 0.0;
+        for (let i = 0; i < others.length; i++) {
+            const other = others[i];
+            otherAssetsValue += parseFloat(otherAssetValue(other, today, currentUserBaseCurrency));
+        }
+        // set value for Others in the assetsData
+        setAssetsData([
+            {
+                name: 'Assets',
+                Properties: assetsData[0].Properties,
+                Vehicles: assetsData[0].Vehicles,
+                Accounts: assetsData[0].Accounts,
+                Deposits: assetsData[0].Deposits,
+                Portfolios: assetsData[0].Portfolios,
+                Others: parseFloat(otherAssetsValue).toFixed(2)
+            }
+        ]);
+    };
+
     useEffect(() => {
         if (propertyListRef.current) {
             setPropertyCount(propertyListRef.current.getPropertyCount());
@@ -316,56 +442,68 @@ const Assets = () => {
         if (propertyListRef.current) {
             propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
             setPropertyCount(propertyCount + 1);
+            updatePropertyAsset();
         }
     };
     const handleVehicleAdded = (updatedVehicle, successMsg) => {
         if (vehicleListRef.current) {
             vehicleListRef.current.refreshVehicleList(updatedVehicle, successMsg);
             setVehicleCount(vehicleCount + 1);
+            updateVehicleAsset();
         }
     };
     const handleAccountAdded = (updatedAccount, successMsg) => {
         if (accountListRef.current) {
             accountListRef.current.refreshAccountList(updatedAccount, successMsg);
             setAccountCount(accountCount + 1);
+            updateAccountAsset();
         }
     };
     const handleDepositAdded = (updatedDeposit, successMsg) => {
         if (depositListRef.current) {
             depositListRef.current.refreshDepositList(updatedDeposit, successMsg);
             setDepositCount(depositCount + 1);
+            updateDepositAsset();
         }
     };
     const handlePortfolioAdded = (updatedPortfolio, successMsg) => {
         if (portfolioListRef.current) {
             portfolioListRef.current.refreshPortfolioList(updatedPortfolio, successMsg);
             setPortfolioCount(portfolioCount + 1);
+            updatePortfolioAsset();
         }
     };
     const handleOtherAdded = (updatedOther, successMsg) => {
         if (otherListRef.current) {
             otherListRef.current.refreshOtherList(updatedOther, successMsg);
             setOtherCount(otherCount + 1);
+            updateOtherAsset();
         }
     };
     
     const handlePropertiesFetched = (count) => {
         setPropertyCount(count);
+        updatePropertyAsset();
    };
     const handleVehiclesFetched = (count) => {
         setVehicleCount(count);
+        updateVehicleAsset();
     };
     const handleAccountsFetched = (count) => {
         setAccountCount(count);
+        updateAccountAsset();
     };
     const handleDepositsFetched = (count) => {
         setDepositCount(count);
+        updateDepositAsset();
     };
     const handlePortfoliosFetched = (count) => {
         setPortfolioCount(count);
+        updatePortfolioAsset();
     };
     const handleOthersFetched = (count) => {
         setOtherCount(count);
+        updateOtherAsset();
     };
 
     const handleExportToExcel = () => {

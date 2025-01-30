@@ -67,6 +67,28 @@ const Incomes = () => {
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
 
+    const updateIncome = () => {
+        const today = new Date();
+        let incomeAssetsValue = 0.0;
+        for (let i = 0; i < incomes.length; i++) {
+            const income = incomes[i];
+            incomeAssetsValue += parseFloat(incomeAssetValue(income, today, currentUserBaseCurrency));
+        }
+        // update incomesData
+        setIncomesData([
+            {
+                name: 'Incomes',
+                Income: parseFloat(incomeAssetsValue).toFixed(2),
+                Rental: incomesData[0].Rental,
+                Coupon: incomesData[0].Coupon,
+                Dividend: incomesData[0].Dividend,
+                Payout: incomesData[0].Payout,
+                Lease: incomesData[0].Lease,
+                TotalIncome: parseFloat(incomeAssetsValue + parseFloat(incomesData[0].Rental) + parseFloat(incomesData[0].Coupon) + parseFloat(incomesData[0].Dividend) + parseFloat(incomesData[0].Payout) + parseFloat(incomesData[0].Lease)).toFixed(2),
+            }
+        ]);
+    }
+
     useEffect(() => {
         if (incomeListRef.current) {
             setIncomeCount(incomeListRef.current.getIncomeCount());
@@ -275,11 +297,13 @@ const Incomes = () => {
         if (incomeListRef.current) {
             incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
             setIncomeCount(incomeCount + 1);
+            updateIncome();
         }
     };
     
     const handleIncomesFetched = (count) => {
         setIncomeCount(count);
+        updateIncome();
     };
 
     const handleExportToExcel = () => {

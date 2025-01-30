@@ -11,6 +11,7 @@ import '../../common/GridHeader.css';
 import ExpenseOtherForm from './ExpenseOtherForm';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
+import { isSameMonthAndYear } from '../../common/DateFunctions';
 
 export const filterExpenseOthers = (listAction, othersList, includePastOthers) => {
     let filteredOthers = [];
@@ -19,7 +20,7 @@ export const filterExpenseOthers = (listAction, othersList, includePastOthers) =
         if (listAction === 'Expense') {
             filteredOthers = othersList.filter(other => {
                 if (other.is_dream) return false;
-                if (!other.is_recurring && new Date(other.expense_date) >= new Date()) return true;
+                if (!other.is_recurring && isSameMonthAndYear(new Date(other.expense_date), new Date())) return true;
                 else if (other.is_recurring && new Date(other.end_date) >= new Date()) return true;
                 else return false;
             });
@@ -337,7 +338,7 @@ const ExpenseOtherList = forwardRef((props, ref) => {
                 <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        Are you sure you want to delete the expense for the other: "{otherToDelete?.other_name}"?
+                        Are you sure you want to delete the expense for the other: "{otherToDelete?.expense_name}"?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
