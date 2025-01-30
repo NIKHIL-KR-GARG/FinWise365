@@ -1,15 +1,15 @@
 import React from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import LandingHeader from '../../components/landingpage/LandingHeader';
 
 const AboutUs = () => {
   return (
     <Box
       sx={{
-        width: '100%', // Full width of the parent container
+        width: '100%', 
         alignItems: 'center',
         justifyContent: 'center',
-        px: 0, // Horizontal padding
+        px: 0, 
       }}
     >
       <LandingHeader sourcePage={'AboutUs'} />
@@ -20,15 +20,9 @@ const AboutUs = () => {
           position: 'relative',
           mt: 8,
           paddingLeft: 1,
-          // display: 'flex',
-          // flexDirection: 'column',
-          // alignItems: 'center',
-          // justifyContent: 'center',
+          minHeight: '100vh', 
         }}
       >
-        {/* <Typography variant="h4" component="h1" gutterBottom>
-          About Us
-        </Typography> */}
         <br />
         <Typography variant="h4" component="h1" gutterBottom>
           Welcome to FinWise365!

@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get 'helpcentre', to: 'site#index'
   get 'comingsoon', to: 'site#index'
   get 'adminfunctions', to: 'site#index'
+  get 'disclaimerandpolicy', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do

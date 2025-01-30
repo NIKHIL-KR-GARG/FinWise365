@@ -64,7 +64,8 @@ const LandingHeader = ({sourcePage}) => {
         {(sourcePage === 'Landing' || 
           sourcePage === 'HelpCentre' || 
           sourcePage === 'ComingSoon' ||
-          sourcePage === 'AboutUs') && (
+          sourcePage === 'AboutUs' ||
+          sourcePage === 'DisclaimerAndPolicy') && (
           <Link href="/contactus" sx={{ textDecoration: 'none', color: 'white' }}>
             <Typography variant="body1" sx={{ color: 'white' }}>
               Contact Us

@@ -19,6 +19,7 @@ import HelpCentre from './pages/HelpCentre/HelpCentre';
 import ComingSoon from './pages/ComingSoon/ComingSoon';
 import AdminFunctions from './pages/AdminFunctions/AdminFunctions';
 import Simulations from './pages/Simulations/Simulations';
+import DisclaimerAndPolicy from './pages/DisclaimerAndPolicy/DisclaimerAndPolicy';
 
 const App = () => {
 
@@ -39,6 +40,7 @@ const App = () => {
         <Route path='/aboutus' element={<AboutUs />} />
         <Route path='/helpcentre' element={<HelpCentre />} />
         <Route path='/comingsoon' element={<ComingSoon />} />
+        <Route path='/disclaimerandpolicy' element={<DisclaimerAndPolicy />} />
         <Route path='/adminfunctions' element={<AuthenticationGuard component={AdminFunctions} />} />
         <Route path='/simulations' element={<AuthenticationGuard component={Simulations} />} />
       </Routes>

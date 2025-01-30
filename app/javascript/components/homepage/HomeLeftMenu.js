@@ -22,6 +22,9 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
 import InsightsIcon from '@mui/icons-material/Insights';
 import SimulationIcon from '@mui/icons-material/Science';
+import InfoIcon from '@mui/icons-material/Info';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import GavelIcon from '@mui/icons-material/Gavel';
 import { useAuth0 } from "@auth0/auth0-react";
 
 const drawerWidth = 240;
@@ -78,7 +81,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
             open={open}
         >   
             <Box sx={{ width: '100%', alignItems: 'center', justifyContent: 'center', p:2 }}>
-                <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', p:1, bgcolor: '#fff9e6', borderRadius: 3 }}>
+                <Box sx={{ width: '90%', display: 'flex', alignItems: 'center', justifyContent: 'center', p:1, bgcolor: '#fff9e6', borderRadius: 3 }}>
                     <Avatar src={'/path/to/avatar.jpg'} alt={currentUserFirstName} sx={{ mr: 1 }} />
                     {open && (
                     <Typography variant="body1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
@@ -127,7 +130,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             <ListItemIcon>
                                 <StarIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dreams</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dreams/Goals</Typography>} />}
                         </ListItem>
                         {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
@@ -213,7 +216,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     </List>
                 </Collapse> */}
                 {open && (
-                    <Box sx={{ m: 2, p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: `calc(${drawerWidth}px - 38px)` }}>
+                    <Box sx={{ m: 2, p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: `calc(${drawerWidth}px - 60px)` }}>
                         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Enjoying FinWise365?</Typography>
                         <Typography variant="body2" sx={{ mt: 1 }}>
                             Upgrade now to keep a control on your finances 365 days a year!
@@ -229,6 +232,12 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     </Box>
                 )}
                 <Divider />
+                <ListItem component={Link} to="/aboutus" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                    <ListItemIcon>
+                        <InfoIcon fontSize="small" />
+                    </ListItemIcon>
+                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>About Us</Typography>} />}
+                </ListItem>
                 <ListItem component={Link} to="/helpcentre" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                     <ListItemIcon>
                         <HelpOutlineIcon fontSize="small" />
@@ -243,9 +252,15 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                 </ListItem>
                 <ListItem component={Link} to="/comingsoon" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                     <ListItemIcon>
-                        <ContactMailIcon fontSize="small" />
+                        <HourglassEmptyIcon fontSize="small" />
                     </ListItemIcon>
                     {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Coming Soon...</Typography>} />}
+                </ListItem>
+                <ListItem component={Link} to="/disclaimerandpolicy" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                    <ListItemIcon>
+                        <GavelIcon fontSize="small" />
+                    </ListItemIcon>
+                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Disclaimer/Policy</Typography>} />}
                 </ListItem>
                 <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}
                     onClick={() =>
