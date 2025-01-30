@@ -33,13 +33,13 @@ const LandingSectionFeatures = () => {
                 <Grid item xs={12} sm={7} sx={{ flexBasis: '60%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Right Column (Text) */}
                     <Box textAlign="center"> {/* Center text horizontally */}
                         <Typography variant="h5" component="h2">
-                            Repository of all Assets & Liabilities
+                            Repository of all Assets, Liabilities & Goals
                         </Typography>
                         <Box sx={{ display: 'inline-block', width: 'auto', margin: '16px 0' }}> {/* Center the divider */}
                             <Divider sx={{ width: '400px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
                         </Box>
                         <Typography variant="body1" component="p" sx={{ fontSize: '1.1rem' }}>
-                            No need to look around at multiple spreadsheets and folders. Can be shared with the dependent(s) anytime and is available at a single location for easy reference.
+                            Achieve your financial goals with ease and confidence. Never lose sight of your financial goals even with all the distractions around you. 
                         </Typography>
                     </Box>
                 </Grid>
@@ -48,13 +48,13 @@ const LandingSectionFeatures = () => {
                 <Grid item xs={12} sm={7} sx={{ flexBasis: '60%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Right Column (Text) */}
                     <Box textAlign="center"> {/* Center text horizontally */}
                         <Typography variant="h5" component="h2">
-                            View of projected cashflows
+                            What Matters to You (and How to Get There)
                         </Typography>
                         <Box sx={{ display: 'inline-block', width: 'auto', margin: '16px 0' }}> {/* Center the divider */}
                             <Divider sx={{ width: '350px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
                         </Box>
                         <Typography variant="body1" component="p" sx={{ fontSize: '1.1rem' }}>
-                            Over the entire life horizon so that you know if/what you are doing will sustain you for your life time. Or do you need to make any adjustments to your income and/or expenditure?
+                            Balance both your emotional desires (what you want) and practical needs (what you need). Focus on growing your savings, planning for retirement, budgeting for your home and optimise your assets, income and expenses so you can reach those goals
                         </Typography>
                     </Box>
                 </Grid>
@@ -89,15 +89,43 @@ const LandingSectionFeatures = () => {
                 <Grid item xs={12} sm={7} sx={{ flexBasis: '60%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Right Column (Text) */}
                     <Box textAlign="center"> {/* Center text horizontally */}
                         <Typography variant="h5" component="h2">
-                            Enables SMART decision making
+                            SMART decision making
                         </Typography>
                         <Box sx={{ display: 'inline-block', width: 'auto', margin: '16px 0' }}> {/* Center the divider */}
                             <Divider sx={{ width: '400px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
                         </Box>
                         <Typography variant="body1" component="p" sx={{ fontSize: '1.1rem' }}>
-                            So that any decision is not based on current-point-in-time view but instead based on how this decision impacts your entire life. 
+                            Have the right tools and resources to make the right decisions not based on current-point-in-time view but how it impacts your future.
                         </Typography>
                     </Box>
+                </Grid>
+
+                {/* Row 4 */}
+                <Grid item xs={12} sm={7} sx={{ flexBasis: '60%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Right Column (Text) */}
+                    <Box textAlign="center"> {/* Center text horizontally */}
+                        <Typography variant="h5" component="h2">
+                            Be financially ready for life's uncertainties/opportunities & plan your legacy
+                        </Typography>
+                        <Box sx={{ display: 'inline-block', width: 'auto', margin: '16px 0' }}> {/* Center the divider */}
+                            <Divider sx={{ width: '350px', bgcolor: 'grey.500', height: '1px' }} /> {/* Set a specific width and height for the divider */}
+                        </Box>
+                        <Typography variant="body1" component="p" sx={{ fontSize: '1.1rem' }}>
+                            Plan for your home, education, wedding, vacation, retirement, and more. Get insights if you can retire by a certain age & if you will have enough to meet your needs.
+                        </Typography>
+                    </Box>
+                </Grid>
+                <Grid item xs={12} sm={5} sx={{ height: '250px', flexBasis: '40%', padding: 2 }}> {/* Left Column (Image) */}
+                    <Box
+                        sx={{
+                            width: '100%', // Full width of the parent container
+                            height: '100%', // Set a height for the section
+                            backgroundImage: 'url(/financialfreedom.jpeg)', // Reference the image in the public folder
+                            backgroundSize: 'cover', // Cover the entire box
+                            backgroundPosition: 'center', // Center the image
+                            backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+                            alignItems: 'center',
+                        }}
+                    />
                 </Grid>
             </Grid>
         </Box>

@@ -35,7 +35,7 @@ const LandingFooter = () => {
                         component="p" 
                         textAlign={'left'}
                         sx={{ 
-                            fontSize: '0.9rem', 
+                            fontSize: '1rem', 
                             color: 'white', 
                             fontStyle: 'italic', // Make the text italic
                             width: '90%', // Set the width to 80%
@@ -130,7 +130,7 @@ const LandingFooter = () => {
                         variant="body1" 
                         component="p" 
                         sx={{ 
-                            fontSize: '0.8rem', 
+                            fontSize: '0.9rem', 
                             color: 'white', 
                             fontStyle: 'italic', // Make the text italic
                         }}
