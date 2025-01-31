@@ -96,7 +96,7 @@ const LandingFooter = () => {
                             <EmailIcon />
                         </IconButton>
                         <Link href="mailto:contactus@finwise365.com" sx={{ fontSize: '1.1rem', color: 'white', marginLeft: 1, textDecoration: 'none' }}>
-                            info@finwise365.com
+                            contactus@finwise365.com
                         </Link>
                     </Box>
                 </Grid>
