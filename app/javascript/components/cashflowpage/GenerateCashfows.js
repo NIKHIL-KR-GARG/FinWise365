@@ -14,7 +14,7 @@ import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpens
 import { propertyDreamExpense, vehicleDreamExpense, educationDreamExpense, travelDreamExpense, relocationDreamExpense, otherDreamExpense } from '../../components/calculators/Dreams';
 
 import { getMonthEndDate } from '../../components/common/DateFunctions';
-import { GrowthRate } from '../common/DefaultValues';
+import { GrowthRate, ExchangeRate } from '../common/DefaultValues';
 import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
 import LiabilitiesCashflow from '../../components/cashflowpage/LiabilitiesCashflow';
 import NetCashflow from '../../components/cashflowpage/NetCashflow';
@@ -431,8 +431,18 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
                         const account = accounts.find(acc => acc.id === asset.asset_id);
                         if (account) {
                             // update value and put start date as this month
-                            account.account_balance = asset.asset_value;
                             account.opening_date = monthEndDate;
+                            // check currency and see if we need to convert the value
+                            const accountCurrency = account.currency;
+                            if (accountCurrency !== currentUserBaseCurrency) {
+                                // convert the value to base currency
+                                const exchangeRate = ExchangeRate.find(rate => rate.from === currentUserBaseCurrency && rate.to === accountCurrency);
+                                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                                account.account_balance = asset.asset_value * conversionRate;
+                            }
+                            else {
+                                account.account_balance = asset.asset_value;
+                            }
                         }
                     }
                     else if (asset.asset_type === 'Deposit') {
@@ -453,7 +463,17 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
                         if (portfolio) {
                             // update value and put start date as this month
                             portfolio.buying_date = monthEndDate;
-                            portfolio.buying_value = asset.asset_value;
+                            // check currency and see if we need to convert the value
+                            const portfolioCurrency = portfolio.currency;
+                            if (portfolioCurrency !== currentUserBaseCurrency) {
+                                // convert the value to base currency
+                                const exchangeRate = ExchangeRate.find(rate => rate.from === currentUserBaseCurrency && rate.to === portfolioCurrency);
+                                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                                portfolio.buying_value = asset.asset_value * conversionRate;
+                           }
+                            else {
+                                portfolio.buying_value = asset.asset_value;
+                            }
                         }
                     }
                 }
@@ -791,12 +811,14 @@ const updateLiquidAssetsForExpenses = (assetsCashflow, remainingExpenseForMonth,
         (cashflow) =>
             cashflow.month === month &&
             cashflow.year === year &&
+            cashflow.is_cash === false &&
             cashflow.is_locked === false
     ).sort((a, b) => a.growth_rate - b.growth_rate); // sort by growth_rate
 
     if (liquidAssets.length > 0) {
         for (let i = 0; i < liquidAssets.length; i++) {
             const liquidAsset = liquidAssets[i];
+
             if (liquidAsset.asset_value > remainingExpense) {
                 liquidAsset.asset_value -= remainingExpense;
                 liquidAsset.is_updated = true;
@@ -867,6 +889,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
             const cashflowProjection = {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
+                currency: currentUserBaseCurrency,
                 cashflow_date: new Date(new Date().toLocaleString()) // Convert local date string back to Date object
             };
 
@@ -877,6 +900,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
+                currency: currentUserBaseCurrency,
                 cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
                 month: asset.month,
                 year: asset.year,
@@ -895,6 +919,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
+                currency: currentUserBaseCurrency,
                 cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
                 month: liability.month,
                 year: liability.year,
@@ -909,6 +934,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 user_id: currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
+                currency: currentUserBaseCurrency,
                 cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
                 month: net.month,
                 year: net.year,

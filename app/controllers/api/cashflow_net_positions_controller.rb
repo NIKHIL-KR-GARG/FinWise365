@@ -72,6 +72,7 @@ class Api::CashflowNetPositionsController < ApplicationController
             :net_worth,
             :is_dummy_data,
             :cashflow_id,
+            :currency,
             :created_at,
             :updated_at
         ) 
@@ -92,6 +93,7 @@ class Api::CashflowNetPositionsController < ApplicationController
             :net_worth,
             :is_dummy_data,
             :cashflow_id,
+            :currency,
         ])
     end
 end

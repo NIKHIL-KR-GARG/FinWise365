@@ -9,7 +9,7 @@ import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
 import DisplayCashflowComparison from '../../components/cashflowpage/DisplayCashflowComparison';
-import { WidthWideOutlined } from '@mui/icons-material';
+import { ExchangeRate } from '../../components/common/DefaultValues';
 
 const CashflowComparison = () => {
     
@@ -31,6 +31,7 @@ const CashflowComparison = () => {
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -136,11 +137,11 @@ const CashflowComparison = () => {
             try {
                 const netCashflowResponse1 = await axios.get(`/api/cashflow_net_positions?cashflow_id=${selectedProjection1}`);
                 const netCashflowList1 = netCashflowResponse1.data;
-                setNetCashflow1(netCashflowList1);
+                setNetCashflow1(convertAllValuesToBaseCurrency(netCashflowList1, currentUserBaseCurrency));
 
                 const netCashflowResponse2 = await axios.get(`/api/cashflow_net_positions?cashflow_id=${selectedProjection2}`);
                 const netCashflowList2 = netCashflowResponse2.data;
-                setNetCashflow2(netCashflowList2);
+                setNetCashflow2(convertAllValuesToBaseCurrency(netCashflowList2, currentUserBaseCurrency));
 
                 setFetchedBothCashflows(true);
 
@@ -152,6 +153,25 @@ const CashflowComparison = () => {
         else {
             setErrorMessage('Please select two different cashflow projections to compare');
         }
+    };
+
+    const convertAllValuesToBaseCurrency = (netCashflowList, baseCurrency) => {
+        // loop though the list and convert all values to base currency if it is not already in base currency
+        const convertedList = netCashflowList.map((item) => {
+            if (item.currency !== baseCurrency) {
+                const exchangeRate = ExchangeRate.find(rate => rate.from === item.currency && rate.to === baseCurrency);
+                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                item.income = item.income * conversionRate;
+                item.expense = item.expense * conversionRate;
+                item.net_position = item.net_position * conversionRate;
+                item.liquid_assets = item.liquid_assets * conversionRate;
+                item.locked_assets = item.locked_assets * conversionRate;
+                item.net_worth = item.net_worth * conversionRate;
+                item.currency = baseCurrency;
+            }
+            return item;
+        });
+        return convertedList;
     };
 
     const validate = () => {

@@ -69,6 +69,7 @@ class Api::CashflowLiabilitiesController < ApplicationController
             :liability_value,
             :is_dummy_data,
             :cashflow_id,
+            :currency,
             :created_at,
             :updated_at
         ) 
@@ -87,6 +88,7 @@ class Api::CashflowLiabilitiesController < ApplicationController
             :liability_value,
             :is_dummy_data,
             :cashflow_id,
+            :currency,
         ])
     end
 end

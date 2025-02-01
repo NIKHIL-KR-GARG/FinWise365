@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_31_040857) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_01_060103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -289,6 +289,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_040857) do
     t.datetime "updated_at", null: false
     t.boolean "is_dummy_data"
     t.integer "cashflow_id"
+    t.string "currency"
   end
 
   create_table "cashflow_liabilities", force: :cascade do |t|
@@ -305,6 +306,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_040857) do
     t.datetime "updated_at", null: false
     t.boolean "is_dummy_data"
     t.integer "cashflow_id"
+    t.string "currency"
   end
 
   create_table "cashflow_net_positions", force: :cascade do |t|
@@ -323,6 +325,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_040857) do
     t.datetime "updated_at", null: false
     t.boolean "is_dummy_data"
     t.integer "cashflow_id"
+    t.string "currency"
   end
 
   create_table "cashflow_projections", force: :cascade do |t|
@@ -331,6 +334,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_040857) do
     t.boolean "is_dummy_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "currency"
   end
 
   create_table "contact_admins", force: :cascade do |t|
@@ -364,9 +368,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_040857) do
     t.datetime "updated_at", null: false
     t.boolean "is_dummy_data", default: false
     t.boolean "is_recurring", default: false
-    t.float "loan_amount",
+    t.float "loan_amount"
     t.float "recurring_amount"
-    t.string "recurring_frequency"
+    t.string "recurring_frequency", limit: 255
   end
 
   create_table "expense_credit_card_debts", force: :cascade do |t|

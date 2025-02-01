@@ -72,6 +72,7 @@ class Api::CashflowAssetsController < ApplicationController
             :growth_rate,
             :is_dummy_data,
             :cashflow_id,
+            :currency,
             :created_at,
             :updated_at
         ) 
@@ -94,6 +95,7 @@ class Api::CashflowAssetsController < ApplicationController
             :growth_rate,
             :is_dummy_data,
             :cashflow_id,
+            :currency,
         ])
     end
 end

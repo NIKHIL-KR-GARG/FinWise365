@@ -59,8 +59,8 @@ class Api::CashflowProjectionsController < ApplicationController
             :id,
             :user_id,
             :cashflow_date,
+            :currency,
             :is_dummy_data,
-            :cashflow_id,
             :created_at,
             :updated_at
         ) 

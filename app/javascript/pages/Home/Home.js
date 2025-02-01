@@ -8,6 +8,7 @@ import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
 import DisplayCashflow from '../../components/cashflowpage/DisplayCashflow';
 import CashFlowCommentary from '../../components/cashflowpage/CashFlowCommentary';
+import { ExchangeRate } from '../../components/common/DefaultValues';
 
 const Home = () => {
 
@@ -22,6 +23,7 @@ const Home = () => {
 
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -42,14 +44,45 @@ const Home = () => {
             const cashflowID = mostRecentCashflowProjection.id;
             const cashflowDate = mostRecentCashflowProjection.cashflow_date;
             setCashflowDate(cashflowDate);
+            const cashflowCurrency = mostRecentCashflowProjection.currency;
 
             const netCashflowResponse = await axios.get(`/api/cashflow_net_positions?cashflow_id=${cashflowID}`);
             const newCashflowList = netCashflowResponse.data;
-            setNetCashflow(newCashflowList);
+
+            if (currentUserBaseCurrency === cashflowCurrency) {
+                setNetCashflow(newCashflowList);
+            } else {
+                // convert all the values for the cashflow to the base currency
+                convertAllValuesToBaseCurrency(newCashflowList, currentUserBaseCurrency, cashflowCurrency);
+            }
+            
             setLoading(false);
         } catch (error) {
             console.error('Error fetching data:', error);
             setError('Error fetching data');
+            setLoading(false);
+        }
+    };
+
+    const convertAllValuesToBaseCurrency = async (newCashflowList, baseCurrency, cashflowCurrency) => {
+        try {
+            const exchangeRate = ExchangeRate.find(rate => rate.from === cashflowCurrency && rate.to === baseCurrency);
+            const conversionRate = exchangeRate ? exchangeRate.value : 1;
+            const convertedCashflowList = newCashflowList.map(item => {
+                const convertedItem = { ...item };
+                convertedItem.income = item.income * conversionRate;
+                convertedItem.expense = item.expense * conversionRate;
+                convertedItem.net_position = item.net_position * conversionRate;
+                convertedItem.liquid_assets = item.liquid_assets * conversionRate;
+                convertedItem.locked_assets = item.locked_assets * conversionRate;
+                convertedItem.net_worth = item.net_worth * conversionRate;
+                convertedItem.currency = baseCurrency;
+                return convertedItem;
+            });
+            setNetCashflow(convertedCashflowList);
+        }
+        catch (error) {
+            setError('Error converting values to base currency');
             setLoading(false);
         }
     };
