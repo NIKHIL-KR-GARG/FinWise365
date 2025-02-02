@@ -170,7 +170,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
     const handleSave = async () => {
         if (validate()) {
             try {
-                other.user_id = currentUserId;
+                other.user_id = other.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') other.is_dream = true;
                 else other.is_dream = false;
                 

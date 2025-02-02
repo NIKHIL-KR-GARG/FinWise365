@@ -144,7 +144,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
     const handleSave = async () => {
         if (validate()) {
             try {
-                creditcarddebt.user_id = currentUserId;
+                creditcarddebt.user_id = creditcarddebt.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') creditcarddebt.is_dream = true; 
                 else creditcarddebt.is_dream = false;
                 

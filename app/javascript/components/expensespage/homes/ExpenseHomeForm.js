@@ -140,7 +140,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
     const handleSave = async () => {
         if (validate()) {
             try {
-                home.user_id = currentUserId;
+                home.user_id = home.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') home.is_dream = true; 
                 else home.is_dream = false;
                 

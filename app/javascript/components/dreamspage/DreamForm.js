@@ -188,7 +188,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
     const handleSave = async () => {
         if (validate()) {
             try {
-                dream.user_id = currentUserId;
+                dream.user_id = dream.is_dummy_data ? 0 : currentUserId;
                 dream.dream_type = dreamType;
                 const response = initialDream
                     ? await axios.put(`/api/dreams/${dream.id}`, dream)

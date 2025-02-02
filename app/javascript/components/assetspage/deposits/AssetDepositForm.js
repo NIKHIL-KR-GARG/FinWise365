@@ -156,7 +156,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
     const handleSave = async () => {
         if (validate()) {
             try {
-                deposit.user_id = currentUserId;
+                deposit.user_id = deposit.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') deposit.is_dream = true;
                 else deposit.is_dream = false;
                 

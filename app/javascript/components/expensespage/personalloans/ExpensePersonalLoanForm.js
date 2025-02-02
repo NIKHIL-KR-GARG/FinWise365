@@ -138,7 +138,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
     const handleSave = async () => {
         if (validate()) {
             try {
-                personalloan.user_id = currentUserId;
+                personalloan.user_id = personalloan.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') personalloan.is_dream = true; 
                 else personalloan.is_dream = false;
                 

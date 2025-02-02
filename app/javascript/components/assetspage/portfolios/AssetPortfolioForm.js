@@ -246,7 +246,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
     const handleSave = async () => {
         if (validate()) {
             try {
-                portfolio.user_id = currentUserId;
+                portfolio.user_id = portfolio.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') portfolio.is_dream = true;
                 else portfolio.is_dream = false;
                 

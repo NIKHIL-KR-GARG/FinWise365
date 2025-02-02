@@ -202,7 +202,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
     const handleSave = async () => {
         if (validate()) {
             try {
-                vehicle.user_id = currentUserId;
+                vehicle.user_id = vehicle.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') vehicle.is_dream = true;
                 else vehicle.is_dream = false;
                 

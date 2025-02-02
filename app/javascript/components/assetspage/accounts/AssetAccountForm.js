@@ -110,7 +110,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
     const handleSave = async () => {
         if (validate()) {
             try {
-                account.user_id = currentUserId;
+                account.user_id = account.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') account.is_dream = true;
                 else account.is_dream = false;
                 

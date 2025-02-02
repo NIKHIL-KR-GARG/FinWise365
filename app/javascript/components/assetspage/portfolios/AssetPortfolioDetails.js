@@ -107,7 +107,7 @@ const AssetPortfolioDetails = ({ portfolio: initialPortfolio, portfoliodetails: 
     };
 
     const handleSave = async () => {
-        initialPortfolio.user_id = currentUserId;
+        initialPortfolio.user_id = initialPortfolio.is_dummy_data ? 0 : currentUserId;
         const response = (initialAction === 'Add')
             ? await axios.post('/api/asset_portfolios', initialPortfolio)
             : await axios.put(`/api/asset_portfolios/${initialPortfolio.id}`, initialPortfolio);

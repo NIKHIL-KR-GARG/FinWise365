@@ -158,7 +158,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
     const handleSave = async () => {
         if (validate()) {
             try {
-                property.user_id = currentUserId;
+                property.user_id = property.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') property.is_dream = true;
                 else property.is_dream = false;
                 

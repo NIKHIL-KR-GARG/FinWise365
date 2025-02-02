@@ -64,8 +64,9 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
                 setIsDemoData(!isDemoData);
 
                 localStorage.setItem('currentUserDisplayDummyData', !isDemoData);
-                // Redirect to the home page
+                // Redirect to the home page and force a refresh
                 navigate('/home');
+                window.location.reload();
             }
         } catch (error) {
             console.error('Error updating demo data:', error);

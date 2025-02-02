@@ -92,7 +92,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
     const handleSave = async () => {
         if (validate()) {
             try {
-                income.user_id = currentUserId;
+                income.user_id = income.is_dummy_data ? 0 : currentUserId;
                 if (action === 'Dream' || action === 'EditDream') income.is_dream = true;
                 else income.is_dream = false;
 

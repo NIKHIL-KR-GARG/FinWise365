@@ -887,7 +887,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
 
             // save a row in cashflow_projections first and retrieve the id
             const cashflowProjection = {
-                user_id: currentUserId,
+                user_id: saveAsDummyData ? 0 : currentUserId,
                 is_dummy_data: saveAsDummyData,
                 currency: currentUserBaseCurrency,
                 cashflow_date: new Date(new Date().toLocaleString()) // Convert local date string back to Date object
@@ -897,7 +897,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
             const cashflowProjectionId = response.data.id;
 
             const cashflowAssets = assetsCashflowData.map(asset => ({
-                user_id: currentUserId,
+                user_id: saveAsDummyData ? 0 : currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
                 currency: currentUserBaseCurrency,
@@ -916,7 +916,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
             }));
 
             const cashflowLiabilities = liabilitiesCashflowData.map(liability => ({
-                user_id: currentUserId,
+                user_id: saveAsDummyData ? 0 : currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
                 currency: currentUserBaseCurrency,
@@ -931,7 +931,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
             }));
 
             const cashflowNetPositions = netCashflowData.map(net => ({
-                user_id: currentUserId,
+                user_id: saveAsDummyData ? 0 : currentUserId,
                 is_dummy_data: saveAsDummyData,
                 cashflow_id: cashflowProjectionId,
                 currency: currentUserBaseCurrency,
