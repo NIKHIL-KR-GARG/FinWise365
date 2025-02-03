@@ -94,7 +94,7 @@ const AssetsGraph = ({ assetsData }) => {
                                 <Bar dataKey="Accounts" stackId="a" fill="#ffc658" />
                                 <Bar dataKey="Deposits" stackId="a" fill="#ff7300" />
                                 <Bar dataKey="Portfolios" stackId="a" fill="#ff0000" />
-                                <Bar dataKey="Others" stackId="a" fill="#0000ff" />
+                                {/* <Bar dataKey="Others" stackId="a" fill="#0000ff" /> */}
                             </BarChart>
                         </ResponsiveContainer>
                     </Grid>
