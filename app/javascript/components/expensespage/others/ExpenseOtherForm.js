@@ -61,6 +61,8 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         }
         // else if end date is changed, then calculate debt duration in months
         else if (name === 'end_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             const startDate = new Date(other.expense_date);
             const endDate = new Date(value);
             const duration = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
@@ -71,6 +73,8 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         }
         //calulate end date based on duration if expense date is changed
         else if (name === 'expense_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             if (other.is_recurring) {
                 const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(other.duration));
                 setOther((prevOther) => ({

@@ -66,6 +66,8 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         }
         // else if end date is changed, then calculate duration in months
         else if (name === 'end_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             const startDate = new Date(dream.dream_date);
             const endDate = new Date(value);
             const duration = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
@@ -75,6 +77,8 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             }));
         }
         else if (name === 'dream_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(dream.duration));
             setDream((prevDream) => ({
                 ...prevDream,
@@ -93,6 +97,8 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
         }
         // else if loan end date is changed, then calculate loan duration in months
         else if (name === 'loan_end_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             const startDate = new Date(dream.loan_start_date);
             const endDate = new Date(value);
             const duration = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
@@ -102,6 +108,8 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
             }));
         }
         else if (name === 'loan_start_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             const endDate = new Date(value);
             endDate.setMonth(new Date(value).getMonth() + 1 + parseInt(dream.loan_duration));
             setDream((prevDream) => ({

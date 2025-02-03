@@ -64,6 +64,8 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         }
         // else if end date is changed, then calculate debt duration in months
         else if (name === 'end_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             const startDate = new Date(personalloan.start_date);
             const endDate = new Date(value);
             const duration = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
@@ -74,6 +76,8 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
         }
         //calulate end date based on duration if start date is changed
         else if (name === 'start_date') {
+            // check that the new date is a valid date
+            if (isNaN(new Date(value).getTime())) return;
             const endDate = new Date(value).setMonth(new Date(value).getMonth() + 1 + parseInt(personalloan.duration));
             setPersonalLoan((prevPersonalLoan) => ({
                 ...prevPersonalLoan,
