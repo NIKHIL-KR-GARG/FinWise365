@@ -97,6 +97,7 @@ const DisplayCashflow = ({ netCashflowData }) => {
                             <Tooltip contentStyle={{ fontSize: 14 }} />
                             <Legend wrapperStyle={{ fontSize: 14 }} />
                             <Line type="monotone" dataKey="net_position" stroke="#2ca02c" strokeWidth={3} activeDot={{ r: 8 }} name="Net Position" />
+                            <Line type="monotone" dataKey="liquid_assets" stroke="#d62728" strokeWidth={3} activeDot={{ r: 8 }} name="Liquid Assets"/>
                             <Line type="monotone" dataKey="net_worth" stroke="#8c564b" strokeWidth={3} activeDot={{ r: 8 }} name="Net Worth" />
                         </LineChart>
                     </ResponsiveContainer>
