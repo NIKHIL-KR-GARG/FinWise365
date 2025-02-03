@@ -3,6 +3,6 @@ class AddIsRecurringAndLoanAmountToDreams < ActiveRecord::Migration[7.2]
     add_column :dreams, :is_recurring, :boolean, default: false
     add_column :dreams, :loan_amount, :float
     add_column :dreams, :recurring_amount, :float
-    add_column :dreams, :recurring_frequency, :float
+    add_column :dreams, :recurring_frequency, :string
   end
 end

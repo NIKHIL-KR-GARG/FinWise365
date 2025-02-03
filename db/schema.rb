@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_01_060103) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_03_062039) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -370,7 +370,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_01_060103) do
     t.boolean "is_recurring", default: false
     t.float "loan_amount"
     t.float "recurring_amount"
-    t.string "recurring_frequency", limit: 255
+    t.string "recurring_frequency"
   end
 
   create_table "expense_credit_card_debts", force: :cascade do |t|
