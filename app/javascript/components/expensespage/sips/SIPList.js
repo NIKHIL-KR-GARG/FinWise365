@@ -7,6 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
+import { isSameMonthAndYear } from '../../common/DateFunctions';
 
 export const fetchDepositSIPs = (depositsList, showDreams) => {
     try {
@@ -64,6 +65,9 @@ export const fetchPortfolioSIPs = (portfoliosList, showDreams) => {
                 .filter(portfolio => {
                     if (portfolio.is_dream === true) return false;
                     else if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < new Date()) return false;
+                    else if (portfolio.is_sip && 
+                            new Date(portfolio.sip_end_date) < new Date() && 
+                            !isSameMonthAndYear(new Date(portfolio.sip_end_date), new Date())) return false;
                     else return portfolio.is_sip;
                 })
                 .map(portfolio => ({
@@ -82,6 +86,9 @@ export const fetchPortfolioSIPs = (portfoliosList, showDreams) => {
             portfolioSIPs = portfoliosList
                 .filter(portfolio => {
                     if (portfolio.is_dream === false) return false;
+                    else if (portfolio.is_sip && 
+                        new Date(portfolio.sip_end_date) < new Date() && 
+                        !isSameMonthAndYear(new Date(portfolio.sip_end_date), new Date())) return false;
                     else return portfolio.is_sip;
                 })
                 .map(portfolio => ({

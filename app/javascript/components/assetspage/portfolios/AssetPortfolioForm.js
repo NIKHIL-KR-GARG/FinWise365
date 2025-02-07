@@ -51,6 +51,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
         is_sip: false,
         sip_amount: 0.0,
         sip_frequency: "Monthly",
+        sip_end_date: "",
         buy_price: 0.0,
         current_value: 0.0,
         profit: 0.0,
@@ -200,15 +201,18 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
             errors.dividend_rate = 'Dividend Rate or Dividend Amount is required';
             errors.dividend_amount = 'Dividend Rate or Dividend Amount is required';
         }
+        if (portfolio.is_sip) {
+            if (!portfolio.sip_amount) errors.sip_amount = 'SIP Amount is required';
+            if (!portfolio.sip_frequency) errors.sip_frequency = 'SIP Frequency is required';
+            if (!portfolio.sip_end_date) errors.sip_end_date = 'SIP End Date is required';
+            if (new Date(portfolio.sip_end_date) < new Date(portfolio.buying_date)) errors.sip_end_date = 'SIP End Date should be after Portfolio Start Date';
+        }
         if (portfolio.is_plan_to_sell) {
             if (!portfolio.sale_date) errors.sale_date = 'Date Sold is required';
             if (!portfolio.sale_value) errors.sale_value = 'Selling Value is required';
             // check if sale date is after buying date
             if (new Date(portfolio.sale_date) < new Date(portfolio.buying_date)) errors.sale_date = 'Sale Date should be after Buying Date';
-        }
-        if (portfolio.is_sip) {
-            if (!portfolio.sip_amount) errors.sip_amount = 'SIP Amount is required';
-            if (!portfolio.sip_frequency) errors.sip_frequency = 'SIP Frequency is required';
+            if (new Date(portfolio.sip_end_date) > new Date(portfolio.sale_date)) errors.sip_end_date = 'SIP End Date should be before Sale Date';
         }
 
         if (portfolio.portfolio_type === 'Bonds') {
@@ -752,7 +756,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                     {portfolio.portfolio_type !== 'Bonds' && (
                         <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
                             <Grid container spacing={2}>
-                                <Grid item size={12}>
+                                <Grid item size={6}>
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -795,6 +799,21 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                                 <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
                                                 <MenuItem value="Annually">Annually</MenuItem>
                                             </TextField>
+                                        </Grid>
+                                        <Grid item size={6}>
+                                            <TextField
+                                                type="date"
+                                                variant="standard"
+                                                label="SIP End Date"
+                                                name="sip_end_date"
+                                                value={portfolio.sip_end_date}
+                                                onChange={handleChange}
+                                                fullWidth
+                                                required
+                                                InputLabelProps={{ shrink: true }}
+                                                error={!!errors.sip_end_date}
+                                                helperText={errors.sip_end_date}
+                                            />
                                         </Grid>
                                     </>
                                 )}

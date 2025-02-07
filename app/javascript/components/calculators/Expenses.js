@@ -208,6 +208,7 @@ export const sipExpensePortfolio = (portfolio, date, baseCurrency) => {
     if (portfolio) {
         if (portfolio.is_plan_to_sell && new Date(portfolio.sale_date) < date && !isSameMonthAndYear(new Date(portfolio.sale_date), date)) return 0;
         else if (!portfolio.is_sip) return 0;
+        else if (new Date(portfolio.sip_end_date) < date && !isSameMonthAndYear(new Date(portfolio.sip_end_date), date)) return 0;
         else {
             // check if this the correct month for sip expense based on frequency
             if (isSIPMonth(new Date(portfolio.buying_date), date, portfolio.sip_frequency)) {

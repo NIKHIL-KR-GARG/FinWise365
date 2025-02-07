@@ -408,10 +408,10 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
             // update liquidAssetsForMonth (could be negative or positive)
             liquidAssetsForMonth += netPositionForMonth;
             // reduce the expenses from the income lines
-            const remainingExpense = updateIncomeLinesForExpenses(assetsCashflow, expenseForMonth, month, year);
+            let remainingExpense = updateIncomeLinesForExpenses(assetsCashflow, expenseForMonth, month, year);
             if (remainingExpense > 0) {
                 // and update the liquid asset lines
-                updateLiquidAssetsForExpenses(assetsCashflow, remainingExpense, month, year);
+                remainingExpense = updateLiquidAssetsForExpenses(assetsCashflow, remainingExpense, month, year);
             }
 
             // find liquidAssetsForLastMonth from netCashflow and add to this month's if it was negative
@@ -467,7 +467,7 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
                             if (portfolioCurrency !== currentUserBaseCurrency) {
                                 // convert the value to portfolio currency
                                 portfolio.buying_value = asset.asset_value * getExchangeRate(currentUserBaseCurrency, portfolioCurrency);
-                           }
+                            }
                             else {
                                 portfolio.buying_value = asset.asset_value;
                             }
@@ -815,17 +815,18 @@ const updateLiquidAssetsForExpenses = (assetsCashflow, remainingExpenseForMonth,
     if (liquidAssets.length > 0) {
         for (let i = 0; i < liquidAssets.length; i++) {
             const liquidAsset = liquidAssets[i];
-
-            if (liquidAsset.asset_value > remainingExpense) {
-                liquidAsset.asset_value -= remainingExpense;
-                liquidAsset.is_updated = true;
-                remainingExpense = 0;
-                break;
-            }
-            else {
-                remainingExpense -= liquidAsset.asset_value;
-                liquidAsset.asset_value = 0;
-                liquidAsset.is_updated = true;
+            if (liquidAsset.asset_value > 0) {
+                if (liquidAsset.asset_value > remainingExpense) {
+                    liquidAsset.asset_value -= remainingExpense;
+                    liquidAsset.is_updated = true;
+                    remainingExpense = 0;
+                    break;
+                }
+                else {
+                    remainingExpense -= liquidAsset.asset_value;
+                    liquidAsset.asset_value = 0;
+                    liquidAsset.is_updated = true;
+                }
             }
         }
     }

@@ -136,26 +136,71 @@ export const portfolioAssetValue = (portfolio, date, baseCurrency) => {
                 portfolioAssetValue = parseFloat(portfolio.sale_value);
             }
             else {
-                // calculate the growth based on the growth rate
-                const months = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
-                const interest = CalculateInterest(
-                    'Recurring',
-                    'Simple',
-                    parseFloat(portfolio.growth_rate),
-                    parseFloat(portfolio.buying_value),
-                    months,
-                    portfolio.sip_frequency,
-                    parseFloat(portfolio.sip_amount),
-                    portfolio.sip_frequency // does not matter as it is simple interest
-                )
-                const principal = CalculatePrincipal(
-                    'Recurring',
-                    parseFloat(portfolio.buying_value) || 0,
-                    months,
-                    portfolio.sip_frequency,
-                    parseFloat(portfolio.sip_amount) || 0
-                );
-                portfolioAssetValue = parseFloat(principal) + parseFloat(interest);
+                // during cashflow calculations, i might have updated the start_date of the portfolio
+                if (new Date(portfolio.buying_date) > new Date(portfolio.sip_end_date)) {
+                    const months = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
+                    const interest = CalculateInterest(
+                        'Fixed',
+                        'Simple',
+                        parseFloat(portfolio.growth_rate),
+                        parseFloat(portfolio.buying_value),
+                        months,
+                        '', // does not matter as it is simple interest
+                        0,
+                        '' // does not matter as it is simple interest
+                    );
+                    portfolioAssetValue = parseFloat(portfolio.buying_value) + parseFloat(interest);
+                }
+                else {
+                    let monthsFromStartTillDate = 0;
+                    let monthsFromStartTillPaymentEnd = 0;
+                    let monthsFromPaymentEndToDate = 0;
+                    if (portfolio.is_sip) {
+                        if (new Date(portfolio.sip_end_date) >= date) {
+                            monthsFromStartTillDate = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
+                        }
+                        else {
+                            monthsFromStartTillPaymentEnd = (new Date(portfolio.sip_end_date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date(portfolio.sip_end_date).getMonth() - new Date(portfolio.buying_date).getMonth();
+                            monthsFromPaymentEndToDate = (date.getFullYear() - new Date(portfolio.sip_end_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.sip_end_date).getMonth();
+                        }
+                    }
+                    else {
+                        monthsFromStartTillDate = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
+                    }
+
+                    // calculate the growth based on the growth rate
+                    const interest = CalculateInterest(
+                        portfolio.is_sip ? 'Recurring' : 'Fixed',
+                        'Simple',
+                        parseFloat(portfolio.growth_rate),
+                        parseFloat(portfolio.buying_value),
+                        monthsFromStartTillDate > 0 ? monthsFromStartTillDate : monthsFromStartTillPaymentEnd,
+                        portfolio.sip_frequency,
+                        parseFloat(portfolio.sip_amount),
+                        portfolio.sip_frequency // does not matter as it is simple interest
+                    )
+                    const principal = CalculatePrincipal(
+                        portfolio.is_sip ? 'Recurring' : 'Fixed',
+                        parseFloat(portfolio.buying_value) || 0,
+                        monthsFromStartTillDate > 0 ? monthsFromStartTillDate : monthsFromStartTillPaymentEnd,
+                        portfolio.sip_frequency,
+                        parseFloat(portfolio.sip_amount) || 0
+                    );
+                    let totalValue = parseFloat(principal) + parseFloat(interest);
+                    if (monthsFromPaymentEndToDate > 0) {
+                        totalValue += CalculateInterest(
+                            'Fixed',
+                            'Simple',
+                            parseFloat(portfolio.growth_rate),
+                            totalValue || 0,
+                            monthsFromPaymentEndToDate,
+                            '', // does not matter as it is simple interest and no further payments
+                            0,
+                            '' // does not matter as it is simple interest
+                        );
+                    }
+                    portfolioAssetValue = totalValue;
+                }
             }
         }
         portfolioAssetValue = portfolioAssetValue * getExchangeRate(portfolio.currency, baseCurrency);
@@ -192,13 +237,13 @@ export const otherAssetValue = (other, date, baseCurrency) => {
             if (other.payout_type === 'Lumpsum' && new Date(other.payment_end_date) >= date)
                 monthsFromStartTillDate = (date.getFullYear() - new Date(other.start_date).getFullYear()) * 12 + date.getMonth() - new Date(other.start_date).getMonth();
             else if (other.payout_type === 'Lumpsum' && new Date(other.payment_end_date) < date) {
-                monthsFromStartTillPaymentEnd = (new Date(other.start_date).getFullYear() - new Date(other.payment_end_date).getFullYear()) * 12 + new Date(other.start_date).getMonth() - new Date(other.payment_end_date).getMonth();
+                monthsFromStartTillPaymentEnd = (new Date(other.payment_end_date).getFullYear() - new Date(other.start_date).getFullYear()) * 12 + new Date(other.payment_end_date).getMonth() - new Date(other.start_date).getMonth();
                 monthsFromPaymentEndToDate = (date.getFullYear() - new Date(other.payment_end_date).getFullYear()) * 12 + date.getMonth() - new Date(other.payment_end_date).getMonth();
             }
             else if (other.payout_type === 'Recurring' && new Date(other.payment_end_date) >= date)
                 monthsFromStartTillDate = (date.getFullYear() - new Date(other.start_date).getFullYear()) * 12 + date.getMonth() - new Date(other.start_date).getMonth();
             else if (other.payout_type === 'Recurring' && new Date(other.payment_end_date) < date && new Date(other.payout_date) >= date) {
-                monthsFromStartTillPaymentEnd = (new Date(other.start_date).getFullYear() - new Date(other.payment_end_date).getFullYear()) * 12 + new Date(other.start_date).getMonth() - new Date(other.payment_end_date).getMonth();
+                monthsFromStartTillPaymentEnd = (new Date(other.payment_end_date).getFullYear() - new Date(other.start_date).getFullYear()) * 12 + new Date(other.payment_end_date).getMonth() - new Date(other.start_date).getMonth();
                 monthsFromPaymentEndToDate = (date.getFullYear() - new Date(other.payment_end_date).getFullYear()) * 12 + date.getMonth() - new Date(other.payment_end_date).getMonth();
             }
             // else if (other.payout_type === 'Recurring' && new Date(other.payment_end_date) <= date && new Date(other.payout_date) <= date) {
@@ -230,7 +275,7 @@ export const otherAssetValue = (other, date, baseCurrency) => {
                 'Fixed',
                 'Simple',
                 other.growth_rate,
-                other.totalValue || 0,
+                totalValue || 0,
                 monthsFromPaymentEndToDate,
                 '', // does not matter as it is simple interest and no further payments
                 0,

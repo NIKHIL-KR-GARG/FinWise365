@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_03_062039) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_07_103157) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -180,6 +180,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_03_062039) do
     t.date "maturity_date"
     t.boolean "is_dummy_data", default: false
     t.boolean "is_dream", default: false
+    t.date "sip_end_date"
   end
 
   create_table "asset_properties", force: :cascade do |t|

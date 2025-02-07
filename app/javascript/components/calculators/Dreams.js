@@ -730,6 +730,7 @@ export const sipDreamPortfolio = (portfolio, baseCurrency, sipEndDate) => {
         let end_date = '';
         if (portfolio.portfolio_type === "Bonds") end_date = new Date(portfolio.maturity_date);
         else if (portfolio.is_plan_to_sell && portfolio.sale_date) end_date = new Date(portfolio.sale_date);
+        else if (portfolio.is_sip && portfolio.sip_end_date) end_date = new Date(portfolio.sip_end_date);
         else end_date = new Date(sipEndDate);
 
         // calculate the number of months between start date and end date
@@ -919,43 +920,54 @@ export const couponIncomeDream = (assetPortfolio, baseCurrency, incomeEndDate) =
 const portfolioAssetValue = (portfolio, date) => {
     let portfolioAssetValue = 0.0;
     if (portfolio) {
+        let monthsFromStartTillDate = 0;
+        let monthsFromStartTillPaymentEnd = 0;
+        let monthsFromPaymentEndToDate = 0;
         if (portfolio.is_sip) {
-            // calculate the growth based on the growth rate
-            const months = (new Date(date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date(date).getMonth() - new Date(portfolio.buying_date).getMonth();
-            const interest = CalculateInterest(
-                'Recurring',
-                'Simple',
-                parseFloat(portfolio.growth_rate),
-                parseFloat(portfolio.buying_value),
-                months,
-                portfolio.sip_frequency,
-                parseFloat(portfolio.sip_amount),
-                portfolio.sip_frequency // does not matter as it is simple interest
-            )
-            const principal = CalculatePrincipal(
-                'Recurring',
-                parseFloat(portfolio.buying_value) || 0,
-                months,
-                portfolio.sip_frequency,
-                parseFloat(portfolio.sip_amount) || 0
-            );
-            portfolioAssetValue = parseFloat(principal) + parseFloat(interest);
+            if (new Date(portfolio.sip_end_date) >= date) {
+                monthsFromStartTillDate = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
+            }
+            else {
+                monthsFromStartTillPaymentEnd = (new Date(portfolio.sip_end_date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date(portfolio.sip_end_date).getMonth() - new Date(portfolio.buying_date).getMonth();
+                monthsFromPaymentEndToDate = (date.getFullYear() - new Date(portfolio.sip_end_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.sip_end_date).getMonth();
+            }
         }
         else {
-            // calculate the growth based on the growth rate
-            const months = (new Date(date).getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + new Date(date).getMonth() - new Date(portfolio.buying_date).getMonth();
-            const interest = CalculateInterest(
+            monthsFromStartTillDate = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
+        }
+
+        // calculate the growth based on the growth rate
+        const interest = CalculateInterest(
+            portfolio.is_sip ? 'Recurring' : 'Fixed',
+            'Simple',
+            parseFloat(portfolio.growth_rate),
+            parseFloat(portfolio.buying_value),
+            monthsFromStartTillDate > 0 ? monthsFromStartTillDate : monthsFromStartTillPaymentEnd,
+            portfolio.sip_frequency,
+            parseFloat(portfolio.sip_amount),
+            portfolio.sip_frequency // does not matter as it is simple interest
+        )
+        const principal = CalculatePrincipal(
+            portfolio.is_sip ? 'Recurring' : 'Fixed',
+            parseFloat(portfolio.buying_value) || 0,
+            monthsFromStartTillDate > 0 ? monthsFromStartTillDate : monthsFromStartTillPaymentEnd,
+            portfolio.sip_frequency,
+            parseFloat(portfolio.sip_amount) || 0
+        );
+        let totalValue = parseFloat(principal) + parseFloat(interest);
+        if (monthsFromPaymentEndToDate > 0) {
+            totalValue += CalculateInterest(
                 'Fixed',
                 'Simple',
                 parseFloat(portfolio.growth_rate),
-                parseFloat(portfolio.buying_value),
-                months,
-                'Annually', // does not matter as it is Fixed type without recurring payments
+                totalValue || 0,
+                monthsFromPaymentEndToDate,
+                '', // does not matter as it is simple interest and no further payments
                 0,
-                'Annually' // does not matter as it is simple interest
+                '' // does not matter as it is simple interest
             );
-            portfolioAssetValue = parseFloat(portfolio.buying_value) + parseFloat(interest);
         }
+        portfolioAssetValue = totalValue;
     }
 
     return portfolioAssetValue;
@@ -982,7 +994,7 @@ export const dividendIncomeDream = (assetPortfolio, baseCurrency, incomeEndDate)
             // get new date by adding i months to the start date
             const newDate = new Date(assetPortfolio.buying_date).setMonth(new Date(assetPortfolio.buying_date).getMonth() + i);
 
-            // get current portfolio value (this is already converted to base currency)
+            // get current portfolio value
             const currentPortfolioValue = portfolioAssetValue(assetPortfolio, newDate);
 
             if (isValueMonth(start_date, newDate, assetPortfolio.dividend_frequency)) {
