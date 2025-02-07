@@ -79,7 +79,7 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
                 <Toolbar>
                     <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
                         <IconButton edge="start" color="inherit" aria-label="menu" component={RouterLink} to="/home">
-                            <img src="/SmartOwlLogo.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
+                            <img src="/FinWise365_Logo_TransparentWhite.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
                         </IconButton>
                         <Typography variant="h6" component={RouterLink} to="/home" sx={{ color: 'white', ml: 1, textDecoration: 'none' }}>
                             FinWise365

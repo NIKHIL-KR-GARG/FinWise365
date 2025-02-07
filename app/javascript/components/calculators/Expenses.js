@@ -1,5 +1,5 @@
 import { CalculateInterest } from "./CalculateInterestAndPrincipal";
-import { ExchangeRate } from "../common/DefaultValues";
+import { getExchangeRate } from "../common/ExchangeRate";
 import { isSIPMonth, isSameMonthAndYear } from "../common/DateFunctions";
 
 export const homeExpense = (home, date, baseCurrency) => {
@@ -24,10 +24,7 @@ export const homeExpense = (home, date, baseCurrency) => {
             else homeExpense = home.total_expense;
         }
     }
-    const fromCurrency = home.currency;
-    const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-    homeExpense = parseFloat(homeExpense) * conversionRate;
+    homeExpense = parseFloat(homeExpense) * getExchangeRate(home.currency, baseCurrency);
     return homeExpense;
 };
 
@@ -53,10 +50,7 @@ export const propertyExpense = (property, date, baseCurrency) => {
             else propertyExpense = property.total_expense;
         }
     }
-    const fromCurrency = property.currency;
-    const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-    const conversionRate = exchangeRate ? exchangeRate.value : 1;
-    propertyExpense = parseFloat(propertyExpense) * conversionRate;
+    propertyExpense = parseFloat(propertyExpense) * getExchangeRate(property.currency, baseCurrency);
     return propertyExpense;
 };
 
@@ -67,10 +61,7 @@ export const maintananeExpenseProperty = (property, date, baseCurrency) => {
         else if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
         else if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
         else {
-            const fromCurrency = property.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            maintananeExpenseProperty = parseFloat(property.property_maintenance) * conversionRate;
+            maintananeExpenseProperty = parseFloat(property.property_maintenance) * getExchangeRate(property.currency, baseCurrency);
         }
     }
     return maintananeExpenseProperty;
@@ -82,10 +73,7 @@ export const creditCardDebtExpense = (creditCardDebt, date, baseCurrency) => {
         const startDate = new Date(creditCardDebt.start_date);
         const endDate = new Date(creditCardDebt.end_date);
         if ((startDate <= date || isSameMonthAndYear(startDate, date)) && (endDate >= date || isSameMonthAndYear(endDate, date))) {
-            const fromCurrency = creditCardDebt.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            creditCardDebtExpense = parseFloat(creditCardDebt.emi_amount) * conversionRate;
+            creditCardDebtExpense = parseFloat(creditCardDebt.emi_amount) * getExchangeRate(creditCardDebt.currency, baseCurrency);
         }
     }
     return creditCardDebtExpense;
@@ -97,10 +85,7 @@ export const personalLoanExpense = (personalLoan, date, baseCurrency) => {
         const startDate = new Date(personalLoan.start_date);
         const endDate = new Date(personalLoan.end_date);
         if ((startDate <= date || isSameMonthAndYear(startDate, date)) && (endDate >= date || isSameMonthAndYear(endDate, date))) {
-            const fromCurrency = personalLoan.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            personalLoanExpense = parseFloat(personalLoan.emi_amount) * conversionRate;
+            personalLoanExpense = parseFloat(personalLoan.emi_amount) * getExchangeRate(personalLoan.currency, baseCurrency);
         }
     }
     return personalLoanExpense;
@@ -136,10 +121,7 @@ export const otherExpense = (other, date, baseCurrency) => {
                 otherExpense += totalInterest;
             }
         }
-        const fromCurrency = other.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-        otherExpense = otherExpense * conversionRate;
+        otherExpense = otherExpense * getExchangeRate(other.currency, baseCurrency);
     }
     return otherExpense;
 };
@@ -149,10 +131,7 @@ export const otherExpenseVehicle = (vehicle, date, baseCurrency) => {
     if (vehicle) {
         if (vehicle.is_plan_to_sell && new Date(vehicle.sale_date) < date && !isSameMonthAndYear(new Date(vehicle.sale_date), date)) return 0;
         else {
-                const fromCurrency = vehicle.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                otherExpenseVehicle = parseFloat(parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses)) * conversionRate;
+                otherExpenseVehicle = parseFloat(parseFloat(vehicle.vehicle_maintanance) + parseFloat(vehicle.monthly_expenses)) * getExchangeRate(vehicle.currency, baseCurrency);
             }
         }
         return otherExpenseVehicle;
@@ -168,10 +147,7 @@ export const emiExpenseProperty = (property, date, baseCurrency) => {
             const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(property.loan_duration)));
             if (endDate < date && !isSameMonthAndYear(endDate, date)) return 0;
             else {
-                const fromCurrency = property.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                emiExpenseProperty = parseFloat(property.emi_amount) * conversionRate;
+                emiExpenseProperty = parseFloat(property.emi_amount) * getExchangeRate(property.currency, baseCurrency);
             }
         }
     }
@@ -188,10 +164,7 @@ export const emiExpenseVehicle = (vehicle, date, baseCurrency) => {
             const endDate = new Date(startDate.setMonth(startDate.getMonth() + 1 + parseInt(vehicle.loan_duration)));
             if (endDate < date && !isSameMonthAndYear(endDate, date)) return 0;
             else {
-                const fromCurrency = vehicle.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                emiExpenseVehicle = parseFloat(vehicle.emi_amount) * conversionRate;
+                emiExpenseVehicle = parseFloat(vehicle.emi_amount) * getExchangeRate(vehicle.currency, baseCurrency);
             }
         }
     }
@@ -208,10 +181,7 @@ export const emiExpenseDream = (dream, date, baseCurrency) => {
             if ((startDate > date && !isSameMonthAndYear(startDate, date)) ||
                 (endDate < date && !isSameMonthAndYear(endDate, date))) return 0;
             else {
-                const fromCurrency = dream.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                emiExpenseDream = parseFloat(dream.emi_amount) * conversionRate;
+                emiExpenseDream = parseFloat(dream.emi_amount) * getExchangeRate(dream.currency, baseCurrency);
             }
         }
     }
@@ -226,10 +196,7 @@ export const sipExpenseDeposit = (deposit, date, baseCurrency) => {
         else {
             // check if this the correct month for sip expense based on frequency
             if (isSIPMonth(new Date(deposit.opening_date), date, deposit.payment_frequency)) {
-                const fromCurrency = deposit.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                sipExpenseDeposit = parseFloat(deposit.payment_amount) * conversionRate;
+                sipExpenseDeposit = parseFloat(deposit.payment_amount) * getExchangeRate(deposit.currency, baseCurrency);
             }
         }
     }
@@ -244,10 +211,7 @@ export const sipExpensePortfolio = (portfolio, date, baseCurrency) => {
         else {
             // check if this the correct month for sip expense based on frequency
             if (isSIPMonth(new Date(portfolio.buying_date), date, portfolio.sip_frequency)) {
-                const fromCurrency = portfolio.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                sipExpensePortfolio = parseFloat(portfolio.sip_amount) * conversionRate;
+                sipExpensePortfolio = parseFloat(portfolio.sip_amount) * getExchangeRate(portfolio.currency, baseCurrency);
             }
         }
     }
@@ -263,10 +227,7 @@ export const sipExpenseOtherAsset = (otherAsset, date, baseCurrency) => {
         else {
             // check if this the correct month for sip expense based on frequency
             if (isSIPMonth(new Date(otherAsset.start_date), date, otherAsset.payment_frequency)) {
-                const fromCurrency = otherAsset.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                sipExpenseOtherAsset = parseFloat(otherAsset.payment_amount) * conversionRate;
+                sipExpenseOtherAsset = parseFloat(otherAsset.payment_amount) * getExchangeRate(otherAsset.currency, baseCurrency);
             }
         }
     }
@@ -280,10 +241,7 @@ export const taxExpenseProperty = (property, date, baseCurrency) => {
         else if (property.is_plan_to_sell && new Date(property.sale_date) < date && !isSameMonthAndYear(new Date(property.sale_date), date)) return 0;
         else if (new Date(property.purchase_date) > date && !isSameMonthAndYear(new Date(property.purchase_date), date)) return 0;
         else {
-            const fromCurrency = property.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
-            taxExpenseProperty = parseFloat(property.property_tax) * conversionRate;
+            taxExpenseProperty = parseFloat(property.property_tax) * getExchangeRate(property.currency, baseCurrency);
         }
     }
     return taxExpenseProperty;

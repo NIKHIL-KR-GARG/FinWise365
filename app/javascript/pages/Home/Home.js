@@ -8,7 +8,7 @@ import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
 import DisplayCashflow from '../../components/cashflowpage/DisplayCashflow';
 import CashFlowCommentary from '../../components/cashflowpage/CashFlowCommentary';
-import { ExchangeRate } from '../../components/common/DefaultValues';
+import { getExchangeRate } from '../../components/common/ExchangeRate';
 
 const Home = () => {
 
@@ -66,8 +66,7 @@ const Home = () => {
 
     const convertAllValuesToBaseCurrency = async (newCashflowList, baseCurrency, cashflowCurrency) => {
         try {
-            const exchangeRate = ExchangeRate.find(rate => rate.from === cashflowCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
+            const conversionRate = getExchangeRate(cashflowCurrency, baseCurrency);
             const convertedCashflowList = newCashflowList.map(item => {
                 const convertedItem = { ...item };
                 convertedItem.income = item.income * conversionRate;

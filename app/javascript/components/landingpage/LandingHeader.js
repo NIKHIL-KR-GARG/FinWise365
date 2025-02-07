@@ -41,7 +41,7 @@ const LandingHeader = ({sourcePage}) => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Link href="/" sx={{ textDecoration: 'none', color: 'white' }}>
           <IconButton edge="end" color="inherit" aria-label="menu">
-            <img src="/SmartOwlLogo.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
+            <img src="/FinWise365_Logo_TransparentWhite.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
           </IconButton>
           <Typography variant="h6" component="span" sx={{ color: 'white' }}>
             &nbsp;&nbsp;FinWise365

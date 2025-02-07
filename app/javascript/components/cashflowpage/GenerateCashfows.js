@@ -14,7 +14,8 @@ import { homeExpense, propertyExpense, creditCardDebtExpense, personalLoanExpens
 import { propertyDreamExpense, vehicleDreamExpense, educationDreamExpense, travelDreamExpense, relocationDreamExpense, otherDreamExpense } from '../../components/calculators/Dreams';
 
 import { getMonthEndDate } from '../../components/common/DateFunctions';
-import { GrowthRate, ExchangeRate } from '../common/DefaultValues';
+import { GrowthRate } from '../common/DefaultValues';
+import { getExchangeRate } from "../common/ExchangeRate";
 import AssetsCashflow from '../../components/cashflowpage/AssetsCashflow';
 import LiabilitiesCashflow from '../../components/cashflowpage/LiabilitiesCashflow';
 import NetCashflow from '../../components/cashflowpage/NetCashflow';
@@ -435,10 +436,8 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
                             // check currency and see if we need to convert the value
                             const accountCurrency = account.currency;
                             if (accountCurrency !== currentUserBaseCurrency) {
-                                // convert the value to base currency
-                                const exchangeRate = ExchangeRate.find(rate => rate.from === currentUserBaseCurrency && rate.to === accountCurrency);
-                                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                                account.account_balance = asset.asset_value * conversionRate;
+                                // convert the value to account currency
+                                account.account_balance = asset.asset_value * getExchangeRate(currentUserBaseCurrency, accountCurrency);
                             }
                             else {
                                 account.account_balance = asset.asset_value;
@@ -466,10 +465,8 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
                             // check currency and see if we need to convert the value
                             const portfolioCurrency = portfolio.currency;
                             if (portfolioCurrency !== currentUserBaseCurrency) {
-                                // convert the value to base currency
-                                const exchangeRate = ExchangeRate.find(rate => rate.from === currentUserBaseCurrency && rate.to === portfolioCurrency);
-                                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                                portfolio.buying_value = asset.asset_value * conversionRate;
+                                // convert the value to portfolio currency
+                                portfolio.buying_value = asset.asset_value * getExchangeRate(currentUserBaseCurrency, portfolioCurrency);
                            }
                             else {
                                 portfolio.buying_value = asset.asset_value;
@@ -896,39 +893,39 @@ const GenerateCashflows = ({ hideAccordians }) => {
             const response = await axios.post('/api/cashflow_projections', cashflowProjection);
             const cashflowProjectionId = response.data.id;
 
-            const cashflowAssets = assetsCashflowData.map(asset => ({
-                user_id: saveAsDummyData ? 0 : currentUserId,
-                is_dummy_data: saveAsDummyData,
-                cashflow_id: cashflowProjectionId,
-                currency: currentUserBaseCurrency,
-                cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
-                month: asset.month,
-                year: asset.year,
-                age: asset.age,
-                asset_id: asset.asset_id,
-                asset_type: asset.asset_type,
-                asset_name: asset.asset_name,
-                original_asset_value: asset.original_asset_value,
-                asset_value: asset.asset_value,
-                is_locked: asset.is_locked,
-                is_cash: asset.is_cash,
-                growth_rate: asset.growth_rate
-            }));
+            // const cashflowAssets = assetsCashflowData.map(asset => ({
+            //     user_id: saveAsDummyData ? 0 : currentUserId,
+            //     is_dummy_data: saveAsDummyData,
+            //     cashflow_id: cashflowProjectionId,
+            //     currency: currentUserBaseCurrency,
+            //     cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
+            //     month: asset.month,
+            //     year: asset.year,
+            //     age: asset.age,
+            //     asset_id: asset.asset_id,
+            //     asset_type: asset.asset_type,
+            //     asset_name: asset.asset_name,
+            //     original_asset_value: asset.original_asset_value,
+            //     asset_value: asset.asset_value,
+            //     is_locked: asset.is_locked,
+            //     is_cash: asset.is_cash,
+            //     growth_rate: asset.growth_rate
+            // }));
 
-            const cashflowLiabilities = liabilitiesCashflowData.map(liability => ({
-                user_id: saveAsDummyData ? 0 : currentUserId,
-                is_dummy_data: saveAsDummyData,
-                cashflow_id: cashflowProjectionId,
-                currency: currentUserBaseCurrency,
-                cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
-                month: liability.month,
-                year: liability.year,
-                age: liability.age,
-                liability_id: liability.liability_id,
-                liability_type: liability.liability_type,
-                liability_name: liability.liability_name,
-                liability_value: liability.liability_value
-            }));
+            // const cashflowLiabilities = liabilitiesCashflowData.map(liability => ({
+            //     user_id: saveAsDummyData ? 0 : currentUserId,
+            //     is_dummy_data: saveAsDummyData,
+            //     cashflow_id: cashflowProjectionId,
+            //     currency: currentUserBaseCurrency,
+            //     cashflow_date: new Date(new Date().toLocaleString()), // Convert local date string back to Date object
+            //     month: liability.month,
+            //     year: liability.year,
+            //     age: liability.age,
+            //     liability_id: liability.liability_id,
+            //     liability_type: liability.liability_type,
+            //     liability_name: liability.liability_name,
+            //     liability_value: liability.liability_value
+            // }));
 
             const cashflowNetPositions = netCashflowData.map(net => ({
                 user_id: saveAsDummyData ? 0 : currentUserId,
@@ -947,8 +944,8 @@ const GenerateCashflows = ({ hideAccordians }) => {
                 net_worth: net.net_worth
             }));
 
-            await axios.post('/api/cashflow_assets/bulk', { cashflowAssets });
-            await axios.post('/api/cashflow_liabilities/bulk', { cashflowLiabilities });
+            // await axios.post('/api/cashflow_assets/bulk', { cashflowAssets });
+            // await axios.post('/api/cashflow_liabilities/bulk', { cashflowLiabilities });
             await axios.post('/api/cashflow_net_positions/bulk', { cashflowNetPositions });
 
             setSuccessMessage('Cashflow frozen successfully');

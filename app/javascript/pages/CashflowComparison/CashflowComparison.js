@@ -9,7 +9,7 @@ import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import { today } from '../../components/common/DateFunctions';
 import DisplayCashflowComparison from '../../components/cashflowpage/DisplayCashflowComparison';
-import { ExchangeRate } from '../../components/common/DefaultValues';
+import { getExchangeRate } from '../../components/common/ExchangeRate';
 
 const CashflowComparison = () => {
     
@@ -159,8 +159,7 @@ const CashflowComparison = () => {
         // loop though the list and convert all values to base currency if it is not already in base currency
         const convertedList = netCashflowList.map((item) => {
             if (item.currency !== baseCurrency) {
-                const exchangeRate = ExchangeRate.find(rate => rate.from === item.currency && rate.to === baseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
+                const conversionRate = getExchangeRate(item.currency, baseCurrency);
                 item.income = item.income * conversionRate;
                 item.expense = item.expense * conversionRate;
                 item.net_position = item.net_position * conversionRate;

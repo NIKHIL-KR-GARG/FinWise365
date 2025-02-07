@@ -8,7 +8,7 @@ import '../../common/GridHeader.css';
 import CountryList from '../../common/CountryList';
 import { FormatCurrency } from  '../../common/FormatCurrency';
 import { calculateMortgageBalance, calculateFlatRateLoanBalance } from '../../calculators/Assets';
-import { ExchangeRate } from '../../common/DefaultValues';
+import { getExchangeRate } from '../../common/ExchangeRate';
 
 export const fetchPropertyMortgageAndLoans = (propertiesList) => {
     try {
@@ -110,18 +110,12 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
             // loop through the propertyMortgageAndLoans to calculate the total balance amount
             for (let i = 0; i < propertyMortgageAndLoans.length; i++) {
                 let propertyMortgage = propertyMortgageAndLoans[i];
-                const fromCurrency = propertyMortgage.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                amount += propertyMortgage.balance_amount * conversionRate;
+                amount += propertyMortgage.balance_amount * getExchangeRate(propertyMortgage.currency, currentUserBaseCurrency);
             }
             // loop through the vehicleMortgageAndLoans to calculate the total balance amount
             for (let i = 0; i < vehicleMortgageAndLoans.length; i++) {
                 let vehicleMortgage = vehicleMortgageAndLoans[i];
-                const fromCurrency = vehicleMortgage.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                amount += vehicleMortgage.balance_amount * conversionRate;
+                amount += vehicleMortgage.balance_amount * getExchangeRate(vehicleMortgage.currency, currentUserBaseCurrency);
             }
             onMortgageAndLoansFetched(count, amount); // Notify parent component
         }
@@ -136,10 +130,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
             // loop through the mortgageandloans to calculate the total balance amount
             for (let i = 0; i < mortgageandloans.length; i++) {
                 let mortgage = mortgageandloans[i];
-                const fromCurrency = mortgage.currency;
-                const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === currentUserBaseCurrency);
-                const conversionRate = exchangeRate ? exchangeRate.value : 1;
-                amount += mortgage.balance_amount * conversionRate;
+                amount += mortgage.balance_amount * getExchangeRate(mortgage.currency, currentUserBaseCurrency);
             }
             return amount;
         }   

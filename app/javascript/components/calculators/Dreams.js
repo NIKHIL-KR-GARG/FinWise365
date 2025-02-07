@@ -1,4 +1,4 @@
-import { ExchangeRate } from "../common/DefaultValues";
+import { getExchangeRate } from "../common/ExchangeRate";
 import { isSIPMonth, isSameMonthAndYear } from "../common/DateFunctions";
 import { calculateFlatRateInterest, CalculateInterest }  from "./CalculateInterestAndPrincipal";
 import { isValueMonth } from "./Assets";
@@ -19,10 +19,7 @@ export const propertyDreamExpense = (property, date, baseCurrency) => {
             else
                 propertyDreamExpense = totalCost;
         }
-        const fromCurrency = property.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-        propertyDreamExpense = propertyDreamExpense * conversionRate;
+        propertyDreamExpense = propertyDreamExpense * getExchangeRate(property.currency, baseCurrency);
     }
     return propertyDreamExpense;
 }
@@ -40,10 +37,7 @@ export const vehicleDreamExpense = (vehicle, date, baseCurrency) => {
             else
                 vehicleDreamExpense = purchaseValue;
         }
-        const fromCurrency = vehicle.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-        vehicleDreamExpense = vehicleDreamExpense * conversionRate;
+        vehicleDreamExpense = vehicleDreamExpense * getExchangeRate(vehicle.currency, baseCurrency);
     }
     return vehicleDreamExpense;
 }
@@ -57,10 +51,6 @@ export const educationDreamExpense = (education, date, baseCurrency) => {
         if ((education.dream_date > date && !isSameMonthAndYear(new Date(education.dream_date), date)) ||
             (education.is_recurring && education.end_date < date && !isSameMonthAndYear(new Date(education.end_date), date))) return 0;
 
-        const fromCurrency = education.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         if (!education.is_recurring && isSameMonthAndYear(new Date(education.dream_date), date)) {
             educationDreamExpense = parseFloat(education.amount);
         }
@@ -70,7 +60,7 @@ export const educationDreamExpense = (education, date, baseCurrency) => {
             }
         }
         
-        educationDreamExpense = educationDreamExpense * conversionRate;
+        educationDreamExpense = educationDreamExpense * getExchangeRate(education.currency, baseCurrency);
     }
     return educationDreamExpense;
 }
@@ -84,10 +74,6 @@ export const travelDreamExpense = (travel, date, baseCurrency) => {
         if ((travel.dream_date > date && !isSameMonthAndYear(new Date(travel.dream_date), date)) ||
             (travel.is_recurring && travel.end_date < date && !isSameMonthAndYear(new Date(travel.end_date), date))) return 0;
 
-        const fromCurrency = travel.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         if (!travel.is_recurring && isSameMonthAndYear(new Date(travel.dream_date), date)) {
             travelDreamExpense = parseFloat(travel.amount);
         }
@@ -97,7 +83,7 @@ export const travelDreamExpense = (travel, date, baseCurrency) => {
             }
         }
 
-        travelDreamExpense = travelDreamExpense * conversionRate;
+        travelDreamExpense = travelDreamExpense * getExchangeRate(travel.currency, baseCurrency);
     }
     return travelDreamExpense;
 }
@@ -111,10 +97,6 @@ export const relocationDreamExpense = (relocation, date, baseCurrency) => {
         if ((relocation.dream_date > date && !isSameMonthAndYear(new Date(relocation.dream_date), date)) ||
             (relocation.is_recurring && relocation.end_date < date && !isSameMonthAndYear(new Date(relocation.end_date), date))) return 0;
 
-        const fromCurrency = relocation.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         if (!relocation.is_recurring && isSameMonthAndYear(new Date(relocation.dream_date), date)) {
             relocationDreamExpense = parseFloat(relocation.amount);
         }
@@ -124,7 +106,7 @@ export const relocationDreamExpense = (relocation, date, baseCurrency) => {
             }
         }
 
-        relocationDreamExpense = relocationDreamExpense * conversionRate;
+        relocationDreamExpense = relocationDreamExpense * getExchangeRate(relocation.currency, baseCurrency);    
     }
     return relocationDreamExpense;
 }
@@ -138,10 +120,6 @@ export const otherDreamExpense = (other, date, baseCurrency) => {
         if ((other.dream_date > date && !isSameMonthAndYear(new Date(other.dream_date), date)) ||
             (other.is_recurring && other.end_date < date && !isSameMonthAndYear(new Date(other.end_date), date))) return 0;
 
-        const fromCurrency = other.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         if (!other.is_recurring && isSameMonthAndYear(new Date(other.dream_date), date)) {
             otherDreamExpense = parseFloat(other.amount);
         }
@@ -151,7 +129,7 @@ export const otherDreamExpense = (other, date, baseCurrency) => {
             }
         }
 
-        otherDreamExpense = otherDreamExpense * conversionRate;
+        otherDreamExpense = otherDreamExpense * getExchangeRate(other.currency, baseCurrency);
     }
     return otherDreamExpense;
 }
@@ -159,21 +137,18 @@ export const otherDreamExpense = (other, date, baseCurrency) => {
 export const propertyDreamYearlyExpense = (property, baseCurrency) => {
     const dreamsListPropertyLumpsum = [];
     if (property) {
-        const fromCurrency = property.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         const purchaseValue = parseFloat(property.purchase_price);
         const stampDuty = parseFloat(property.stamp_duty);
         const otherFees = parseFloat(property.other_fees);
         const totalCost = purchaseValue + stampDuty + otherFees;
         if (property.is_funded_by_loan)
             dreamsListPropertyLumpsum.push({
-                amount: totalCost - parseFloat(property.loan_amount) * conversionRate,
+                amount: totalCost - parseFloat(property.loan_amount) * getExchangeRate(property.currency, baseCurrency),
                 year: new Date(property.purchase_date).getFullYear()
             });
         else
             dreamsListPropertyLumpsum.push({
-                amount: totalCost * conversionRate,
+                amount: totalCost * getExchangeRate(property.currency, baseCurrency),
                 year: new Date(property.purchase_date).getFullYear()
             });
     }
@@ -183,18 +158,15 @@ export const propertyDreamYearlyExpense = (property, baseCurrency) => {
 export const vehicleDreamYearlyExpense = (vehicle, baseCurrency) => {
     const dreamsListVehicleLumpsum = [];
     if (vehicle) {
-        const fromCurrency = vehicle.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         const purchaseValue = parseFloat(vehicle.purchase_price);
         if (vehicle.is_funded_by_loan)
             dreamsListVehicleLumpsum.push({
-                amount: purchaseValue - parseFloat(vehicle.loan_amount) * conversionRate,
+                amount: purchaseValue - parseFloat(vehicle.loan_amount) * getExchangeRate(vehicle.currency, baseCurrency),
                 year: new Date(vehicle.purchase_date).getFullYear()
             });
         else
             dreamsListVehicleLumpsum.push({
-                amount: purchaseValue * conversionRate,
+                amount: purchaseValue * getExchangeRate(vehicle.currency, baseCurrency),
                 year: new Date(vehicle.purchase_date).getFullYear()
             });
     }
@@ -204,11 +176,8 @@ export const vehicleDreamYearlyExpense = (vehicle, baseCurrency) => {
 export const accountsDreamYearlyExpense = (account, baseCurrency) => {
     const dreamsListAccountsLumpsum = [];
     if (account) {
-        const fromCurrency = account.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         dreamsListAccountsLumpsum.push({
-            amount: parseFloat(account.account_balance) * conversionRate,
+            amount: parseFloat(account.account_balance) * getExchangeRate(account.currency, baseCurrency),
             year: new Date(account.opening_date).getFullYear()
         });
     }
@@ -218,11 +187,8 @@ export const accountsDreamYearlyExpense = (account, baseCurrency) => {
 export const depositDreamYearlyExpense = (deposit, baseCurrency) => {
     const dreamsListDepositLumpsum = [];
     if (deposit) {
-        const fromCurrency = deposit.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         dreamsListDepositLumpsum.push({
-            amount: parseFloat(deposit.amount) * conversionRate,
+            amount: parseFloat(deposit.amount) * getExchangeRate(deposit.currency, baseCurrency),
             year: new Date(deposit.opening_date).getFullYear()
         });
     }
@@ -232,11 +198,8 @@ export const depositDreamYearlyExpense = (deposit, baseCurrency) => {
 export const portfolioDreamYearlyExpense = (portfolio, baseCurrency) => {
     const dreamsListPortfolioLumpsum = [];
     if (portfolio) {
-        const fromCurrency = portfolio.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         dreamsListPortfolioLumpsum.push({
-            amount: parseFloat(portfolio.buying_value) * conversionRate,
+            amount: parseFloat(portfolio.buying_value) * getExchangeRate(portfolio.currency, baseCurrency),
             year: new Date(portfolio.buying_date).getFullYear()
         });
     }
@@ -246,11 +209,8 @@ export const portfolioDreamYearlyExpense = (portfolio, baseCurrency) => {
 export const otherAssetDreamYearlyExpense = (otherAsset, baseCurrency) => {
     const dreamsListOtherAssetLumpsum = [];
     if (otherAsset) {
-        const fromCurrency = otherAsset.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         dreamsListOtherAssetLumpsum.push({
-            amount: parseFloat(otherAsset.lumpsum_amount) * conversionRate,
+            amount: parseFloat(otherAsset.lumpsum_amount) * getExchangeRate(otherAsset.currency, baseCurrency),
             year: new Date(otherAsset.start_date).getFullYear()
         });
     }
@@ -260,11 +220,8 @@ export const otherAssetDreamYearlyExpense = (otherAsset, baseCurrency) => {
 export const otherExpenseDreamYearlyExpense = (otherExpense, baseCurrency) => {
     const dreamsListOtherExpenseLumpsum = [];
     if (otherExpense) {
-        const fromCurrency = otherExpense.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         dreamsListOtherExpenseLumpsum.push({
-            amount: parseFloat(otherExpense.amount) * conversionRate,
+            amount: parseFloat(otherExpense.amount) * getExchangeRate(otherExpense.currency, baseCurrency),
             year: new Date(otherExpense.expense_date).getFullYear()
         });
     }
@@ -274,13 +231,10 @@ export const otherExpenseDreamYearlyExpense = (otherExpense, baseCurrency) => {
 export const dreamsYearlyExpense = (dream, baseCurrency) => {
     let dreamsListLumpsum = [];
     if (dream) {
-        const fromCurrency = dream.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         if (!dream.is_funded_by_loan) {
             if (!dream.is_recurring) {
                 dreamsListLumpsum.push({
-                    amount: parseFloat(dream.amount) * conversionRate,
+                    amount: parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency),
                     year: new Date(dream.dream_date).getFullYear()
                 });
             }
@@ -293,7 +247,7 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
                     // check is this is the correct month to add the recurring amount
                     if (isSIPMonth(new Date(dream.dream_date), new Date(newDate), dream.recurring_frequency)) {
                         dreamsListRecurring.push({
-                            amount: parseFloat(dream.recurring_amount) * conversionRate,
+                            amount: parseFloat(dream.recurring_amount) * getExchangeRate(dream.currency, baseCurrency),
                             month: new Date(newDate).getMonth(),
                             year: new Date(newDate).getFullYear()
                         });
@@ -318,7 +272,7 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
         else {
             if (!dream.is_recurring) {
                 dreamsListLumpsum.push({
-                    amount: (parseFloat(dream.amount) - parseFloat(dream.loan_amount)) * conversionRate,
+                    amount: (parseFloat(dream.amount) - parseFloat(dream.loan_amount)) * getExchangeRate(dream.currency, baseCurrency),
                     year: new Date(dream.dream_date).getFullYear()
                 });
             }
@@ -334,7 +288,7 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
                 if (pendingAmount > 0) {
                     if (pendingAmount <= parseFloat(dream.amount)) {
                         dreamsListLumpsum.push({
-                            amount: pendingAmount * conversionRate,
+                            amount: pendingAmount * getExchangeRate(dream.currency, baseCurrency),
                             year: new Date(dream.dream_date).getFullYear()
                         });
                     }
@@ -349,7 +303,7 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
                             // check is this is the correct month to add the recurring amount
                             if (isSIPMonth(new Date(dream.dream_date), new Date(newDate), dream.recurring_frequency)) {
                                 dreamsListRecurring.push({
-                                    amount: eachInstallmentAmount * conversionRate,
+                                    amount: eachInstallmentAmount * getExchangeRate(dream.currency, baseCurrency),
                                     month: new Date(newDate).getMonth(),
                                     year: new Date(newDate).getFullYear()
                                 });
@@ -375,11 +329,11 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
                         // check if this year exists in the dreamsListLumpsum then add the pending amount to the existing amount else add a new entry
                         const index = dreamsListLumpsum.findIndex(item => item.year === dreamYear);
                         if (index > -1) {
-                            dreamsListLumpsum[index].amount += parseFloat(dream.amount) * conversionRate;
+                            dreamsListLumpsum[index].amount += parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency);
                         }
                         else {
                             dreamsListLumpsum.push({
-                                amount: parseFloat(dream.amount) * conversionRate,
+                                amount: parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency),
                                 year: dreamYear
                             });
                         }
@@ -407,9 +361,6 @@ export const homeExpenseDreamRecurringExpense = (homeExpense, baseCurrency, expe
 
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
-        const fromCurrency = homeExpense.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListRecurring = [];
         // from start date to end date, for each month add the recurring amount
@@ -422,7 +373,7 @@ export const homeExpenseDreamRecurringExpense = (homeExpense, baseCurrency, expe
                 totalExpense += totalInterest;
             }
             dreamsListRecurring.push({
-                amount: parseFloat(totalExpense) * conversionRate,
+                amount: parseFloat(totalExpense) * getExchangeRate(homeExpense.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -457,10 +408,6 @@ export const propertyExpenseDreamRecurringExpense = (propertyExpense, baseCurren
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
 
-        const fromCurrency = propertyExpense.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         let dreamsListRecurring = [];
         // from start date to end date, for each month add the recurring amount
         for (let i = 0; i < months; i++) {
@@ -472,7 +419,7 @@ export const propertyExpenseDreamRecurringExpense = (propertyExpense, baseCurren
                 totalExpense += totalInterest;
             }
             dreamsListRecurring.push({
-                amount: parseFloat(totalExpense) * conversionRate,
+                amount: parseFloat(totalExpense) * getExchangeRate(propertyExpense.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -504,9 +451,6 @@ export const creditCardExpenseDreamRecurringExpense = (creditCardExpense, baseCu
         // // calculate the number of months between start date and end date
         // const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
         const months = creditCardExpense.duration;
-        const fromCurrency = creditCardExpense.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListRecurring = [];
         // from start date to end date, for each month add the recurring amount
@@ -515,7 +459,7 @@ export const creditCardExpenseDreamRecurringExpense = (creditCardExpense, baseCu
             const newDate = new Date(creditCardExpense.start_date).setMonth(new Date(creditCardExpense.start_date).getMonth() + i);
             let totalExpense = parseFloat(creditCardExpense.emi_amount);
             dreamsListRecurring.push({
-                amount: parseFloat(totalExpense) * conversionRate,
+                amount: parseFloat(totalExpense) * getExchangeRate(creditCardExpense.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -547,9 +491,6 @@ export const personalLoanExpenseDreamRecurringExpense = (personalLoanExpense, ba
         // // calculate the number of months between start date and end date
         // const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
         const months = personalLoanExpense.duration;
-        const fromCurrency = personalLoanExpense.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListRecurring = [];
         // from start date to end date, for each month add the recurring amount
@@ -558,7 +499,7 @@ export const personalLoanExpenseDreamRecurringExpense = (personalLoanExpense, ba
             const newDate = new Date(personalLoanExpense.start_date).setMonth(new Date(personalLoanExpense.start_date).getMonth() + i);
             let totalExpense = parseFloat(personalLoanExpense.emi_amount);
             dreamsListRecurring.push({
-                amount: parseFloat(totalExpense) * conversionRate,
+                amount: parseFloat(totalExpense) * getExchangeRate(personalLoanExpense.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -587,9 +528,6 @@ export const otherExpenseDreamRecurringExpense = (otherExpense, baseCurrency) =>
         if (otherExpense.is_recurring) {
             const duration = otherExpense.duration;
             let dreamsListRecurring = [];
-            const fromCurrency = otherExpense.currency;
-            const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-            const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
             for (let i = 0; i < duration; i++) {
                 // get new date by adding i months to the dream date
@@ -600,7 +538,7 @@ export const otherExpenseDreamRecurringExpense = (otherExpense, baseCurrency) =>
                     const interest = calculateFlatRateInterest(amount, otherExpense.inflation_rate, i);
                     const totalAmount = amount + interest;
                     dreamsListRecurring.push({
-                        amount: totalAmount * conversionRate,
+                        amount: totalAmount * getExchangeRate(otherExpense.currency, baseCurrency),
                         month: new Date(newDate).getMonth(),
                         year: new Date(newDate).getFullYear()
                     });
@@ -632,9 +570,6 @@ export const emiDreamProperty = (property, baseCurrency) => {
         const startDate = new Date(property.loan_as_of_date);
         
         const n = property.loan_duration;
-        const fromCurrency = property.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListProperty = [];
         for (let i = 0; i < n; i++) {
@@ -642,7 +577,7 @@ export const emiDreamProperty = (property, baseCurrency) => {
             const newDate = new Date(property.loan_as_of_date).setMonth(new Date(property.loan_as_of_date).getMonth() + i);
 
             dreamsListProperty.push({
-                amount: parseFloat(property.emi_amount) * conversionRate,
+                amount: parseFloat(property.emi_amount) * getExchangeRate(property.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -673,9 +608,6 @@ export const emiDreamVehicle = (vehicle, baseCurrency) => {
         const startDate = new Date(vehicle.loan_as_of_date);
         
         const n = vehicle.loan_duration;
-        const fromCurrency = vehicle.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListVehicle = [];
         for (let i = 0; i < n; i++) {
@@ -683,7 +615,7 @@ export const emiDreamVehicle = (vehicle, baseCurrency) => {
             const newDate = new Date(vehicle.loan_as_of_date).setMonth(new Date(vehicle.loan_as_of_date).getMonth() + i);
 
             dreamsListVehicle.push({
-                amount: parseFloat(vehicle.emi_amount) * conversionRate,
+                amount: parseFloat(vehicle.emi_amount) * getExchangeRate(vehicle.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -714,9 +646,6 @@ export const emiDream = (dream, baseCurrency) => {
         // const start_date = new Date(dream.loan_start_date);
 
         const months = dream.loan_duration;
-        const fromCurrency = dream.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsList = [];
         // from start date to end date, for each month add the recurring amount
@@ -724,7 +653,7 @@ export const emiDream = (dream, baseCurrency) => {
             // get new date by adding i months to the start date
             const newDate = new Date(dream.loan_start_date).setMonth(new Date(dream.loan_start_date).getMonth() + i);
             dreamsList.push({
-                amount: parseFloat(dream.emi_amount) * conversionRate,
+                amount: parseFloat(dream.emi_amount) * getExchangeRate(dream.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -756,10 +685,6 @@ export const sipDreamDeposit = (deposit, baseCurrency) => {
 
         const start_date = new Date(deposit.opening_date);
         const n = deposit.deposit_term;
-        const fromCurrency = deposit.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         let dreamsListDeposit = [];
         for (let i =0; i < n; i++) {
             // get new date by adding i months to the dream date
@@ -768,7 +693,7 @@ export const sipDreamDeposit = (deposit, baseCurrency) => {
             // check is this is the correct month to add the recurring amount
             if (isSIPMonth(new Date(start_date), new Date(newDate), deposit.payment_frequency)) {
                 dreamsListDeposit.push({
-                    amount: parseFloat(deposit.payment_amount) * conversionRate,
+                    amount: parseFloat(deposit.payment_amount) * getExchangeRate(deposit.currency, baseCurrency),
                     month: new Date(newDate).getMonth(),
                     year: new Date(newDate).getFullYear()
                 });
@@ -810,10 +735,6 @@ export const sipDreamPortfolio = (portfolio, baseCurrency, sipEndDate) => {
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
 
-        const fromCurrency = portfolio.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         let dreamsListPortfolio = [];
         for (let i = 0; i < months; i++) {
             // get new date by adding i months to the dream date
@@ -822,7 +743,7 @@ export const sipDreamPortfolio = (portfolio, baseCurrency, sipEndDate) => {
             // check is this is the correct month to add the recurring amount
             if (isSIPMonth(new Date(start_date), new Date(newDate), portfolio.sip_frequency)) {
                 dreamsListPortfolio.push({
-                    amount: parseFloat(portfolio.sip_amount) * conversionRate,
+                    amount: parseFloat(portfolio.sip_amount) * getExchangeRate(portfolio.currency, baseCurrency),
                     month: new Date(newDate).getMonth(),
                     year: new Date(newDate).getFullYear()
                 });
@@ -858,10 +779,6 @@ export const sipDreamOtherAsset = (otherAsset, baseCurrency) => {
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
 
-        const fromCurrency = otherAsset.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
-
         let dreamsListOtherAsset = [];
         for (let i = 0; i < months; i++) {
             // get new date by adding i months to the dream date
@@ -870,7 +787,7 @@ export const sipDreamOtherAsset = (otherAsset, baseCurrency) => {
             // check is this is the correct month to add the recurring amount
             if (isSIPMonth(new Date(start_date), new Date(newDate), otherAsset.payment_frequency)) {
                 dreamsListOtherAsset.push({
-                    amount: parseFloat(otherAsset.payment_amount) * conversionRate,
+                    amount: parseFloat(otherAsset.payment_amount) * getExchangeRate(otherAsset.currency, baseCurrency),
                     month: new Date(newDate).getMonth(),
                     year: new Date(newDate).getFullYear()
                 });
@@ -899,13 +816,10 @@ export const incomeDream = (income, baseCurrency, incomeEndDate) => {
 
     if (income) {
         const start_date = new Date(income.start_date);
-        const fromCurrency = income.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
         // check if this is recurring income
         if (!income.is_recurring) {
             incomeDreamList.push({
-                amount: parseFloat(income.amount) * conversionRate,
+                amount: parseFloat(income.amount) * getExchangeRate(income.currency, baseCurrency),
                 year: new Date(start_date).getFullYear()
             });
         }
@@ -923,7 +837,7 @@ export const incomeDream = (income, baseCurrency, incomeEndDate) => {
                 // get new date by adding i months to the start date
                 const newDate = new Date(income.start_date).setMonth(new Date(income.start_date).getMonth() + i);
                 dreamsListIncome.push({
-                    amount: parseFloat(income.amount) * conversionRate,
+                    amount: parseFloat(income.amount) * getExchangeRate(income.currency, baseCurrency),
                     month: new Date(newDate).getMonth(),
                     year: new Date(newDate).getFullYear()
                 });
@@ -963,9 +877,6 @@ export const couponIncomeDream = (assetPortfolio, baseCurrency, incomeEndDate) =
 
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
-        const fromCurrency = assetPortfolio.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListCouponIncome = [];
         for (let i = 0; i < months; i++) {
@@ -981,7 +892,7 @@ export const couponIncomeDream = (assetPortfolio, baseCurrency, incomeEndDate) =
                 else if (assetPortfolio.coupon_frequency === "Annually") couponValue = couponValue;
 
                 dreamsListCouponIncome.push({
-                    amount: couponValue * conversionRate,
+                    amount: couponValue * getExchangeRate(assetPortfolio.currency, baseCurrency),
                     month: new Date(newDate).getMonth(),
                     year: new Date(newDate).getFullYear()
                 });
@@ -1065,9 +976,6 @@ export const dividendIncomeDream = (assetPortfolio, baseCurrency, incomeEndDate)
 
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
-        const fromCurrency = assetPortfolio.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListDividendIncome = [];
         for (let i = 0; i < months; i++) {
@@ -1086,7 +994,7 @@ export const dividendIncomeDream = (assetPortfolio, baseCurrency, incomeEndDate)
                 else if (assetPortfolio.dividend_frequency === "Annually") dividendValue = dividendValue;
 
                 dreamsListDividendIncome.push({
-                    amount: dividendValue * conversionRate,
+                    amount: dividendValue * getExchangeRate(assetPortfolio.currency, baseCurrency),
                     month: new Date(newDate).getMonth(),
                     year: new Date(newDate).getFullYear()
                 });
@@ -1124,9 +1032,6 @@ export const rentalIncomeDream = (property, baseCurrency, incomeEndDate) => {
 
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
-        const fromCurrency = property.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListRentalIncome = [];
         for (let i = 0; i < months; i++) {
@@ -1146,7 +1051,7 @@ export const rentalIncomeDream = (property, baseCurrency, incomeEndDate) => {
             const totalValue = parseFloat(property.rental_amount) + parseFloat(increment);
 
             dreamsListRentalIncome.push({
-                amount: totalValue * conversionRate,
+                amount: totalValue * getExchangeRate(property.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -1183,9 +1088,6 @@ export const leaseIncomeDream = (vehicle, baseCurrency, incomeEndDate) => {
 
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
-        const fromCurrency = vehicle.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListLeaseIncome = [];
         for (let i = 0; i < months; i++) {
@@ -1205,7 +1107,7 @@ export const leaseIncomeDream = (vehicle, baseCurrency, incomeEndDate) => {
             const totalValue = parseFloat(vehicle.lease_amount) + parseFloat(increment);
 
             dreamsListLeaseIncome.push({
-                amount: totalValue * conversionRate,
+                amount: totalValue * getExchangeRate(vehicle.currency, baseCurrency),
                 month: new Date(newDate).getMonth(),
                 year: new Date(newDate).getFullYear()
             });
@@ -1241,9 +1143,6 @@ export const payoutIncomeDream = (otherAsset, baseCurrency) => {
 
         // calculate the number of months between start date and end date
         const months = (end_date.getFullYear() - start_date.getFullYear()) * 12 + (end_date.getMonth() - start_date.getMonth());
-        const fromCurrency = otherAsset.currency;
-        const exchangeRate = ExchangeRate.find(rate => rate.from === fromCurrency && rate.to === baseCurrency);
-        const conversionRate = exchangeRate ? exchangeRate.value : 1;
 
         let dreamsListPayoutIncome = [];
         for (let i = 0; i < months; i++) {
@@ -1252,7 +1151,7 @@ export const payoutIncomeDream = (otherAsset, baseCurrency) => {
 
             if (isValueMonth(start_date, newDate, otherAsset.payout_frequency)) {
                 dreamsListPayoutIncome.push({
-                    amount: parseFloat(otherAsset.payout_value) * conversionRate,
+                    amount: parseFloat(otherAsset.payout_value) * getExchangeRate(otherAsset.currency, baseCurrency),
                     month: new Date(newDate).getMonth(),
                     year: new Date(newDate).getFullYear()
                 });

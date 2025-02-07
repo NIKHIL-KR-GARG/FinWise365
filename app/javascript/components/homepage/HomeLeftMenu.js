@@ -144,7 +144,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     <ListItemIcon>
                         <BarChartIcon fontSize="small" />
                     </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Analyze</Typography>} />}
+                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Analyse</Typography>} />}
                     {analyzeOpen ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
                 <Collapse in={analyzeOpen} timeout="auto" unmountOnExit>
@@ -153,14 +153,14 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             <ListItemIcon>
                                 <AttachMoneyIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Generate Cashflow</Typography>} />}
                         </ListItem>
-                        <ListItem component={Link} to="/cashflowcomparison" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        {/* <ListItem component={Link} to="/cashflowcomparison" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <TrendingUpIcon fontSize="small" />
                             </ListItemIcon>
                             {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow Comparison</Typography>} />}
-                        </ListItem>
+                        </ListItem> */}
                         {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <TrendingUpIcon fontSize="small" />
