@@ -7,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Divider from '@mui/material/Divider';
 
 const LandingSectionVideos = () => {
-    const videos = ['video1.mp4', 'video2.mp4', 'video3.mp4', 'video4.mp4', 'video5.mp4', 'video6.mp4', 'video7.mp4', 'video8.mp4'];
+    const videos = ['LoginSignup.mp4', 'UserAccounts.mp4', 'SupportPages.mp4', 'DemoData.mp4', 'Incomes.mp4', 'Expenses.mp4', 'Assets.mp4', 'Dreams.mp4', 'Cashflows.mp4', 'SimulationRetire.mp4', 'SimulationIncome.mp4', 'SimulationSabbatical.mp4', 'SimulationCorpus.mp4'];
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const handleNext = () => {
@@ -52,7 +52,7 @@ const LandingSectionVideos = () => {
                         sx={{
                             display: 'flex',
                             transition: 'transform 0.5s ease', // Add transition for smooth sliding
-                            transform: `translateX(-${(currentIndex / 3) * 300}px)`, // Move left based on current index
+                            transform: `translateX(-${currentIndex * (300 + 16)}px)`, // Move left based on current index and margin
                         }}
                     >
                         {videos.map((video, index) => (
@@ -63,9 +63,12 @@ const LandingSectionVideos = () => {
                                     controls
                                     style={{ borderRadius: '8px' }} // Optional styling
                                 >
-                                    <source src={`/path/to/videos/${video}`} type="video/mp4" />
+                                    <source src={`/videos/${video}`} type="video/mp4" />
                                     Your browser does not support the video tag.
                                 </video>
+                                <Typography variant="subtitle1" sx={{ marginTop: 1, fontWeight: 'bold', fontSize: '1.2rem' }}>
+                                    {video.replace('.mp4', '')} {/* Display the video title without the file extension */}
+                                </Typography>
                             </Box>
                         ))}
                     </Box>
