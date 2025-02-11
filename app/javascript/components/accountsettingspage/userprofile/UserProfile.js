@@ -72,7 +72,7 @@ const UserProfile = () => {
                     localStorage.setItem('currentUserCountryOfResidence', appuser.country_of_residence);
                     localStorage.setItem('currentUserIsPermanentResident', appuser.is_permanent_resident);
                     localStorage.setItem('currentUserIsAdmin', appuser.is_admin);
-                    localStorage.setItem('currentUserDisplayDummyData', appuser.is_display_dummy_data || true);
+                    localStorage.setItem('currentUserDisplayDummyData', appuser ? appuser.is_display_dummy_data : true);
                     localStorage.setItem('currentUserRetirementAge', appuser.retirement_age);
                 }
             } catch (error) {
