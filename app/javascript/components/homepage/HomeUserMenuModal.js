@@ -4,6 +4,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import InboxIcon from '@mui/icons-material/Inbox';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import GroupIcon from '@mui/icons-material/Group';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from 'react-router-dom';
 
@@ -36,6 +37,11 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
 
     const handleAdminFunctionsClick = () => {
         navigate('/adminfunctions');
+        handleClosePopover();
+    }
+
+    const handleUserManagementClick = () => {
+        navigate('/usermanagement');
         handleClosePopover();
     }
 
@@ -77,6 +83,12 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
                             <PersonIcon />
                         </ListItemIcon>
                         <ListItemText primary="My Profile" secondary="Account Settings" />
+                    </ListItem>
+                    <ListItem button onClick={handleUserManagementClick} sx={{'&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' }}}>
+                        <ListItemIcon>
+                            <GroupIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="User Management" secondary="Create & Manage User Accounts" />
                     </ListItem>
                     {/* <ListItem button sx={{'&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' }}}>
                         <ListItemIcon>

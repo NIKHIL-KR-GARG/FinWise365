@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Box, Breadcrumbs, Typography, Divider, Tabs, Tab } from '@mui/material';
 import Link from '@mui/material/Link';
 import TabPanel from '../../components/common/TabPanel';
 import PersonIcon from '@mui/icons-material/Person';
-import ReceiptIcon from '@mui/icons-material/Receipt';
+import axios from 'axios'; 
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
@@ -20,6 +20,50 @@ const AccountSettings = () => {
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
+
+    const hasFetchedData = useRef(false);
+    const [user, setUser] = useState(null);
+    const currentUserId = localStorage.getItem('currentUserId');
+
+    useEffect(() => {
+        // Fetch user information from the database
+        const fetchUser = async () => {
+            if (hasFetchedData.current) return;
+            hasFetchedData.current = true;
+
+            try {
+                const response = await axios.get(`/api/users`);
+                const users = response.data;
+                const appuser = users.find((e) => e.id === parseInt(currentUserId));
+                if (appuser) {
+                    setUser({
+                        first_name: appuser.first_name,
+                        last_name: appuser.last_name,
+                        phone_no: appuser.phone_no,
+                        date_of_birth: appuser.date_of_birth,
+                        country_of_residence: appuser.country_of_residence,
+                        is_permanent_resident: appuser.is_permanent_resident,
+                        address: appuser.address,
+                        retirement_age: appuser.retirement_age,
+                        life_expectancy: appuser.life_expectancy,
+                        email: appuser.email,
+                        base_currency: appuser.base_currency,
+                        gender: appuser.gender,
+                        nationality: appuser.nationality,
+                        is_admin: appuser.is_admin,
+                        is_financial_advisor: appuser.is_financial_advisor,
+                        financial_advisor_licence_no: appuser.financial_advisor_licence_no,
+                        financial_advisor_id: appuser.financial_advisor_id,
+                        is_active: appuser.is_active
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUser();
+    }, [currentUserId]);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -93,7 +137,7 @@ const AccountSettings = () => {
                             </Tabs>
                             <Box sx={{ flexGrow: 1, p: 0 }}>
                                 <TabPanel value={tabValue} index={0}>
-                                    <UserProfile /> {/* Render the UserProfile component */}
+                                    <UserProfile user={user} action={'Edit'} onClose={null} refreshUserList={null} /> {/* Render the UserProfile component */}
                                 </TabPanel>
                                 {/* <TabPanel value={tabValue} index={1}>
                                     <Typography variant="body1">"IN PROGRESS, COMING SOON"</Typography>

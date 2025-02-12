@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Drawer, Divider, List, ListItem, ListItemText, Collapse, Box, Typography, Button, ListItemIcon, Avatar } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Drawer, Divider, List, ListItem, ListItemText, Collapse, Box, Typography, Button, ListItemIcon, Avatar, Modal, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -26,18 +26,39 @@ import InfoIcon from '@mui/icons-material/Info';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import GavelIcon from '@mui/icons-material/Gavel';
 import { useAuth0 } from "@auth0/auth0-react";
+import CloseIconFilled from '@mui/icons-material/Close';
+import ClientSelection from '../usermanagementpage/ClientSelection';
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 60;
 
 const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
-    
+
     const [portfolioOpen, setPortfolioOpen] = useState(false);
     const [analyzeOpen, setAnalyzeOpen] = useState(false);
     const [insightsOpen, setInsightsOpen] = useState(false);
+    const [clientID, setClientID] = useState('');
+    const [clientName, setClientName] = useState('');
     // const [planOpen, setPlanOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const { logout } = useAuth0();
+
+    const currentUserFirstName = localStorage.getItem('currentUserFirstName');
+    const currentUserLastName = localStorage.getItem('currentUserLastName');
+    const currentUserIsFinancialAdvisor = localStorage.getItem('currentUserIsFinancialAdvisor') === 'true';
+    const currentClientID = localStorage.getItem('currentClientID');
+    const currentClientName = localStorage.getItem('currentClientName');
+
+    useEffect(() => {
+        if (currentClientID) {
+            setClientID(currentClientID);
+        }
+        if (currentClientName) {
+            setClientName(currentClientName);
+        }
+    }, [currentClientID, currentClientName]);
+    
 
     const handlePortfolioClick = () => {
         setPortfolioOpen(!portfolioOpen);
@@ -47,7 +68,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
         setAnalyzeOpen(!analyzeOpen);
     };
 
-   const handleInsightsClick = () => {
+    const handleInsightsClick = () => {
         setInsightsOpen(!insightsOpen);
     };
 
@@ -55,228 +76,287 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
     //     setPlanOpen(!planOpen);
     // };
 
-    const currentUserFirstName = localStorage.getItem('currentUserFirstName');
-    const currentUserLastName = localStorage.getItem('currentUserLastName');
+    const handleModalOpen = () => {
+        setModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setClientID(localStorage.getItem('currentClientID'));
+        setClientName(localStorage.getItem('currentClientName'));
+        setModalOpen(false);
+    };
 
     return (
-        <Drawer
-            variant="permanent"
-            sx={{
-                width: open ? drawerWidth : collapsedDrawerWidth,
-                flexShrink: 0,
-                '& .MuiDrawer-paper': {
+        <>
+            <Drawer
+                variant="permanent"
+                sx={{
                     width: open ? drawerWidth : collapsedDrawerWidth,
-                    boxSizing: 'border-box',
-                    position: 'fixed',
-                    top: '64px', // Adjust this value based on the height of your AppBar
-                    height: 'calc(100vh - 64px)', // Adjust this value based on the height of your AppBar
-                    overflowY: 'auto', // Make the drawer content scrollable
-                    transition: (theme) => theme.transitions.create('width', {
-                        easing: theme.transitions.easing.sharp,
-                        duration: theme.transitions.duration.enteringScreen,
-                    }),
-                    paddingRight: open ? '17px' : '0px', // Add extra width for the vertical scrollbar
-                },
-            }}
-            open={open}
-        >   
-            <Box sx={{ width: '100%', alignItems: 'center', justifyContent: 'center', p:2 }}>
-                <Box sx={{ width: '90%', display: 'flex', alignItems: 'center', justifyContent: 'center', p:1, bgcolor: '#fff9e6', borderRadius: 3 }}>
-                    <Avatar src={'/path/to/avatar.jpg'} alt={currentUserFirstName} sx={{ mr: 1 }} />
-                    {open && (
-                    <Typography variant="body1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
-                        {currentUserFirstName} {currentUserLastName}
-                    </Typography>
-                    )}
+                    flexShrink: 0,
+                    '& .MuiDrawer-paper': {
+                        width: open ? drawerWidth : collapsedDrawerWidth,
+                        boxSizing: 'border-box',
+                        position: 'fixed',
+                        top: '64px', // Adjust this value based on the height of your AppBar
+                        height: 'calc(100vh - 64px)', // Adjust this value based on the height of your AppBar
+                        overflowY: 'auto', // Make the drawer content scrollable
+                        transition: (theme) => theme.transitions.create('width', {
+                            easing: theme.transitions.easing.sharp,
+                            duration: theme.transitions.duration.enteringScreen,
+                        }),
+                        paddingRight: open ? '17px' : '0px', // Add extra width for the vertical scrollbar
+                    },
+                }}
+                open={open}
+            >
+                <Box sx={{ width: '100%', alignItems: 'center', justifyContent: 'center', paddingLeft:2, paddingRight:2, paddingTop:1 }}>
+                    <Box sx={{ width: '90%', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 1, bgcolor: '#fff9e6', borderRadius: 3 }}>
+                        <Avatar src={'/path/to/avatar.jpg'} alt={currentUserFirstName} sx={{ mr: 1 }} />
+                        {open && (
+                            <Typography variant="body1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
+                                {currentUserFirstName} {currentUserLastName} {currentUserIsFinancialAdvisor && clientID ? '(FA)' : ''}
+                            </Typography>
+                        )}
+                    </Box>
                 </Box>
-            </Box>
-            <Divider />
-
-            <List sx={{ padding: 0 }}>
-                <ListItem button component={Link} to="/home" sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                    <ListItemIcon>
-                        <HomeIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Home</Typography>} />}
-                </ListItem>
-                <ListItem button onClick={handlePortfolioClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
-                    <ListItemIcon>
-                        <PieChartIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Portfolio</Typography>} />}
-                    {portfolioOpen ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                <Collapse in={portfolioOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItem component={Link} to="/incomes" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <AttachMoneyOutlinedIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Income</Typography>} />}
-                        </ListItem>
-                        <ListItem component={Link} to="/expenses" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <MoneyOffIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Expenses/Debt</Typography>} />}
-                        </ListItem>
-                        <ListItem component={Link} to="/assets" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <AccountBalanceIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets</Typography>} />}
-                        </ListItem>
-                        <ListItem component={Link} to="/dreams" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <StarIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dreams/Goals</Typography>} />}
-                        </ListItem>
-                        {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <SecurityIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Insurance</Typography>} />}
-                        </ListItem> */}
-                    </List>
-                </Collapse>
-                <ListItem button onClick={handleAnalyzeClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
-                    <ListItemIcon>
-                        <BarChartIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Analyse</Typography>} />}
-                    {analyzeOpen ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                <Collapse in={analyzeOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItem component={Link} to="/cashflows" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <AttachMoneyIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Generate Cashflow</Typography>} />}
-                        </ListItem>
-                        {/* <ListItem component={Link} to="/cashflowcomparison" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <TrendingUpIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow Comparison</Typography>} />}
-                        </ListItem> */}
-                        {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <TrendingUpIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulate</Typography>} />}
-                        </ListItem> */}
-                    </List>
-                </Collapse>
-                <ListItem button onClick={handleInsightsClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
-                    <ListItemIcon>
-                        <InsightsIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Insights</Typography>} />}
-                    {insightsOpen ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                <Collapse in={insightsOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        {/* <ListItem component={Link} to="/analysis" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <InsightsIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Analysis</Typography>} />}
-                        </ListItem> */}
-                        <ListItem component={Link} to="/simulations" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <SimulationIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulations</Typography>} />}
-                        </ListItem>
-                    </List>
-                </Collapse>
-                {/* <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
-                    <ListItemIcon>
-                        <TimelineIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Plan</Typography>} />}
-                    {planOpen ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                <Collapse in={planOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <AssessmentIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Investment Profile</Typography>} />}
-                        </ListItem>
-                        <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                            <ListItemIcon>
-                                <EventIcon fontSize="small" />
-                            </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Retirement Plan</Typography>} />}
-                        </ListItem>
-                    </List>
-                </Collapse> */}
-                {open && (
-                    <Box sx={{ m: 2, p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: `calc(${drawerWidth}px - 60px)` }}>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Enjoying FinWise365?</Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                            Upgrade now to keep a control on your finances 365 days a year!
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            disabled
-                            startIcon={<CelebrationIcon />}
-                            sx={{ mt: 2, fontSize: '0.75rem', bgcolor: 'purple', '&:hover':{ bgcolor: '#D1C4E9', color: 'black' } }} 
-                        >
-                            Subscribe Now
-                        </Button>
+                
+                {currentUserIsFinancialAdvisor && (
+                    <Box sx={{ width: '100%', alignItems: 'center', justifyContent: 'center', paddingLeft:2, paddingRight:2, paddingTop:1 }}>
+                        <Box sx={{ width: '90%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 1, bgcolor: '#e0f7fa', borderRadius: 3 }}>
+                            {clientID && (
+                                <Typography variant="body1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
+                                    {clientName} (Client)
+                                </Typography>
+                            )}
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={handleModalOpen}
+                                sx={{ fontSize: '0.75rem' }} // Adjust the font size here
+                            >
+                                {clientID ? 'Switch Client' : 'Select Client'}
+                            </Button>
+                        </Box>
                     </Box>
                 )}
-                <Divider />
-                <ListItem component={Link} to="/aboutus" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                    <ListItemIcon>
-                        <InfoIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>About Us</Typography>} />}
-                </ListItem>
-                <ListItem component={Link} to="/helpcentre" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                    <ListItemIcon>
-                        <HelpOutlineIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Help Centre</Typography>} />}
-                </ListItem>
-                <ListItem component={Link} to="/contactus" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                    <ListItemIcon>
-                        <ContactMailIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Contact Us</Typography>} />}
-                </ListItem>
-                <ListItem component={Link} to="/comingsoon" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                    <ListItemIcon>
-                        <HourglassEmptyIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Coming Soon...</Typography>} />}
-                </ListItem>
-                <ListItem component={Link} to="/disclaimerandpolicy" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                    <ListItemIcon>
-                        <GavelIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Disclaimer/Policy</Typography>} />}
-                </ListItem>
-                <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}
-                    onClick={() =>
-                        logout({
-                            logoutParams: {
-                                returnTo: window.location.origin
-                            }
-                        })
-                    }>
-                    <ListItemIcon>
-                        <ExitToAppIcon fontSize="small" />
-                    </ListItemIcon>
-                    {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Logout</Typography>} />}
-                </ListItem>
-            </List>
-        </Drawer>
+
+                <Divider sx={{ paddingTop:1 }}/>
+
+                <List sx={{ padding: 0 }}>
+                    <ListItem button component={Link} to="/home" sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItemIcon>
+                            <HomeIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Home</Typography>} />}
+                    </ListItem>
+                    <ListItem button onClick={handlePortfolioClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItemIcon>
+                            <PieChartIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Portfolio</Typography>} />}
+                        {portfolioOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItem>
+                    <Collapse in={portfolioOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                            <ListItem component={Link} to="/incomes" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <AttachMoneyOutlinedIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Income</Typography>} />}
+                            </ListItem>
+                            <ListItem component={Link} to="/expenses" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <MoneyOffIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Expenses/Debt</Typography>} />}
+                            </ListItem>
+                            <ListItem component={Link} to="/assets" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <AccountBalanceIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets</Typography>} />}
+                            </ListItem>
+                            <ListItem component={Link} to="/dreams" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <StarIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dreams/Goals</Typography>} />}
+                            </ListItem>
+                            {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <SecurityIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Insurance</Typography>} />}
+                            </ListItem> */}
+                        </List>
+                    </Collapse>
+                    <ListItem button onClick={handleAnalyzeClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItemIcon>
+                            <BarChartIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Analyse</Typography>} />}
+                        {analyzeOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItem>
+                    <Collapse in={analyzeOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                            <ListItem component={Link} to="/cashflows" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <AttachMoneyIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Generate Cashflow</Typography>} />}
+                            </ListItem>
+                            {/* <ListItem component={Link} to="/cashflowcomparison" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <TrendingUpIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow Comparison</Typography>} />}
+                            </ListItem> */}
+                            {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <TrendingUpIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulate</Typography>} />}
+                            </ListItem> */}
+                        </List>
+                    </Collapse>
+                    <ListItem button onClick={handleInsightsClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItemIcon>
+                            <InsightsIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Insights</Typography>} />}
+                        {insightsOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItem>
+                    <Collapse in={insightsOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                            {/* <ListItem component={Link} to="/analysis" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <InsightsIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Analysis</Typography>} />}
+                            </ListItem> */}
+                            <ListItem component={Link} to="/simulations" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <SimulationIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulations</Typography>} />}
+                            </ListItem>
+                        </List>
+                    </Collapse>
+                    {/* <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItemIcon>
+                            <TimelineIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Plan</Typography>} />}
+                        {planOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItem>
+                    <Collapse in={planOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                            <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <AssessmentIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Investment Profile</Typography>} />}
+                            </ListItem>
+                            <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <EventIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Retirement Plan</Typography>} />}
+                            </ListItem>
+                        </List>
+                    </Collapse> */}
+                    {open && (
+                        <Box sx={{ m: 2, p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: `calc(${drawerWidth}px - 60px)` }}>
+                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Enjoying FinWise365?</Typography>
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                                Upgrade now to keep a control on your finances 365 days a year!
+                            </Typography>
+                            <Button
+                                variant="contained"
+                                disabled
+                                startIcon={<CelebrationIcon />}
+                                sx={{ mt: 2, fontSize: '0.75rem', bgcolor: 'purple', '&:hover': { bgcolor: '#D1C4E9', color: 'black' } }}
+                            >
+                                Subscribe Now
+                            </Button>
+                        </Box>
+                    )}
+                    <Divider />
+                    <ListItem component={Link} to="/aboutus" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItemIcon>
+                            <InfoIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>About Us</Typography>} />}
+                    </ListItem>
+                    <ListItem component={Link} to="/helpcentre" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItemIcon>
+                            <HelpOutlineIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Help Centre</Typography>} />}
+                    </ListItem>
+                    <ListItem component={Link} to="/contactus" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItemIcon>
+                            <ContactMailIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Contact Us</Typography>} />}
+                    </ListItem>
+                    <ListItem component={Link} to="/comingsoon" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItemIcon>
+                            <HourglassEmptyIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Coming Soon...</Typography>} />}
+                    </ListItem>
+                    <ListItem component={Link} to="/disclaimerandpolicy" button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                        <ListItemIcon>
+                            <GavelIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Disclaimer/Policy</Typography>} />}
+                    </ListItem>
+                    <ListItem button sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}
+                        onClick={() =>
+                            logout({
+                                logoutParams: {
+                                    returnTo: window.location.origin
+                                }
+                            })
+                        }>
+                        <ListItemIcon>
+                            <ExitToAppIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ ml: -3 }}>Logout</Typography>} />}
+                    </ListItem>
+                </List>
+            </Drawer>
+
+            <Modal
+                name="select-client-modal"
+                open={modalOpen}
+                onClose={(event, reason) => {
+                    if (reason !== 'backdropClick') {
+                        handleModalClose();
+                    }
+                }}
+                aria-labelledby="select-client-modal"
+                aria-describedby="select-client-modal-description"
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+                <Box sx={{ width: '90%', maxWidth: 650, height: '90%', maxHeight: 500, bgcolor: 'background.paper', p: 0, boxShadow: 24, borderRadius: 4, position: 'relative', overflowY: 'auto' }}>
+                    <ClientSelection onClientSelected={handleModalClose}/>
+                    <IconButton
+                        onClick={handleModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 24,
+                            border: '1px solid', // Added border
+                            borderColor: 'grey.500' // Optional: specify border color
+                        }}
+                    >
+                        <CloseIconFilled />
+                    </IconButton>
+                </Box>
+            </Modal>
+        </>
     );
 };
 

@@ -20,6 +20,7 @@ import ComingSoon from './pages/ComingSoon/ComingSoon';
 import AdminFunctions from './pages/AdminFunctions/AdminFunctions';
 import Simulations from './pages/Simulations/Simulations';
 import DisclaimerAndPolicy from './pages/DisclaimerAndPolicy/DisclaimerAndPolicy';
+import UserManagement from './pages/UserManagement/UserManagement';
 
 const App = () => {
 
@@ -43,6 +44,7 @@ const App = () => {
         <Route path='/disclaimerandpolicy' element={<DisclaimerAndPolicy />} />
         <Route path='/adminfunctions' element={<AuthenticationGuard component={AdminFunctions} />} />
         <Route path='/simulations' element={<AuthenticationGuard component={Simulations} />} />
+        <Route path='/usermanagement' element={<AuthenticationGuard component={UserManagement} />} />
       </Routes>
     </>
   );

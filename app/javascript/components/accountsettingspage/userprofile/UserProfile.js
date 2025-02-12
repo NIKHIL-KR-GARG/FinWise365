@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, TextField, Button, Typography, Avatar, Alert, IconButton, Snackbar, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Grid from '@mui/material/Grid2';
@@ -6,11 +6,13 @@ import axios from 'axios';
 
 import CurrencyList from '../../common/CurrencyList';
 import CountryList from '../../common/CountryList';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
-const UserProfile = () => {
-    const [user, setUser] = useState({
+const UserProfile = ({ user: initialUser, action, onClose, refreshUserList }) => {
+    const [user, setUser] = useState(initialUser || {
         first_name: '',
         last_name: '',
+        email: '',
         phone_no: '',
         date_of_birth: '',
         country_of_residence: '',
@@ -18,70 +20,31 @@ const UserProfile = () => {
         address: '',
         retirement_age: '',
         life_expectancy: '',
-        email: '',
         base_currency: '',
         gender: 'Prefer not to say',
         nationality: '',
-        is_admin: false
+        is_admin: false,
+        is_financial_advisor: false,
+        financial_advisor_licence_no: '',
+        financial_advisor_id: '',
+        is_active: true
     });
 
     const [errors, setErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isFormChanged, setIsFormChanged] = useState(false);
+
     const currentUserId = localStorage.getItem('currentUserId');
-    const hasFetchedData = useRef(false);
+    const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
+    const currentUserIsFinancialAdvisor = localStorage.getItem('currentUserIsFinancialAdvisor') === 'true';
+    const currentUserEmail = localStorage.getItem('currentUserEmail');
 
     useEffect(() => {
-        // Fetch user information from the database
-        const fetchUser = async () => {
-            if (hasFetchedData.current) return;
-            hasFetchedData.current = true;
-
-            try {
-                const response = await axios.get(`/api/users`);
-                const users = response.data;
-                const appuser = users.find((e) => e.id === parseInt(currentUserId));
-                if (appuser) {
-                    setUser({
-                        first_name: appuser.first_name,
-                        last_name: appuser.last_name,
-                        phone_no: appuser.phone_no,
-                        date_of_birth: appuser.date_of_birth,
-                        country_of_residence: appuser.country_of_residence,
-                        is_permanent_resident: appuser.is_permanent_resident,
-                        address: appuser.address,
-                        retirement_age: appuser.retirement_age,
-                        life_expectancy: appuser.life_expectancy,
-                        email: appuser.email,
-                        base_currency: appuser.base_currency,
-                        gender: appuser.gender,
-                        nationality: appuser.nationality,
-                        is_admin: appuser.is_admin
-                    });
-                    setIsFormChanged(false); // Reset form change state after fetching user data
-
-                    //save few user settings in local storage
-                    localStorage.setItem('currentUserFirstName', appuser.first_name);
-                    localStorage.setItem('currentUserLastName', appuser.last_name);
-                    localStorage.setItem('currentUserDateOfBirth', appuser.date_of_birth);
-                    localStorage.setItem('currentUserEmail', appuser.email);
-                    localStorage.setItem('currentUserBaseCurrency', appuser.base_currency);
-                    localStorage.setItem('currentUserLifeExpectancy', appuser.life_expectancy);
-                    localStorage.setItem('currentUserNationality', appuser.nationality);
-                    localStorage.setItem('currentUserCountryOfResidence', appuser.country_of_residence);
-                    localStorage.setItem('currentUserIsPermanentResident', appuser.is_permanent_resident);
-                    localStorage.setItem('currentUserIsAdmin', appuser.is_admin);
-                    localStorage.setItem('currentUserDisplayDummyData', appuser ? appuser.is_display_dummy_data : true);
-                    localStorage.setItem('currentUserRetirementAge', appuser.retirement_age);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUser();
-    }, [currentUserId]);
+        if (initialUser) {
+            setUser(initialUser);
+        }
+    }, [initialUser]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -95,9 +58,20 @@ const UserProfile = () => {
     const validate = () => {
         let tempErrors = {};
         const phoneRegex = /^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d*)\)?)[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?)+)(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$/i;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const maxDate = new Date();
         const minDate = new Date();
         minDate.setFullYear(minDate.getFullYear() - 120);
+
+        if (!user.first_name) tempErrors.first_name = 'First name is required';
+        if (!user.last_name) tempErrors.last_name = 'Last name is required';
+        if (!user.email) tempErrors.email = 'Email is required';
+        if (!user.date_of_birth) tempErrors.date_of_birth = 'Date of birth is required';
+        if (!user.country_of_residence) tempErrors.country_of_residence = 'Country of residence is required';
+        if (!user.base_currency) tempErrors.base_currency = 'Base currency is required';
+        if (!user.nationality) tempErrors.nationality = 'Nationality is required';
+        if (!user.retirement_age) tempErrors.retirement_age = 'Retirement age is required';
+        if (!user.life_expectancy) tempErrors.life_expectancy = 'Life expectancy is required';
 
         if (isNaN(user.retirement_age)) tempErrors.retirement_age = 'Retirement age should be numeric';
         else {
@@ -113,8 +87,12 @@ const UserProfile = () => {
             }
         }
 
-        if (!phoneRegex.test(user.phone_no)) {
+        if (user.phone_no && !phoneRegex.test(user.phone_no)) {
             tempErrors.phone_no = 'Phone number should be a valid 10-digit number';
+        }
+
+        if (!emailRegex.test(user.email)) {
+            tempErrors.email = 'Email should be a valid email address';
         }
 
         const date_of_birth = new Date(user.date_of_birth);
@@ -135,30 +113,41 @@ const UserProfile = () => {
                     user.is_admin = true;
                 }
 
-                await axios.put(`/api/users/${currentUserId}`, user);
-                setSuccessMessage('User information updated successfully');
+                if (currentUserIsFinancialAdvisor && currentUserId !== user.id) {
+                    user.financial_advisor_id = currentUserId;
+                }
+
+                const response = initialUser ? await axios.put(`/api/users/${user.id}`, user) : await axios.post('/api/users', user);
+
+                let successMsg = '';
+                if (action === 'Add') successMsg = 'User added successfully';
+                else if (action === 'Edit') successMsg = 'User information updated successfully';
+
+                setSuccessMessage(successMsg);
                 setErrorMessage('');
-                setIsFormChanged(false);
+                if (onClose) onClose(); // Check if onClose is passed before calling it
+                if (refreshUserList) refreshUserList(response.data, successMsg); // Pass the updated user and success message
 
-                //update few user settings in local storage
-                localStorage.setItem('currentUserFirstName', user.first_name);
-                localStorage.setItem('currentUserLastName', user.last_name);
-                localStorage.setItem('currentUserDateOfBirth', user.date_of_birth);
-                localStorage.setItem('currentUserEmail', user.email);
-                localStorage.setItem('currentUserBaseCurrency', user.base_currency);
-                localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);
-                localStorage.setItem('currentUserNationality', user.nationality);
-                localStorage.setItem('currentUserCountryOfResidence', user.country_of_residence);
-                localStorage.setItem('currentUserIsPermanentResident', user.is_permanent_resident);
-                localStorage.setItem('currentUserIsAdmin', user.is_admin);
-                localStorage.setItem('currentUserRetirementAge', user.retirement_age);
+                if (currentUserId === user.id) {
+                    //update few user settings in local storage
+                    localStorage.setItem('currentUserFirstName', user.first_name);
+                    localStorage.setItem('currentUserLastName', user.last_name);
+                    localStorage.setItem('currentUserDateOfBirth', user.date_of_birth);
+                    localStorage.setItem('currentUserEmail', user.email);
+                    localStorage.setItem('currentUserBaseCurrency', user.base_currency);
+                    localStorage.setItem('currentUserLifeExpectancy', user.life_expectancy);
+                    localStorage.setItem('currentUserNationality', user.nationality);
+                    localStorage.setItem('currentUserCountryOfResidence', user.country_of_residence);
+                    localStorage.setItem('currentUserIsPermanentResident', user.is_permanent_resident);
+                    localStorage.setItem('currentUserRetirementAge', user.retirement_age);
 
-                // Trigger storage event
-                window.dispatchEvent(new Event('storage'));
+                    // Trigger storage event
+                    window.dispatchEvent(new Event('storage'));
+                }
 
             } catch (error) {
-                console.error('Error updating user data:', error);
-                setErrorMessage('Failed to update user information');
+                if (action === 'Add') setErrorMessage('Failed to add user');
+                else if (action === 'Edit') setErrorMessage('Failed to update user information');
                 setSuccessMessage('');
             }
         } else {
@@ -168,7 +157,7 @@ const UserProfile = () => {
     };
 
     return (
-        <Box sx={{ pt: 0, maxWidth: '600px', mx: 'auto', mt: -2 }}> {/* Center the container and set max width */}
+        <Box sx={{ pt: 0, maxWidth: '600px', mx: 'auto', p: 2 }}> {/* Center the container and set max width */}
             <Snackbar
                 open={!!successMessage}
                 autoHideDuration={6000}
@@ -215,12 +204,43 @@ const UserProfile = () => {
                     {errorMessage}
                 </Alert>
             </Snackbar>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                <Avatar src='/path/to/avatar.jpg' alt={user.first_name} sx={{ mr: 2 }} />
-                <Typography variant="body1">{user.email}</Typography>
-            </Box>
+            {(currentUserEmail === user.email) && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                    <Avatar src='/path/to/avatar.jpg' alt={user.first_name} sx={{ mr: 2 }} />
+                    <Typography variant="body1">{user.email}</Typography>
+                </Box>
+            )}
+            {(currentUserEmail !== user.email) && (
+                <Typography variant="h6" component="h2" gutterBottom sx={{ pb: 2 }}>
+                    <AccountCircleIcon style={{ color: 'purple', marginRight: '10px' }} />
+                    {(action === 'Add') && (
+                        <>
+                            Add User
+                        </>
+                    )}
+                    {(action === 'Edit') && (
+                        <>
+                            Update User Details
+                        </>
+                    )}
+                </Typography>
+            )}
             <form>
                 <Grid container spacing={2}>
+                    {(currentUserEmail !== user.email) && (
+                        <Grid item size={12}>
+                            <TextField
+                                label="Email Id"
+                                name="email"
+                                value={user.email}
+                                onChange={handleChange}
+                                fullWidth
+                                required
+                                error={!!errors.email}
+                                helperText={errors.email}
+                            />
+                        </Grid>
+                    )}
                     <Grid item size={6}>
                         <TextField
                             label="First Name"
@@ -229,6 +249,8 @@ const UserProfile = () => {
                             onChange={handleChange}
                             fullWidth
                             required
+                            error={!!errors.first_name}
+                            helperText={errors.first_name}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -239,6 +261,8 @@ const UserProfile = () => {
                             onChange={handleChange}
                             fullWidth
                             required
+                            error={!!errors.last_name}
+                            helperText={errors.last_name}
                         />
                     </Grid>
                     <Grid item size={6}>
@@ -250,8 +274,10 @@ const UserProfile = () => {
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{
-                                shrink: true,
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true,
+                                },
                             }}
                             error={!!errors.date_of_birth}
                             helperText={errors.date_of_birth}
@@ -265,8 +291,7 @@ const UserProfile = () => {
                             value={user.gender}
                             onChange={handleChange}
                             fullWidth
-                            required
-                        >
+                                                    >
                             <MenuItem value="Male">Male</MenuItem>
                             <MenuItem value="Female">Female</MenuItem>
                             <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
@@ -279,7 +304,6 @@ const UserProfile = () => {
                             value={user.phone_no}
                             onChange={handleChange}
                             fullWidth
-                            required
                             error={!!errors.phone_no}
                             helperText={errors.phone_no}
                         />
@@ -293,6 +317,8 @@ const UserProfile = () => {
                             onChange={handleChange}
                             fullWidth
                             required
+                            error={!!errors.base_currency}
+                            helperText={errors.base_currency}
                         >
                             {CurrencyList.map((currency) => (
                                 <MenuItem key={currency.code} value={currency.code}>
@@ -319,6 +345,8 @@ const UserProfile = () => {
                             onChange={handleChange}
                             fullWidth
                             required
+                            error={!!errors.country_of_residence}
+                            helperText={errors.country_of_residence}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>
@@ -336,6 +364,8 @@ const UserProfile = () => {
                             onChange={handleChange}
                             fullWidth
                             required
+                            error={!!errors.nationality}
+                            helperText={errors.nationality}
                         >
                             {CountryList.map((country) => (
                                 <MenuItem key={country.code} value={country.code}>
@@ -355,7 +385,7 @@ const UserProfile = () => {
                                         color="primary"
                                     />
                                 }
-                                label="Are you a Permanent Resident"
+                                label="Are you a Permanent Resident?"
                             />
                         </Grid>
                     )}
@@ -365,6 +395,7 @@ const UserProfile = () => {
                             name="retirement_age"
                             value={user.retirement_age}
                             onChange={handleChange}
+                            required
                             fullWidth
                             error={!!errors.retirement_age}
                             helperText={errors.retirement_age}
@@ -382,24 +413,83 @@ const UserProfile = () => {
                             helperText={errors.life_expectancy}
                         />
                     </Grid>
+                    {(currentUserIsAdmin || currentUserIsFinancialAdvisor) && (
+                        <Grid item size={6}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={user.is_active}
+                                        onChange={(e) => handleChange({ target: { name: 'is_active', value: e.target.checked } })}
+                                        name="is_active"
+                                        color="primary"
+                                    />
+                                }
+                                label="is An active User?"
+                            />
+                        </Grid>
+                    )}
+                    {currentUserIsAdmin && (
+                        <>
+                            <Grid item size={6}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={user.is_admin}
+                                            onChange={(e) => handleChange({ target: { name: 'is_admin', value: e.target.checked } })}
+                                            name="is_admin"
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Is Admin?"
+                                />
+                            </Grid>
+                            <Grid item size={6}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={user.is_financial_advisor}
+                                            onChange={(e) => handleChange({ target: { name: 'is_financial_advisor', value: e.target.checked } })}
+                                            name="is_financial_advisor"
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Is Financial Advisor?"
+                                />
+                            </Grid>
+                            <Grid item size={6}>
+                                <TextField
+                                    label="Financial Advisor Licence No."
+                                    name="financial_advisor_licence_no"
+                                    value={user.financial_advisor_licence_no}
+                                    onChange={handleChange}
+                                    fullWidth
+                                // required
+                                // error={!!errors.financial_advisor_licence_no}
+                                // helperText={errors.financial_advisor_licence_no}
+                                />
+                            </Grid>
+                        </>
+                    )}
+                    <Grid item size={12}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleSave}
+                                disabled={!isFormChanged} // Disable button if form is not changed
+                                sx={{
+                                    fontSize: '1rem',
+                                    padding: '10px 40px',
+                                    '&:hover': {
+                                        backgroundColor: 'primary.dark',
+                                    }
+                                }}
+                            >
+                                Save
+                            </Button>
+                        </Box>
+                    </Grid>
                 </Grid>
-                <Box sx={{ mt: 2 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSave}
-                        disabled={!isFormChanged} // Disable button if form is not changed
-                        sx={{
-                            fontSize: '1rem',
-                            padding: '10px 40px',
-                            '&:hover': {
-                                backgroundColor: 'primary.dark',
-                            }
-                        }}
-                    >
-                        Save
-                    </Button>
-                </Box>
             </form>
         </Box>
     );

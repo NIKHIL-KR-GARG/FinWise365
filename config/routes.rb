@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   get 'comingsoon', to: 'site#index'
   get 'adminfunctions', to: 'site#index'
   get 'disclaimerandpolicy', to: 'site#index'
+  get 'usermanagement', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do

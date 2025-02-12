@@ -85,6 +85,11 @@ class Api::UsersController < ApplicationController
         :is_email_verified,
         :is_phone_no_verified,
         :is_display_dummy_data,
+        :is_financial_advisor,
+        :financial_advisor_licence_no,
+        :financial_advisor_id,
+        :last_login_date,
+        :is_active,
         :created_at,
         :updated_at
       )

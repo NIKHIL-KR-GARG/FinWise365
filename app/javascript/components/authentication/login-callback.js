@@ -19,7 +19,6 @@ const LoginCallback = () => {
                 hasCalledApi.current = true; // Set the ref to true to prevent further calls
 
                 try {
-                    console.log('user:', user);
                     // Send a request to your Rails API to create or find the user
                     const response = await axios.post('http://localhost:3000/api/users/create_or_find_user', {
                     // const response = await axios.post('https://www.finwise365.com/api/users/create_or_find_user', {
@@ -35,7 +34,7 @@ const LoginCallback = () => {
 
                     const { id, first_name, last_name, date_of_birth, base_currency, life_expectancy, 
                         nationality, country_of_residence, is_permanent_resident, 
-                        is_display_dummy_data, is_admin, retirement_age } = response.data;
+                        is_display_dummy_data, is_admin, retirement_age, is_financial_advisor } = response.data;
                         
                     localStorage.setItem('currentUserId', id);
                     localStorage.setItem('currentUserFirstName', first_name || '');
@@ -50,6 +49,8 @@ const LoginCallback = () => {
                     localStorage.setItem('currentUserDisplayDummyData', is_display_dummy_data === null ? true : is_display_dummy_data);
                     localStorage.setItem('currentUserIsAdmin', is_admin === null ? false : is_admin);
                     localStorage.setItem('currentUserRetirementAge', retirement_age || 65);
+                    localStorage.setItem('currentUserIsFinancialAdvisor', is_financial_advisor === null ? false : is_financial_advisor);
+
  
                     // Redirect to the home page after successful login
                     navigate('/home');

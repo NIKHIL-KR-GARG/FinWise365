@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_07_103157) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_12_131903) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -505,14 +505,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_07_103157) do
     t.string "last_name", limit: 255
     t.integer "retirement_age"
     t.integer "life_expectancy"
-    t.string "avatar"
     t.string "base_currency", limit: 255
     t.string "gender", limit: 255
     t.string "nationality", limit: 255
     t.boolean "is_permanent_resident"
-    t.string "profile_picture", limit: 512
     t.boolean "is_display_dummy_data", default: true
     t.boolean "is_admin"
+    t.boolean "is_financial_advisor", default: false
+    t.string "financial_advisor_licence_no"
+    t.integer "financial_advisor_id"
+    t.date "last_login_date"
+    t.boolean "is_active", default: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
