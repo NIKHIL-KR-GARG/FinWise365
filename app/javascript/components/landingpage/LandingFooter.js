@@ -43,7 +43,7 @@ const LandingFooter = () => {
                         }}
                     >
                     FinWise365 was born out of a passion for financial literacy and a 
-                    lack of effecttive and comprehensive personal finance management tools. 
+                    lack of effective and comprehensive personal finance management tools. 
                     Our goal is to provide a user-friendly, secure, and personalized experience 
                     that helps you set goals, track expenses, master your finances and achieve your dreams.
                     </Typography>
