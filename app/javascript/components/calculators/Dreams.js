@@ -241,7 +241,15 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
             else {
                 let dreamsListRecurring = [];
                 const n = dream.duration;
-                for (let i = 0; i < n; i++) {
+
+                // add initial amount first
+                dreamsListRecurring.push({
+                    amount: parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency),
+                    month: new Date(dream.dream_date).getMonth(),
+                    year: new Date(dream.dream_date).getFullYear()
+                });
+
+                for (let i = 1; i <= n; i++) {
                     // get new date by adding i months to the dream date
                     const newDate = new Date(dream.dream_date).setMonth(new Date(dream.dream_date).getMonth() + i);
                     // check is this is the correct month to add the recurring amount
@@ -297,7 +305,15 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
                         const eachInstallmentAmount = remainingAmount / n;
                         let dreamsListRecurring = [];
                         const duration = dream.duration;
-                        for (let i = 0; i < duration; i++) {
+
+                        // add initial amount first
+                        dreamsListRecurring.push({
+                            amount: parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency),
+                            month: new Date(dream.dream_date).getMonth(),
+                            year: new Date(dream.dream_date).getFullYear()
+                        });
+
+                        for (let i = 1; i <= duration; i++) {
                             // get new date by adding i months to the dream date
                             const newDate = new Date(dream.dream_date).setMonth(new Date(dream.dream_date).getMonth() + i);
                             // check is this is the correct month to add the recurring amount
@@ -324,19 +340,19 @@ export const dreamsYearlyExpense = (dream, baseCurrency) => {
                             return acc;
                         }, []);
 
-                        // add an entry for the dream.amnount
-                        const dreamYear = new Date(dream.dream_date).getFullYear();
-                        // check if this year exists in the dreamsListLumpsum then add the pending amount to the existing amount else add a new entry
-                        const index = dreamsListLumpsum.findIndex(item => item.year === dreamYear);
-                        if (index > -1) {
-                            dreamsListLumpsum[index].amount += parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency);
-                        }
-                        else {
-                            dreamsListLumpsum.push({
-                                amount: parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency),
-                                year: dreamYear
-                            });
-                        }
+                        // // add an entry for the dream.amnount
+                        // const dreamYear = new Date(dream.dream_date).getFullYear();
+                        // // check if this year exists in the dreamsListLumpsum then add the pending amount to the existing amount else add a new entry
+                        // const index = dreamsListLumpsum.findIndex(item => item.year === dreamYear);
+                        // if (index > -1) {
+                        //     dreamsListLumpsum[index].amount += parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency);
+                        // }
+                        // else {
+                        //     dreamsListLumpsum.push({
+                        //         amount: parseFloat(dream.amount) * getExchangeRate(dream.currency, baseCurrency),
+                        //         year: dreamYear
+                        //     });
+                        // }
                     }
                 }
                 else {
