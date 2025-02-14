@@ -6,7 +6,7 @@ import { FormatCurrency } from '../common/FormatCurrency';
 
 const AssetsGraph = ({ assetsData }) => {
     const [tabIndex, setTabIndex] = useState(0);
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
 
     const handleTabChange = (event, newIndex) => {
         setTabIndex(newIndex);

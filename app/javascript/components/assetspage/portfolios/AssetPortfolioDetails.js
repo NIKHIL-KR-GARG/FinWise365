@@ -13,7 +13,7 @@ const AssetPortfolioDetails = ({ portfolio: initialPortfolio, portfoliodetails: 
     const [nextId, setNextId] = useState(0);
     const theme = useTheme(); 
 
-    const currentUserId = localStorage.getItem('currentUserId');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
     const portfolioCurrency = initialPortfolio.currency;
 
     const [portfoliodetails, setPortfolioDetails] = useState(initialPortfolioDetails || {

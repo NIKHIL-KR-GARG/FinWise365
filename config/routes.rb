@@ -24,6 +24,7 @@ Rails.application.routes.draw do
     resources :users, only: %i[index show create destroy update] do
       collection do
         post 'create_or_find_user'
+        get 'check-email', to: 'users#check_email'
       end
     end
 

@@ -56,12 +56,12 @@ const Simulate_Corpus = ({ corpusAmount }) => {
     const [cashflowLiabilitiesData, setCashflowLiabilitiesData] = useState([]);
     const [cashflowNetData, setCashflowNetData] = useState([]);
 
-    const currentUserId = parseInt(localStorage.getItem('currentUserId'));
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
-    const currentUserLifeExpectancy = parseInt(localStorage.getItem('currentUserLifeExpectancy'));
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserDateOfBirth = new Date(localStorage.getItem('currentUserDateOfBirth'));
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserDisplayDummyData = localStorage.getItem('currentClientID') ? 'false' : localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserLifeExpectancy = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientLifeExpectancy') : localStorage.getItem('currentUserLifeExpectancy');
+    const currentUserDateOfBirth = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientDateOfBirth') : localStorage.getItem('currentUserDateOfBirth');
+    const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
 
     useEffect(() => {
         const fetchDataAndRunSimulation = async () => {

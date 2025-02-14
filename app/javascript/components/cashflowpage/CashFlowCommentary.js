@@ -9,7 +9,7 @@ import { formatMonthYear } from '../common/DateFunctions';
 const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corpus, sourcePage }) => {
 
     const hasFetchedData = useRef(false);
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
     const [showKeyInsights, setShowKeyInsights] = useState(true);
 
     const [commentary, setCommentary] = useState({

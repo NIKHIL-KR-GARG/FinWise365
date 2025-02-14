@@ -21,9 +21,9 @@ const Home = () => {
     const [cashflowDate, setCashflowDate] = useState('');
     const [netCashflow, setNetCashflow] = useState([]);
 
-    const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserDisplayDummyData = localStorage.getItem('currentClientID') ? 'false' : localStorage.getItem('currentUserDisplayDummyData');
 
     const handleDrawerToggle = () => {
         setOpen(!open);

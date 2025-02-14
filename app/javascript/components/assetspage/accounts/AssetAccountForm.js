@@ -16,9 +16,9 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
     const [errorMessage, setErrorMessage] = useState('');
     const [errors, setErrors] = useState({});
     
-    const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
     const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
     
     const [account, setAccount] = useState(initialAccount || {

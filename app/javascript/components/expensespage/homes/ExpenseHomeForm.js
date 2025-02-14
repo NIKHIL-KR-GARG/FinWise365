@@ -16,9 +16,9 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
     const [errors, setErrors] = useState({});
     const [period, setPeriod] = useState('monthly');
 
-    const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
     const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [home, setHome] = useState(initialHome || {

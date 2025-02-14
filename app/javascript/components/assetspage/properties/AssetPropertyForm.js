@@ -32,13 +32,13 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
     const [lastPropertyType, setLastPropertyType] = useState('');
     const [lastPropertyIsUnderLoan, setLastPropertyIsUnderLoan] = useState(false);
 
-    const [selectedPropertyLocation, setselectedPropertyLocation] = useState(localStorage.getItem('currentUserCountryOfResidence'));
+    const [selectedPropertyLocation, setselectedPropertyLocation] = useState(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence'));
 
-    const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserNationality = localStorage.getItem('currentUserNationality');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    const currentUserIsPermanentResident = localStorage.getItem('currentUserIsPermanentResident');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
+    const currentUserNationality = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientNationality') : localStorage.getItem('currentUserNationality');
+    const currentUserIsPermanentResident = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientIsPermanentResident') : localStorage.getItem('currentUserIsPermanentResident');
     const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
     
     const [property, setProperty] = useState(initialProperty || {

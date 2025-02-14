@@ -20,7 +20,7 @@ const roundOffValues = (data) => {
 
 const DreamsGraph = ({dreamsList, graphType}) => {
 
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
 
     const renderLegend = (props) => {
         const { payload } = props;

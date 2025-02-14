@@ -53,6 +53,19 @@ const ClientSelection = forwardRef((props, ref) => {
         if (selectedClient) {
             localStorage.setItem('currentClientID', selectedClient.id);
             localStorage.setItem('currentClientName', `${selectedClient.first_name} ${selectedClient.last_name}`);
+            
+            // set other fields as per client selected
+            localStorage.setItem('currentClientDateOfBirth', selectedClient.date_of_birth);
+            localStorage.setItem('currentClientBaseCurrency', selectedClient.base_currency);
+            localStorage.setItem('currentClientLifeExpectancy', selectedClient.life_expectancy);
+            localStorage.setItem('currentClientNationality', selectedClient.nationality);
+            localStorage.setItem('currentClientCountryOfResidence', selectedClient.country_of_residence);
+            localStorage.setItem('currentClientIsPermanentResident', selectedClient.is_permanent_resident);
+            localStorage.setItem('currentClientRetirementAge', selectedClient.retirement_age);
+            
+            // Trigger storage event
+            window.dispatchEvent(new Event('storage'));
+
             if (onClientSelected) {
                 onClientSelected();
             }
@@ -71,6 +84,19 @@ const ClientSelection = forwardRef((props, ref) => {
     const handleConfirmClearSelection = () => {
         localStorage.removeItem('currentClientID');
         localStorage.removeItem('currentClientName');
+        
+        // remove other client fields
+        localStorage.removeItem('currentClientDateOfBirth');
+        localStorage.removeItem('currentClientBaseCurrency');
+        localStorage.removeItem('currentClientLifeExpectancy');
+        localStorage.removeItem('currentClientNationality');
+        localStorage.removeItem('currentClientCountryOfResidence');
+        localStorage.removeItem('currentClientIsPermanentResident');
+        localStorage.removeItem('currentClientRetirementAge');
+
+        // Trigger storage event
+        window.dispatchEvent(new Event('storage'));
+
         if (onClientSelected) {
             onClientSelected();
         }

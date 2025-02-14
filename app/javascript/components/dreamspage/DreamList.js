@@ -35,7 +35,7 @@ const DreamList = forwardRef((props, ref) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [dreams, setDreams] = useState([]);
     const [dreamsFetched, setDreamsFetched] = useState(false); // State to track if dreams are fetched
-    const currentUserId = localStorage.getItem('currentUserId');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
     const theme = useTheme();
 
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal

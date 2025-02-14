@@ -37,6 +37,7 @@ const AccountSettings = () => {
                 const appuser = users.find((e) => e.id === parseInt(currentUserId));
                 if (appuser) {
                     setUser({
+                        id: appuser.id,
                         first_name: appuser.first_name,
                         last_name: appuser.last_name,
                         phone_no: appuser.phone_no,

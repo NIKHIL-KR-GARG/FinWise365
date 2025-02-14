@@ -63,7 +63,7 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
     const dob = new Date(currentUserDateOfBirth);
     const ageDifMs = today - dob;
     let age = Math.abs(new Date(ageDifMs).getUTCFullYear() - 1970);
-    const retirementAge = parseInt(localStorage.getItem('currentUserRetirementAge'));
+    const retirementAge = parseInt(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientRetirementAge') : localStorage.getItem('currentUserRetirementAge'));
     const retirementDate = new Date(today.getFullYear() + (retirementAge - age), today.getMonth(), today.getDate());
 
     // check if today's status is all positive liquid_assets. If yes, only then we can consider a sabbaatical in the future
@@ -185,13 +185,12 @@ const Simulate_Sabbatical = ({ sabbaticalMonth, sabbaticalYear, sabbaticalDurati
 
     const [updatedIncomesData, setUpdatedIncomesData] = useState([]);
 
-    const currentUserId = parseInt(localStorage.getItem('currentUserId'));
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
-    const currentUserLifeExpectancy = parseInt(localStorage.getItem('currentUserLifeExpectancy'));
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserDateOfBirth = new Date(localStorage.getItem('currentUserDateOfBirth'));
-
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserDisplayDummyData = localStorage.getItem('currentClientID') ? 'false' : localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserLifeExpectancy = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientLifeExpectancy') : localStorage.getItem('currentUserLifeExpectancy');
+    const currentUserDateOfBirth = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientDateOfBirth') : localStorage.getItem('currentUserDateOfBirth');
+    const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
     useEffect(() => {
         const fetchDataAndRunSimulation = async () => {
             try {

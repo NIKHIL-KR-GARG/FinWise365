@@ -59,6 +59,20 @@ class Api::UsersController < ApplicationController
       end
     end
 
+    def check_email
+        email = params[:email].to_s.downcase
+        user_id = params[:user_id]
+
+        if email.blank?
+            render json: { error: 'Email is required' }, status: :bad_request
+            return
+        end
+
+        user = User.where('lower(email) = ?', email).first
+        is_unique = user.nil? || user.id == user_id.to_i
+        render json: { isUnique: is_unique }, status: :ok
+    end
+
     private
   
     def set_user

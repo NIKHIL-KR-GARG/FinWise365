@@ -506,8 +506,8 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
         return [assetsCashflow, liabilitiesCashflow, netCashflow, false, ''];
 
     } catch (error) {
-        setErrorMessage('Error generating cashflow: ' + error);
-        return [assetsCashflow, liabilitiesCashflow, netCashflow, false, 'Error generating cashflow'];
+        setErrorMessage('currentClientID: ' + error);
+        return [assetsCashflow, liabilitiesCashflow, netCashflow, false, 'currentClientID'];
     }
 };
 
@@ -842,7 +842,7 @@ const GenerateCashflows = ({ hideAccordians }) => {
     const currentUserDisplayDummyData = localStorage.getItem('currentClientID') ? 'false' : localStorage.getItem('currentUserDisplayDummyData');
     const currentUserLifeExpectancy = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientLifeExpectancy') : localStorage.getItem('currentUserLifeExpectancy');
     const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserDateOfBirth = new Date(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientDateOfBirth') : localStorage.getItem('currentUserDateOfBirth'));
+    const currentUserDateOfBirth = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientDateOfBirth') : localStorage.getItem('currentUserDateOfBirth');
     const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
 
     const [successMessage, setSuccessMessage] = useState('');
@@ -857,7 +857,6 @@ const GenerateCashflows = ({ hideAccordians }) => {
 
     useEffect(() => {
         if (!hasFetchedData.current) {
-
             const fetchDataAndGenerate = async () => {
                 const data = await fetchAssetLiabilityIncomeData(currentUserId, currentUserDisplayDummyData, setLoading, setErrorMessage);
                 if (data) {

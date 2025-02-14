@@ -95,7 +95,7 @@ const MortgageAndLoanList = forwardRef((props, ref) => {
     const theme = useTheme();
     const [sortingModel, setSortingModel] = useState([{ field: 'name', sort: 'asc' }]); // Initialize with default sorting
 
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
 
     useEffect(() => {
         const propertyMortgageAndLoans = fetchPropertyMortgageAndLoans(propertiesList);

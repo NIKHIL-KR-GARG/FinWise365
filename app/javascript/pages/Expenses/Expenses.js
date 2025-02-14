@@ -99,9 +99,9 @@ const Expenses = () => {
 
     const [expensesData, setExpensesData] = useState([]);
 
-    const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserDisplayDummyData = localStorage.getItem('currentClientID') ? 'false' : localStorage.getItem('currentUserDisplayDummyData');
 
     const updateHomeExpenses = () => {
         const today = new Date();

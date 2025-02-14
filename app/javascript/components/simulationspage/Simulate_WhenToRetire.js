@@ -52,7 +52,7 @@ const RunSimulation = (propertiesData, vehiclesData, accountsData, depositsData,
     const ageDifMs = today - dob;
     let age = Math.abs(new Date(ageDifMs).getUTCFullYear() - 1970);
     let fixedRetirementDate = false;
-    const retirementAge = parseInt(localStorage.getItem('currentUserRetirementAge'));
+    const retirementAge = parseInt(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientRetirementAge') : localStorage.getItem('currentUserRetirementAge'));
     let retirementDate = new Date();
     
     // check if the ask is to do a generic simulation or with a specific retirement date entered by the user
@@ -312,12 +312,12 @@ const Simulate_WhenToRetire = ({ retirementMonth, retirementYear }) => {
     const [cashflowNetData, setCashflowNetData] = useState([]);
     const [updatedIncomesData, setUpdatedIncomesData] = useState([]);
 
-    const currentUserId = parseInt(localStorage.getItem('currentUserId'));
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
-    const currentUserLifeExpectancy = parseInt(localStorage.getItem('currentUserLifeExpectancy'));
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserDateOfBirth = new Date(localStorage.getItem('currentUserDateOfBirth'));
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserDisplayDummyData = localStorage.getItem('currentClientID') ? 'false' : localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserLifeExpectancy = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientLifeExpectancy') : localStorage.getItem('currentUserLifeExpectancy');
+    const currentUserDateOfBirth = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientDateOfBirth') : localStorage.getItem('currentUserDateOfBirth');
+    const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
 
     useEffect(() => {
         const fetchDataAndRunSimulation = async () => {

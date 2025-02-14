@@ -7,7 +7,7 @@ import { FormatCurrencyForGrid } from '../../components/common/FormatCurrency';
 
 const LiabilitiesCashflow = ({ liabilitiesCashflowData }) => {
 
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
     const [tabIndex, setTabIndex] = useState(0);
 
     const handleTabChange = (event, newIndex) => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Drawer, Divider, List, ListItem, ListItemText, Collapse, Box, Typography, Button, ListItemIcon, Avatar, Modal, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -34,6 +35,8 @@ const collapsedDrawerWidth = 60;
 
 const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
 
+    const navigate = useNavigate();
+    
     const [portfolioOpen, setPortfolioOpen] = useState(false);
     const [analyzeOpen, setAnalyzeOpen] = useState(false);
     const [insightsOpen, setInsightsOpen] = useState(false);
@@ -84,6 +87,10 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
         setClientID(localStorage.getItem('currentClientID'));
         setClientName(localStorage.getItem('currentClientName'));
         setModalOpen(false);
+
+        // Redirect to the home page and force a refresh
+        navigate('/home');
+        window.location.reload();
     };
 
     return (

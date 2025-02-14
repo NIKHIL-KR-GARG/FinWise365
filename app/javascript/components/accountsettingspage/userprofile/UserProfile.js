@@ -107,28 +107,33 @@ const UserProfile = ({ user: initialUser, action, onClose, refreshUserList }) =>
     const handleSave = async () => {
         if (validate()) {
             try {
+                const userID = parseInt(initialUser ? initialUser.id : (action === 'Add' ? 0 : currentUserId));
+                const email = user.email.toLowerCase();
+
+                // Check if email is unique for a new user or excluding the current user
+                const emailCheckResponse = await axios.get(`/api/users/check-email?email=${email}&user_id=${userID}`);
+                if (!emailCheckResponse.data.isUnique) {
+                    setErrorMessage('Email already exists');
+                    setSuccessMessage('');
+                    return;
+                }
 
                 // set nikhil's user id as admin
                 if (user.email === 'nikhil.kr.garg@gmail.com') {
                     user.is_admin = true;
                 }
 
-                if (currentUserIsFinancialAdvisor && currentUserId !== user.id) {
+                if (currentUserIsFinancialAdvisor && currentUserId !== userID) {
                     user.financial_advisor_id = currentUserId;
                 }
 
-                const response = initialUser ? await axios.put(`/api/users/${user.id}`, user) : await axios.post('/api/users', user);
+                const response = initialUser ? await axios.put(`/api/users/${userID}`, user) : await axios.post('/api/users', user);
 
                 let successMsg = '';
                 if (action === 'Add') successMsg = 'User added successfully';
                 else if (action === 'Edit') successMsg = 'User information updated successfully';
 
-                setSuccessMessage(successMsg);
-                setErrorMessage('');
-                if (onClose) onClose(); // Check if onClose is passed before calling it
-                if (refreshUserList) refreshUserList(response.data, successMsg); // Pass the updated user and success message
-
-                if (currentUserId === user.id) {
+                if (parseInt(currentUserId) === parseInt(userID)) {
                     //update few user settings in local storage
                     localStorage.setItem('currentUserFirstName', user.first_name);
                     localStorage.setItem('currentUserLastName', user.last_name);
@@ -140,10 +145,15 @@ const UserProfile = ({ user: initialUser, action, onClose, refreshUserList }) =>
                     localStorage.setItem('currentUserCountryOfResidence', user.country_of_residence);
                     localStorage.setItem('currentUserIsPermanentResident', user.is_permanent_resident);
                     localStorage.setItem('currentUserRetirementAge', user.retirement_age);
-
-                    // Trigger storage event
-                    window.dispatchEvent(new Event('storage'));
                 }
+
+                // Trigger storage event
+                window.dispatchEvent(new Event('storage'));
+
+                setSuccessMessage(successMsg);
+                setErrorMessage('');
+                if (onClose) onClose(); // Check if onClose is passed before calling it
+                if (refreshUserList) refreshUserList(response.data, successMsg); // Pass the updated user and success message
 
             } catch (error) {
                 if (action === 'Add') setErrorMessage('Failed to add user');

@@ -18,10 +18,10 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
     const [errorMessage, setErrorMessage] = useState('');
     const [errors, setErrors] = useState({});
 
-    const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserCountryOfResidence = localStorage.getItem('currentUserCountryOfResidence');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    const currentUserDateOfBirth = localStorage.getItem('currentUserDateOfBirth');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserCountryOfResidence = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence');
+    const currentUserDateOfBirth = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientDateOfBirth') : localStorage.getItem('currentUserDateOfBirth');
     const currentUserIsAdmin = localStorage.getItem('currentUserIsAdmin') === 'true';
     
     const [other, setOther] = useState(initialOther || {

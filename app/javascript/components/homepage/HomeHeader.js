@@ -16,11 +16,12 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
     const currentUserId = localStorage.getItem('currentUserId');
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
     const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
+    const currentClientID = localStorage.getItem('currentClientID');
     
     const [anchorEl, setAnchorEl] = useState(null);
     const [isDemoData, setIsDemoData] = useState(currentUserDisplayDummyData === 'true');
-    const [currentUserBaseCurrency, setCurrentUserBaseCurrency] = useState(localStorage.getItem('currentUserBaseCurrency'));
-    const [currentUserCountryOfResidence, setCurrentUserCountryOfResidence] = useState(localStorage.getItem('currentUserCountryOfResidence'));
+    const [currentUserBaseCurrency, setCurrentUserBaseCurrency] = useState(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency'));
+    const [currentUserCountryOfResidence, setCurrentUserCountryOfResidence] = useState(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence'));
 
     const handleOpenPopover = (event) => {
         setAnchorEl(event.currentTarget);
@@ -40,8 +41,8 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
 
     useEffect(() => {
         const handleStorageChange = () => {
-            setCurrentUserBaseCurrency(localStorage.getItem('currentUserBaseCurrency'));
-            setCurrentUserCountryOfResidence(localStorage.getItem('currentUserCountryOfResidence'));
+            setCurrentUserBaseCurrency(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency'));
+            setCurrentUserCountryOfResidence(localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientCountryOfResidence') : localStorage.getItem('currentUserCountryOfResidence'));
         };
 
         window.addEventListener('storage', handleStorageChange);
@@ -103,7 +104,16 @@ const HomeHeader = ({ open, handleDrawerToggle }) => {
                             color="secondary"
                             startIcon={isDemoData ? <PowerOffIcon /> : <PowerIcon />}
                             onClick={handleDemoDataToggle}
-                            sx={{ fontSize: '0.75rem'}} // Adjust the font size here
+                            sx={{ 
+                                fontSize: '0.75rem', // Adjust the font size here
+                                backgroundColor: localStorage.getItem('currentClientID') ? 'grey' : 'secondary.main', // Change background color when disabled
+                                color: 'white', // Ensure text color is white
+                                '&:disabled': {
+                                    backgroundColor: 'grey', // Ensure background color is grey when disabled
+                                    color: 'white', // Ensure text color is white when disabled
+                                }
+                            }}
+                            disabled={localStorage.getItem('currentClientID')} // Disable button if currentClientID is not null
                         >
                             {isDemoData ? 'Switch off demo data' : 'Switch on demo data'}
                         </Button>

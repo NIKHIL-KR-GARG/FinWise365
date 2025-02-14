@@ -198,11 +198,11 @@ const Dreams = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const currentUserId = localStorage.getItem('currentUserId');
-    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
-    const currentUserDisplayDummyData = localStorage.getItem('currentUserDisplayDummyData');
-    const currentUserLifeExpectancy = localStorage.getItem('currentUserLifeExpectancy');
-    const currentUserDateOfBirth = localStorage.getItem('currentUserDateOfBirth');
+    const currentUserId = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientID') : localStorage.getItem('currentUserId');
+    const currentUserBaseCurrency = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientBaseCurrency') : localStorage.getItem('currentUserBaseCurrency');
+    const currentUserDisplayDummyData = localStorage.getItem('currentClientID') ? 'false' : localStorage.getItem('currentUserDisplayDummyData');
+    const currentUserLifeExpectancy = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientLifeExpectancy') : localStorage.getItem('currentUserLifeExpectancy');
+    const currentUserDateOfBirth = localStorage.getItem('currentClientID') ? localStorage.getItem('currentClientDateOfBirth') : localStorage.getItem('currentUserDateOfBirth');
     
     const hasFetchedData = useRef(false);
 
