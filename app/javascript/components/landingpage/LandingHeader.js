@@ -3,13 +3,17 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 import { useAuth0 } from "@auth0/auth0-react";
 
 const LandingHeader = ({sourcePage}) => {
 
   const { loginWithRedirect } = useAuth0(); // useAuth0 hook destructured
-  
+  const theme = useTheme(); // Get the theme object
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
   const handleLogin = async () => {
     await loginWithRedirect({});
   };
@@ -36,9 +40,17 @@ const LandingHeader = ({sourcePage}) => {
         position: 'fixed', // Fix the header to the top
         top: 0, // Align to the top
         zIndex: 1000, // Ensure it stays above other content
+        flexDirection: isMobile ? 'column' : 'row', // Adjust layout for mobile
+        textAlign: isMobile ? 'left' : 'center' // Align text to the left in mobile mode
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 1, 
+        width: isMobile ? '100%' : 'auto', // Ensure full width for alignment in mobile mode
+        // pl: isMobile ? 2 : 0 // Add padding-left in mobile mode
+      }}>
         <Link href="/" sx={{ textDecoration: 'none', color: 'white' }}>
           <IconButton edge="end" color="inherit" aria-label="menu">
             <img src="/FinWise365_Logo_TransparentWhite.png" alt="Smart Owl" style={{ width: 36, height: 36 }} />
@@ -48,7 +60,15 @@ const LandingHeader = ({sourcePage}) => {
           </Typography>
         </Link>
       </Box>
-      <Box sx={{ display: 'flex', gap: 6 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        gap: isMobile ? 2 : 6, 
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center', // Align to the left in mobile mode
+        justifyContent: isMobile ? 'flex-start' : 'space-between', // Ensure alignment to the left in mobile mode
+        width: isMobile ? '100%' : 'auto', // Ensure full width for alignment in mobile mode
+        pl: isMobile ? 2 : 0 // Add padding-left in mobile mode
+      }}>
         {/* <Link href="/home" sx={{ textDecoration: 'none', color: 'white' }}>
             <Typography variant="body1" sx={{ color: 'white' }}>
               Home

@@ -5,20 +5,38 @@ import IconButton from '@mui/material/IconButton';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Divider from '@mui/material/Divider';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const LandingSectionVideos = () => {
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
     const videos = ['LoginSignup.mp4', 'UserAccounts.mp4', 'SupportPages.mp4', 'DemoData.mp4', 'Incomes.mp4', 'Expenses.mp4', 'Assets.mp4', 'Dreams.mp4', 'Cashflows.mp4', 'SimulationRetire.mp4', 'SimulationIncome.mp4', 'SimulationSabbatical.mp4', 'SimulationCorpus.mp4'];
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const handleNext = () => {
-        if (currentIndex < videos.length - 3) {
-            setCurrentIndex(currentIndex + 3); // Move to the next set of 3 videos
+        if (isMobile) {
+            if (currentIndex < videos.length - 1) {
+                setCurrentIndex(currentIndex + 1); // Move to the next video in mobile mode
+            }
+        } else {
+            if (currentIndex < videos.length - 3) {
+                setCurrentIndex(currentIndex + 3); // Move to the next set of 3 videos
+            }
         }
     };
 
     const handlePrev = () => {
-        if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 3); // Move to the previous set of 3 videos
+        if (isMobile) {
+            if (currentIndex > 0) {
+                setCurrentIndex(currentIndex - 1); // Move to the previous video in mobile mode
+            }
+        } else {
+            if (currentIndex > 0) {
+                setCurrentIndex(currentIndex - 3); // Move to the previous set of 3 videos
+            }
         }
     };
 
