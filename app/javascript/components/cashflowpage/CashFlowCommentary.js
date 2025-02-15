@@ -10,6 +10,8 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
 
     const hasFetchedData = useRef(false);
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
+    const currentUserLifeExpectancy = parseInt(localStorage.getItem('currentUserLifeExpectancy'));
+
     const [showKeyInsights, setShowKeyInsights] = useState(true);
 
     const [commentary, setCommentary] = useState({
@@ -498,7 +500,7 @@ const CashFlowCommentary = ({ netCashflows, incomes, isFixedRetirementDate, corp
                         </ListItemIcon>
                         <ListItemText primary={
                             <>
-                                At then end, your <b>"Final Leftover Cash"</b> wil be:&nbsp;
+                                At the age of {currentUserLifeExpectancy}, your <b>"Final Leftover Cash"</b> wil be:&nbsp;
                                 <Typography component="span" sx={{ fontWeight: 'bold', color: 'blue' }}>
                                     {FormatCurrency(currentUserBaseCurrency, commentary.final_leftover)}
                                 </Typography>.
