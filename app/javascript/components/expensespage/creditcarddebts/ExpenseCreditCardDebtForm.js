@@ -379,7 +379,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.start_date}
                             helperText={errors.start_date}
                         />
@@ -422,7 +422,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.end_date}
                             helperText={errors.end_date}
                         />

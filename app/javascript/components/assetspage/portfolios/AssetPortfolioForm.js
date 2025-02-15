@@ -611,7 +611,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.buying_date}
                             helperText={errors.buying_date}
                         />
@@ -696,7 +696,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                         onChange={handleChange}
                                         fullWidth
                                         required
-                                        InputLabelProps={{ shrink: true }}
+                                        slotProps={{ inputLabel: { shrink: true } }}
                                         error={!!errors.maturity_date}
                                         helperText={errors.maturity_date}
                                     />
@@ -810,7 +810,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                                 onChange={handleChange}
                                                 fullWidth
                                                 required
-                                                InputLabelProps={{ shrink: true }}
+                                                slotProps={{ inputLabel: { shrink: true } }}
                                                 error={!!errors.sip_end_date}
                                                 helperText={errors.sip_end_date}
                                             />
@@ -926,7 +926,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.sale_date}
                                             helperText={errors.sale_date}
                                         />

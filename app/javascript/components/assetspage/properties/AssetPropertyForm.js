@@ -726,7 +726,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.purchase_date}
                             helperText={errors.purchase_date}
                         />
@@ -866,7 +866,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.launch_date}
                                             helperText={errors.launch_date}
                                         />
@@ -881,7 +881,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.possession_date}
                                             helperText={errors.possession_date}
                                         />
@@ -951,7 +951,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.loan_as_of_date}
                                             helperText={errors.loan_as_of_date}
                                         />
@@ -1037,7 +1037,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                                     value={property.loan_locked_till}
                                                     onChange={handleChange}
                                                     fullWidth
-                                                    InputLabelProps={{ shrink: true }}
+                                                    slotProps={{ inputLabel: { shrink: true } }}
                                                     error={!!errors.loan_locked_till}
                                                     helperText={errors.loan_locked_till}
                                                 />
@@ -1156,7 +1156,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.rental_start_date}
                                             helperText={errors.rental_start_date}
                                         />
@@ -1170,7 +1170,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             value={property.rental_end_date}
                                             onChange={handleChange}
                                             fullWidth
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.rental_end_date}
                                             helperText={errors.rental_end_date}
                                         />
@@ -1245,7 +1245,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.sale_date}
                                             helperText={errors.sale_date}
                                         />

@@ -346,7 +346,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.expense_date}
                             helperText={errors.expense_date}
                         />
@@ -421,7 +421,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.end_date}
                                             helperText={errors.end_date}
                                         />

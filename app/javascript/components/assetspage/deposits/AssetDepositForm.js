@@ -396,7 +396,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.opening_date}
                             helperText={errors.opening_date}
                         />
@@ -439,7 +439,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.maturity_date}
                             helperText={errors.maturity_date}
                         />

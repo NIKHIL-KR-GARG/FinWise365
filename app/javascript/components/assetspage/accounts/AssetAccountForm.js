@@ -317,7 +317,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.opening_date}
                             helperText={errors.opening_date}
                         />
@@ -399,7 +399,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                                         value={account.closure_date}
                                         onChange={handleChange}
                                         fullWidth
-                                        InputLabelProps={{ shrink: true }}
+                                        slotProps={{ inputLabel: { shrink: true } }}
                                         error={!!errors.closure_date}
                                         helperText={errors.closure_date}
                                     />

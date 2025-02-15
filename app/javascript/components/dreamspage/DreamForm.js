@@ -366,7 +366,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.dream_date}
                             helperText={errors.dream_date}
                         />
@@ -455,7 +455,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.end_date}
                                             helperText={errors.end_date}
                                         />
@@ -502,7 +502,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.loan_start_date}
                                             helperText={errors.loan_start_date}
                                         />
@@ -531,7 +531,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.loan_end_date}
                                             helperText={errors.loan_end_date}
                                         />

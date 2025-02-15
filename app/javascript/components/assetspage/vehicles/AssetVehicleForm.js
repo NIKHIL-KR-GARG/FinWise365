@@ -490,7 +490,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.purchase_date}
                             helperText={errors.purchase_date}
                         />
@@ -673,7 +673,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.loan_as_of_date}
                                             helperText={errors.loan_as_of_date}
                                         />
@@ -823,7 +823,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.lease_start_date}
                                             onChange={handleChange}
                                             fullWidth
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.lease_start_date}
                                             helperText={errors.lease_start_date}
                                         />
@@ -837,7 +837,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.lease_end_date}
                                             onChange={handleChange}
                                             fullWidth
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.lease_end_date}
                                             helperText={errors.lease_end_date}
                                         />
@@ -910,7 +910,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.sale_date}
                                             onChange={handleChange}
                                             fullWidth
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.sale_date}
                                             helperText={errors.sale_date}
                                         />

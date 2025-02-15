@@ -329,7 +329,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.start_date}
                             helperText={errors.start_date}
                         />
@@ -343,7 +343,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             value={home.end_date}
                             onChange={handleChange}
                             fullWidth
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.end_date}
                             helperText={errors.end_date}
 
