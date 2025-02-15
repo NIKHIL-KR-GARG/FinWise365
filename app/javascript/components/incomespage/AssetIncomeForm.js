@@ -27,7 +27,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
         location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
         amount: 0.0,
-        start_date: "",
+        start_date: new Date().toISOString().split('T')[0],
         end_date: "",
         is_recurring: true,
         income_frequency: "Monthly",

@@ -27,7 +27,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
         expense_name: '',
         location: currentUserCountryOfResidence || '',
         currency: currentUserBaseCurrency || '',
-        expense_date: '',
+        expense_date: new Date().toISOString().split('T')[0],
         amount: 0.0,
         is_recurring: false,
         recurring_frequency: 'Monthly',

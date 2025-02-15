@@ -24,7 +24,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
     const [home, setHome] = useState(initialHome || {
         user_id: 0,
         home_name: "",
-        start_date: "",
+        start_date: new Date().toISOString().split('T')[0],
         end_date: "",
         location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",

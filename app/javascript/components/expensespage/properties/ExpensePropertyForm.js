@@ -33,7 +33,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         user_id: 0,
         property_name: "",
         property_type: "Condominium",
-        start_date: "",
+        start_date: new Date().toISOString().split('T')[0],
         end_date: "",
         location: currentUserCountryOfResidence || "",
         currency: currentUserBaseCurrency || "",
