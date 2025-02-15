@@ -60,23 +60,50 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
         }
         // check if payout age is changed, then calculate payout date
         if (name === 'payout_age') {
-            const userDateOfBirth = new Date(currentUserDateOfBirth);
-            const userAgeAtStart = new Date(other.start_date).getFullYear() - userDateOfBirth.getFullYear();
-            const userAgeDiffernce = parseInt(value) - userAgeAtStart;
-            // payout date is start date + userAgeDiffernce
-            const payoutDate = new Date(other.start_date);
-            payoutDate.setFullYear(payoutDate.getFullYear() + parseInt(userAgeDiffernce));
-            setOther((prevOther) => ({
-                ...prevOther,
-                payout_date: payoutDate.toISOString().split('T')[0]
-            }));
+            if (value) {
+                const userDateOfBirth = new Date(currentUserDateOfBirth);
+                const userAgeAtStart = new Date(other.start_date).getFullYear() - userDateOfBirth.getFullYear();
+                const userAgeDiffernce = parseInt(value) - userAgeAtStart;
+                if (userAgeDiffernce < 0) {
+                    setOther((prevOther) => ({
+                        ...prevOther,
+                        payout_date: ''
+                    }));
+                    const errors = {};
+                    errors.payout_age = 'Payout Age should be greater than ' + userAgeAtStart;
+                    setErrors(errors);
+                    return;
+                }
+                else {
+                    // payout date is start date + userAgeDiffernce
+                    const payoutDate = new Date(other.start_date);
+                    payoutDate.setFullYear(payoutDate.getFullYear() + parseInt(userAgeDiffernce));
+                    setOther((prevOther) => ({
+                        ...prevOther,
+                        payout_date: payoutDate.toISOString().split('T')[0]
+                    }));
+                    setErrors({});
+                }
+            }
+            else {
+                setOther((prevOther) => ({
+                    ...prevOther,
+                    payout_date: ''
+                }));
+                const errors = {};
+                errors.payout_date = 'Payout Date or Age is required';
+                errors.payout_age = 'Payout Date or Age is required';
+                setErrors(errors);
+                return;
+            }
         }
         // else if payout date is changed, then calculate payout age in years
         else if (name === 'payout_date') {
             const userDateOfBirth = new Date(currentUserDateOfBirth);
             const userAgeAtStart = new Date(other.start_date).getFullYear() - userDateOfBirth.getFullYear();
             const payoutAgeToAdd = new Date(value).getFullYear() - new Date(other.start_date).getFullYear();
-            const payoutAge = userAgeAtStart + payoutAgeToAdd;
+            let payoutAge = userAgeAtStart + payoutAgeToAdd;
+            if (isNaN(payoutAge)) payoutAge = 0;
             setOther((prevOther) => ({
                 ...prevOther,
                 payout_age: parseInt(payoutAge)
@@ -409,7 +436,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                             error={!!errors.start_date}
                             helperText={errors.start_date}
                         />
@@ -496,7 +523,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                             onChange={handleChange}
                                             fullWidth
                                             required
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.payment_end_date}
                                             helperText={errors.payment_end_date}
                                         />
@@ -549,7 +576,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     onChange={handleChange}
                                     fullWidth
                                     required
-                                    InputLabelProps={{ shrink: true }}
+                                    slotProps={{ inputLabel: { shrink: true } }}
                                     error={!!errors.payout_date}
                                     helperText={errors.payout_date}
                                 />
@@ -576,7 +603,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     onChange={handleChange}
                                     step={6}
                                     marks
-                                    min={0}
+                                    min={3}
                                     max={300}
                                     valueLabelDisplay="on"
                                 />
