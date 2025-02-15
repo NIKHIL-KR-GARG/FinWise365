@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Grid from '@mui/material/Grid2';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Box } from '@mui/material';
+import { Box } from '@mui/material'; // Added useMediaQuery
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const DisplayCashflow = ({ netCashflowData }) => {
 
     const [data, setData] = useState([]);
     const hasFetchedData = useRef(false);
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
+    const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
 
     const chartData = () => {
 
@@ -88,14 +95,14 @@ const DisplayCashflow = ({ netCashflowData }) => {
     return (
         <Box>
             <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} p={2}>
-                <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
+                <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}> {/* Adjusted height for mobile */}
                     <ResponsiveContainer width="95%" height="100%">
                         <LineChart data={data}>
                             <CartesianGrid strokeDasharray="2 2" />
-                            <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1} />
-                            <YAxis tick={{ fontSize: 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick} />
-                            <Tooltip contentStyle={{ fontSize: 14 }} />
-                            <Legend wrapperStyle={{ fontSize: 14 }} />
+                            <XAxis dataKey="age" tick={{ fontSize: isMobile ? 10 : 14 }} interval={isMobile ? 5 : 1} label={{ value: 'Age', position: 'insideBottomRight', offset: -5, style: { fontWeight: 'bold', fontSize: isMobile ? 10 : 14 } }} />
+                            <YAxis tick={{ fontSize: isMobile ? 10 : 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick} label={{ value: `${currentUserBaseCurrency} Value`, angle: -90, position: 'insideLeft', offset: 0, style: { fontWeight: 'bold', fontSize: isMobile ? 10 : 14 } }} />
+                            <Tooltip contentStyle={{ fontSize: isMobile ? 10 : 14 }} />
+                            <Legend wrapperStyle={{ fontSize: isMobile ? 10 : 14 }} />
                             <Line type="monotone" dataKey="net_position" stroke="#2ca02c" strokeWidth={3} activeDot={{ r: 8 }} name="Net Position" />
                             <Line type="monotone" dataKey="liquid_assets" stroke="#d62728" strokeWidth={3} activeDot={{ r: 8 }} name="Liquid Assets"/>
                             <Line type="monotone" dataKey="net_worth" stroke="#8c564b" strokeWidth={3} activeDot={{ r: 8 }} name="Net Worth" />

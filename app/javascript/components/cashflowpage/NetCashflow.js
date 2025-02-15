@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import Grid from '@mui/material/Grid2';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Box, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-
 import { FormatCurrencyForGrid } from '../../components/common/FormatCurrency';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const NetCashflow = ({ netCashflowData }) => {
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
 
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const [tabIndex, setTabIndex] = useState(0);
@@ -98,13 +102,16 @@ const NetCashflow = ({ netCashflowData }) => {
             <Tabs
                 value={tabIndex}
                 onChange={handleTabChange}
-                centered
+                orientation={isMobile ? "vertical" : "horizontal"} // Set orientation based on screen size
+                centered={!isMobile} // Adjust centering based on screen size
                 TabIndicatorProps={{ style: { display: 'none' } }}
                 sx={{
                     '& .MuiTab-root': {
                         backgroundColor: '#e0e0e0',
                         borderRadius: 1,
-                        margin: 1,
+                        margin: isMobile ? '4px 0' : 1, // Adjust margin based on screen size
+                        // minWidth: isMobile ? 80 : 150, // Adjust minWidth based on screen size
+                        // padding: isMobile ? '6px 8px' : '12px 24px', // Adjust padding based on screen size
                         '&.Mui-selected': {
                             backgroundColor: 'purple',
                             color: '#fff',
@@ -117,14 +124,14 @@ const NetCashflow = ({ netCashflowData }) => {
             </Tabs>
             {tabIndex === 0 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} p={2}>
-                    <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
+                    <Grid item size={12} display="flex" justifyContent="center" style={{ height: isMobile ? '30vh' : '40vh' }}>
                         <ResponsiveContainer width="95%" height="100%">
                             <LineChart data={chartData()}>
                                 <CartesianGrid strokeDasharray="2 2" />
-                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1} />
-                                <YAxis tick={{ fontSize: 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick} />
-                                <Tooltip contentStyle={{ fontSize: 14 }} />
-                                <Legend wrapperStyle={{ fontSize: 14 }} />
+                                <XAxis dataKey="age" tick={{ fontSize: isMobile ? 10 : 14 }} interval={isMobile ? 5 : 1} label={{ value: 'Age', position: 'insideBottomRight', offset: -5, style: { fontWeight: 'bold', fontSize: isMobile ? 10 : 14 } }} />
+                                <YAxis tick={{ fontSize: isMobile ? 10 : 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick} label={{ value: `${currentUserBaseCurrency} Value`, angle: -90, position: 'insideLeft', offset: 0, style: { fontWeight: 'bold', fontSize: isMobile ? 10 : 14 } }} />
+                                <Tooltip contentStyle={{ fontSize: isMobile ? 10 : 14 }} />
+                                <Legend wrapperStyle={{ fontSize: isMobile ? 10 : 14 }} />
                                 {/* <Line type="monotone" dataKey="income" stroke="#1f77b4" strokeWidth={1} activeDot={{ r: 8 }} />
                                 <Line type="monotone" dataKey="expense" stroke="#ff7f0e" strokeWidth={1} activeDot={{ r: 8 }} /> */}
                                 <Line type="monotone" dataKey="net_position" stroke="#2ca02c" strokeWidth={3} activeDot={{ r: 8 }} name="Net Position" />
@@ -138,7 +145,7 @@ const NetCashflow = ({ netCashflowData }) => {
             )}
             {tabIndex === 1 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} 
-                        borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} style={{ height: '30vh', width: '100%', overflow: 'auto' }}
+                        borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} style={{ height: isMobile ? '30vh' : '40vh', width: '100%', overflow: 'auto' }}
                 >
                     <Grid item size={12} display="flex" justifyContent="center" >
                         <TableContainer component={Paper}>

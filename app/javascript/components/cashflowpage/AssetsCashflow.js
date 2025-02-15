@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import Grid from '@mui/material/Grid2';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Box, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-
 import { FormatCurrencyForGrid } from '../../components/common/FormatCurrency';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const AssetsCashflow = ({ assetsCashflowData }) => {
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
 
     const currentUserBaseCurrency = localStorage.getItem('currentUserBaseCurrency');
     const [tabIndex, setTabIndex] = useState(0);
@@ -217,13 +221,14 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
             <Tabs
                 value={tabIndex}
                 onChange={handleTabChange}
-                centered
+                orientation={isMobile ? "vertical" : "horizontal"} // Set orientation based on screen size
+                centered={!isMobile} // Adjust centering based on screen size
                 TabIndicatorProps={{ style: { display: 'none' } }}
                 sx={{
                     '& .MuiTab-root': {
                         backgroundColor: '#e0e0e0',
                         borderRadius: 1,
-                        margin: 1,
+                        margin: isMobile ? '4px 0' : 1, // Adjust margin based on screen size
                         '&.Mui-selected': {
                             backgroundColor: 'purple',
                             color: '#fff',
@@ -236,14 +241,14 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
             </Tabs>
             {tabIndex === 0 && (
                 <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#e0f7fa" borderRadius={2} p={2}>
-                    <Grid item size={12} display="flex" justifyContent="center" style={{ height: '40vh' }}>
+                    <Grid item size={12} display="flex" justifyContent="center" style={{ height: isMobile ? '30vh' : '40vh' }}>
                         <ResponsiveContainer width="95%" height="100%">
                             <LineChart data={chartData()}>
                                 <CartesianGrid strokeDasharray="2 2" />
-                                <XAxis dataKey="yearWithAge" tick={{ fontSize: 14 }} interval={1}/>
-                                <YAxis tick={{ fontSize: 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick}/>
-                                <Tooltip contentStyle={{ fontSize: 14 }} />
-                                <Legend wrapperStyle={{ fontSize: 14 }} />
+                                <XAxis dataKey="age" tick={{ fontSize: isMobile ? 10 : 14 }} interval={isMobile ? 5 : 1} label={{ value: 'Age', position: 'insideBottomRight', offset: -5, style: { fontWeight: 'bold', fontSize: isMobile ? 10 : 14 } }} />
+                                <YAxis tick={{ fontSize: isMobile ? 10 : 14 }} domain={yAxisDomain} tickCount={15} interval={0} tickFormatter={formatYAxisTick} label={{ value: `${currentUserBaseCurrency} Value`, angle: -90, position: 'insideLeft', offset: 0, style: { fontWeight: 'bold', fontSize: isMobile ? 10 : 14 } }} />
+                                <Tooltip contentStyle={{ fontSize: isMobile ? 10 : 14 }} />
+                                <Legend wrapperStyle={{ fontSize: isMobile ? 10 : 14 }} />
                                 <Line type="monotone" dataKey="total" stroke="#ff0000" strokeWidth={3} activeDot={{ r: 8 }} name="Total Assets" />
                                 <Line type="monotone" dataKey="property" stroke="#82ca9d" strokeWidth={1} activeDot={{ r: 8 }} name="Properties"/>
                                 <Line type="monotone" dataKey="vehicle" stroke="#8884d8" strokeWidth={1} activeDot={{ r: 8 }} name="Vehicles"/>
@@ -259,7 +264,7 @@ const AssetsCashflow = ({ assetsCashflowData }) => {
                 </Grid>
             )}
             {tabIndex === 1 && (
-                <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} style={{ height: '40vh', width: '100%', overflow: 'auto' }}>
+                <Grid container spacing={2} justifyContent="center" width="100%" border={1} borderColor="grey.400" bgcolor="#fff9e6" borderRadius={2} style={{ height: isMobile ? '30vh' : '40vh', width: '100%', overflow: 'auto' }}>
                     <Grid item size={12} display="flex" justifyContent="center" >
                         <TableContainer component={Paper}>
                             <Table stickyHeader sx={{ border: 1, borderColor: 'grey.400' }}>
