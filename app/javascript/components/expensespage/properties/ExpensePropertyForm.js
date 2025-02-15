@@ -120,7 +120,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         if (!property.location) errors.location = 'Location is required';
         if (!property.currency) errors.currency = 'Currency is required';
         if (!property.start_date) errors.start_date = 'Start Date is required';
-        if (!property.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
+        // if (!property.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
 
         // Restrict non-numeric input for numeric fields, allowing floats
         if (isNaN(property.expense_value_1)) errors.expense_value_1 = 'Expense Value should be numeric';
@@ -413,7 +413,10 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                             onChange={handleChange}
                             fullWidth
                             required
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ 
+                                input: { max: "9999-12-31" }, // Limit the year to 4 digits
+                                inputLabel: { shrink: true } // Use slotProps.inputLabel instead of InputLabelProps
+                            }}
                             error={!!errors.start_date}
                             helperText={errors.start_date}
                         />
@@ -427,7 +430,10 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                             value={property.end_date}
                             onChange={handleChange}
                             fullWidth
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ 
+                                input: { max: "9999-12-31" }, // Limit the year to 4 digits
+                                inputLabel: { shrink: true } // Use slotProps.inputLabel instead of InputLabelProps
+                            }}
                             error={!!errors.end_date}
                             helperText={errors.end_date}
 
@@ -441,7 +447,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                             value={property.inflation_rate}
                             onChange={handleChange}
                             fullWidth
-                            required
+                            // required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.inflation_rate}
                             helperText={errors.inflation_rate}

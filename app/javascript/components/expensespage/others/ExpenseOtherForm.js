@@ -449,7 +449,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                                             value={other.inflation_rate}
                                             onChange={handleChange}
                                             fullWidth
-                                            required
+                                            // required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.inflation_rate}
                                             helperText={errors.inflation_rate}
