@@ -38,7 +38,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
         interest_rate: 0.0,
         interest_type: "Simple",
         compounding_frequency: "",
-        payment_frequency: "Monthly",
+        payment_frequency: "",
         payment_amount: 0.0,
         total_interest: 0.0,
         total_principal: 0.0,
@@ -95,7 +95,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
 
     useEffect(() => {
         calculatetTotalInterest();
-    }, [deposit]);
+    }, [deposit.deposit_type, deposit.interest_type, deposit.interest_rate, deposit.amount, deposit.deposit_term, deposit.payment_frequency, deposit.payment_amount, deposit.compounding_frequency]);
 
     useEffect(() => {
         if (initialDeposit) {
