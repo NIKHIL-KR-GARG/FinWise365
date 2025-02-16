@@ -25,7 +25,7 @@ const LandingSectionTagline = () => {
         color: 'white', // Text color
         px: 0, // Horizontal padding'
         zIndex: 1, // Ensure it stays behind the text
-        paddingTop: isMobile ? '50px' : 0, // Adjust padding top for mobile to account for header
+        paddingTop: isMobile ? '96px' : '32px', // Adjust padding top for mobile to account for header
       }}
     >
       <Typography 

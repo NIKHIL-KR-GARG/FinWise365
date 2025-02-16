@@ -1,8 +1,14 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
 import LandingHeader from '../../components/landingpage/LandingHeader';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const AboutUs = () => {
+  
+  const theme = useTheme(); // Get the theme object
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
   return (
     <Box
       sx={{
@@ -21,6 +27,7 @@ const AboutUs = () => {
           mt: 8,
           paddingLeft: 1,
           minHeight: '100vh', 
+          paddingTop: isMobile ? '96px' : 0, // Adjust padding top for mobile to account for header
         }}
       >
         <br />

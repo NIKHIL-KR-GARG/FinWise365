@@ -5,8 +5,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import LandingHeader from '../../components/landingpage/LandingHeader';
 import CookiesPolicy from '../../components/miscelleanous/CookiesPolicy';
 import PrivacyPolicy from '../../components/miscelleanous/PrivacyPolicy';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const ContactUs = () => {
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
     const [name, setName] = useState('');
     const [company, setCompany] = useState('');
     const [email, setEmail] = useState('');
@@ -73,6 +79,8 @@ const ContactUs = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    paddingTop: isMobile ? '96px' : 0, // Adjust padding top for mobile to account for header
+                    paddingBottom: isMobile ? 2 : 0, // Adjust padding bottom for mobile
                 }}
             >
                 <Typography variant="h3" component="div" align="center" fontWeight="bold">

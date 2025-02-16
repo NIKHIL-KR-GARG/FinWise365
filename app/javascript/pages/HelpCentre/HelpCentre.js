@@ -5,7 +5,13 @@ import LandingSectionVideos from '../../components/landingpage/LandingSectionVid
 import FAQs from '../../components/helpcentrepage/FAQs';
 import BlogsArticles from '../../components/helpcentrepage/BlogsArticles';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const HelpCentre = () => {
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
     
     const [tabIndex, setTabIndex] = useState(0);
     
@@ -34,6 +40,7 @@ const HelpCentre = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    paddingTop: isMobile ? '144px' : 0, // Adjust padding top for mobile to account for header
                 }}
             >
                 <Typography variant="h3" component="div" align="center" fontWeight="bold">
@@ -52,7 +59,8 @@ const HelpCentre = () => {
             <Tabs 
                 value={tabIndex} 
                 onChange={handleTabChange} 
-                centered
+                orientation={isMobile ? "vertical" : "horizontal"} // Set orientation based on screen size
+                centered={!isMobile} // Adjust centering based on screen size
                 TabIndicatorProps={{ style: { display: 'none' } }}
                 sx={{
                     '& .MuiTab-root': {

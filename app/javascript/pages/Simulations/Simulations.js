@@ -104,7 +104,7 @@ const Simulations = () => {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <HomeHeader open={open} handleDrawerToggle={handleDrawerToggle} />
-            <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}>
+            <Box sx={{ display: 'flex', flexGrow: 1, mt: isMobile ? '128px' : '64px' }}>
                 <HomeLeftMenu open={open} />
                 <Box
                     component="main"
@@ -127,7 +127,7 @@ const Simulations = () => {
                         <Typography color="textPrimary">Simulations</Typography>
                     </Breadcrumbs>
                     <Box sx={{ p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper' }}>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row', fontSize: isMobile ? '1.25rem' : '1.5rem' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <SimulationIcon sx={{ mr: 1 }} />
                                 My Simulations

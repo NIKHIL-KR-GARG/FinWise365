@@ -74,14 +74,14 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                     boxSizing: 'border-box',
                     position: 'fixed',
                     top: '64px', // Adjust this value based on the height of your AppBar
-                    height: 'calc(100vh - 64px)', // Adjust this value based on the height of your AppBar
+                    height: isMobile ? 'calc(100vh - 140px)': 'calc(100vh - 64px)', // Adjust this value based on the height of your AppBar
                     overflowY: 'auto', // Make the drawer content scrollable
                     transition: (theme) => theme.transitions.create('width', {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.enteringScreen,
                     }),
                     paddingRight: open ? '17px' : '0px', // Add extra width for the vertical scrollbar
-                    paddingTop: isMobile ? '75px' : 0, // Adjust padding top for mobile to account for header
+                    paddingTop: isMobile ? '76px' : 0, // Adjust padding top for mobile to account for header
                 },
             }}
             open={open}

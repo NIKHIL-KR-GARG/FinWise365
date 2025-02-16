@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import { Box, Typography, Card, CardContent, CardMedia } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import LandingHeader from '../../components/landingpage/LandingHeader';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const ComingSoon = () => {
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
 
     return (
         <Box
@@ -27,6 +32,7 @@ const ComingSoon = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    paddingTop: isMobile ? '144px' : 0, // Adjust padding top for mobile to account for header
                 }}
             >
                 <Typography variant="h3" component="div" align="center" fontWeight="bold">
@@ -36,8 +42,18 @@ const ComingSoon = () => {
                     We are hard at work to bring you the following features. Stay tuned!
                 </Typography>
             </Box>
-            <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'center', width: '80%', mx: 'auto' }}>
-                <Grid item size={4} sm={6} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Grid 
+                container 
+                spacing={2} 
+                sx={{ 
+                    mt: 2, 
+                    justifyContent: 'center', 
+                    width: '80%', 
+                    mx: 'auto', 
+                    flexDirection: isMobile ? 'column' : 'row' // Change direction based on isMobile
+                }}
+            >
+                <Grid item size={isMobile? 12 : 4} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
@@ -57,7 +73,7 @@ const ComingSoon = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item size={4} sm={6} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Grid item size={isMobile? 12 : 4} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
@@ -78,7 +94,7 @@ const ComingSoon = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item size={4} sm={6} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Grid item size={isMobile? 12 : 4} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
@@ -99,7 +115,7 @@ const ComingSoon = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item size={4} sm={6} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Grid item size={isMobile? 12 : 4} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
@@ -119,7 +135,7 @@ const ComingSoon = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item size={4} sm={6} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Grid item size={isMobile? 12 : 4} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}
@@ -141,7 +157,7 @@ const ComingSoon = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item size={4} sm={6} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Grid item size={isMobile? 12 : 4} sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Card sx={{ width: '80%' }}>
                         <CardMedia
                             sx={{ height: '20vh' }}

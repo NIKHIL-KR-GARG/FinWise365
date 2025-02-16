@@ -6,7 +6,14 @@ import Disclaimer from '../../components/miscelleanous/Disclaimer';
 import PrivacyPolicy from '../../components/miscelleanous/PrivacyPolicy';
 import CookiesPolicy from '../../components/miscelleanous/CookiesPolicy';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const DisclaimerAndPolicy = () => {
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
     return (
         <Box
             sx={{
@@ -25,6 +32,7 @@ const DisclaimerAndPolicy = () => {
                     mt: 8,
                     paddingLeft: 1,
                     minHeight: '100vh', 
+                    paddingTop: isMobile ? '144px' : 0, // Adjust padding top for mobile to account for header
                 }}
             >
                 <Disclaimer />

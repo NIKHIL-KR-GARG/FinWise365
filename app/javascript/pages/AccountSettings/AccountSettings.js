@@ -30,7 +30,7 @@ const AccountSettings = () => {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <HomeHeader open={open} handleDrawerToggle={handleDrawerToggle} />
-            <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}> {/* Adjust mt to match header height */}
+            <Box sx={{ display: 'flex', flexGrow: 1, mt: isMobile ? '128px' : '64px' }}> {/* Adjust mt to match header height */}
                 <HomeLeftMenu open={open} />
                 <Box
                     component="main"

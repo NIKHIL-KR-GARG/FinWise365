@@ -934,7 +934,7 @@ const Dreams = () => {
         return (
             <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                 <HomeHeader open={true}  />
-                <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}>
+                <Box sx={{ display: 'flex', flexGrow: 1, mt: isMobile ? '128px' : '64px' }}>
                     <HomeLeftMenu open={true} />
                     <Box
                         component="main"
@@ -1324,7 +1324,7 @@ const Dreams = () => {
                 </Alert>
             </Snackbar>
             <HomeHeader open={open} handleDrawerToggle={handleDrawerToggle} />
-            <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px' }}>
+            <Box sx={{ display: 'flex', flexGrow: 1, mt: isMobile ? '128px' : '64px' }}>
                 <HomeLeftMenu open={open} />
                 <Box
                     component="main"
