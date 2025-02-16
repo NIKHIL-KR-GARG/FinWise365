@@ -6,12 +6,17 @@ import CelebrationIcon from '@mui/icons-material/Celebration';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from 'react-router-dom';
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
     const open = Boolean(anchorEl);
     const id = open ? 'user-settings-popover' : undefined;
     const navigate = useNavigate();
     const { logout } = useAuth0();
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
 
     const currentUserFirstName = localStorage.getItem('currentUserFirstName');
     const currentUserLastName = localStorage.getItem('currentUserLastName');
@@ -55,7 +60,7 @@ const HomeUserMenuModal = ({ anchorEl, handleClosePopover }) => {
             }}
             sx={{ borderRadius: 4 }}
         >
-            <Box sx={{ p: 3, width: 350 }}>
+            <Box sx={{ p: 3, width: isMobile ? 250: 350 }}>
                 <Typography id="user-settings-popover-title" variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
                     {`${getGreeting()}, ${currentUserFirstName}`}
                 </Typography>

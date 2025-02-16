@@ -26,12 +26,17 @@ import InfoIcon from '@mui/icons-material/Info';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import GavelIcon from '@mui/icons-material/Gavel';
 import { useAuth0 } from "@auth0/auth0-react";
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 60;
 
 const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
     
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
     const [portfolioOpen, setPortfolioOpen] = useState(false);
     const [analyzeOpen, setAnalyzeOpen] = useState(false);
     const [insightsOpen, setInsightsOpen] = useState(false);
@@ -76,6 +81,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                         duration: theme.transitions.duration.enteringScreen,
                     }),
                     paddingRight: open ? '17px' : '0px', // Add extra width for the vertical scrollbar
+                    paddingTop: isMobile ? '75px' : 0, // Adjust padding top for mobile to account for header
                 },
             }}
             open={open}
