@@ -11,11 +11,17 @@ import { today } from '../../components/common/DateFunctions';
 import DisplayCashflowComparison from '../../components/cashflowpage/DisplayCashflowComparison';
 import { getExchangeRate } from '../../components/common/ExchangeRate';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const CashflowComparison = () => {
     
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
     const hasFetchedData = useRef(false);
 
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(isMobile ? false : true);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');

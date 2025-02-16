@@ -8,9 +8,15 @@ import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import ContactUsMessageList from '../../components/adminfunctionspage/ContactUsMessageList';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const AdminFunctions = () => {
 
-    const [open, setOpen] = useState(true);
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
+    const [open, setOpen] = useState(isMobile ? false : true);
     const handleDrawerToggle = () => {
         setOpen(!open);
     };

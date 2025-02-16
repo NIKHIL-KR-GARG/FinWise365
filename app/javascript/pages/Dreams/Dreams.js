@@ -112,8 +112,15 @@ import { filterLeaseIncomes } from '../../components/incomespage/LeaseIncomeList
 import { filterRentalIncomes } from '../../components/incomespage/RentalIncomeList';
 import { filterPayoutIncomes } from '../../components/incomespage/PayoutIncomeList';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const Dreams = () => {
-    const [open, setOpen] = useState(true);
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
+    const [open, setOpen] = useState(isMobile ? false : true);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalHeight, setModalHeight] = useState(0);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal

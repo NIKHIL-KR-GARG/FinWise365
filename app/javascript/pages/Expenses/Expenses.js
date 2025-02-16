@@ -51,8 +51,15 @@ import { fetchDepositSIPs, fetchPortfolioSIPs, fetchOtherSIPs } from '../../comp
 import { fetchTaxes } from '../../components/expensespage/taxes/TaxList';
 import { fetchPropertyMortgageAndLoans, fetchVehicleMortgageAndLoans } from '../../components/expensespage/mortgageandloans/MortgageAndLoanList';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const Expenses = () => {
-    const [open, setOpen] = useState(true);
+
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
+    const [open, setOpen] = useState(isMobile ? false : true);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalHeight, setModalHeight] = useState(0);
     const [formModalOpen, setFormModalOpen] = useState(false); // State for Form Modal

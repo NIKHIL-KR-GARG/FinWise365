@@ -13,9 +13,15 @@ import Simulate_ReduceIncome from '../../components/simulationspage/Simulate_Red
 import Simulate_Sabbatical from '../../components/simulationspage/Simulate_Sabbatical';
 import Simulate_Corpus from '../../components/simulationspage/Simulate_Corpus';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const Simulations = () => {
 
-    const [open, setOpen] = useState(true);
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
+    const [open, setOpen] = useState(isMobile ? false : true);
     const [expanded, setExpanded] = useState(false);
 
     const [showSimulate_WhenToRetire, setSimulate_WhenToRetire] = useState(false);

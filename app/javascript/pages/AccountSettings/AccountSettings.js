@@ -3,15 +3,21 @@ import { Box, Breadcrumbs, Typography, Divider, Tabs, Tab } from '@mui/material'
 import Link from '@mui/material/Link';
 import TabPanel from '../../components/common/TabPanel';
 import PersonIcon from '@mui/icons-material/Person';
-import ReceiptIcon from '@mui/icons-material/Receipt';
+// import ReceiptIcon from '@mui/icons-material/Receipt';
 
 import HomeHeader from '../../components/homepage/HomeHeader';
 import HomeLeftMenu from '../../components/homepage/HomeLeftMenu';
 import UserProfile from '../../components/accountsettingspage/userprofile/UserProfile';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const AccountSettings = () => {
 
-    const [open, setOpen] = useState(true);
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
+    const [open, setOpen] = useState(isMobile ? false : true);
     const handleDrawerToggle = () => {
         setOpen(!open);
     };

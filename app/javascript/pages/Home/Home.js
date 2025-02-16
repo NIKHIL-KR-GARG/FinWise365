@@ -10,9 +10,15 @@ import DisplayCashflow from '../../components/cashflowpage/DisplayCashflow';
 import CashFlowCommentary from '../../components/cashflowpage/CashFlowCommentary';
 import { getExchangeRate } from '../../components/common/ExchangeRate';
 
+import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+
 const Home = () => {
 
-    const [open, setOpen] = useState(true);
+    const theme = useTheme(); // Get the theme object
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Define media query for mobile
+
+    const [open, setOpen] = useState(isMobile ? false : true);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [hasSavedCashflow, setHasSavedCashflow] = useState(true);
