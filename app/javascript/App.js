@@ -21,6 +21,8 @@ import AdminFunctions from './pages/AdminFunctions/AdminFunctions';
 import Simulations from './pages/Simulations/Simulations';
 import DisclaimerAndPolicy from './pages/DisclaimerAndPolicy/DisclaimerAndPolicy';
 import UserManagement from './pages/UserManagement/UserManagement';
+import GoalsPrioritization from './pages/GoalsPrioritization/GoalsPrioritization';
+import AssetsGoalsMapping from './pages/AssetsGoalsMapping/AssetsGoalsMapping';
 
 const App = () => {
 
@@ -45,6 +47,8 @@ const App = () => {
         <Route path='/adminfunctions' element={<AuthenticationGuard component={AdminFunctions} />} />
         <Route path='/simulations' element={<AuthenticationGuard component={Simulations} />} />
         <Route path='/usermanagement' element={<AuthenticationGuard component={UserManagement} />} />
+        <Route path='/goalsprioritization' element={<AuthenticationGuard component={GoalsPrioritization} />} />
+        <Route path='/assetsgoalsmapping' element={<AuthenticationGuard component={AssetsGoalsMapping} />} />
       </Routes>
     </>
   );

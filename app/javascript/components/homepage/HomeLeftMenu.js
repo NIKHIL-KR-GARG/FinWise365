@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Drawer, Divider, List, ListItem, ListItemText, Collapse, Box, Typography, Button, ListItemIcon, Avatar, Modal, IconButton } from '@mui/material';
-import { Link } from 'react-router-dom';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import StarIcon from '@mui/icons-material/Star';
-// import SecurityIcon from '@mui/icons-material/Security';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-// import AssessmentIcon from '@mui/icons-material/Assessment';
-// import EventIcon from '@mui/icons-material/Event';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import BarChartIcon from '@mui/icons-material/BarChart';
-// import TimelineIcon from '@mui/icons-material/Timeline';
 import HomeIcon from '@mui/icons-material/Home';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
@@ -29,6 +24,9 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import { useAuth0 } from "@auth0/auth0-react";
 import CloseIconFilled from '@mui/icons-material/Close';
 import ClientSelection from '../usermanagementpage/ClientSelection';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import EventIcon from '@mui/icons-material/Event';
+import TimelineIcon from '@mui/icons-material/Timeline';
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 60;
@@ -42,7 +40,7 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
     const [insightsOpen, setInsightsOpen] = useState(false);
     const [clientID, setClientID] = useState('');
     const [clientName, setClientName] = useState('');
-    // const [planOpen, setPlanOpen] = useState(false);
+    const [planOpen, setPlanOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
 
     const { logout } = useAuth0();
@@ -75,9 +73,9 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
         setInsightsOpen(!insightsOpen);
     };
 
-    // const handlePlanClick = () => {
-    //     setPlanOpen(!planOpen);
-    // };
+    const handlePlanClick = () => {
+        setPlanOpen(!planOpen);
+    };
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -197,6 +195,41 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             </ListItem> */}
                         </List>
                     </Collapse>
+                    <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
+                        <ListItemIcon>
+                            <TimelineIcon fontSize="small" />
+                        </ListItemIcon>
+                        {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Plan</Typography>} />}
+                        {planOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItem>
+                    <Collapse in={planOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                            <ListItem component={Link} to="/goalsprioritization" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <EventIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Goals Prioritization</Typography>} />}
+                            </ListItem>
+                            <ListItem component={Link} to="/assetsgoalsmapping" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <AssessmentIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets-Goals Mapping</Typography>} />}
+                            </ListItem>
+                            {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <AssessmentIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Investment Profile</Typography>} />}
+                            </ListItem> */}
+                            {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
+                                <ListItemIcon>
+                                    <EventIcon fontSize="small" />
+                                </ListItemIcon>
+                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Retirement Plan</Typography>} />}
+                            </ListItem> */}
+                        </List>
+                    </Collapse>
                     <ListItem button onClick={handleAnalyzeClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
                         <ListItemIcon>
                             <BarChartIcon fontSize="small" />
@@ -217,12 +250,6 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                                     <TrendingUpIcon fontSize="small" />
                                 </ListItemIcon>
                                 {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Cashflow Comparison</Typography>} />}
-                            </ListItem> */}
-                            {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                                <ListItemIcon>
-                                    <TrendingUpIcon fontSize="small" />
-                                </ListItemIcon>
-                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Simulate</Typography>} />}
                             </ListItem> */}
                         </List>
                     </Collapse>
@@ -249,29 +276,6 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             </ListItem>
                         </List>
                     </Collapse>
-                    {/* <ListItem button onClick={handlePlanClick} sx={{ paddingY: 1, '&:hover': { bgcolor: '#e0f7fa' } }}>
-                        <ListItemIcon>
-                            <TimelineIcon fontSize="small" />
-                        </ListItemIcon>
-                        {open && <ListItemText primary={<Typography variant="body1" sx={{ fontWeight: 'bold', ml: -3 }}>Plan</Typography>} />}
-                        {planOpen ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    <Collapse in={planOpen} timeout="auto" unmountOnExit>
-                        <List component="div" disablePadding>
-                            <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                                <ListItemIcon>
-                                    <AssessmentIcon fontSize="small" />
-                                </ListItemIcon>
-                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Investment Profile</Typography>} />}
-                            </ListItem>
-                            <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
-                                <ListItemIcon>
-                                    <EventIcon fontSize="small" />
-                                </ListItemIcon>
-                                {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Retirement Plan</Typography>} />}
-                            </ListItem>
-                        </List>
-                    </Collapse> */}
                     {open && (
                         <Box sx={{ m: 2, p: 2, boxShadow: 3, borderRadius: 1, bgcolor: 'background.paper', width: `calc(${drawerWidth}px - 60px)` }}>
                             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Enjoying FinWise365?</Typography>

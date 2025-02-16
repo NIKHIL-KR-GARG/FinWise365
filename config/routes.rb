@@ -19,6 +19,8 @@ Rails.application.routes.draw do
   get 'adminfunctions', to: 'site#index'
   get 'disclaimerandpolicy', to: 'site#index'
   get 'usermanagement', to: 'site#index'
+  get 'goalsprioritization', to: 'site#index'
+  get 'assetsgoalsmapping', to: 'site#index'
 
   namespace :api do
     resources :users, only: %i[index show create destroy update] do
