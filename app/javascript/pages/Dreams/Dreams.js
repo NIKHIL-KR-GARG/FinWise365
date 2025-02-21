@@ -1660,7 +1660,7 @@ const Dreams = () => {
                                         >
                                             <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                                 <DirectionsCarIcon sx={{ mr: 1, color: 'blue' }} /> {/* Updated color */}
-                                                Current EMI's - Property/Vehicle/Dreams ({emiCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.EMI, 0))}</strong>
+                                                Current EMI's <em>&nbsp;(Derived automatically from Dreams)</em>&nbsp; ({emiCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.EMI, 0))}</strong>
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
@@ -1675,7 +1675,7 @@ const Dreams = () => {
                                         >
                                             <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                                 <SavingsIcon sx={{ mr: 1, color: 'purple' }} /> {/* Updated color */}
-                                                Current SIP's - Investment Portfolios ({sipCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.SIP, 0))}</strong>
+                                                Current SIP's <em>&nbsp;(Derived automatically from Dream Investment Portfolios)</em>&nbsp; ({sipCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListRecurring.reduce((acc, curr) => acc + curr.SIP, 0))}</strong>
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
@@ -1716,7 +1716,7 @@ const Dreams = () => {
                                         >
                                             <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                                 <HomeOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
-                                                Rental Income ({rentalIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Rental, 0))}</strong>
+                                                Rental Income <em>&nbsp;(Derived automatically from Property Dreams)</em>&nbsp; ({rentalIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Rental, 0))}</strong>
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
@@ -1731,7 +1731,7 @@ const Dreams = () => {
                                         >
                                             <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                                 <DirectionsCarIcon sx={{ mr: 1, color: 'green' }} />
-                                                Lease Income ({leaseIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Lease, 0))}</strong>
+                                                Lease Income <em>&nbsp;(Derived automatically from Vehicle Dreams)</em>&nbsp; ({leaseIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Lease, 0))}</strong>
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
@@ -1746,7 +1746,7 @@ const Dreams = () => {
                                         >
                                             <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                                 <ShowChartIcon sx={{ mr: 1, color: 'red' }} />
-                                                Dividend Income ({dividendIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Dividend, 0))}</strong>
+                                                Dividend Income <em>&nbsp;(Derived automatically from Dividend paying Dream Investment Portfolios)</em>&nbsp; ({dividendIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Dividend, 0))}</strong>
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
@@ -1761,7 +1761,7 @@ const Dreams = () => {
                                         >
                                             <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                                 <ReceiptIcon sx={{ mr: 1, color: 'orange' }} />
-                                                Coupon Income ({couponIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Coupon, 0))}</strong>
+                                                Coupon Income <em>&nbsp;(Derived automatically from Coupon paying Dream Investment-Bonds Portfolios)</em>&nbsp; ({couponIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Coupon, 0))}</strong>
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
@@ -1776,7 +1776,7 @@ const Dreams = () => {
                                         >
                                             <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                                 <PaymentIcon sx={{ mr: 1, color: 'pink' }} />
-                                                Payout Income ({payoutIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Payout, 0))}</strong>
+                                                Payout Income <em>&nbsp;(Derived automatically from Recurring payouts from Other Dream Assets)</em>&nbsp; ({payoutIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, dreamsListIncome.reduce((acc, curr) => acc + curr.Payout, 0))}</strong>
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>

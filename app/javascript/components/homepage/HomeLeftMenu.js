@@ -118,25 +118,25 @@ const HomeLeftMenu = ({ open, handleDrawerToggle }) => {
                             <ListItemIcon>
                                 <AttachMoneyOutlinedIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Income</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Current Income</Typography>} />}
                         </ListItem>
                         <ListItem component={Link} to="/expenses" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <MoneyOffIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Expenses/Debt</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Current Expenses</Typography>} />}
                         </ListItem>
                         <ListItem component={Link} to="/assets" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <AccountBalanceIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Assets</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Current Assets</Typography>} />}
                         </ListItem>
                         <ListItem component={Link} to="/dreams" button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>
                                 <StarIcon fontSize="small" />
                             </ListItemIcon>
-                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Dreams/Goals</Typography>} />}
+                            {open && <ListItemText primary={<Typography variant="body2" sx={{ ml: -3 }}>Future Goals/Dreams</Typography>} />}
                         </ListItem>
                         {/* <ListItem button sx={{ pl: 4, paddingY: 0.5, '&:hover': { bgcolor: '#e0f7fa', cursor: 'pointer' } }}>
                             <ListItemIcon>

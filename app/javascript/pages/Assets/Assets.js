@@ -389,7 +389,7 @@ const Assets = () => {
                             <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <AccountBalanceIcon sx={{ mr: 1 }} />
-                                    My Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                    My Current Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Button
@@ -631,7 +631,7 @@ const Assets = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <AccountBalanceIcon sx={{ mr: 1 }} />
-                                My Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
+                                My Current Assets {'( '}As Of, {formatMonthYear(new Date())} {')'}
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Button

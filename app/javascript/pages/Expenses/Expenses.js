@@ -413,7 +413,7 @@ const Expenses = () => {
                             <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <MoneyOffIcon sx={{ mr: 1 }} />
-                                    My Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
+                                    My Current Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Button
@@ -588,31 +588,6 @@ const Expenses = () => {
         }
     };
 
-    // const handleHomeListUpdated = (updatedHomes) => {
-    //     setHomes(updatedHomes);
-    //     updateHomeExpenses();
-    // };
-
-    // const handlePropertyListUpdated = (updatedProperties) => {
-    //     setProperties(updatedProperties);
-    //     updatePropertyExpenses();
-    // };
-
-    // const handleCreditCardDebtListUpdated = (updatedCreditCardDebts) => {
-    //     setCreditCardDebts(updatedCreditCardDebts);
-    //     updateCreditCardDebtExpenses();
-    // };
-
-    // const handlePersonalLoanListUpdated = (updatedPersonalLoans) => {
-    //     setPersonalLoans(updatedPersonalLoans);
-    //     updatePersonalLoanExpenses();
-    // };
-
-    // const handleOtherListUpdated = (updatedOthers) => {
-    //     setOtherExpenses(updatedOthers);
-    //     updateOtherExpenses();
-    // };
-
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Snackbar
@@ -688,7 +663,7 @@ const Expenses = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <MoneyOffIcon sx={{ mr: 1 }} />
-                                My Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
+                                My Current Expenses {'( '}For, {formatMonthYear(new Date())} {')'}
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Button
@@ -794,7 +769,7 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarIcon sx={{ mr: 1, color: 'blue' }} /> {/* Updated color */}
-                                        Current Mortgage & Loans - Property/Vehicle ({mortgageAndLoanCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(mortgageAndLoanAmount))}</strong>
+                                        Current Mortgage & Loans <em>&nbsp;(Derived automatically from Property/Vehicle Assets)</em>&nbsp;({mortgageAndLoanCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, parseFloat(mortgageAndLoanAmount))}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -809,7 +784,7 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarIcon sx={{ mr: 1, color: 'blue' }} /> {/* Updated color */}
-                                        Current EMI's - Property/Vehicle ({emiCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'EMI Expenses')?.value || 0)}</strong>
+                                        Current EMI's <em>&nbsp;(Derived automatically from Property/Vehicle Assets)</em>&nbsp;({emiCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'EMI Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -824,7 +799,7 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <SavingsIcon sx={{ mr: 1, color: 'purple' }} /> {/* Updated color */}
-                                        Current SIP's - Investment Portfolios ({sipCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'SIP Expenses')?.value || 0)}</strong>
+                                        Current SIP's <em>&nbsp;(Derived automatically from Investment Portfolios)</em>&nbsp;({sipCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'SIP Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -839,7 +814,7 @@ const Expenses = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <AccountBalanceIcon sx={{ mr: 1, color: 'orange' }} /> {/* Updated color */}
-                                        Taxes - Income Tax, Property Tax ({taxCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Tax Expenses')?.value || 0)}</strong>
+                                        Taxes <em>&nbsp;(Derived automatically from Property Assets)</em>&nbsp;({taxCount}) -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, expensesData.find(expense => expense.name === 'Tax Expenses')?.value || 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>

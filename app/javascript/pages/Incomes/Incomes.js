@@ -255,7 +255,7 @@ const Incomes = () => {
                             <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <AccountBalanceIcon sx={{ mr: 1 }} />
-                                    My Incomes {'( '}For, {formatMonthYear(new Date())} {')'}
+                                    My Current Incomes {'( '}For, {formatMonthYear(new Date())} {')'}
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Button
@@ -424,7 +424,7 @@ const Incomes = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <AccountBalanceIcon sx={{ mr: 1 }} />
-                                My Incomes {'( '}For, {formatMonthYear(new Date())} {')'}
+                                My Current Incomes {'( '}For, {formatMonthYear(new Date())} {')'}
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Button
@@ -470,7 +470,7 @@ const Incomes = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <HomeOutlinedIcon sx={{ mr: 1, color: 'blue' }} />
-                                        Rental Income ({rentalIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Rental) : 0)}</strong>
+                                        Rental Income <em>&nbsp;(Derived automatically from Property Assets)</em>&nbsp; ({rentalIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Rental) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -485,7 +485,7 @@ const Incomes = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <DirectionsCarIcon sx={{ mr: 1, color: 'green' }} />
-                                        Lease Income ({leaseIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Lease) : 0)}</strong>
+                                        Lease Income <em>&nbsp;(Derived automatically from Vehicle Assets)</em>&nbsp; ({leaseIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Lease) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -500,7 +500,7 @@ const Incomes = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <ShowChartIcon sx={{ mr: 1, color: 'red' }} />
-                                        Dividend Income ({dividendIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Dividend) : 0)}</strong>
+                                        Dividend Income <em>&nbsp;(Derived automatically from Dividend paying Investment Portfolios)</em>&nbsp; ({dividendIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Dividend) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -515,7 +515,7 @@ const Incomes = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <ReceiptIcon sx={{ mr: 1, color: 'orange' }} />
-                                        Coupon Income ({couponIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Coupon) : 0)}</strong>
+                                        Coupon Income <em>&nbsp;(Derived automatically from Coupon paying Investment-Bonds Portfolios)</em>&nbsp; ({couponIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Coupon) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -530,7 +530,7 @@ const Incomes = () => {
                                 >
                                     <Typography sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                                         <PaymentIcon sx={{ mr: 1, color: 'pink' }} />
-                                        Payout Income ({payoutIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Payout) : 0)}</strong>
+                                        Payout Income <em>&nbsp;(Derived automatically from Recurring payouts from Other Assets)</em>&nbsp; ({payoutIncomeCount})  -&nbsp;<strong style={{ color: 'brown' }}>({currentUserBaseCurrency}) {FormatCurrency(currentUserBaseCurrency, incomesData? parseFloat(incomesData[0].Payout) : 0)}</strong>
                                     </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
