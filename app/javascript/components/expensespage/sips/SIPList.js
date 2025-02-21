@@ -79,7 +79,7 @@ export const fetchPortfolioSIPs = (portfoliosList, showDreams) => {
                     amount: portfolio.sip_amount,
                     frequency: portfolio.sip_frequency,
                     start_date: portfolio.buying_date,
-                    end_date: portfolio.is_plan_to_sell ? portfolio.sale_date : ''
+                    end_date: portfolio.sip_end_date
                 }));
         }
         else {
@@ -100,7 +100,7 @@ export const fetchPortfolioSIPs = (portfoliosList, showDreams) => {
                     amount: portfolio.sip_amount,
                     frequency: portfolio.sip_frequency,
                     start_date: portfolio.buying_date,
-                    end_date: portfolio.is_plan_to_sell ? portfolio.sale_date : ''
+                    end_date: portfolio.sip_end_date
                 }));
         }
 

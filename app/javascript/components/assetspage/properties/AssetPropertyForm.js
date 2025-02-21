@@ -806,7 +806,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             value={property.current_value}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.current_value}
                             helperText={errors.current_value}
@@ -820,7 +819,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             value={property.property_tax}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.property_tax}
                             helperText={errors.property_tax}
@@ -834,7 +832,6 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             value={property.property_maintenance}
                             onChange={handleChange}
                             fullWidth
-                            required
                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                             error={!!errors.property_maintenance}
                             helperText={errors.property_maintenance}

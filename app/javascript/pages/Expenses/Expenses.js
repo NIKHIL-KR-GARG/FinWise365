@@ -226,23 +226,23 @@ const Expenses = () => {
 
     useEffect(() => {
         if (homeListRef.current) {
-            homeListRef.current.refreshHomeList(updatedHome, successMsg);
+            homeListRef.current.refreshHomeList();
             setHomeCount(homeCount + 1);
         }
         if (propertyListRef.current) {
-            propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
+            propertyListRef.current.refreshPropertyList();
             setPropertyCount(propertyCount + 1);
         }  
         if (creditCardDebtListRef.current) {
-            creditCardDebtListRef.current.refreshCreditCardDebtList(updatedCreditCardDebt, successMsg);
+            creditCardDebtListRef.current.refreshCreditCardDebtList();
             setCreditCardDebtCount(creditCardDebtCount + 1);
         }
         if (personalLoanListRef.current) {
-            personalLoanListRef.current.refreshPersonalLoanList(updatedPersonalLoan, successMsg);
+            personalLoanListRef.current.refreshPersonalLoanList();
             setPersonalLoanCount(personalLoanCount + 1);
         }
         if (otherListRef.current) {
-            otherListRef.current.refreshOtherList(updatedOther, successMsg);
+            otherListRef.current.refreshOtherList();
             setOtherCount(otherCount + 1);
         }
     }, []);

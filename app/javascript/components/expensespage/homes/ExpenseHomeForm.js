@@ -284,7 +284,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                             select
                             variant="standard"
                             label="Home Location"
-                            name="home_location"
+                            name="location"
                             value={home.location}
                             onChange={handleChange}
                             fullWidth

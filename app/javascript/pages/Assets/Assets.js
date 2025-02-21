@@ -243,27 +243,27 @@ const Assets = () => {
 
     useEffect(() => {
         if (propertyListRef.current) {
-            propertyListRef.current.refreshPropertyList(updatedProperty, successMsg);
+            propertyListRef.current.refreshPropertyList();
             setPropertyCount(propertyCount + 1);
         }
         if (vehicleListRef.current) {
-            vehicleListRef.current.refreshVehicleList(updatedVehicle, successMsg);
+            vehicleListRef.current.refreshVehicleList();
             setVehicleCount(vehicleCount + 1);
         }
         if (accountListRef.current) {
-            accountListRef.current.refreshAccountList(updatedAccount, successMsg);
+            accountListRef.current.refreshAccountList();
             setAccountCount(accountCount + 1);
         }
         if (depositListRef.current) {
-            depositListRef.current.refreshDepositList(updatedDeposit, successMsg);
+            depositListRef.current.refreshDepositList();
             setDepositCount(depositCount + 1);
         }
         if (portfolioListRef.current) {
-            portfolioListRef.current.refreshPortfolioList(updatedPortfolio, successMsg);
+            portfolioListRef.current.refreshPortfolioList();
             setPortfolioCount(portfolioCount + 1);
         }
         if (otherListRef.current) {
-            otherListRef.current.refreshOtherList(updatedOther, successMsg);
+            otherListRef.current.refreshOtherList();
             setOtherCount(otherCount + 1);
         }
     }, []);

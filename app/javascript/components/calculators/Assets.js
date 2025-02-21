@@ -87,7 +87,21 @@ export const accountAssetValue = (account, date, baseCurrency) => {
     if (account) {
         if (account.is_plan_to_close && new Date(account.closure_date) < date && !isSameMonthAndYear(new Date(account.closure_date), date)) return 0;
         if (new Date(account.opening_date) > date && !isSameMonthAndYear(new Date(account.opening_date), date)) return 0;
-        accountAssetValue = account.account_balance * getExchangeRate(account.currency, baseCurrency);
+
+        // calculat interest on the account and add it to the account balance
+        const months = (date.getFullYear() - new Date(account.opening_date).getFullYear()) * 12 + date.getMonth() - new Date(account.opening_date).getMonth();
+        const interest = CalculateInterest(
+            'Fixed',
+            'Simple',
+            parseFloat(account.interest_rate),
+            parseFloat(account.account_balance),
+            months,
+            '', // does not matter as it is simple interest
+            0,
+            '' // does not matter as it is simple interest
+        );
+
+        accountAssetValue = (account.account_balance + interest) * getExchangeRate(account.currency, baseCurrency);
     }
     return accountAssetValue;
 }
@@ -137,17 +151,18 @@ export const portfolioAssetValue = (portfolio, date, baseCurrency) => {
             }
             else {
                 // during cashflow calculations, i might have updated the start_date of the portfolio
-                if (new Date(portfolio.buying_date) > new Date(portfolio.sip_end_date)) {
+                if (portfolio.is_sip && new Date(portfolio.buying_date) > new Date(portfolio.sip_end_date)) {
                     const months = (date.getFullYear() - new Date(portfolio.buying_date).getFullYear()) * 12 + date.getMonth() - new Date(portfolio.buying_date).getMonth();
                     const interest = CalculateInterest(
                         'Fixed',
-                        'Simple',
+                        'Compounding',
                         parseFloat(portfolio.growth_rate),
                         parseFloat(portfolio.buying_value),
                         months,
-                        '', // does not matter as it is simple interest
+                        portfolio.sip_frequency,
                         0,
-                        '' // does not matter as it is simple interest
+                        'Annually'
+                        // portfolio.sip_frequency 
                     );
                     portfolioAssetValue = parseFloat(portfolio.buying_value) + parseFloat(interest);
                 }
@@ -171,32 +186,34 @@ export const portfolioAssetValue = (portfolio, date, baseCurrency) => {
                     // calculate the growth based on the growth rate
                     const interest = CalculateInterest(
                         portfolio.is_sip ? 'Recurring' : 'Fixed',
-                        'Simple',
+                        'Compounding',
                         parseFloat(portfolio.growth_rate),
                         parseFloat(portfolio.buying_value),
                         monthsFromStartTillDate > 0 ? monthsFromStartTillDate : monthsFromStartTillPaymentEnd,
-                        portfolio.sip_frequency,
-                        parseFloat(portfolio.sip_amount),
-                        portfolio.sip_frequency // does not matter as it is simple interest
+                        portfolio.is_sip ? portfolio.sip_frequency : 'Annually',
+                        parseFloat(portfolio.sip_amount) || 0,
+                        'Annually'
+                        // portfolio.is_sip ? portfolio.sip_frequency : 'Annually' 
                     )
                     const principal = CalculatePrincipal(
                         portfolio.is_sip ? 'Recurring' : 'Fixed',
                         parseFloat(portfolio.buying_value) || 0,
                         monthsFromStartTillDate > 0 ? monthsFromStartTillDate : monthsFromStartTillPaymentEnd,
-                        portfolio.sip_frequency,
+                        portfolio.is_sip ? portfolio.sip_frequency : 'Annually',
                         parseFloat(portfolio.sip_amount) || 0
                     );
                     let totalValue = parseFloat(principal) + parseFloat(interest);
                     if (monthsFromPaymentEndToDate > 0) {
                         totalValue += CalculateInterest(
                             'Fixed',
-                            'Simple',
+                            'Compounding',
                             parseFloat(portfolio.growth_rate),
                             totalValue || 0,
                             monthsFromPaymentEndToDate,
-                            '', // does not matter as it is simple interest and no further payments
+                            portfolio.is_sip ? portfolio.sip_frequency : 'Annually',
                             0,
-                            '' // does not matter as it is simple interest
+                            'Annually'
+                            // portfolio.is_sip ? portfolio.sip_frequency : 'Annually'
                         );
                     }
                     portfolioAssetValue = totalValue;

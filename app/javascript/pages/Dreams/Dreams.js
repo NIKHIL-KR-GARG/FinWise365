@@ -306,7 +306,7 @@ const Dreams = () => {
             setAssetOtherCount(assetOtherListRef.current.getOtherCount());
         }
         if (incomeListRef.current) {
-            incomeListRef.current.refreshIncomeList(updatedIncome, successMsg);
+            incomeListRef.current.refreshIncomeList();
             setIncomeCount(incomeCount + 1);
         }
 

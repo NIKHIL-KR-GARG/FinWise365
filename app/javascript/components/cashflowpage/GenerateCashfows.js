@@ -424,10 +424,18 @@ export const generateCashflow = (properties, vehicles, accounts, deposits, incom
                 liquidAssetsForMonth += cashflowForLastMonth.liquid_assets;
             }
 
-            // update asset classes whereever values has been changed/reduced
-            for (let j = 0; j < assetsCashflow.length; j++) {
-                const asset = assetsCashflow[j];
-                if (asset.is_updated) {
+            const updatedLiquidAssets = assetsCashflow.filter(
+                (cashflow) =>
+                    cashflow.month === month &&
+                    cashflow.year === year &&
+                    cashflow.is_cash === false &&
+                    cashflow.is_locked === false &&
+                    cashflow.is_updated === true
+            ); 
+
+            if (updatedLiquidAssets.length > 0) {
+                for (let i = 0; i < updatedLiquidAssets.length; i++) {
+                    const asset = updatedLiquidAssets[i];
                     if (asset.asset_type === 'Account') {
                         const account = accounts.find(acc => acc.id === asset.asset_id);
                         if (account) {
