@@ -845,7 +845,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Lease Growth Rate (%)"
+                                            label="Lease Growth Rate (% Annually)"
                                             name="lease_growth_rate"
                                             value={vehicle.lease_growth_rate}
                                             onChange={handleChange}

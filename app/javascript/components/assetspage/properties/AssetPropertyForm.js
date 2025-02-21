@@ -788,7 +788,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Property Value Growth Rate (%)"
+                            label="Property Value Growth Rate (% Annually)"
                             name="growth_rate"
                             value={property.growth_rate}
                             onChange={handleChange}
@@ -1189,7 +1189,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Rental Growth Rate (%)"
+                                            label="Rental Growth Rate (% Annually)"
                                             name="rental_growth_rate"
                                             value={property.rental_growth_rate}
                                             onChange={handleChange}

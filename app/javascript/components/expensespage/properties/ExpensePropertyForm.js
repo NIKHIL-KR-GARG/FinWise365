@@ -442,7 +442,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Inflation Rate (%)"
+                            label="Inflation Rate (% Annually)"
                             name="inflation_rate"
                             value={property.inflation_rate}
                             onChange={handleChange}

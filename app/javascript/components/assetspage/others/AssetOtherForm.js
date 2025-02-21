@@ -457,7 +457,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Growth Rate (%)"
+                            label="Growth Rate (% Annually)"
                             name="growth_rate"
                             value={other.growth_rate}
                             onChange={handleChange}

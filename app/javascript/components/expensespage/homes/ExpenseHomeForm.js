@@ -352,7 +352,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Inflation Rate (%)"
+                            label="Inflation Rate (% Annually)"
                             name="inflation_rate"
                             value={home.inflation_rate}
                             onChange={handleChange}

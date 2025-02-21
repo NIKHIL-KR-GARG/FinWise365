@@ -342,7 +342,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Growth Rate"
+                            label="Growth Rate (% Annually)"
                             name="growth_rate"
                             value={income.growth_rate}
                             onChange={handleChange}

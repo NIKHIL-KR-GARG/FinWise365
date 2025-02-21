@@ -633,7 +633,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                     <Grid item size={12}>
                         <TextField
                             variant="standard"
-                            label="Growth Rate (%)"
+                            label="Growth Rate (% Annually)"
                             name="growth_rate"
                             value={portfolio.growth_rate}
                             onChange={handleChange}

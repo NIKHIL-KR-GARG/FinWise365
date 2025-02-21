@@ -444,7 +444,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Inflation Rate (%)"
+                                            label="Inflation Rate (% Annually)"
                                             name="inflation_rate"
                                             value={other.inflation_rate}
                                             onChange={handleChange}
