@@ -70,6 +70,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         growth_rate: HomeValueGrowthRate.find(rate => rate.key === currentUserCountryOfResidence)?.value || 0,
         is_plan_to_sell: action === 'Sell' ? true : false,
         sale_date: "",
+        is_using_growth_rate_for_sale_value: false,
         sale_amount: 0.0,
         property_tax: 0.0,
         property_maintenance: 0.0,
@@ -139,6 +140,30 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                 }));
             }
         }
+        else if (name === 'is_using_growth_rate_for_sale_value') {
+            if (checked) {
+                // calculate the sale amount based on the growth rate
+                const saleAmount = calculateSaleAmount();
+                setProperty(prevProperty => ({
+                    ...prevProperty,
+                    sale_amount: saleAmount
+                }));
+            }
+            else {
+                // set the sale amount to 0
+                setProperty(prevProperty => ({
+                    ...prevProperty,
+                    sale_amount: 0.0
+                }));
+            }
+        }
+        else if (name === 'sale_amount')
+        {
+            setProperty(prevProperty => ({
+                ...prevProperty,
+                is_using_growth_rate_for_sale_value: false
+            }));
+        }
     };
 
     useEffect(() => {
@@ -157,6 +182,17 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
             }));
         }
     }, [initialProperty, action]);
+
+    const calculateSaleAmount = () => {
+        if (!property.purchase_date || !property.sale_date || !property.growth_rate) return 0.0;
+        const purchaseDate = new Date(property.purchase_date);
+        const saleDate = new Date(property.sale_date);
+        const timeDiff = Math.abs(saleDate.getTime() - purchaseDate.getTime());
+        const diffYears = Math.ceil(timeDiff / (1000 * 3600 * 24 * 365));
+        const growthRate = property.growth_rate / 100;
+        const saleAmount = property.purchase_price * Math.pow(1 + growthRate, diffYears);
+        return parseFloat(saleAmount).toFixed(0);
+    };
 
     const validate = () => {
 
@@ -245,7 +281,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
         if (isNaN(property.rental_amount)) errors.rental_amount = 'Rental Amount should be numeric';
         if (isNaN(property.growth_rate)) errors.growth_rate = 'Property Value Growth Rate should be numeric';
         if (isNaN(property.sale_amount)) errors.sale_amount = 'Tentative Sale Amount should be numeric';
-        if (isNaN(property.current_value)) errors.current_value = 'Current Value Amount should be numeric';
+        // if (isNaN(property.current_value)) errors.current_value = 'Current Value Amount should be numeric';
         if (isNaN(property.property_tax)) errors.property_tax = 'Annual Property Tax Amount should be numeric';
         if (isNaN(property.property_maintenance)) errors.property_maintenance = 'Annual Property Maintenance Amount should be numeric';
         if (isNaN(property.stamp_duty)) errors.stamp_duty = 'Stamp Duty Rate should be numeric';
@@ -785,7 +821,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             label="Is this your Primary Property"
                         />
                     </Grid> */}
-                    <Grid item size={6}>
+                    <Grid item size={12}>
                         <TextField
                             variant="standard"
                             label="Property Value Growth Rate (% Annually)"
@@ -798,7 +834,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             helperText={errors.growth_rate}
                         />
                     </Grid>
-                    <Grid item size={6}>
+                    {/* <Grid item size={6}>
                         <TextField
                             variant="standard"
                             label="Current Value"
@@ -810,7 +846,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                             error={!!errors.current_value}
                             helperText={errors.current_value}
                         />
-                    </Grid>
+                    </Grid> */}
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
@@ -827,7 +863,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Property Maintenance (monthly)"
+                            label="Property Maintenance (Monthly)"
                             name="property_maintenance"
                             value={property.property_maintenance}
                             onChange={handleChange}
@@ -1204,9 +1240,9 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                         </Grid>
                     </Box>
 
-                    <Box sx={{ p: 1, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
+                    <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4, width: '100%' }} >
                         <Grid container spacing={2}>
-                            <Grid item size={12}>
+                            <Grid item size={6}>
                                 {((action === 'Edit') || (action === 'Add') || (action === 'Dream') || (action === 'EditDream')) && (
                                     <FormControlLabel
                                         control={
@@ -1245,6 +1281,17 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                             slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.sale_date}
                                             helperText={errors.sale_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={property.is_using_growth_rate_for_sale_value}
+                                                    onChange={handleChange}
+                                                    name="is_using_growth_rate_for_sale_value"
+                                                />}
+                                            label="Use growth rate for Sale Value?"
                                         />
                                     </Grid>
                                     <Grid item size={6}>

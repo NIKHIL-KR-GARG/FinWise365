@@ -94,6 +94,7 @@ class Api::AssetPropertiesController < ApplicationController
             :possession_date,
             :is_dummy_data,
             :is_dream,
+            :is_using_growth_rate_for_sale_value,
             :created_at,
             :updated_at
         ) 
