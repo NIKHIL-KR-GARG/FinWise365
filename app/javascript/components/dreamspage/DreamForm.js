@@ -424,6 +424,8 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                                             onChange={handleChange}
                                             fullWidth
                                             required
+                                            error={!!errors.recurring_frequency}
+                                            helperText={errors.recurring_frequency}
                                         >
                                             <MenuItem value="Monthly">Monthly</MenuItem>
                                             <MenuItem value="Quarterly">Quarterly</MenuItem>
@@ -544,6 +546,7 @@ const DreamForm = ({ dream: initialDream, action, onClose, refreshDreamList, dre
                                             value={dream.interest_rate}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.interest_rate}
                                             helperText={errors.interest_rate}
