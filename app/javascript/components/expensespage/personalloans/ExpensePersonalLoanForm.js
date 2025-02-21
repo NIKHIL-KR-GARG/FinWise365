@@ -350,7 +350,7 @@ const ExpensePersonalLoanForm = ({ personalloan: initialPersonalLoan, action, on
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Duration (months)"
+                            label="Duration (Months)"
                             name="duration"
                             value={personalloan.duration}
                             onChange={handleChange}

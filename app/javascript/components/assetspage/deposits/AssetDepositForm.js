@@ -4,7 +4,7 @@ import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings deposit
 import CurrentIcon from '@mui/icons-material/BusinessCenter'; // Current deposit icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" deposit type
 import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" deposit type
-import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, FormHelperText } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -274,7 +274,10 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                         </>
                     )}
                 </Typography>
-                <FormControl component="fieldset" >
+                <FormControl component="fieldset" 
+                    required
+                    error={!!errors.deposit_type}
+                >
                     <FormLabel component="legend">Select Deposit Type:</FormLabel>
                     <RadioGroup sx={{ pb: 2 }} row aria-label="deposit_type" name="deposit_type" value={deposit.deposit_type} onChange={handleChange}>
                         <FormControlLabel
@@ -318,6 +321,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                             }
                         />
                     </RadioGroup>
+                    <FormHelperText>{errors.deposit_type}</FormHelperText>
                 </FormControl>
                 <Grid container spacing={2}>
                     <Grid item size={6}>
@@ -418,7 +422,7 @@ const AssetDepositForm = ({ deposit: initialDeposit, action, onClose, refreshDep
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Deposit Term (months)"
+                            label="Deposit Term (Months)"
                             name="deposit_term"
                             value={deposit.deposit_term}
                             onChange={handleChange}

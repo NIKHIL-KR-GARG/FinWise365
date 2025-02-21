@@ -96,6 +96,7 @@ const ExpenseHomeForm = ({ home: initialHome, action, onClose, refreshHomeList }
         if (!home.location) errors.location = 'Location is required';
         if (!home.currency) errors.currency = 'Currency is required';
         if (!home.start_date) errors.start_date = 'Start Date is required';
+        if (!home.total_expense) errors.total_expense = 'Total Expense is required';
         // if (!home.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
 
         // Restrict non-numeric input for numeric fields, allowing floats

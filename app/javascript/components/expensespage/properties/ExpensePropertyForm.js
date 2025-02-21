@@ -120,6 +120,7 @@ const ExpensePropertyForm = ({ property: initialProperty, action, onClose, refre
         if (!property.location) errors.location = 'Location is required';
         if (!property.currency) errors.currency = 'Currency is required';
         if (!property.start_date) errors.start_date = 'Start Date is required';
+        if (!property.total_expense) errors.total_expense = 'Total Expense is required';
         // if (!property.inflation_rate) errors.inflation_rate = 'Inflation Rate is required';
 
         // Restrict non-numeric input for numeric fields, allowing floats

@@ -3,7 +3,7 @@ import axios from 'axios';
 import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings account icon
 import CurrentIcon from '@mui/icons-material/BusinessCenter'; // Current account icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" account type
-import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, FormHelperText } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -205,7 +205,10 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                         </>
                     )}
                 </Typography>
-                <FormControl component="fieldset" >
+                <FormControl component="fieldset" 
+                    required
+                    error={!!errors.account_type}
+                >
                     <FormLabel component="legend">Select Account Type:</FormLabel>
                     <RadioGroup sx={{ pb: 2 }} row aria-label="account_type" name="account_type" value={account.account_type} onChange={handleChange}>
                         <FormControlLabel
@@ -239,6 +242,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                             }
                         />
                     </RadioGroup>
+                    <FormHelperText>{errors.account_type}</FormHelperText>
                 </FormControl>
                 <Grid container spacing={2}>
                     <Grid item size={6}>
@@ -399,6 +403,7 @@ const AssetAccountForm = ({ account: initialAccount, action, onClose, refreshAcc
                                         value={account.closure_date}
                                         onChange={handleChange}
                                         fullWidth
+                                        required
                                         slotProps={{ inputLabel: { shrink: true } }}
                                         error={!!errors.closure_date}
                                         helperText={errors.closure_date}

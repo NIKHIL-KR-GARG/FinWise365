@@ -301,7 +301,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                             select
                             variant="standard"
                             label="Other Location"
-                            name="other_location"
+                            name="location"
                             value={other.location}
                             onChange={handleChange}
                             fullWidth
@@ -390,6 +390,9 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                                             value={other.recurring_frequency}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
+                                            error={!!errors.recurring_frequency}
+                                            helperText={errors.recurring_frequency}
                                         >
                                             <MenuItem value="Monthly">Monthly</MenuItem>
                                             <MenuItem value="Quarterly">Quarterly</MenuItem>
@@ -400,7 +403,7 @@ const ExpenseOtherForm = ({ other: initialOther, action, onClose, refreshOtherLi
                                     <Grid item size={6}>
                                         <TextField
                                             variant="standard"
-                                            label="Duration (months)"
+                                            label="Duration (Months)"
                                             name="duration"
                                             value={other.duration}
                                             onChange={handleChange}

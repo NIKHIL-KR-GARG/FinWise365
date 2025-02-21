@@ -3,7 +3,7 @@ import axios from 'axios';
 import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings other icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" other type
 import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" other type
-import { Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { Slider, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, FormHelperText} from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -127,6 +127,14 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                 payout_duration: 0
             }));
         }
+
+         //check if payout type is changed to recurring, then set payout duration to 3
+         if (name === 'payout_type' && value === 'Recurring') {
+            setOther((prevOther) => ({
+                ...prevOther,
+                payout_duration: 3
+            }));
+        }
     };
 
     useEffect(() => {
@@ -154,7 +162,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
             errors.payout_age = 'Payout Date or Age is required';
         }
 
-        if (!other.is_recurring_payment && !other.lumpsum_amount && other.lumpsum_amount <= 0) 
+        if (!other.is_recurring_payment && (!other.lumpsum_amount || other.lumpsum_amount <= 0)) 
             errors.lumpsum_amount = 'Lumpsum Amount is required as this is not a recurring payment';
 
         if (other.is_recurring_payment) {
@@ -540,7 +548,10 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                 </Typography>
                             </Grid>
                             <Grid item size={6}>
-                                <FormControl component="fieldset" >
+                                <FormControl component="fieldset" 
+                                    required
+                                    error={!!errors.payout_type}
+                                >
                                     <FormLabel component="legend">Payout Type:</FormLabel>
                                     <RadioGroup sx={{ pb: 2 }} row aria-label="payout_type" name="payout_type" value={other.payout_type} onChange={handleChange}>
                                         <FormControlLabel
@@ -564,6 +575,7 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                             }
                                         />
                                     </RadioGroup>
+                                    <FormHelperText>{errors.payout_type}</FormHelperText>
                                 </FormControl>
                             </Grid>
                             <Grid item size={6}>
@@ -595,36 +607,42 @@ const AssetOtherForm = ({ other: initialOther, action, onClose, refreshOtherList
                                     helperText={errors.payout_age}
                                 />
                             </Grid>
-                            <Grid item size={12}>
-                                <Typography gutterBottom>Payout Duration (Months)</Typography>
-                                <Slider
-                                    name="payout_duration"
-                                    value={other.payout_duration}
-                                    onChange={handleChange}
-                                    step={6}
-                                    marks
-                                    min={3}
-                                    max={300}
-                                    valueLabelDisplay="on"
-                                />
-                            </Grid>
-                            <Grid item size={6}>
-                                <TextField
-                                    select
-                                    variant="standard"
-                                    label="Payout Frequency"
-                                    name="payout_frequency"
-                                    value={other.payout_frequency}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                >
-                                    <MenuItem value="Monthly">Monthly</MenuItem>
-                                    <MenuItem value="Quarterly">Quarterly</MenuItem>
-                                    <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
-                                    <MenuItem value="Annually">Annually</MenuItem>
-                                </TextField>
-                            </Grid>
+                            {other.payout_type === 'Recurring' && (
+                                <>
+                                    <Grid item size={12}>
+                                        <Typography gutterBottom>Payout Duration (Months)</Typography>
+                                        <Slider
+                                            name="payout_duration"
+                                            value={other.payout_duration}
+                                            onChange={handleChange}
+                                            step={6}
+                                            marks
+                                            min={3}
+                                            max={300}
+                                            valueLabelDisplay="on"
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            select
+                                            variant="standard"
+                                            label="Payout Frequency"
+                                            name="payout_frequency"
+                                            value={other.payout_frequency}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            error={!!errors.payout_frequency}
+                                            helperText={errors.payout_frequency}
+                                        >
+                                            <MenuItem value="Monthly">Monthly</MenuItem>
+                                            <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                            <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                            <MenuItem value="Annually">Annually</MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                </>
+                            )}
                             <Grid item size={6}>
                                 <TextField
                                     variant="standard"

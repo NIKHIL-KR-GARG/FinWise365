@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DollarIcon from '@mui/icons-material/AttachMoney'; // Dollar sign icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" income type
-import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, FormHelperText } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -180,7 +180,10 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                         </>
                     )}
                 </Typography>
-                <FormControl component="fieldset" >
+                <FormControl component="fieldset" 
+                    required
+                    error={!!errors.income_type}
+                >
                     <FormLabel component="legend">Select Income Type:</FormLabel>
                     <RadioGroup sx={{ pb: 2 }} row aria-label="income_type" name="income_type" value={income.income_type} onChange={handleChange}>
                         <FormControlLabel
@@ -214,6 +217,7 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                             }
                         />
                     </RadioGroup>
+                    <FormHelperText>{errors.income_type}</FormHelperText>
                 </FormControl>
                 <Grid container spacing={2}>
                     <Grid item size={6}>
@@ -298,60 +302,71 @@ const AssetIncomeForm = ({ income: initialIncome, action, onClose, refreshIncome
                             helperText={errors.start_date}
                         />
                     </Grid>
-                    <Grid item size={12}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={income.is_recurring}
-                                    onChange={handleChange}
-                                    name="is_recurring"
-                                />}
-                            label="Recurring Income?"
-                        />
-                    </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                            type="date"
-                            variant="standard"
-                            label="Income End Date"
-                            name="end_date"
-                            value={income.end_date}
-                            onChange={handleChange}
-                            fullWidth
-                            slotProps={{ inputLabel: { shrink: true } }}
-                            error={!!errors.end_date}
-                            helperText={errors.end_date}
-                        />
-                    </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                                select
-                                variant="standard"
-                                label="Income Frequency"
-                                name="income_frequency"
-                                value={income.income_frequency}
-                                onChange={handleChange}
-                                fullWidth
-                            >
-                                <MenuItem value="Monthly">Monthly</MenuItem>
-                                <MenuItem value="Quarterly">Quarterly</MenuItem>
-                                <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
-                                <MenuItem value="Annually">Annually</MenuItem>
-                            </TextField>
-                    </Grid>
-                    <Grid item size={6}>
-                        <TextField
-                            variant="standard"
-                            label="Growth Rate (% Annually)"
-                            name="growth_rate"
-                            value={income.growth_rate}
-                            onChange={handleChange}
-                            fullWidth
-                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
-                            error={!!errors.growth_rate}
-                            helperText={errors.growth_rate}
-                        />
-                    </Grid>
+                    <Box sx={{ p: 2, border: '2px solid lightgray', borderRadius: 4., width: '100%' }} >
+                        <Grid container spacing={2}>
+                            <Grid item size={12}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={income.is_recurring}
+                                            onChange={handleChange}
+                                            name="is_recurring"
+                                        />}
+                                    label="Recurring Income?"
+                                />
+                            </Grid>
+                            {income.is_recurring && (
+                                <>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            type="date"
+                                            variant="standard"
+                                            label="Income End Date"
+                                            name="end_date"
+                                            value={income.end_date}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            slotProps={{ inputLabel: { shrink: true } }}
+                                            error={!!errors.end_date}
+                                            helperText={errors.end_date}
+                                        />
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            select
+                                            variant="standard"
+                                            label="Income Frequency"
+                                            name="income_frequency"
+                                            value={income.income_frequency}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            required
+                                            error={!!errors.income_frequency}
+                                            helperText={errors.income_frequency}
+                                        >
+                                            <MenuItem value="Monthly">Monthly</MenuItem>
+                                            <MenuItem value="Quarterly">Quarterly</MenuItem>
+                                            <MenuItem value="Semi-Annually">Semi-Annually</MenuItem>
+                                            <MenuItem value="Annually">Annually</MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item size={6}>
+                                        <TextField
+                                            variant="standard"
+                                            label="Growth Rate (% Annually)"
+                                            name="growth_rate"
+                                            value={income.growth_rate}
+                                            onChange={handleChange}
+                                            fullWidth
+                                            slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
+                                            error={!!errors.growth_rate}
+                                            helperText={errors.growth_rate}
+                                        />
+                                    </Grid>
+                                </>
+                            )}
+                        </Grid>
+                    </Box>
                     <Grid item size={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0, mb: 1 }}>
                             {currentUserIsAdmin && (

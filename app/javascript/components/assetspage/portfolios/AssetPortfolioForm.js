@@ -5,7 +5,7 @@ import StocksIcon from '@mui/icons-material/ShowChart'; // Stocks portfolio icon
 import MutualFundsIcon from '@mui/icons-material/TrendingUp'; // Mutual Funds portfolio icon
 import BondsIcon from '@mui/icons-material/AttachMoney'; // Bonds portfolio icon
 import OtherIcon from '@mui/icons-material/Category'; // Other portfolio icon
-import { Modal, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { Modal, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, FormHelperText } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import CloseIconFilled from '@mui/icons-material/Close'; // Import filled version of CloseIcon
@@ -479,7 +479,10 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                         </>
                     )}
                 </Typography>
-                <FormControl component="fieldset" >
+                <FormControl component="fieldset" 
+                    required
+                    error={!!errors.portfolio_type}
+                >
                     <FormLabel component="legend">Select Portfolio Type:</FormLabel>
                     <RadioGroup sx={{ pb: 2 }} row aria-label="portfolio_type" name="portfolio_type" value={portfolio.portfolio_type} onChange={handleChange}>
                         <FormControlLabel
@@ -533,6 +536,7 @@ const AssetPortfolioForm = ({ portfolio: initialPortfolio, action, onClose, refr
                             }
                         />
                     </RadioGroup>
+                    <FormHelperText>{errors.portfolio_type}</FormHelperText>
                 </FormControl>
                 <Grid container spacing={2}>
                     <Grid item size={6}>

@@ -1069,6 +1069,7 @@ const AssetPropertyForm = ({ property: initialProperty, action, onClose, refresh
                                                     type="date"
                                                     value={property.loan_locked_till}
                                                     onChange={handleChange}
+                                                    required
                                                     fullWidth
                                                     slotProps={{ inputLabel: { shrink: true } }}
                                                     error={!!errors.loan_locked_till}

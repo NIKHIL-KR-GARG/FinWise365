@@ -125,6 +125,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
         const errors = {};
 
         if (!vehicle.vehicle_name) errors.vehicle_name = 'Vehicle Name is required';
+        if (!vehicle.location) errors.location = 'Location is required';
         if (!vehicle.currency) errors.currency = 'Currency is required';
         if (!vehicle.purchase_date) errors.purchase_date = 'Purchase Date is required';
         if (!vehicle.purchase_price) errors.purchase_price = 'Purchase Price is required';
@@ -687,6 +688,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.loan_type}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             error={!!errors.loan_type}
                                             helperText={errors.loan_type}
                                         >
@@ -702,6 +704,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.loan_amount}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.loan_amount}
                                             helperText={errors.loan_amount}
@@ -715,6 +718,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.loan_interest_rate}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.loan_interest_rate}
                                             helperText={errors.loan_interest_rate}
@@ -728,6 +732,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.loan_duration}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.loan_duration}
                                             helperText={errors.loan_duration}
@@ -823,6 +828,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.lease_start_date}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.lease_start_date}
                                             helperText={errors.lease_start_date}
@@ -863,6 +869,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.lease_amount}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.lease_amount}
                                             helperText={errors.lease_amount}
@@ -910,6 +917,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.sale_date}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotProps={{ inputLabel: { shrink: true } }}
                                             error={!!errors.sale_date}
                                             helperText={errors.sale_date}
@@ -923,6 +931,7 @@ const AssetVehicleForm = ({ vehicle: initialVehicle, action, onClose, refreshVeh
                                             value={vehicle.sale_amount}
                                             onChange={handleChange}
                                             fullWidth
+                                            required
                                             slotsProps={{ htmlInput: { inputMode: 'decimal', pattern: '[0-9]*[.,]?[0-9]*' } }}
                                             error={!!errors.sale_amount}
                                             helperText={errors.sale_amount}

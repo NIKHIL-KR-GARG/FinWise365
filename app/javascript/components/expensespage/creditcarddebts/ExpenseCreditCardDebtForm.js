@@ -4,7 +4,7 @@ import SavingsIcon from '@mui/icons-material/AccountBalance'; // Savings creditc
 import CurrentIcon from '@mui/icons-material/BusinessCenter'; // Current creditcarddebt icon
 import OtherIcon from '@mui/icons-material/Category'; // New icon for "Other" creditcarddebt type
 import TermIcon from '@mui/icons-material/AccessTime'; // New icon for "Term" creditcarddebt type
-import { InputAdornment, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem } from '@mui/material';
+import { InputAdornment, Alert, Snackbar, IconButton, TextField, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Button, Typography, Box, Checkbox, MenuItem, FormHelperText } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -257,7 +257,10 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                         </>
                     )}
                 </Typography>
-                <FormControl component="fieldset" >
+                <FormControl component="fieldset" 
+                    required
+                    error={!!errors.debt_type}
+                >
                     <FormLabel component="legend">Select Debt Type:</FormLabel>
                     <RadioGroup sx={{ pb: 2 }} row aria-label="debt_type" name="debt_type" value={creditcarddebt.debt_type} onChange={handleChange}>
                         <FormControlLabel
@@ -301,6 +304,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                             }
                         />
                     </RadioGroup>
+                    <FormHelperText>{errors.debt_type}</FormHelperText>
                 </FormControl>
                 <Grid container spacing={2}>
                     <Grid item size={6}>
@@ -401,7 +405,7 @@ const ExpenseCreditCardDebtForm = ({ creditcarddebt: initialCreditCardDebt, acti
                     <Grid item size={6}>
                         <TextField
                             variant="standard"
-                            label="Duration (months)"
+                            label="Duration (Months)"
                             name="duration"
                             value={creditcarddebt.duration}
                             onChange={handleChange}
